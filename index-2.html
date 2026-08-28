@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mathe-Coach — Alle Themen</title>
+<style>
+  :root{
+    --bg:#F4F7FB;
+    --card:#FFFFFF;
+    --ink:#16223D;
+    --ink-soft:#4A5670;
+    --plus:#F2542D;
+    --minus:#1D6FA5;
+    --done-bg:#E5F5EC;
+    --done-border:#1E8E5A;
+    --soon-bg:#F0F2F6;
+    --soon-border:#D6DEEA;
+    --font-display: ui-rounded, "SF Pro Rounded", "Segoe UI Rounded", "Nunito", system-ui, sans-serif;
+    --font-body: system-ui, "Segoe UI", Roboto, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:18px;
+    line-height:1.5;
+    padding-bottom:60px;
+  }
+  header{
+    padding:40px 20px 30px;
+    text-align:center;
+    background:linear-gradient(180deg, #EAF1FA 0%, var(--bg) 100%);
+    border-bottom:3px solid #DCE6F2;
+  }
+  .eyebrow{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:14px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--minus);
+    margin-bottom:8px;
+  }
+  h1{
+    font-family:var(--font-display);
+    font-size:30px;
+    font-weight:800;
+    margin:0 0 10px;
+  }
+  h1 .accent{ color:var(--plus); }
+  header p{
+    color:var(--ink-soft);
+    max-width:480px;
+    margin:0 auto;
+  }
+  .wrap{
+    max-width:640px;
+    margin:0 auto;
+    padding:0 20px;
+  }
+  .group{ margin-top:34px; }
+  .group-title{
+    font-family:var(--font-display);
+    font-size:14px;
+    font-weight:800;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-bottom:12px;
+    padding-left:4px;
+  }
+  .topic-list{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .topic{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    background:var(--card);
+    border-radius:16px;
+    padding:16px 18px;
+    box-shadow:0 2px 10px rgba(22,34,61,0.06);
+    text-decoration:none;
+    color:var(--ink);
+    border:2px solid transparent;
+  }
+  .topic.available{
+    border-color:var(--done-border);
+  }
+  .topic.soon{
+    opacity:0.65;
+    cursor:default;
+  }
+  .topic-name{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:16px;
+  }
+  .badge{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:12px;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    padding:5px 10px;
+    border-radius:999px;
+    white-space:nowrap;
+  }
+  .badge.available{
+    background:var(--done-bg);
+    color:var(--done-border);
+  }
+  .badge.soon{
+    background:var(--soon-bg);
+    color:var(--ink-soft);
+  }
+  footer{
+    text-align:center;
+    margin-top:44px;
+    padding:0 20px;
+    color:var(--ink-soft);
+    font-size:15px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Mathe-Coach</div>
+  <h1>Alle <span class="accent">Wiederholungsthemen</span></h1>
+  <p>Wähl ein Thema aus. Du bekommst eine kurze Erklärung, drei Übungsaufgaben und direkt Feedback.</p>
+</header>
+
+<div class="wrap">
+
+  <div class="group">
+    <div class="group-title">Grundlagen · Klasse 5–7</div>
+    <div class="topic-list">
+      <a class="topic available" href="negative-zahlen.html">
+        <span class="topic-name">Grundrechenarten mit negativen Zahlen</span>
+        <span class="badge available">Verfügbar</span>
+      </a>
+      <div class="topic soon">
+        <span class="topic-name">Rechenreihenfolge (Punkt vor Strich)</span>
+        <span class="badge soon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Teilbarkeit, ggT und kgV</span>
+        <span class="badge soon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Bruchrechnung: Erweitern und Kürzen</span>
+        <span class="badge soon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Bruchrechnung: Multiplizieren und Dividieren</span>
+        <span class="badge soon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Dezimalzahlen runden und umwandeln</span>
+        <span class="badge soon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Einheiten umrechnen</span>
+        <span class="badge soon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Maßstab und Verhältnisse</span>
+        <span class="badge soon">Bald</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-title">Mittelstufe · Klasse 6–8</div>
+    <div class="topic-list">
+      <div class="topic soon">
+        <span class="topic-name">Prozentrechnung</span>
+        <span class="badge soon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Dreisatz</span>
+        <span class="badge soon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Zinsrechnung</span>
+        <span class="badge soon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Terme aufstellen und vereinfachen</span>
+        <span class="badge soon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Termumformung, Ausmultiplizieren, Ausklammern</span>
+        <span class="badge soon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Lineare Gleichungen lösen</span>
+        <span class="badge soon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Textaufgaben in Gleichungen übersetzen</span>
+        <span class="badge soon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Koordinatensystem</span>
+        <span class="badge soon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Flächenberechnung (Rechteck, Dreieck, Trapez)</span>
+        <span class="badge soon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Umfang und Fläche des Kreises</span>
+        <span class="badge soon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Volumen und Oberfläche von Körpern</span>
+        <span class="badge soon">Bald</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-title">Sek. I · Klasse 8–10</div>
+    <div class="topic-list">
+      <div class="topic soon">
+        <span class="topic-name">Lineare Funktionen</span>
+        <span class="badge soon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Lineare Gleichungssysteme</span>
+        <span class="badge soon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Binomische Formeln</span>
+        <span class="badge soon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Quadratische Gleichungen</span>
+        <span class="badge soon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Satz des Pythagoras</span>
+        <span class="badge soon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Strahlensätze</span>
+        <span class="badge soon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Ähnlichkeit und Kongruenz</span>
+        <span class="badge soon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Wahrscheinlichkeitsrechnung</span>
+        <span class="badge soon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Kombinatorik</span>
+        <span class="badge soon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Statistik: Mittelwert, Median, Diagramme</span>
+        <span class="badge soon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Potenzen, Wurzeln, Potenzgesetze</span>
+        <span class="badge soon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Trigonometrie im rechtwinkligen Dreieck</span>
+        <span class="badge soon">Bald</span>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Weitere Themen werden nach und nach ergänzt.
+  </footer>
+
+</div>
+
+</body>
+</html>
