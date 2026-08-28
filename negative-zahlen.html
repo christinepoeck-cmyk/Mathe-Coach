@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grundrechenarten mit negativen Zahlen</title>
+<style>
+  :root{
+    --bg:#FAFAF9;
+    --card:#FFFFFF;
+    --ink:#241C1C;
+    --ink-soft:#5C4F4C;
+    --red:#C41230;
+    --gold:#E0A526;
+    --blue:#2478B5;
+    --merke-bg:#FBF1DC;
+    --merke-border:#E0A526;
+    --success:#1E8E5A;
+    --success-bg:#E5F5EC;
+    --error:#B3401D;
+    --error-bg:#FBEDE6;
+    --font-display: ui-rounded, "SF Pro Rounded", "Segoe UI Rounded", "Nunito", system-ui, sans-serif;
+    --font-body: system-ui, "Segoe UI", Roboto, sans-serif;
+  }
+
+  *{ box-sizing:border-box; }
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:18px;
+    line-height:1.5;
+    padding-bottom:60px;
+  }
+
+  .wrap{
+    max-width:640px;
+    margin:0 auto;
+    padding:0 20px;
+  }
+
+  header{
+    background:var(--card);
+    padding:30px 20px 0;
+    text-align:center;
+  }
+
+  .header-inner{ padding-bottom:26px; }
+
+  .back-link{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:14px;
+    color:var(--blue);
+    text-decoration:none;
+    margin-bottom:16px;
+  }
+
+  .eyebrow{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:14px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--blue);
+    margin-bottom:8px;
+  }
+
+  h1{
+    font-family:var(--font-display);
+    font-size:28px;
+    font-weight:800;
+    margin:0;
+    line-height:1.25;
+  }
+
+  h1 .accent{ color:var(--red); }
+
+  .wave{
+    display:block;
+    width:100%;
+    height:30px;
+  }
+
+  section{
+    margin-top:32px;
+  }
+
+  .card{
+    background:var(--card);
+    border-radius:22px;
+    padding:24px 22px;
+    box-shadow:0 2px 14px rgba(36,28,28,0.07);
+  }
+
+  h2{
+    font-family:var(--font-display);
+    font-size:21px;
+    font-weight:800;
+    margin:0 0 14px;
+  }
+
+  h2 .num{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:32px;
+    height:32px;
+    border-radius:50%;
+    background:var(--blue);
+    color:white;
+    font-size:16px;
+    margin-right:10px;
+    vertical-align:middle;
+  }
+
+  p{ margin:0 0 14px; color:var(--ink-soft); }
+
+  .merke{
+    background:var(--merke-bg);
+    border:2px solid var(--merke-border);
+    border-radius:16px;
+    padding:16px 18px;
+    margin-top:16px;
+  }
+
+  .merke-title{
+    font-family:var(--font-display);
+    font-weight:800;
+    color:#8A5A0F;
+    font-size:15px;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    margin-bottom:6px;
+  }
+
+  .merke-body{ color:#6B4A12; font-weight:600; margin:0; }
+
+  .numberline{
+    width:100%;
+    height:auto;
+    margin:18px 0 6px;
+  }
+
+  .task-card{ margin-top:18px; }
+
+  .task-question{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:19px;
+    margin-bottom:16px;
+  }
+
+  .answer-row{
+    display:flex;
+    gap:10px;
+    margin-bottom:6px;
+  }
+
+  input[type="text"]{
+    flex:1;
+    font-size:18px;
+    font-family:var(--font-body);
+    padding:12px 14px;
+    border-radius:12px;
+    border:2px solid #E3DFDA;
+    background:#FBFAF9;
+    color:var(--ink);
+  }
+
+  input[type="text"]:focus{
+    outline:3px solid #C9DCEA;
+    border-color:var(--blue);
+  }
+
+  button.check{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:16px;
+    color:white;
+    background:var(--blue);
+    border:none;
+    border-radius:12px;
+    padding:0 20px;
+    cursor:pointer;
+  }
+
+  button.check:active{ transform:translateY(1px); }
+  button.check:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
+
+  .feedback{
+    margin-top:10px;
+    padding:12px 14px;
+    border-radius:12px;
+    font-weight:700;
+    display:none;
+  }
+
+  .feedback.show{ display:block; }
+  .feedback.correct{ background:var(--success-bg); color:var(--success); }
+  .feedback.incorrect{ background:var(--error-bg); color:var(--error); }
+
+  details{
+    margin-top:14px;
+    border-top:2px dashed #E3DFDA;
+    padding-top:12px;
+  }
+
+  summary{
+    font-family:var(--font-display);
+    font-weight:700;
+    color:var(--blue);
+    cursor:pointer;
+    font-size:15px;
+  }
+
+  .solution{ margin-top:12px; }
+
+  .solution ol{ margin:0 0 12px; padding-left:22px; color:var(--ink-soft); }
+  .solution li{ margin-bottom:6px; }
+
+  .solution-result{
+    font-family:var(--font-display);
+    font-weight:800;
+    color:var(--ink);
+    margin-bottom:12px;
+  }
+
+  .hint-box{
+    background:#F1EFEC;
+    border-radius:12px;
+    padding:12px 14px;
+    font-size:16px;
+    color:var(--ink-soft);
+  }
+
+  .hint-box strong{ color:var(--ink); }
+
+  footer{
+    text-align:center;
+    margin-top:36px;
+    padding:0 20px;
+  }
+
+  footer p{
+    font-family:var(--font-display);
+    font-weight:700;
+    color:var(--ink);
+  }
+
+  .footer-wave{
+    display:block;
+    width:100%;
+    max-width:280px;
+    height:16px;
+    margin:0 auto 18px;
+    opacity:0.6;
+  }
+
+  @media (prefers-reduced-motion: no-preference){
+    button.check{ transition:transform 0.1s ease; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a class="back-link" href="index.html">← Alle Themen</a>
+    <div class="eyebrow">Luisen-Gymnasium · Klasse 6</div>
+    <h1>Grundrechenarten mit<br><span class="accent">negativen Zahlen</span></h1>
+  </div>
+  <svg class="wave" viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+    <path d="M -10 22 C 190 4, 390 40, 590 22 S 990 4, 1210 22" fill="none" stroke="#C41230" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 32 C 190 50, 390 14, 590 32 S 990 50, 1210 32" fill="none" stroke="#E0A526" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 42 C 190 24, 390 58, 590 42 S 990 24, 1210 42" fill="none" stroke="#2478B5" stroke-width="5" stroke-linecap="round"/>
+  </svg>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <div class="card">
+      <h2>Grundlagen</h2>
+      <p>Negative Zahlen sind Zahlen, die kleiner als Null sind. Du kennst sie vom Thermometer: <strong>−5 Grad</strong> ist kälter als 0 Grad. Auf dem Zahlenstrahl (einer Linie mit Zahlen) liegen negative Zahlen links von der Null, positive Zahlen liegen rechts.</p>
+
+      <svg class="numberline" viewBox="0 0 600 130" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Zahlenstrahl von minus 10 bis 10 mit Beispiel minus 4 plus 6 ergibt 2">
+        <defs>
+          <linearGradient id="split" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#DCEAF6"/>
+            <stop offset="50%" stop-color="#DCEAF6"/>
+            <stop offset="50%" stop-color="#FBE3DA"/>
+            <stop offset="100%" stop-color="#FBE3DA"/>
+          </linearGradient>
+        </defs>
+        <rect x="10" y="20" width="580" height="30" rx="15" fill="url(#split)"/>
+        <line x1="10" y1="35" x2="590" y2="35" stroke="#241C1C" stroke-width="2"/>
+        <!-- ticks -->
+        <g font-family="ui-rounded, system-ui, sans-serif" font-size="13" font-weight="700" fill="#241C1C">
+          <line x1="30" y1="28" x2="30" y2="42" stroke="#241C1C" stroke-width="2"/>
+          <text x="30" y="60" text-anchor="middle">-10</text>
+          <line x1="300" y1="24" x2="300" y2="46" stroke="#241C1C" stroke-width="3"/>
+          <text x="300" y="60" text-anchor="middle">0</text>
+          <line x1="570" y1="28" x2="570" y2="42" stroke="#241C1C" stroke-width="2"/>
+          <text x="570" y="60" text-anchor="middle">10</text>
+        </g>
+        <!-- example points: -4 and 2 (scale: 28px per unit from x=300) -->
+        <circle cx="188" cy="35" r="7" fill="#2478B5"/>
+        <text x="188" y="90" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="14" font-weight="800" fill="#2478B5">-4</text>
+        <circle cx="356" cy="35" r="7" fill="#C41230"/>
+        <text x="356" y="90" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="14" font-weight="800" fill="#C41230">2</text>
+        <path d="M188 27 Q272 3 356 27" fill="none" stroke="#241C1C" stroke-width="2.5" stroke-dasharray="5 5"/>
+        <text x="270" y="108" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="15" font-weight="800" fill="#241C1C">-4 + 6 = 2</text>
+      </svg>
+
+      <p>Für das Rechnen mit Vorzeichen (also mit Plus und Minus) gibt es eine einfache Regel: Schau dir an, welche zwei Vorzeichen aufeinandertreffen.</p>
+
+      <p><strong>Beispiel Schritt für Schritt:</strong> −4 − (−6) = ?</p>
+      <p>1. Vorzeichen anschauen: Minus trifft auf Minus.<br>
+      2. Zwei gleiche Vorzeichen werden zu Plus: −4 + 6<br>
+      3. Rechnen: −4 + 6 = 2</p>
+
+      <p><strong>Und beim Malnehmen und Teilen?</strong> Dort gilt genau dieselbe Regel für die Vorzeichen. Schau dir wieder an, welche zwei Vorzeichen aufeinandertreffen.</p>
+
+      <p><strong>Beispiel Schritt für Schritt:</strong> −6 · (−3) = ?</p>
+      <p>1. Vorzeichen anschauen: Minus mal Minus → gleiche Vorzeichen → wird zu Plus.<br>
+      2. Zahlen ohne Vorzeichen rechnen: 6 · 3 = 18<br>
+      3. Ergebnis: 18</p>
+
+      <p><strong>Wichtig, wenn mehrere Rechenarten vorkommen:</strong> Wenn in einer Aufgabe sowohl Plus/Minus als auch Mal/Geteilt vorkommen, gilt "Punkt vor Strich". Das heißt: Erst multiplizieren und dividieren, danach erst addieren und subtrahieren.</p>
+
+      <div class="merke">
+        <div class="merke-title">Merke</div>
+        <p class="merke-body">Gleiche Vorzeichen (++ oder −−) → wird zu <strong>Plus</strong>.<br>
+        Unterschiedliche Vorzeichen (+− oder −+) → wird zu <strong>Minus</strong>.<br>
+        Danach ganz normal rechnen.<br>
+        Diese Regel gilt genauso beim Malnehmen und Teilen.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">1</span>Aufgabe 1</h2>
+      <div class="task-question">−8 + 3 = ?</div>
+      <div class="answer-row">
+        <input type="text" id="input1" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" onclick="check(1, -5)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback1"></div>
+
+      <details>
+        <summary>Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result">Ergebnis: −5</div>
+          <ol>
+            <li>Vorzeichen anschauen: Minus trifft auf Plus → das sind unterschiedliche Vorzeichen → wird zu Minus.</li>
+            <li>Man rechnet die Differenz der Zahlen ohne Vorzeichen: 8 − 3 = 5.</li>
+            <li>Das Ergebnis bekommt das Vorzeichen der größeren Zahl (der 8). Da die 8 negativ war, ist das Ergebnis −5.</li>
+          </ol>
+          <div class="hint-box"><strong>Typischer Fehler:</strong> Viele rechnen einfach 8 + 3 = 11 und vergessen, dass bei unterschiedlichen Vorzeichen subtrahiert wird, nicht addiert.</div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">2</span>Aufgabe 2</h2>
+      <div class="task-question">5 − (−7) = ?</div>
+      <div class="answer-row">
+        <input type="text" id="input2" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" onclick="check(2, 12)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback2"></div>
+
+      <details>
+        <summary>Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result">Ergebnis: 12</div>
+          <ol>
+            <li>Vorzeichen anschauen: Vor der Klammer steht Minus, in der Klammer steht auch Minus → zwei gleiche Vorzeichen.</li>
+            <li>Das wird zu Plus: 5 − (−7) wird zu 5 + 7.</li>
+            <li>Rechnen: 5 + 7 = 12.</li>
+          </ol>
+          <div class="hint-box"><strong>Typischer Fehler:</strong> Das Minus vor der Klammer wird oft übersehen und es wird einfach 5 − 7 = −2 gerechnet. Merke: Minus vor einer Klammer mit Minus darin ergibt immer Plus.</div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">3</span>Aufgabe 3</h2>
+      <div class="task-question">Am Morgen zeigt das Thermometer −6 Grad. Bis Mittag steigt die Temperatur um 9 Grad. Am Abend sinkt sie wieder um 4 Grad. Wie viel Grad zeigt das Thermometer am Abend?</div>
+      <div class="answer-row">
+        <input type="text" id="input3" placeholder="Deine Antwort in Grad" inputmode="text">
+        <button class="check" onclick="check(3, -1)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback3"></div>
+
+      <details>
+        <summary>Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result">Ergebnis: −1 Grad</div>
+          <ol>
+            <li>Start am Morgen: −6 Grad.</li>
+            <li>Anstieg um 9 Grad bis Mittag: −6 + 9 = 3 Grad.</li>
+            <li>Abfall um 4 Grad bis zum Abend: 3 − 4 = −1 Grad.</li>
+          </ol>
+          <div class="hint-box"><strong>Typischer Fehler:</strong> Bei Textaufgaben wird oft ein Schritt vergessen oder die Reihenfolge vertauscht. Am besten nach jedem Satz das Zwischenergebnis aufschreiben, bevor man weiterrechnet.</div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">4</span>Aufgabe 4</h2>
+      <div class="task-question">−12 + 5 − (−8) = ?</div>
+      <div class="answer-row">
+        <input type="text" id="input4" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" onclick="check(4, 1)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback4"></div>
+
+      <details>
+        <summary>Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result">Ergebnis: 1</div>
+          <ol>
+            <li>Erst den ersten Teil rechnen: −12 + 5. Unterschiedliche Vorzeichen → Differenz bilden: 12 − 5 = 7, Vorzeichen der größeren Zahl (−12) übernehmen → −7.</li>
+            <li>Jetzt den zweiten Teil: −7 − (−8). Minus trifft auf Minus → wird zu Plus: −7 + 8.</li>
+            <li>Rechnen: −7 + 8 = 1.</li>
+          </ol>
+          <div class="hint-box"><strong>Typischer Fehler:</strong> Bei mehreren Vorzeichen hintereinander wird oft nur eines umgewandelt und der Rest falsch weitergerechnet. Am besten Schritt für Schritt vorgehen und nach jedem Schritt das Zwischenergebnis notieren.</div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">5</span>Aufgabe 5</h2>
+      <div class="task-question">(−3) · (−4) = ?</div>
+      <div class="answer-row">
+        <input type="text" id="input5" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" onclick="check(5, 12)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback5"></div>
+
+      <details>
+        <summary>Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result">Ergebnis: 12</div>
+          <ol>
+            <li>Vorzeichen anschauen: Minus mal Minus → gleiche Vorzeichen. Genau wie bei Plus und Minus wird das Ergebnis positiv.</li>
+            <li>Zahlen ohne Vorzeichen multiplizieren: 3 · 4 = 12.</li>
+            <li>Ergebnis: 12 (also mit Plus, das man meistens weglässt).</li>
+          </ol>
+          <div class="hint-box"><strong>Typischer Fehler:</strong> Viele denken, „Minus mal Minus" müsste Minus ergeben, weil es sich intuitiv so anfühlt. Aber es gilt dieselbe Regel wie bei Plus und Minus: gleiche Vorzeichen → Plus.</div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">6</span>Aufgabe 6</h2>
+      <div class="task-question">(−24) : 6 = ?</div>
+      <div class="answer-row">
+        <input type="text" id="input6" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" onclick="check(6, -4)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback6"></div>
+
+      <details>
+        <summary>Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result">Ergebnis: −4</div>
+          <ol>
+            <li>Vorzeichen anschauen: Minus geteilt durch Plus → unterschiedliche Vorzeichen → das Ergebnis wird negativ.</li>
+            <li>Zahlen ohne Vorzeichen dividieren: 24 : 6 = 4.</li>
+            <li>Ergebnis: −4.</li>
+          </ol>
+          <div class="hint-box"><strong>Typischer Fehler:</strong> Das Minuszeichen wird beim Teilen manchmal vergessen und nur "4" als Antwort geschrieben. Das Vorzeichen gehört aber immer zum Ergebnis dazu.</div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">7</span>Aufgabe 7</h2>
+      <div class="task-question">4 · (−3) + (−10) : (−5) = ?</div>
+      <div class="answer-row">
+        <input type="text" id="input7" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" onclick="check(7, -10)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback7"></div>
+
+      <details>
+        <summary>Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result">Ergebnis: −10</div>
+          <ol>
+            <li>Punkt-vor-Strich beachten: Erst Malnehmen und Teilen rechnen, danach erst addieren.</li>
+            <li>4 · (−3): Plus mal Minus → unterschiedliche Vorzeichen → negativ: 4 · 3 = 12, also −12.</li>
+            <li>(−10) : (−5): Minus geteilt durch Minus → gleiche Vorzeichen → positiv: 10 : 5 = 2, also +2.</li>
+            <li>Zusammenrechnen: −12 + 2 = −10.</li>
+          </ol>
+          <div class="hint-box"><strong>Typischer Fehler:</strong> Wird einfach von links nach rechts durchgerechnet, ohne Punkt-vor-Strich zu beachten, kommt ein falsches Ergebnis heraus. Erst multiplizieren/dividieren, dann addieren/subtrahieren.</div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">8</span>Aufgabe 8</h2>
+      <div class="task-question">Chris hat 15 Euro auf seinem Konto. An drei Tagen hebt er jeweils 8 Euro ab. Am vierten Tag bekommt er 20 Euro geschenkt und legt sie aufs Konto. Wie viel Euro stehen jetzt auf dem Konto?</div>
+      <div class="answer-row">
+        <input type="text" id="input8" placeholder="Deine Antwort in Euro" inputmode="text">
+        <button class="check" onclick="check(8, 11)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback8"></div>
+
+      <details>
+        <summary>Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result">Ergebnis: 11 Euro</div>
+          <ol>
+            <li>Start: 15 Euro auf dem Konto.</li>
+            <li>Dreimal 8 Euro abheben: 3 · 8 = 24 Euro werden insgesamt abgezogen: 15 − 24 = −9 Euro (das Konto steht jetzt im Minus, also im Schulden-Bereich).</li>
+            <li>20 Euro werden dazugelegt: −9 + 20 = 11 Euro.</li>
+          </ol>
+          <div class="hint-box"><strong>Typischer Fehler:</strong> Die drei Abhebungen werden manchmal nicht zusammengezählt (3 × 8), oder das Minus-Konto wird nicht als negative Zahl weitergerechnet.</div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <footer>
+    <svg class="footer-wave" viewBox="0 0 280 16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+      <path d="M -5 8 C 40 1, 80 15, 140 8 S 240 1, 285 8" fill="none" stroke="#C41230" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M -5 8 C 40 15, 80 1, 140 8 S 240 15, 285 8" fill="none" stroke="#2478B5" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+    </svg>
+    <p id="footer-msg">Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!</p>
+  </footer>
+
+</div>
+
+<script>
+function check(id, correct){
+  var input = document.getElementById('input' + id);
+  var feedback = document.getElementById('feedback' + id);
+  var raw = input.value.trim();
+  var match = raw.match(/-?\d+/);
+
+  feedback.classList.remove('show', 'correct', 'incorrect');
+
+  if(!match){
+    feedback.textContent = 'Trag bitte eine Zahl ein, bevor du prüfst.';
+    feedback.classList.add('show', 'incorrect');
+    return;
+  }
+
+  var value = parseInt(match[0], 10);
+
+  if(value === correct){
+    feedback.textContent = 'Richtig! Gut gemacht!';
+    feedback.classList.add('show', 'correct');
+  } else {
+    feedback.textContent = 'Noch nicht ganz richtig. Schau dir die Lösung weiter unten an und versuch es dann nochmal.';
+    feedback.classList.add('show', 'incorrect');
+  }
+}
+</script>
+
+</body>
+</html>
