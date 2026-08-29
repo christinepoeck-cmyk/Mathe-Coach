@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teilbarkeit, ggT und kgV</title>
+<style>
+  :root{
+    --bg:#FAFAF9;
+    --card:#FFFFFF;
+    --ink:#241C1C;
+    --ink-soft:#5C4F4C;
+    --red:#C41230;
+    --gold:#E0A526;
+    --blue:#2478B5;
+    --merke-bg:#FBF1DC;
+    --merke-border:#E0A526;
+    --success:#1E8E5A;
+    --success-bg:#E5F5EC;
+    --error:#B3401D;
+    --error-bg:#FBEDE6;
+    --font-display: ui-rounded, "SF Pro Rounded", "Segoe UI Rounded", "Nunito", system-ui, sans-serif;
+    --font-body: system-ui, "Segoe UI", Roboto, sans-serif;
+  }
+
+  *{ box-sizing:border-box; }
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:18px;
+    line-height:1.5;
+    padding-bottom:60px;
+  }
+
+  .wrap{
+    max-width:640px;
+    margin:0 auto;
+    padding:0 20px;
+  }
+
+  header{
+    background:var(--card);
+    padding:30px 20px 0;
+    text-align:center;
+    position:relative;
+  }
+
+  .header-inner{ padding-bottom:26px; }
+
+  .lang-switch{
+    display:flex;
+    justify-content:center;
+    margin-bottom:14px;
+  }
+
+  #langSelect{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:14px;
+    color:var(--ink);
+    background:var(--card);
+    border:2px solid #E3DFDA;
+    border-radius:999px;
+    padding:6px 14px;
+    cursor:pointer;
+  }
+
+  #langSelect:focus-visible{ outline:3px solid var(--blue); }
+
+  .back-link{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:14px;
+    color:var(--blue);
+    text-decoration:none;
+    margin-bottom:16px;
+  }
+
+  .eyebrow{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:14px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--blue);
+    margin-bottom:8px;
+  }
+
+  h1{
+    font-family:var(--font-display);
+    font-size:28px;
+    font-weight:800;
+    margin:0;
+    line-height:1.25;
+  }
+
+  h1 .accent{ color:var(--red); }
+
+  .wave{
+    display:block;
+    width:100%;
+    height:30px;
+  }
+
+  section{
+    margin-top:32px;
+  }
+
+  .card{
+    background:var(--card);
+    border-radius:22px;
+    padding:24px 22px;
+    box-shadow:0 2px 14px rgba(36,28,28,0.07);
+  }
+
+  h2{
+    font-family:var(--font-display);
+    font-size:21px;
+    font-weight:800;
+    margin:0 0 14px;
+  }
+
+  h2 .num{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:32px;
+    height:32px;
+    border-radius:50%;
+    background:var(--blue);
+    color:white;
+    font-size:16px;
+    margin-inline-end:10px;
+    vertical-align:middle;
+  }
+
+  p{ margin:0 0 14px; color:var(--ink-soft); }
+
+  .merke{
+    background:var(--merke-bg);
+    border:2px solid var(--merke-border);
+    border-radius:16px;
+    padding:16px 18px;
+    margin-top:16px;
+  }
+
+  .merke-title{
+    font-family:var(--font-display);
+    font-weight:800;
+    color:#8A5A0F;
+    font-size:15px;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    margin-bottom:6px;
+  }
+
+  .merke-body{ color:#6B4A12; font-weight:600; margin:0; }
+
+  .venn-diagram{
+    width:100%;
+    height:auto;
+    margin:18px 0 6px;
+  }
+
+  .task-card{ margin-top:18px; }
+
+  .task-question{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:19px;
+    margin-bottom:16px;
+  }
+
+  .answer-row{
+    display:flex;
+    gap:10px;
+    margin-bottom:6px;
+  }
+
+  input[type="text"]{
+    flex:1;
+    font-size:18px;
+    font-family:var(--font-body);
+    padding:12px 14px;
+    border-radius:12px;
+    border:2px solid #E3DFDA;
+    background:#FBFAF9;
+    color:var(--ink);
+  }
+
+  input[type="text"]:focus{
+    outline:3px solid #C9DCEA;
+    border-color:var(--blue);
+  }
+
+  button.check{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:16px;
+    color:white;
+    background:var(--blue);
+    border:none;
+    border-radius:12px;
+    padding:0 20px;
+    cursor:pointer;
+  }
+
+  button.check:active{ transform:translateY(1px); }
+  button.check:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
+
+  .feedback{
+    margin-top:10px;
+    padding:12px 14px;
+    border-radius:12px;
+    font-weight:700;
+    display:none;
+  }
+
+  .feedback.show{ display:block; }
+  .feedback.correct{ background:var(--success-bg); color:var(--success); }
+  .feedback.incorrect{ background:var(--error-bg); color:var(--error); }
+
+  details{
+    margin-top:14px;
+    border-top:2px dashed #E3DFDA;
+    padding-top:12px;
+  }
+
+  summary{
+    font-family:var(--font-display);
+    font-weight:700;
+    color:var(--blue);
+    cursor:pointer;
+    font-size:15px;
+  }
+
+  .solution{ margin-top:12px; }
+
+  .solution ol{ margin:0 0 12px; padding-inline-start:22px; color:var(--ink-soft); }
+  .solution li{ margin-bottom:6px; }
+
+  .solution-result{
+    font-family:var(--font-display);
+    font-weight:800;
+    color:var(--ink);
+    margin-bottom:12px;
+  }
+
+  .hint-box{
+    background:#F1EFEC;
+    border-radius:12px;
+    padding:12px 14px;
+    font-size:16px;
+    color:var(--ink-soft);
+  }
+
+  .hint-box strong{ color:var(--ink); }
+
+  footer{
+    text-align:center;
+    margin-top:36px;
+    padding:0 20px;
+  }
+
+  footer p{
+    font-family:var(--font-display);
+    font-weight:700;
+    color:var(--ink);
+  }
+
+  .footer-wave{
+    display:block;
+    width:100%;
+    max-width:280px;
+    height:16px;
+    margin:0 auto 18px;
+    opacity:0.6;
+  }
+
+  [dir="rtl"] .back-link{ flex-direction:row-reverse; }
+
+  @media (prefers-reduced-motion: no-preference){
+    button.check{ transition:transform 0.1s ease; }
+  }
+
+  @media (max-width: 480px){
+    .answer-row{
+      flex-direction:column;
+    }
+    button.check{
+      width:100%;
+      padding:14px 20px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="lang-switch">
+      <select id="langSelect" onchange="setLanguage(this.value)">
+        <option value="de">Deutsch</option>
+        <option value="en">English</option>
+        <option value="es">Español</option>
+        <option value="fr">Français</option>
+        <option value="tr">Türkçe</option>
+        <option value="ru">Русский</option>
+        <option value="ar">العربية</option>
+        <option value="zh">中文</option>
+      </select>
+    </div>
+    <a class="back-link" href="index.html" data-i18n="backLink">← Alle Themen</a>
+    <div class="eyebrow" data-i18n="eyebrow">Luisen-Gymnasium · Klasse 5</div>
+    <h1><span data-i18n="titleLine1">Teilbarkeit,</span><br><span class="accent" data-i18n="titleAccent">ggT und kgV</span></h1>
+  </div>
+  <svg class="wave" viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+    <path d="M -10 22 C 190 4, 390 40, 590 22 S 990 4, 1210 22" fill="none" stroke="#C41230" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 32 C 190 50, 390 14, 590 32 S 990 50, 1210 32" fill="none" stroke="#E0A526" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 42 C 190 24, 390 58, 590 42 S 990 24, 1210 42" fill="none" stroke="#2478B5" stroke-width="5" stroke-linecap="round"/>
+  </svg>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <div class="card">
+      <h2 data-i18n="h2Basics">Grundlagen</h2>
+      <p data-i18n="basicsP1">Eine Zahl ist durch eine andere Zahl teilbar, wenn bei der Division kein Rest bleibt. Zum Beispiel ist 12 durch 3 teilbar, weil 12 : 3 = 4 genau aufgeht. Es gibt praktische Regeln, mit denen du das schnell erkennst: Eine Zahl ist durch 2 teilbar, wenn sie gerade ist (also auf 0, 2, 4, 6 oder 8 endet). Sie ist durch 5 teilbar, wenn sie auf 0 oder 5 endet. Und sie ist durch 10 teilbar, wenn sie auf 0 endet.</p>
+
+      <p data-i18n="basicsP2">Die Zahlen, durch die eine Zahl ohne Rest teilbar ist, nennt man ihre Teiler. Die Teiler von 12 sind zum Beispiel: 1, 2, 3, 4, 6 und 12.</p>
+
+      <p data-i18n="basicsP3VennIntro">Wenn man die Teiler von zwei Zahlen vergleicht, findet man gemeinsame Teiler. Der größte davon heißt größter gemeinsamer Teiler, kurz ggT.</p>
+
+      <svg class="venn-diagram" viewBox="0 0 600 265" xmlns="http://www.w3.org/2000/svg" role="img" data-i18n-aria="vennAria" aria-label="Venndiagramm: Teiler von 12 und Teiler von 18, mit den gemeinsamen Teilern 1, 2, 3 und 6 in der Mitte, wobei 6 der größte gemeinsame Teiler ist">
+        <circle cx="230" cy="130" r="105" fill="#C41230" fill-opacity="0.12" stroke="none"/>
+        <circle cx="370" cy="130" r="105" fill="#2478B5" fill-opacity="0.12" stroke="none"/>
+        <circle cx="230" cy="130" r="105" fill="none" stroke="#C41230" stroke-width="3"/>
+        <circle cx="370" cy="130" r="105" fill="none" stroke="#2478B5" stroke-width="3"/>
+        <text data-i18n="vennLabelLeft" x="180" y="20" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="16" font-weight="800" fill="#C41230">Teiler von 12</text>
+        <text data-i18n="vennLabelRight" x="420" y="20" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="16" font-weight="800" fill="#2478B5">Teiler von 18</text>
+        <text x="170" y="135" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="18" font-weight="700" fill="#241C1C">4   12</text>
+        <text x="430" y="135" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="18" font-weight="700" fill="#241C1C">9   18</text>
+        <text x="300" y="105" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="18" font-weight="700" fill="#241C1C">1   2   3</text>
+        <circle cx="300" cy="155" r="22" fill="#E0A526"/>
+        <text x="300" y="162" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="20" font-weight="800" fill="#FFFFFF">6</text>
+        <line x1="300" y1="177" x2="300" y2="238" stroke="#E0A526" stroke-width="2" stroke-dasharray="3 3"/>
+        <rect x="190" y="236" width="220" height="26" rx="13" fill="#FFFFFF" stroke="#E0A526" stroke-width="2"/>
+        <text data-i18n="vennGgtCaption" x="300" y="253" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="13" font-weight="700" fill="#8A5A0F">= ggT</text>
+      </svg>
+
+
+
+      <p data-i18n="basicsExample1Label"><strong>Beispiel Schritt für Schritt:</strong><br>ggT(12, 18) = ?</p>
+      <p data-i18n="basicsExample1Steps">1. Teiler von 12: 1, 2, 3, 4, 6, 12<br>2. Teiler von 18: 1, 2, 3, 6, 9, 18<br>3. Gemeinsame Teiler: 1, 2, 3, 6 → größter davon: 6<br>4. ggT(12, 18) = 6</p>
+
+      <p data-i18n="basicsP4KgvIntro"><strong>Und das kgV?</strong> Das kleinste gemeinsame Vielfache (kgV) ist die kleinste Zahl, die ein Vielfaches von beiden Zahlen ist.</p>
+
+      <p data-i18n="basicsExample2Label"><strong>Beispiel Schritt für Schritt:</strong><br>kgV(4, 6) = ?</p>
+      <p data-i18n="basicsExample2Steps">1. Vielfache von 4: 4, 8, 12, 16, 20<br>2. Vielfache von 6: 6, 12, 18, 24<br>3. Erste gemeinsame Zahl: 12<br>4. kgV(4, 6) = 12</p>
+
+      <div class="merke">
+        <div class="merke-title" data-i18n="merkeTitle">Merke</div>
+        <p class="merke-body" data-i18n="merkeBody">Teiler einer Zahl: alle Zahlen, durch die sie ohne Rest teilbar ist.<br>ggT: der größte Teiler, den zwei Zahlen gemeinsam haben.<br>kgV: die kleinste Zahl, die ein Vielfaches von beiden Zahlen ist.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">1</span><span data-i18n="taskWord">Aufgabe</span> 1</h2>
+      <div class="task-question" data-i18n="task1Question">Wie viele Teiler hat die Zahl 12?</div>
+      <div class="answer-row">
+        <input type="text" id="input1" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(1, 6)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback1"></div>
+
+      <details>
+        <summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task1Result">Ergebnis: 6</div>
+          <ol>
+            <li data-i18n="task1Step1">Suche alle Zahlen, durch die 12 ohne Rest teilbar ist: 1, 2, 3, 4, 6, 12.</li>
+            <li data-i18n="task1Step2">Zähle die gefundenen Teiler: das sind 6 Zahlen.</li>
+            <li data-i18n="task1Step3">Ergebnis: 6.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task1Hint">Vergiss nicht, dass 1 und die Zahl selbst (hier 12) auch immer Teiler sind.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">2</span><span data-i18n="taskWord">Aufgabe</span> 2</h2>
+      <div class="task-question" data-i18n="task2Question">Was ist der ggT von 8 und 12?</div>
+      <div class="answer-row">
+        <input type="text" id="input2" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(2, 4)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback2"></div>
+
+      <details>
+        <summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task2Result">Ergebnis: 4</div>
+          <ol>
+            <li data-i18n="task2Step1">Teiler von 8: 1, 2, 4, 8.</li>
+            <li data-i18n="task2Step2">Teiler von 12: 1, 2, 3, 4, 6, 12.</li>
+            <li data-i18n="task2Step3">Gemeinsame Teiler: 1, 2, 4 → der größte ist 4.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task2Hint">Schreib dir beide Teilerlisten auf und vergleiche sie – der größte gemeinsame Wert ist der ggT.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">3</span><span data-i18n="taskWord">Aufgabe</span> 3</h2>
+      <div class="task-question" data-i18n="task3Question">Was ist der ggT von 15 und 25?</div>
+      <div class="answer-row">
+        <input type="text" id="input3" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(3, 5)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback3"></div>
+
+      <details>
+        <summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task3Result">Ergebnis: 5</div>
+          <ol>
+            <li data-i18n="task3Step1">Teiler von 15: 1, 3, 5, 15.</li>
+            <li data-i18n="task3Step2">Teiler von 25: 1, 5, 25.</li>
+            <li data-i18n="task3Step3">Gemeinsame Teiler: 1, 5 → der größte ist 5.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task3Hint">Auch wenn beide Zahlen durch 5 teilbar sind, heißt das nicht automatisch, dass 5 der größte gemeinsame Teiler ist – prüfe immer beide Listen vollständig.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">4</span><span data-i18n="taskWord">Aufgabe</span> 4</h2>
+      <div class="task-question" data-i18n="task4Question">Was ist das kgV von 3 und 5?</div>
+      <div class="answer-row">
+        <input type="text" id="input4" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(4, 15)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback4"></div>
+
+      <details>
+        <summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task4Result">Ergebnis: 15</div>
+          <ol>
+            <li data-i18n="task4Step1">Vielfache von 3: 3, 6, 9, 12, 15.</li>
+            <li data-i18n="task4Step2">Vielfache von 5: 5, 10, 15.</li>
+            <li data-i18n="task4Step3">Die erste gemeinsame Zahl in beiden Listen ist 15.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task4Hint">Bei zwei Zahlen ohne gemeinsame Teiler (außer 1) ist das kgV oft einfach das Produkt beider Zahlen: 3 · 5 = 15.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">5</span><span data-i18n="taskWord">Aufgabe</span> 5</h2>
+      <div class="task-question" data-i18n="task5Question">Was ist das kgV von 4 und 10?</div>
+      <div class="answer-row">
+        <input type="text" id="input5" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(5, 20)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback5"></div>
+
+      <details>
+        <summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task5Result">Ergebnis: 20</div>
+          <ol>
+            <li data-i18n="task5Step1">Vielfache von 4: 4, 8, 12, 16, 20.</li>
+            <li data-i18n="task5Step2">Vielfache von 10: 10, 20.</li>
+            <li data-i18n="task5Step3">Die erste gemeinsame Zahl ist 20.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task5Hint">Hier ist das kgV nicht einfach 4 · 10 = 40, weil beide Zahlen den gemeinsamen Teiler 2 haben. Deshalb muss man wirklich die Vielfachenlisten vergleichen.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">6</span><span data-i18n="taskWord">Aufgabe</span> 6</h2>
+      <div class="task-question" data-i18n="task6Question">42 : 6 = ? (Prüfe, ob die Division ohne Rest aufgeht)</div>
+      <div class="answer-row">
+        <input type="text" id="input6" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(6, 7)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback6"></div>
+
+      <details>
+        <summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task6Result">Ergebnis: 7</div>
+          <ol>
+            <li data-i18n="task6Step1">Rechne die Division: 42 : 6 = 7.</li>
+            <li data-i18n="task6Step2">Da kein Rest bleibt, ist 42 durch 6 teilbar.</li>
+            <li data-i18n="task6Step3">Ergebnis: 7.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task6Hint">Wenn die Division nicht ohne Rest aufgeht, ist die Zahl nicht teilbar. Hier geht sie genau auf.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">7</span><span data-i18n="taskWord">Aufgabe</span> 7</h2>
+      <div class="task-question" data-i18n="task7Question">Emma hat 20 rote und 30 blaue Perlen. Sie möchte Armbänder machen, auf denen immer gleich viele rote und gleich viele blaue Perlen sind, ohne dass etwas übrig bleibt – und möglichst viele Armbänder herstellen. Wie viele Armbänder kann sie höchstens machen?</div>
+      <div class="answer-row">
+        <input type="text" id="input7" data-i18n-placeholder="task7Placeholder" placeholder="Deine Antwort (Anzahl)" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(7, 10)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback7"></div>
+
+      <details>
+        <summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task7Result">Ergebnis: 10</div>
+          <ol>
+            <li data-i18n="task7Step1">Teiler von 20: 1, 2, 4, 5, 10, 20.</li>
+            <li data-i18n="task7Step2">Teiler von 30: 1, 2, 3, 5, 6, 10, 15, 30.</li>
+            <li data-i18n="task7Step3">Gemeinsame Teiler: 1, 2, 5, 10 → der größte ist 10. Das ist der ggT(20, 30).</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task7Hint">"Möglichst viele Gruppen, nichts übrig" ist ein typisches ggT-Signal: gesucht ist die größte Anzahl gleicher Gruppen ohne Rest.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">8</span><span data-i18n="taskWord">Aufgabe</span> 8</h2>
+      <div class="task-question" data-i18n="task8Question">Zwei Busse fahren am Bahnhof ab. Bus A fährt alle 8 Minuten, Bus B alle 12 Minuten. Beide sind jetzt gleichzeitig losgefahren. Nach wie vielen Minuten fahren sie wieder gleichzeitig ab?</div>
+      <div class="answer-row">
+        <input type="text" id="input8" data-i18n-placeholder="task8Placeholder" placeholder="Deine Antwort in Minuten" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(8, 24)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback8"></div>
+
+      <details>
+        <summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task8Result">Ergebnis: 24 Minuten</div>
+          <ol>
+            <li data-i18n="task8Step1">Vielfache von 8: 8, 16, 24, 32.</li>
+            <li data-i18n="task8Step2">Vielfache von 12: 12, 24, 36.</li>
+            <li data-i18n="task8Step3">Die erste gemeinsame Zahl ist 24. Das ist das kgV(8, 12).</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task8Hint">"Wann treffen sich beide wieder" ist ein typisches kgV-Signal: gesucht ist der erste gemeinsame Zeitpunkt.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <footer>
+    <svg class="footer-wave" viewBox="0 0 280 16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+      <path d="M -5 8 C 40 1, 80 15, 140 8 S 240 1, 285 8" fill="none" stroke="#C41230" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M -5 8 C 40 15, 80 1, 140 8 S 240 15, 285 8" fill="none" stroke="#2478B5" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+    </svg>
+    <p id="footer-msg" data-i18n="footerMessage">Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!</p>
+  </footer>
+
+</div>
+
+<script>
+const TRANSLATIONS = {
+de: {
+  eyebrow: `Luisen-Gymnasium · Klasse 5`,
+  titleLine1: `Teilbarkeit,`,
+  titleAccent: `ggT und kgV`,
+  backLink: `← Alle Themen`,
+  h2Basics: `Grundlagen`,
+  basicsP1: `Eine Zahl ist durch eine andere Zahl teilbar, wenn bei der Division kein Rest bleibt. Zum Beispiel ist 12 durch 3 teilbar, weil 12 : 3 = 4 genau aufgeht. Es gibt praktische Regeln, mit denen du das schnell erkennst: Eine Zahl ist durch 2 teilbar, wenn sie gerade ist (also auf 0, 2, 4, 6 oder 8 endet). Sie ist durch 5 teilbar, wenn sie auf 0 oder 5 endet. Und sie ist durch 10 teilbar, wenn sie auf 0 endet.`,
+  basicsP2: `Die Zahlen, durch die eine Zahl ohne Rest teilbar ist, nennt man ihre Teiler. Die Teiler von 12 sind zum Beispiel: 1, 2, 3, 4, 6 und 12.`,
+  basicsP3VennIntro: `Wenn man die Teiler von zwei Zahlen vergleicht, findet man gemeinsame Teiler. Der größte davon heißt größter gemeinsamer Teiler, kurz ggT.`,
+  vennAria: `Venndiagramm: Teiler von 12 und Teiler von 18, mit den gemeinsamen Teilern 1, 2, 3 und 6 in der Mitte, wobei 6 der größte gemeinsame Teiler ist`,
+  vennLabelLeft: `Teiler von 12`,
+  vennLabelRight: `Teiler von 18`,
+  vennGgtCaption: `= ggT`,
+  basicsExample1Label: `<strong>Beispiel Schritt für Schritt:</strong><br>ggT(12, 18) = ?`,
+  basicsExample1Steps: `1. Teiler von 12: 1, 2, 3, 4, 6, 12<br>2. Teiler von 18: 1, 2, 3, 6, 9, 18<br>3. Gemeinsame Teiler: 1, 2, 3, 6 → größter davon: 6<br>4. ggT(12, 18) = 6`,
+  basicsP4KgvIntro: `<strong>Und das kgV?</strong> Das kleinste gemeinsame Vielfache (kgV) ist die kleinste Zahl, die ein Vielfaches von beiden Zahlen ist.`,
+  basicsExample2Label: `<strong>Beispiel Schritt für Schritt:</strong><br>kgV(4, 6) = ?`,
+  basicsExample2Steps: `1. Vielfache von 4: 4, 8, 12, 16, 20<br>2. Vielfache von 6: 6, 12, 18, 24<br>3. Erste gemeinsame Zahl: 12<br>4. kgV(4, 6) = 12`,
+  merkeTitle: `Merke`,
+  merkeBody: `Teiler einer Zahl: alle Zahlen, durch die sie ohne Rest teilbar ist.<br>ggT: der größte Teiler, den zwei Zahlen gemeinsam haben.<br>kgV: die kleinste Zahl, die ein Vielfaches von beiden Zahlen ist.`,
+  taskWord: `Aufgabe`,
+  task1Question: `Wie viele Teiler hat die Zahl 12?`, task2Question: `Was ist der ggT von 8 und 12?`, task3Question: `Was ist der ggT von 15 und 25?`, task4Question: `Was ist das kgV von 3 und 5?`, task5Question: `Was ist das kgV von 4 und 10?`, task6Question: `42 : 6 = ? (Prüfe, ob die Division ohne Rest aufgeht)`,
+  task7Question: `Emma hat 20 rote und 30 blaue Perlen. Sie möchte Armbänder machen, auf denen immer gleich viele rote und gleich viele blaue Perlen sind, ohne dass etwas übrig bleibt – und möglichst viele Armbänder herstellen. Wie viele Armbänder kann sie höchstens machen?`,
+  task8Question: `Zwei Busse fahren am Bahnhof ab. Bus A fährt alle 8 Minuten, Bus B alle 12 Minuten. Beide sind jetzt gleichzeitig losgefahren. Nach wie vielen Minuten fahren sie wieder gleichzeitig ab?`,
+  answerPlaceholder: `Deine Antwort`,
+  task7Placeholder: `Deine Antwort (Anzahl)`,
+  task8Placeholder: `Deine Antwort in Minuten`,
+  checkButton: `Prüfen`,
+  solutionSummary: `Lösung anzeigen`,
+  task1Result: `Ergebnis: 6`, task2Result: `Ergebnis: 4`, task3Result: `Ergebnis: 5`, task4Result: `Ergebnis: 15`, task5Result: `Ergebnis: 20`, task6Result: `Ergebnis: 7`, task7Result: `Ergebnis: 10`, task8Result: `Ergebnis: 24 Minuten`,
+  task1Step1: `Suche alle Zahlen, durch die 12 ohne Rest teilbar ist: 1, 2, 3, 4, 6, 12.`, task1Step2: `Zähle die gefundenen Teiler: das sind 6 Zahlen.`, task1Step3: `Ergebnis: 6.`,
+  task1Hint: `Vergiss nicht, dass 1 und die Zahl selbst (hier 12) auch immer Teiler sind.`,
+  task2Step1: `Teiler von 8: 1, 2, 4, 8.`, task2Step2: `Teiler von 12: 1, 2, 3, 4, 6, 12.`, task2Step3: `Gemeinsame Teiler: 1, 2, 4 → der größte ist 4.`,
+  task2Hint: `Schreib dir beide Teilerlisten auf und vergleiche sie – der größte gemeinsame Wert ist der ggT.`,
+  task3Step1: `Teiler von 15: 1, 3, 5, 15.`, task3Step2: `Teiler von 25: 1, 5, 25.`, task3Step3: `Gemeinsame Teiler: 1, 5 → der größte ist 5.`,
+  task3Hint: `Auch wenn beide Zahlen durch 5 teilbar sind, heißt das nicht automatisch, dass 5 der größte gemeinsame Teiler ist – prüfe immer beide Listen vollständig.`,
+  task4Step1: `Vielfache von 3: 3, 6, 9, 12, 15.`, task4Step2: `Vielfache von 5: 5, 10, 15.`, task4Step3: `Die erste gemeinsame Zahl in beiden Listen ist 15.`,
+  task4Hint: `Bei zwei Zahlen ohne gemeinsame Teiler (außer 1) ist das kgV oft einfach das Produkt beider Zahlen: 3 · 5 = 15.`,
+  task5Step1: `Vielfache von 4: 4, 8, 12, 16, 20.`, task5Step2: `Vielfache von 10: 10, 20.`, task5Step3: `Die erste gemeinsame Zahl ist 20.`,
+  task5Hint: `Hier ist das kgV nicht einfach 4 · 10 = 40, weil beide Zahlen den gemeinsamen Teiler 2 haben. Deshalb muss man wirklich die Vielfachenlisten vergleichen.`,
+  task6Step1: `Rechne die Division: 42 : 6 = 7.`, task6Step2: `Da kein Rest bleibt, ist 42 durch 6 teilbar.`, task6Step3: `Ergebnis: 7.`,
+  task6Hint: `Wenn die Division nicht ohne Rest aufgeht, ist die Zahl nicht teilbar. Hier geht sie genau auf.`,
+  task7Step1: `Teiler von 20: 1, 2, 4, 5, 10, 20.`, task7Step2: `Teiler von 30: 1, 2, 3, 5, 6, 10, 15, 30.`, task7Step3: `Gemeinsame Teiler: 1, 2, 5, 10 → der größte ist 10. Das ist der ggT(20, 30).`,
+  task7Hint: `"Möglichst viele Gruppen, nichts übrig" ist ein typisches ggT-Signal: gesucht ist die größte Anzahl gleicher Gruppen ohne Rest.`,
+  task8Step1: `Vielfache von 8: 8, 16, 24, 32.`, task8Step2: `Vielfache von 12: 12, 24, 36.`, task8Step3: `Die erste gemeinsame Zahl ist 24. Das ist das kgV(8, 12).`,
+  task8Hint: `"Wann treffen sich beide wieder" ist ein typisches kgV-Signal: gesucht ist der erste gemeinsame Zeitpunkt.`,
+  hintLabel: `Typischer Fehler:`,
+  footerMessage: `Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!`,
+  fbEmpty: `Trag bitte eine Zahl ein, bevor du prüfst.`,
+  fbCorrect: `Richtig! Gut gemacht!`,
+  fbIncorrect: `Noch nicht ganz richtig. Schau dir die Lösung weiter unten an und versuch es dann nochmal.`
+},
+en: {
+  eyebrow: `Luisen-Gymnasium · Grade 5`,
+  titleLine1: `Divisibility,`,
+  titleAccent: `GCD and LCM`,
+  backLink: `← All Topics`,
+  h2Basics: `Basics`,
+  basicsP1: `A number is divisible by another number if the division leaves no remainder. For example, 12 is divisible by 3 because 12 : 3 = 4 works out exactly. There are handy rules to spot this quickly: a number is divisible by 2 if it is even (ends in 0, 2, 4, 6 or 8). It's divisible by 5 if it ends in 0 or 5. And it's divisible by 10 if it ends in 0.`,
+  basicsP2: `The numbers that divide a number with no remainder are called its divisors. The divisors of 12, for example, are: 1, 2, 3, 4, 6 and 12.`,
+  basicsP3VennIntro: `When you compare the divisors of two numbers, you find common divisors. The largest of these is called the greatest common divisor, or GCD for short.`,
+  vennAria: `Venn diagram: divisors of 12 and divisors of 18, with the common divisors 1, 2, 3 and 6 in the middle, where 6 is the greatest common divisor`,
+  vennLabelLeft: `Divisors of 12`,
+  vennLabelRight: `Divisors of 18`,
+  vennGgtCaption: `= GCD`,
+  basicsExample1Label: `<strong>Step-by-step example:</strong><br>GCD(12, 18) = ?`,
+  basicsExample1Steps: `1. Divisors of 12: 1, 2, 3, 4, 6, 12<br>2. Divisors of 18: 1, 2, 3, 6, 9, 18<br>3. Common divisors: 1, 2, 3, 6 → the largest is 6<br>4. GCD(12, 18) = 6`,
+  basicsP4KgvIntro: `<strong>What about the LCM?</strong> The least common multiple (LCM) is the smallest number that is a multiple of both numbers.`,
+  basicsExample2Label: `<strong>Step-by-step example:</strong><br>LCM(4, 6) = ?`,
+  basicsExample2Steps: `1. Multiples of 4: 4, 8, 12, 16, 20<br>2. Multiples of 6: 6, 12, 18, 24<br>3. First common number: 12<br>4. LCM(4, 6) = 12`,
+  merkeTitle: `Remember`,
+  merkeBody: `Divisors of a number: all numbers that divide it with no remainder.<br>GCD: the largest divisor that two numbers have in common.<br>LCM: the smallest number that is a multiple of both numbers.`,
+  taskWord: `Exercise`,
+  task1Question: `How many divisors does the number 12 have?`, task2Question: `What is the GCD of 8 and 12?`, task3Question: `What is the GCD of 15 and 25?`, task4Question: `What is the LCM of 3 and 5?`, task5Question: `What is the LCM of 4 and 10?`, task6Question: `42 : 6 = ? (Check whether the division has no remainder)`,
+  task7Question: `Emma has 20 red and 30 blue beads. She wants to make bracelets with the same number of red beads and the same number of blue beads on each, with nothing left over — and make as many bracelets as possible. What's the maximum number of bracelets she can make?`,
+  task8Question: `Two buses leave the station. Bus A leaves every 8 minutes, Bus B every 12 minutes. Both just left at the same time. After how many minutes will they leave at the same time again?`,
+  answerPlaceholder: `Your answer`,
+  task7Placeholder: `Your answer (number)`,
+  task8Placeholder: `Your answer in minutes`,
+  checkButton: `Check`,
+  solutionSummary: `Show solution`,
+  task1Result: `Result: 6`, task2Result: `Result: 4`, task3Result: `Result: 5`, task4Result: `Result: 15`, task5Result: `Result: 20`, task6Result: `Result: 7`, task7Result: `Result: 10`, task8Result: `Result: 24 minutes`,
+  task1Step1: `Find all the numbers that divide 12 with no remainder: 1, 2, 3, 4, 6, 12.`, task1Step2: `Count the divisors you found: that's 6 numbers.`, task1Step3: `Result: 6.`,
+  task1Hint: `Don't forget that 1 and the number itself (here 12) are always divisors too.`,
+  task2Step1: `Divisors of 8: 1, 2, 4, 8.`, task2Step2: `Divisors of 12: 1, 2, 3, 4, 6, 12.`, task2Step3: `Common divisors: 1, 2, 4 → the largest is 4.`,
+  task2Hint: `Write out both lists of divisors and compare them — the largest common value is the GCD.`,
+  task3Step1: `Divisors of 15: 1, 3, 5, 15.`, task3Step2: `Divisors of 25: 1, 5, 25.`, task3Step3: `Common divisors: 1, 5 → the largest is 5.`,
+  task3Hint: `Even though both numbers are divisible by 5, that doesn't automatically mean 5 is the greatest common divisor — always check both lists fully.`,
+  task4Step1: `Multiples of 3: 3, 6, 9, 12, 15.`, task4Step2: `Multiples of 5: 5, 10, 15.`, task4Step3: `The first common number in both lists is 15.`,
+  task4Hint: `For two numbers with no common factor (other than 1), the LCM is often simply their product: 3 · 5 = 15.`,
+  task5Step1: `Multiples of 4: 4, 8, 12, 16, 20.`, task5Step2: `Multiples of 10: 10, 20.`, task5Step3: `The first common number is 20.`,
+  task5Hint: `Here the LCM isn't simply 4 · 10 = 40, because both numbers share the common factor 2. That's why you really need to compare the multiple lists.`,
+  task6Step1: `Calculate the division: 42 : 6 = 7.`, task6Step2: `Since there's no remainder, 42 is divisible by 6.`, task6Step3: `Result: 7.`,
+  task6Hint: `If the division doesn't come out even, the number isn't divisible. Here it comes out exactly.`,
+  task7Step1: `Divisors of 20: 1, 2, 4, 5, 10, 20.`, task7Step2: `Divisors of 30: 1, 2, 3, 5, 6, 10, 15, 30.`, task7Step3: `Common divisors: 1, 2, 5, 10 → the largest is 10. That's the GCD(20, 30).`,
+  task7Hint: `"As many equal groups as possible, nothing left over" is a typical GCD signal: you're looking for the largest number of equal groups with no remainder.`,
+  task8Step1: `Multiples of 8: 8, 16, 24, 32.`, task8Step2: `Multiples of 12: 12, 24, 36.`, task8Step3: `The first common number is 24. That's the LCM(8, 12).`,
+  task8Hint: `"When do both meet again" is a typical LCM signal: you're looking for the first shared point in time.`,
+  hintLabel: `Common mistake:`,
+  footerMessage: `Take your time and check the solution if you need to. You can do this!`,
+  fbEmpty: `Please enter a number before checking.`,
+  fbCorrect: `Correct! Well done!`,
+  fbIncorrect: `Not quite right yet. Check the solution below and try again.`
+},
+es: {
+  eyebrow: `Luisen-Gymnasium · 5.º curso`,
+  titleLine1: `Divisibilidad,`,
+  titleAccent: `MCD y MCM`,
+  backLink: `← Todos los temas`,
+  h2Basics: `Fundamentos`,
+  basicsP1: `Un número es divisible por otro cuando la división no deja resto. Por ejemplo, 12 es divisible por 3 porque 12 : 3 = 4 sale exacto. Hay reglas prácticas para reconocerlo rápido: un número es divisible por 2 si es par (termina en 0, 2, 4, 6 u 8). Es divisible por 5 si termina en 0 o 5. Y es divisible por 10 si termina en 0.`,
+  basicsP2: `Los números que dividen a otro número sin dejar resto se llaman sus divisores. Los divisores de 12, por ejemplo, son: 1, 2, 3, 4, 6 y 12.`,
+  basicsP3VennIntro: `Cuando comparas los divisores de dos números, encuentras divisores comunes. El mayor de ellos se llama máximo común divisor, o MCD.`,
+  vennAria: `Diagrama de Venn: divisores de 12 y divisores de 18, con los divisores comunes 1, 2, 3 y 6 en el centro, donde 6 es el máximo común divisor`,
+  vennLabelLeft: `Divisores de 12`,
+  vennLabelRight: `Divisores de 18`,
+  vennGgtCaption: `= MCD`,
+  basicsExample1Label: `<strong>Ejemplo paso a paso:</strong><br>MCD(12, 18) = ?`,
+  basicsExample1Steps: `1. Divisores de 12: 1, 2, 3, 4, 6, 12<br>2. Divisores de 18: 1, 2, 3, 6, 9, 18<br>3. Divisores comunes: 1, 2, 3, 6 → el mayor es 6<br>4. MCD(12, 18) = 6`,
+  basicsP4KgvIntro: `<strong>¿Y el MCM?</strong> El mínimo común múltiplo (MCM) es el número más pequeño que es múltiplo de ambos números.`,
+  basicsExample2Label: `<strong>Ejemplo paso a paso:</strong><br>MCM(4, 6) = ?`,
+  basicsExample2Steps: `1. Múltiplos de 4: 4, 8, 12, 16, 20<br>2. Múltiplos de 6: 6, 12, 18, 24<br>3. Primer número común: 12<br>4. MCM(4, 6) = 12`,
+  merkeTitle: `Recuerda`,
+  merkeBody: `Divisores de un número: todos los números que lo dividen sin dejar resto.<br>MCD: el mayor divisor que tienen en común dos números.<br>MCM: el número más pequeño que es múltiplo de ambos números.`,
+  taskWord: `Ejercicio`,
+  task1Question: `¿Cuántos divisores tiene el número 12?`, task2Question: `¿Cuál es el MCD de 8 y 12?`, task3Question: `¿Cuál es el MCD de 15 y 25?`, task4Question: `¿Cuál es el MCM de 3 y 5?`, task5Question: `¿Cuál es el MCM de 4 y 10?`, task6Question: `42 : 6 = ? (Comprueba si la división no deja resto)`,
+  task7Question: `Emma tiene 20 cuentas rojas y 30 azules. Quiere hacer pulseras con el mismo número de cuentas rojas y el mismo número de azules en cada una, sin que sobre nada, y hacer el mayor número posible de pulseras. ¿Cuántas pulseras puede hacer como máximo?`,
+  task8Question: `Dos autobuses salen de la estación. El autobús A sale cada 8 minutos, el autobús B cada 12 minutos. Ambos acaban de salir a la vez. ¿Después de cuántos minutos volverán a salir a la vez?`,
+  answerPlaceholder: `Tu respuesta`,
+  task7Placeholder: `Tu respuesta (cantidad)`,
+  task8Placeholder: `Tu respuesta en minutos`,
+  checkButton: `Comprobar`,
+  solutionSummary: `Ver solución`,
+  task1Result: `Resultado: 6`, task2Result: `Resultado: 4`, task3Result: `Resultado: 5`, task4Result: `Resultado: 15`, task5Result: `Resultado: 20`, task6Result: `Resultado: 7`, task7Result: `Resultado: 10`, task8Result: `Resultado: 24 minutos`,
+  task1Step1: `Busca todos los números que dividen a 12 sin dejar resto: 1, 2, 3, 4, 6, 12.`, task1Step2: `Cuenta los divisores encontrados: son 6 números.`, task1Step3: `Resultado: 6.`,
+  task1Hint: `No olvides que el 1 y el propio número (aquí 12) también son siempre divisores.`,
+  task2Step1: `Divisores de 8: 1, 2, 4, 8.`, task2Step2: `Divisores de 12: 1, 2, 3, 4, 6, 12.`, task2Step3: `Divisores comunes: 1, 2, 4 → el mayor es 4.`,
+  task2Hint: `Escribe ambas listas de divisores y compáralas — el mayor valor común es el MCD.`,
+  task3Step1: `Divisores de 15: 1, 3, 5, 15.`, task3Step2: `Divisores de 25: 1, 5, 25.`, task3Step3: `Divisores comunes: 1, 5 → el mayor es 5.`,
+  task3Hint: `Aunque ambos números sean divisibles por 5, eso no significa automáticamente que 5 sea el máximo común divisor — comprueba siempre ambas listas completas.`,
+  task4Step1: `Múltiplos de 3: 3, 6, 9, 12, 15.`, task4Step2: `Múltiplos de 5: 5, 10, 15.`, task4Step3: `El primer número común en ambas listas es 15.`,
+  task4Hint: `Para dos números sin factores comunes (aparte del 1), el MCM suele ser simplemente su producto: 3 · 5 = 15.`,
+  task5Step1: `Múltiplos de 4: 4, 8, 12, 16, 20.`, task5Step2: `Múltiplos de 10: 10, 20.`, task5Step3: `El primer número común es 20.`,
+  task5Hint: `Aquí el MCM no es simplemente 4 · 10 = 40, porque ambos números comparten el factor común 2. Por eso hay que comparar realmente las listas de múltiplos.`,
+  task6Step1: `Calcula la división: 42 : 6 = 7.`, task6Step2: `Como no queda resto, 42 es divisible entre 6.`, task6Step3: `Resultado: 7.`,
+  task6Hint: `Si la división no sale exacta, el número no es divisible. Aquí sale exacta.`,
+  task7Step1: `Divisores de 20: 1, 2, 4, 5, 10, 20.`, task7Step2: `Divisores de 30: 1, 2, 3, 5, 6, 10, 15, 30.`, task7Step3: `Divisores comunes: 1, 2, 5, 10 → el mayor es 10. Ese es el MCD(20, 30).`,
+  task7Hint: `"El mayor número de grupos iguales, sin que sobre nada" es una señal típica de MCD: se busca el mayor número de grupos iguales sin resto.`,
+  task8Step1: `Múltiplos de 8: 8, 16, 24, 32.`, task8Step2: `Múltiplos de 12: 12, 24, 36.`, task8Step3: `El primer número común es 24. Ese es el MCM(8, 12).`,
+  task8Hint: `"Cuándo vuelven a coincidir ambos" es una señal típica de MCM: se busca el primer momento en común.`,
+  hintLabel: `Error típico:`,
+  footerMessage: `Tómate tu tiempo y revisa la solución si la necesitas. ¡Tú puedes!`,
+  fbEmpty: `Introduce un número antes de comprobar.`,
+  fbCorrect: `¡Correcto! ¡Muy bien!`,
+  fbIncorrect: `Todavía no es correcto. Revisa la solución de abajo e inténtalo de nuevo.`
+},
+fr: {
+  eyebrow: `Luisen-Gymnasium · 5e`,
+  titleLine1: `Divisibilité,`,
+  titleAccent: `PGCD et PPCM`,
+  backLink: `← Tous les thèmes`,
+  h2Basics: `Les bases`,
+  basicsP1: `Un nombre est divisible par un autre si la division ne laisse pas de reste. Par exemple, 12 est divisible par 3 car 12 : 3 = 4 tombe juste. Il existe des règles pratiques pour le repérer rapidement : un nombre est divisible par 2 s'il est pair (se termine par 0, 2, 4, 6 ou 8). Il est divisible par 5 s'il se termine par 0 ou 5. Et il est divisible par 10 s'il se termine par 0.`,
+  basicsP2: `Les nombres qui divisent un nombre sans laisser de reste s'appellent ses diviseurs. Les diviseurs de 12, par exemple, sont : 1, 2, 3, 4, 6 et 12.`,
+  basicsP3VennIntro: `Quand on compare les diviseurs de deux nombres, on trouve des diviseurs communs. Le plus grand d'entre eux s'appelle le plus grand diviseur commun, ou PGCD.`,
+  vennAria: `Diagramme de Venn : diviseurs de 12 et diviseurs de 18, avec les diviseurs communs 1, 2, 3 et 6 au milieu, 6 étant le plus grand diviseur commun`,
+  vennLabelLeft: `Diviseurs de 12`,
+  vennLabelRight: `Diviseurs de 18`,
+  vennGgtCaption: `= PGCD`,
+  basicsExample1Label: `<strong>Exemple étape par étape :</strong><br>PGCD(12, 18) = ?`,
+  basicsExample1Steps: `1. Diviseurs de 12 : 1, 2, 3, 4, 6, 12<br>2. Diviseurs de 18 : 1, 2, 3, 6, 9, 18<br>3. Diviseurs communs : 1, 2, 3, 6 → le plus grand est 6<br>4. PGCD(12, 18) = 6`,
+  basicsP4KgvIntro: `<strong>Et le PPCM ?</strong> Le plus petit commun multiple (PPCM) est le plus petit nombre qui est un multiple des deux nombres.`,
+  basicsExample2Label: `<strong>Exemple étape par étape :</strong><br>PPCM(4, 6) = ?`,
+  basicsExample2Steps: `1. Multiples de 4 : 4, 8, 12, 16, 20<br>2. Multiples de 6 : 6, 12, 18, 24<br>3. Premier nombre commun : 12<br>4. PPCM(4, 6) = 12`,
+  merkeTitle: `À retenir`,
+  merkeBody: `Diviseurs d'un nombre : tous les nombres qui le divisent sans reste.<br>PGCD : le plus grand diviseur commun à deux nombres.<br>PPCM : le plus petit nombre qui est un multiple des deux nombres.`,
+  taskWord: `Exercice`,
+  task1Question: `Combien de diviseurs a le nombre 12 ?`, task2Question: `Quel est le PGCD de 8 et 12 ?`, task3Question: `Quel est le PGCD de 15 et 25 ?`, task4Question: `Quel est le PPCM de 3 et 5 ?`, task5Question: `Quel est le PPCM de 4 et 10 ?`, task6Question: `42 : 6 = ? (Vérifie si la division ne laisse pas de reste)`,
+  task7Question: `Emma a 20 perles rouges et 30 perles bleues. Elle veut faire des bracelets avec le même nombre de perles rouges et le même nombre de perles bleues sur chacun, sans qu'il en reste — et faire le plus de bracelets possible. Combien de bracelets peut-elle faire au maximum ?`,
+  task8Question: `Deux bus partent de la gare. Le bus A part toutes les 8 minutes, le bus B toutes les 12 minutes. Les deux viennent de partir en même temps. Après combien de minutes repartiront-ils à nouveau en même temps ?`,
+  answerPlaceholder: `Ta réponse`,
+  task7Placeholder: `Ta réponse (nombre)`,
+  task8Placeholder: `Ta réponse en minutes`,
+  checkButton: `Vérifier`,
+  solutionSummary: `Voir la solution`,
+  task1Result: `Résultat : 6`, task2Result: `Résultat : 4`, task3Result: `Résultat : 5`, task4Result: `Résultat : 15`, task5Result: `Résultat : 20`, task6Result: `Résultat : 7`, task7Result: `Résultat : 10`, task8Result: `Résultat : 24 minutes`,
+  task1Step1: `Cherche tous les nombres qui divisent 12 sans reste : 1, 2, 3, 4, 6, 12.`, task1Step2: `Compte les diviseurs trouvés : ça fait 6 nombres.`, task1Step3: `Résultat : 6.`,
+  task1Hint: `N'oublie pas que 1 et le nombre lui-même (ici 12) sont toujours des diviseurs aussi.`,
+  task2Step1: `Diviseurs de 8 : 1, 2, 4, 8.`, task2Step2: `Diviseurs de 12 : 1, 2, 3, 4, 6, 12.`, task2Step3: `Diviseurs communs : 1, 2, 4 → le plus grand est 4.`,
+  task2Hint: `Écris les deux listes de diviseurs et compare-les — la plus grande valeur commune est le PGCD.`,
+  task3Step1: `Diviseurs de 15 : 1, 3, 5, 15.`, task3Step2: `Diviseurs de 25 : 1, 5, 25.`, task3Step3: `Diviseurs communs : 1, 5 → le plus grand est 5.`,
+  task3Hint: `Même si les deux nombres sont divisibles par 5, cela ne signifie pas automatiquement que 5 est le plus grand diviseur commun — vérifie toujours les deux listes en entier.`,
+  task4Step1: `Multiples de 3 : 3, 6, 9, 12, 15.`, task4Step2: `Multiples de 5 : 5, 10, 15.`, task4Step3: `Le premier nombre commun dans les deux listes est 15.`,
+  task4Hint: `Pour deux nombres sans diviseur commun (à part 1), le PPCM est souvent simplement leur produit : 3 · 5 = 15.`,
+  task5Step1: `Multiples de 4 : 4, 8, 12, 16, 20.`, task5Step2: `Multiples de 10 : 10, 20.`, task5Step3: `Le premier nombre commun est 20.`,
+  task5Hint: `Ici le PPCM n'est pas simplement 4 · 10 = 40, car les deux nombres partagent le diviseur commun 2. C'est pourquoi il faut vraiment comparer les listes de multiples.`,
+  task6Step1: `Calcule la division : 42 : 6 = 7.`, task6Step2: `Comme il n'y a pas de reste, 42 est divisible par 6.`, task6Step3: `Résultat : 7.`,
+  task6Hint: `Si la division ne tombe pas juste, le nombre n'est pas divisible. Ici elle tombe exactement juste.`,
+  task7Step1: `Diviseurs de 20 : 1, 2, 4, 5, 10, 20.`, task7Step2: `Diviseurs de 30 : 1, 2, 3, 5, 6, 10, 15, 30.`, task7Step3: `Diviseurs communs : 1, 2, 5, 10 → le plus grand est 10. C'est le PGCD(20, 30).`,
+  task7Hint: `« Le plus de groupes égaux possible, sans qu'il reste rien » est un signal typique de PGCD : on cherche le plus grand nombre de groupes égaux sans reste.`,
+  task8Step1: `Multiples de 8 : 8, 16, 24, 32.`, task8Step2: `Multiples de 12 : 12, 24, 36.`, task8Step3: `Le premier nombre commun est 24. C'est le PPCM(8, 12).`,
+  task8Hint: `« Quand se retrouvent-ils à nouveau » est un signal typique de PPCM : on cherche le premier moment commun.`,
+  hintLabel: `Erreur fréquente :`,
+  footerMessage: `Prends ton temps et regarde la solution si besoin. Tu vas y arriver !`,
+  fbEmpty: `Merci d'indiquer un nombre avant de vérifier.`,
+  fbCorrect: `Correct ! Bien joué !`,
+  fbIncorrect: `Pas encore tout à fait juste. Regarde la solution ci-dessous et réessaie.`
+},
+tr: {
+  eyebrow: `Luisen-Gymnasium · 5. Sınıf`,
+  titleLine1: `Bölünebilme,`,
+  titleAccent: `EBOB ve EKOK`,
+  backLink: `← Tüm Konular`,
+  h2Basics: `Temel Bilgiler`,
+  basicsP1: `Bir sayı, bölme işleminde kalan sıfır oluyorsa başka bir sayıya bölünebilir demektir. Örneğin 12, 3'e bölünebilir çünkü 12 : 3 = 4 tam çıkar. Bunu hızlıca fark etmen için pratik kurallar var: bir sayı çift ise (0, 2, 4, 6 veya 8 ile bitiyorsa) 2'ye bölünebilir. 0 veya 5 ile bitiyorsa 5'e bölünebilir. Ve 0 ile bitiyorsa 10'a bölünebilir.`,
+  basicsP2: `Bir sayıyı kalansız bölen sayılara o sayının bölenleri denir. Örneğin 12'nin bölenleri: 1, 2, 3, 4, 6 ve 12'dir.`,
+  basicsP3VennIntro: `İki sayının bölenlerini karşılaştırdığında ortak bölenler bulursun. Bunların en büyüğüne en büyük ortak bölen, kısaca EBOB denir.`,
+  vennAria: `Venn şeması: 12'nin bölenleri ve 18'in bölenleri, ortadaki ortak bölenler 1, 2, 3 ve 6, burada 6 en büyük ortak bölendir`,
+  vennLabelLeft: `12'nin bölenleri`,
+  vennLabelRight: `18'in bölenleri`,
+  vennGgtCaption: `= EBOB`,
+  basicsExample1Label: `<strong>Adım adım örnek:</strong><br>EBOB(12, 18) = ?`,
+  basicsExample1Steps: `1. 12'nin bölenleri: 1, 2, 3, 4, 6, 12<br>2. 18'in bölenleri: 1, 2, 3, 6, 9, 18<br>3. Ortak bölenler: 1, 2, 3, 6 → en büyüğü: 6<br>4. EBOB(12, 18) = 6`,
+  basicsP4KgvIntro: `<strong>Peki EKOK?</strong> En küçük ortak kat (EKOK), her iki sayının da katı olan en küçük sayıdır.`,
+  basicsExample2Label: `<strong>Adım adım örnek:</strong><br>EKOK(4, 6) = ?`,
+  basicsExample2Steps: `1. 4'ün katları: 4, 8, 12, 16, 20<br>2. 6'nın katları: 6, 12, 18, 24<br>3. İlk ortak sayı: 12<br>4. EKOK(4, 6) = 12`,
+  merkeTitle: `Unutma`,
+  merkeBody: `Bir sayının bölenleri: onu kalansız bölen tüm sayılar.<br>EBOB: iki sayının ortak olan en büyük böleni.<br>EKOK: her iki sayının da katı olan en küçük sayı.`,
+  taskWord: `Alıştırma`,
+  task1Question: `12 sayısının kaç böleni vardır?`, task2Question: `8 ve 12'nin EBOB'u nedir?`, task3Question: `15 ve 25'in EBOB'u nedir?`, task4Question: `3 ve 5'in EKOK'u nedir?`, task5Question: `4 ve 10'un EKOK'u nedir?`, task6Question: `42 : 6 = ? (Bölmenin kalansız olup olmadığını kontrol et)`,
+  task7Question: `Emma'nın 20 kırmızı ve 30 mavi boncuğu var. Her birinde eşit sayıda kırmızı ve eşit sayıda mavi boncuk olan, hiçbir şey artmayan bilezikler yapmak istiyor — ve mümkün olduğunca çok bilezik yapmak istiyor. En fazla kaç bilezik yapabilir?`,
+  task8Question: `İstasyondan iki otobüs kalkıyor. A otobüsü her 8 dakikada bir, B otobüsü her 12 dakikada bir kalkıyor. İkisi de şimdi aynı anda kalktı. Kaç dakika sonra tekrar aynı anda kalkarlar?`,
+  answerPlaceholder: `Cevabın`,
+  task7Placeholder: `Cevabın (sayı)`,
+  task8Placeholder: `Cevabın (dakika)`,
+  checkButton: `Kontrol et`,
+  solutionSummary: `Çözümü göster`,
+  task1Result: `Sonuç: 6`, task2Result: `Sonuç: 4`, task3Result: `Sonuç: 5`, task4Result: `Sonuç: 15`, task5Result: `Sonuç: 20`, task6Result: `Sonuç: 7`, task7Result: `Sonuç: 10`, task8Result: `Sonuç: 24 dakika`,
+  task1Step1: `12'yi kalansız bölen tüm sayıları bul: 1, 2, 3, 4, 6, 12.`, task1Step2: `Bulunan bölenleri say: bunlar 6 sayı.`, task1Step3: `Sonuç: 6.`,
+  task1Hint: `1'in ve sayının kendisinin (burada 12) her zaman bölen olduğunu unutma.`,
+  task2Step1: `8'in bölenleri: 1, 2, 4, 8.`, task2Step2: `12'nin bölenleri: 1, 2, 3, 4, 6, 12.`, task2Step3: `Ortak bölenler: 1, 2, 4 → en büyüğü 4.`,
+  task2Hint: `Her iki bölen listesini yaz ve karşılaştır — en büyük ortak değer EBOB'tur.`,
+  task3Step1: `15'in bölenleri: 1, 3, 5, 15.`, task3Step2: `25'in bölenleri: 1, 5, 25.`, task3Step3: `Ortak bölenler: 1, 5 → en büyüğü 5.`,
+  task3Hint: `Her iki sayı da 5'e bölünse bile, bu otomatik olarak 5'in en büyük ortak bölen olduğu anlamına gelmez — her zaman her iki listeyi de tam olarak kontrol et.`,
+  task4Step1: `3'ün katları: 3, 6, 9, 12, 15.`, task4Step2: `5'in katları: 5, 10, 15.`, task4Step3: `Her iki listedeki ilk ortak sayı 15'tir.`,
+  task4Hint: `Ortak böleni olmayan (1 hariç) iki sayı için EKOK genellikle sadece ikisinin çarpımıdır: 3 · 5 = 15.`,
+  task5Step1: `4'ün katları: 4, 8, 12, 16, 20.`, task5Step2: `10'un katları: 10, 20.`, task5Step3: `İlk ortak sayı 20'dir.`,
+  task5Hint: `Burada EKOK basitçe 4 · 10 = 40 değildir, çünkü her iki sayının da ortak böleni 2'dir. Bu yüzden gerçekten kat listelerini karşılaştırman gerekir.`,
+  task6Step1: `Bölmeyi hesapla: 42 : 6 = 7.`, task6Step2: `Kalan olmadığı için 42, 6'ya bölünebilir.`, task6Step3: `Sonuç: 7.`,
+  task6Hint: `Bölme kalansız çıkmıyorsa sayı bölünemez demektir. Burada tam çıkıyor.`,
+  task7Step1: `20'nin bölenleri: 1, 2, 4, 5, 10, 20.`, task7Step2: `30'un bölenleri: 1, 2, 3, 5, 6, 10, 15, 30.`, task7Step3: `Ortak bölenler: 1, 2, 5, 10 → en büyüğü 10. Bu, EBOB(20, 30)'dur.`,
+  task7Hint: `"Mümkün olduğunca çok eşit grup, hiçbir şey artmadan" tipik bir EBOB işaretidir: kalansız en fazla eşit grup sayısı aranır.`,
+  task8Step1: `8'in katları: 8, 16, 24, 32.`, task8Step2: `12'nin katları: 12, 24, 36.`, task8Step3: `İlk ortak sayı 24'tür. Bu, EKOK(8, 12)'dir.`,
+  task8Hint: `"İkisi ne zaman tekrar buluşur" tipik bir EKOK işaretidir: ortak ilk zaman noktası aranır.`,
+  hintLabel: `Sık yapılan hata:`,
+  footerMessage: `Sakin sakin hesapla, gerekirse çözüme bak. Bunu başarabilirsin!`,
+  fbEmpty: `Kontrol etmeden önce lütfen bir sayı gir.`,
+  fbCorrect: `Doğru! Aferin!`,
+  fbIncorrect: `Henüz tam doğru değil. Aşağıdaki çözüme bak ve tekrar dene.`
+},
+ru: {
+  eyebrow: `Luisen-Gymnasium · 5 класс`,
+  titleLine1: `Делимость,`,
+  titleAccent: `НОД и НОК`,
+  backLink: `← Все темы`,
+  h2Basics: `Основы`,
+  basicsP1: `Число делится на другое число, если при делении не остаётся остатка. Например, 12 делится на 3, потому что 12 : 3 = 4 без остатка. Есть удобные правила, чтобы быстро это распознать: число делится на 2, если оно чётное (заканчивается на 0, 2, 4, 6 или 8). Оно делится на 5, если заканчивается на 0 или 5. А делится на 10, если заканчивается на 0.`,
+  basicsP2: `Числа, на которые данное число делится без остатка, называются его делителями. Делители числа 12, например: 1, 2, 3, 4, 6 и 12.`,
+  basicsP3VennIntro: `Если сравнить делители двух чисел, можно найти общие делители. Наибольший из них называется наибольшим общим делителем, сокращённо НОД.`,
+  vennAria: `Диаграмма Венна: делители 12 и делители 18, с общими делителями 1, 2, 3 и 6 в середине, где 6 — наибольший общий делитель`,
+  vennLabelLeft: `Делители 12`,
+  vennLabelRight: `Делители 18`,
+  vennGgtCaption: `= НОД`,
+  basicsExample1Label: `<strong>Пример по шагам:</strong><br>НОД(12, 18) = ?`,
+  basicsExample1Steps: `1. Делители 12: 1, 2, 3, 4, 6, 12<br>2. Делители 18: 1, 2, 3, 6, 9, 18<br>3. Общие делители: 1, 2, 3, 6 → наибольший: 6<br>4. НОД(12, 18) = 6`,
+  basicsP4KgvIntro: `<strong>А что такое НОК?</strong> Наименьшее общее кратное (НОК) — это наименьшее число, которое является кратным обоих чисел.`,
+  basicsExample2Label: `<strong>Пример по шагам:</strong><br>НОК(4, 6) = ?`,
+  basicsExample2Steps: `1. Кратные 4: 4, 8, 12, 16, 20<br>2. Кратные 6: 6, 12, 18, 24<br>3. Первое общее число: 12<br>4. НОК(4, 6) = 12`,
+  merkeTitle: `Запомни`,
+  merkeBody: `Делители числа: все числа, которые делят его без остатка.<br>НОД: наибольший делитель, общий для двух чисел.<br>НОК: наименьшее число, кратное обоим числам.`,
+  taskWord: `Задание`,
+  task1Question: `Сколько делителей у числа 12?`, task2Question: `Чему равен НОД 8 и 12?`, task3Question: `Чему равен НОД 15 и 25?`, task4Question: `Чему равен НОК 3 и 5?`, task5Question: `Чему равен НОК 4 и 10?`, task6Question: `42 : 6 = ? (Проверь, делится ли без остатка)`,
+  task7Question: `У Эммы 20 красных и 30 синих бусин. Она хочет сделать браслеты с одинаковым числом красных и одинаковым числом синих бусин на каждом, без остатка — и сделать как можно больше браслетов. Сколько браслетов она сможет сделать максимум?`,
+  task8Question: `Два автобуса отправляются со станции. Автобус А отправляется каждые 8 минут, автобус Б — каждые 12 минут. Оба только что отправились одновременно. Через сколько минут они снова отправятся одновременно?`,
+  answerPlaceholder: `Твой ответ`,
+  task7Placeholder: `Твой ответ (число)`,
+  task8Placeholder: `Твой ответ в минутах`,
+  checkButton: `Проверить`,
+  solutionSummary: `Показать решение`,
+  task1Result: `Результат: 6`, task2Result: `Результат: 4`, task3Result: `Результат: 5`, task4Result: `Результат: 15`, task5Result: `Результат: 20`, task6Result: `Результат: 7`, task7Result: `Результат: 10`, task8Result: `Результат: 24 минуты`,
+  task1Step1: `Найди все числа, на которые 12 делится без остатка: 1, 2, 3, 4, 6, 12.`, task1Step2: `Посчитай найденные делители: их 6.`, task1Step3: `Результат: 6.`,
+  task1Hint: `Не забывай, что 1 и само число (здесь 12) всегда тоже являются делителями.`,
+  task2Step1: `Делители 8: 1, 2, 4, 8.`, task2Step2: `Делители 12: 1, 2, 3, 4, 6, 12.`, task2Step3: `Общие делители: 1, 2, 4 → наибольший — 4.`,
+  task2Hint: `Запиши оба списка делителей и сравни их — наибольшее общее значение и есть НОД.`,
+  task3Step1: `Делители 15: 1, 3, 5, 15.`, task3Step2: `Делители 25: 1, 5, 25.`, task3Step3: `Общие делители: 1, 5 → наибольший — 5.`,
+  task3Hint: `Даже если оба числа делятся на 5, это не значит автоматически, что 5 — наибольший общий делитель — всегда проверяй оба списка полностью.`,
+  task4Step1: `Кратные 3: 3, 6, 9, 12, 15.`, task4Step2: `Кратные 5: 5, 10, 15.`, task4Step3: `Первое общее число в обоих списках — 15.`,
+  task4Hint: `Для двух чисел без общих делителей (кроме 1) НОК часто просто равен их произведению: 3 · 5 = 15.`,
+  task5Step1: `Кратные 4: 4, 8, 12, 16, 20.`, task5Step2: `Кратные 10: 10, 20.`, task5Step3: `Первое общее число — 20.`,
+  task5Hint: `Здесь НОК не равен просто 4 · 10 = 40, потому что оба числа имеют общий делитель 2. Поэтому действительно нужно сравнивать списки кратных.`,
+  task6Step1: `Вычисли деление: 42 : 6 = 7.`, task6Step2: `Так как остатка нет, 42 делится на 6.`, task6Step3: `Результат: 7.`,
+  task6Hint: `Если деление не выходит без остатка, число не делится. Здесь оно делится точно.`,
+  task7Step1: `Делители 20: 1, 2, 4, 5, 10, 20.`, task7Step2: `Делители 30: 1, 2, 3, 5, 6, 10, 15, 30.`, task7Step3: `Общие делители: 1, 2, 5, 10 → наибольший — 10. Это НОД(20, 30).`,
+  task7Hint: `«Как можно больше одинаковых групп, без остатка» — типичный сигнал НОД: ищется наибольшее число одинаковых групп без остатка.`,
+  task8Step1: `Кратные 8: 8, 16, 24, 32.`, task8Step2: `Кратные 12: 12, 24, 36.`, task8Step3: `Первое общее число — 24. Это НОК(8, 12).`,
+  task8Hint: `«Когда они снова встретятся» — типичный сигнал НОК: ищется первый общий момент времени.`,
+  hintLabel: `Типичная ошибка:`,
+  footerMessage: `Считай спокойно и при необходимости смотри решение. У тебя получится!`,
+  fbEmpty: `Пожалуйста, введи число перед проверкой.`,
+  fbCorrect: `Правильно! Отлично!`,
+  fbIncorrect: `Пока не совсем верно. Посмотри решение ниже и попробуй ещё раз.`
+},
+ar: {
+  eyebrow: `مدرسة لويزن الثانوية · الصف الخامس`,
+  titleLine1: `القابلية للقسمة،`,
+  titleAccent: `القاسم المشترك الأكبر والمضاعف المشترك الأصغر`,
+  backLink: `← جميع المواضيع`,
+  h2Basics: `الأساسيات`,
+  basicsP1: `يكون العدد قابلاً للقسمة على عدد آخر إذا لم تترك القسمة باقيًا. مثلًا، 12 قابل للقسمة على 3 لأن 12 : 3 = 4 بالضبط. توجد قواعد عملية لملاحظة ذلك بسرعة: العدد قابل للقسمة على 2 إذا كان زوجيًا (ينتهي بـ 0 أو 2 أو 4 أو 6 أو 8). وهو قابل للقسمة على 5 إذا انتهى بـ 0 أو 5. وقابل للقسمة على 10 إذا انتهى بـ 0.`,
+  basicsP2: `الأعداد التي يُقسَم عليها عدد ما دون باقٍ تُسمى قواسمه. قواسم العدد 12 مثلًا هي: 1، 2، 3، 4، 6، و12.`,
+  basicsP3VennIntro: `عند مقارنة قواسم عددين، نجد قواسم مشتركة. أكبرها يُسمى القاسم المشترك الأكبر.`,
+  vennAria: `مخطط فن: قواسم 12 وقواسم 18، مع القواسم المشتركة 1 و2 و3 و6 في الوسط، حيث 6 هو القاسم المشترك الأكبر`,
+  vennLabelLeft: `قواسم 12`,
+  vennLabelRight: `قواسم 18`,
+  vennGgtCaption: `= القاسم المشترك الأكبر`,
+  basicsExample1Label: `<strong>مثال خطوة بخطوة:</strong><br>القاسم المشترك الأكبر(12، 18) = ؟`,
+  basicsExample1Steps: `1. قواسم 12: 1، 2، 3، 4، 6، 12<br>2. قواسم 18: 1، 2، 3، 6، 9، 18<br>3. القواسم المشتركة: 1، 2، 3، 6 ← الأكبر: 6<br>4. القاسم المشترك الأكبر(12، 18) = 6`,
+  basicsP4KgvIntro: `<strong>وماذا عن المضاعف المشترك الأصغر؟</strong> المضاعف المشترك الأصغر هو أصغر عدد يكون مضاعفًا لكلا العددين.`,
+  basicsExample2Label: `<strong>مثال خطوة بخطوة:</strong><br>المضاعف المشترك الأصغر(4، 6) = ؟`,
+  basicsExample2Steps: `1. مضاعفات 4: 4، 8، 12، 16، 20<br>2. مضاعفات 6: 6، 12، 18، 24<br>3. أول عدد مشترك: 12<br>4. المضاعف المشترك الأصغر(4، 6) = 12`,
+  merkeTitle: `تذكّر`,
+  merkeBody: `قواسم عدد ما: كل الأعداد التي تقسمه دون باقٍ.<br>القاسم المشترك الأكبر: أكبر قاسم مشترك بين عددين.<br>المضاعف المشترك الأصغر: أصغر عدد مضاعف لكلا العددين.`,
+  taskWord: `تمرين`,
+  task1Question: `كم عدد قواسم الرقم 12؟`, task2Question: `ما هو القاسم المشترك الأكبر لـ 8 و12؟`, task3Question: `ما هو القاسم المشترك الأكبر لـ 15 و25؟`, task4Question: `ما هو المضاعف المشترك الأصغر لـ 3 و5؟`, task5Question: `ما هو المضاعف المشترك الأصغر لـ 4 و10؟`, task6Question: `42 : 6 = ؟ (تحقق مما إذا كانت القسمة بدون باقٍ)`,
+  task7Question: `لدى إيما 20 خرزة حمراء و30 خرزة زرقاء. تريد صنع أساور تحتوي كل واحدة منها على نفس عدد الخرزات الحمراء ونفس عدد الخرزات الزرقاء، دون أن يتبقى شيء — وتصنع أكبر عدد ممكن من الأساور. كم أسورة يمكنها صنعها كحد أقصى؟`,
+  task8Question: `تنطلق حافلتان من المحطة. تنطلق الحافلة أ كل 8 دقائق، والحافلة ب كل 12 دقيقة. انطلقتا للتو في نفس الوقت. بعد كم دقيقة ستنطلقان معًا مرة أخرى؟`,
+  answerPlaceholder: `إجابتك`,
+  task7Placeholder: `إجابتك (عدد)`,
+  task8Placeholder: `إجابتك بالدقائق`,
+  checkButton: `تحقق`,
+  solutionSummary: `عرض الحل`,
+  task1Result: `النتيجة: 6`, task2Result: `النتيجة: 4`, task3Result: `النتيجة: 5`, task4Result: `النتيجة: 15`, task5Result: `النتيجة: 20`, task6Result: `النتيجة: 7`, task7Result: `النتيجة: 10`, task8Result: `النتيجة: 24 دقيقة`,
+  task1Step1: `ابحث عن كل الأعداد التي يُقسَم عليها 12 دون باقٍ: 1، 2، 3، 4، 6، 12.`, task1Step2: `عُدّ القواسم التي وجدتها: هذه 6 أعداد.`, task1Step3: `النتيجة: 6.`,
+  task1Hint: `لا تنسَ أن 1 والعدد نفسه (هنا 12) هما دائمًا من القواسم أيضًا.`,
+  task2Step1: `قواسم 8: 1، 2، 4، 8.`, task2Step2: `قواسم 12: 1، 2، 3، 4، 6، 12.`, task2Step3: `القواسم المشتركة: 1، 2، 4 ← الأكبر هو 4.`,
+  task2Hint: `اكتب قائمتي القواسم وقارن بينهما — أكبر قيمة مشتركة هي القاسم المشترك الأكبر.`,
+  task3Step1: `قواسم 15: 1، 3، 5، 15.`, task3Step2: `قواسم 25: 1، 5، 25.`, task3Step3: `القواسم المشتركة: 1، 5 ← الأكبر هو 5.`,
+  task3Hint: `حتى لو كان العددان قابلين للقسمة على 5، فهذا لا يعني تلقائيًا أن 5 هو القاسم المشترك الأكبر — تحقق دائمًا من القائمتين كاملتين.`,
+  task4Step1: `مضاعفات 3: 3، 6، 9، 12، 15.`, task4Step2: `مضاعفات 5: 5، 10، 15.`, task4Step3: `أول عدد مشترك في القائمتين هو 15.`,
+  task4Hint: `بالنسبة لعددين ليس لهما قاسم مشترك (باستثناء 1)، غالبًا ما يكون المضاعف المشترك الأصغر هو ببساطة حاصل ضربهما: 3 · 5 = 15.`,
+  task5Step1: `مضاعفات 4: 4، 8، 12، 16، 20.`, task5Step2: `مضاعفات 10: 10، 20.`, task5Step3: `أول عدد مشترك هو 20.`,
+  task5Hint: `هنا المضاعف المشترك الأصغر ليس ببساطة 4 · 10 = 40، لأن العددين يشتركان في القاسم 2. لهذا يجب فعلًا مقارنة قوائم المضاعفات.`,
+  task6Step1: `احسب القسمة: 42 : 6 = 7.`, task6Step2: `بما أنه لا يوجد باقٍ، فإن 42 قابل للقسمة على 6.`, task6Step3: `النتيجة: 7.`,
+  task6Hint: `إذا لم تنتهِ القسمة دون باقٍ، فإن العدد غير قابل للقسمة. هنا تنتهي بالضبط.`,
+  task7Step1: `قواسم 20: 1، 2، 4، 5، 10، 20.`, task7Step2: `قواسم 30: 1، 2، 3، 5، 6، 10، 15، 30.`, task7Step3: `القواسم المشتركة: 1، 2، 5، 10 ← الأكبر هو 10. هذا هو القاسم المشترك الأكبر(20، 30).`,
+  task7Hint: `«أكبر عدد ممكن من المجموعات المتساوية، دون أن يتبقى شيء» إشارة نموذجية للقاسم المشترك الأكبر: المطلوب هو أكبر عدد من المجموعات المتساوية دون باقٍ.`,
+  task8Step1: `مضاعفات 8: 8، 16، 24، 32.`, task8Step2: `مضاعفات 12: 12، 24، 36.`, task8Step3: `أول عدد مشترك هو 24. هذا هو المضاعف المشترك الأصغر(8، 12).`,
+  task8Hint: `«متى يلتقيان مرة أخرى» إشارة نموذجية للمضاعف المشترك الأصغر: المطلوب هو أول لحظة مشتركة.`,
+  hintLabel: `خطأ شائع:`,
+  footerMessage: `احسب بهدوء وراجع الحل إذا احتجت إليه. أنت قادر على ذلك!`,
+  fbEmpty: `الرجاء إدخال رقم قبل التحقق.`,
+  fbCorrect: `صحيح! أحسنت!`,
+  fbIncorrect: `ليست صحيحة تمامًا بعد. راجع الحل أدناه وحاول مرة أخرى.`
+},
+zh: {
+  eyebrow: `路易森文理中学 · 五年级`,
+  titleLine1: `整除性、`,
+  titleAccent: `最大公约数和最小公倍数`,
+  backLink: `← 所有主题`,
+  h2Basics: `基础知识`,
+  basicsP1: `如果一个数除以另一个数没有余数，就说这个数能被另一个数整除。例如，12 能被 3 整除，因为 12 : 3 = 4 正好整除。有一些实用的规则可以快速判断：如果一个数是偶数（以 0、2、4、6 或 8 结尾），它就能被 2 整除。如果以 0 或 5 结尾，就能被 5 整除。如果以 0 结尾，就能被 10 整除。`,
+  basicsP2: `能整除某个数且没有余数的数，叫做这个数的约数。例如，12 的约数是：1、2、3、4、6 和 12。`,
+  basicsP3VennIntro: `比较两个数的约数时，会发现公共约数。其中最大的一个叫做最大公约数。`,
+  vennAria: `文氏图：12 的约数和 18 的约数，中间是公共约数 1、2、3 和 6，其中 6 是最大公约数`,
+  vennLabelLeft: `12 的约数`,
+  vennLabelRight: `18 的约数`,
+  vennGgtCaption: `= 最大公约数`,
+  basicsExample1Label: `<strong>分步示例：</strong> 最大公约数(12, 18) = ?`,
+  basicsExample1Steps: `1. 12 的约数：1, 2, 3, 4, 6, 12<br>2. 18 的约数：1, 2, 3, 6, 9, 18<br>3. 公共约数：1, 2, 3, 6 → 其中最大的是 6<br>4. 最大公约数(12, 18) = 6`,
+  basicsP4KgvIntro: `<strong>那最小公倍数呢？</strong>最小公倍数是同时是两个数的倍数中最小的那个数。`,
+  basicsExample2Label: `<strong>分步示例：</strong> 最小公倍数(4, 6) = ?`,
+  basicsExample2Steps: `1. 4 的倍数：4, 8, 12, 16, 20<br>2. 6 的倍数：6, 12, 18, 24<br>3. 第一个公共数：12<br>4. 最小公倍数(4, 6) = 12`,
+  merkeTitle: `记住`,
+  merkeBody: `一个数的约数：能整除它且没有余数的所有数。<br>最大公约数：两个数共有的最大约数。<br>最小公倍数：同时是两个数的倍数中最小的数。`,
+  taskWord: `练习`,
+  task1Question: `数字 12 有多少个约数？`, task2Question: `8 和 12 的最大公约数是多少？`, task3Question: `15 和 25 的最大公约数是多少？`, task4Question: `3 和 5 的最小公倍数是多少？`, task5Question: `4 和 10 的最小公倍数是多少？`, task6Question: `42 : 6 = ?（检查这个除法是否没有余数）`,
+  task7Question: `艾玛有20颗红珠子和30颗蓝珠子。她想做手链，每条手链上红珠子数量相同、蓝珠子数量也相同，并且不能有剩余——同时想做尽可能多的手链。她最多能做多少条手链？`,
+  task8Question: `两辆公交车从车站出发。A车每8分钟发一班，B车每12分钟发一班。两车刚才同时出发。多少分钟后它们会再次同时出发？`,
+  answerPlaceholder: `你的答案`,
+  task7Placeholder: `你的答案（数量）`,
+  task8Placeholder: `你的答案（分钟）`,
+  checkButton: `检查`,
+  solutionSummary: `显示答案`,
+  task1Result: `结果：6`, task2Result: `结果：4`, task3Result: `结果：5`, task4Result: `结果：15`, task5Result: `结果：20`, task6Result: `结果：7`, task7Result: `结果：10`, task8Result: `结果：24 分钟`,
+  task1Step1: `找出能整除 12 且没有余数的所有数：1, 2, 3, 4, 6, 12。`, task1Step2: `数一数找到的约数：一共 6 个。`, task1Step3: `结果：6。`,
+  task1Hint: `别忘了 1 和这个数本身（这里是 12）也总是它的约数。`,
+  task2Step1: `8 的约数：1, 2, 4, 8。`, task2Step2: `12 的约数：1, 2, 3, 4, 6, 12。`, task2Step3: `公共约数：1, 2, 4 → 最大的是 4。`,
+  task2Hint: `把两个约数列表都写出来并比较——最大的公共值就是最大公约数。`,
+  task3Step1: `15 的约数：1, 3, 5, 15。`, task3Step2: `25 的约数：1, 5, 25。`, task3Step3: `公共约数：1, 5 → 最大的是 5。`,
+  task3Hint: `即使两个数都能被 5 整除，也不代表 5 自动就是最大公约数——一定要完整检查两个列表。`,
+  task4Step1: `3 的倍数：3, 6, 9, 12, 15。`, task4Step2: `5 的倍数：5, 10, 15。`, task4Step3: `两个列表中第一个公共数是 15。`,
+  task4Hint: `对于没有公共因数（除了1）的两个数，最小公倍数通常就是它们的乘积：3 · 5 = 15。`,
+  task5Step1: `4 的倍数：4, 8, 12, 16, 20。`, task5Step2: `10 的倍数：10, 20。`, task5Step3: `第一个公共数是 20。`,
+  task5Hint: `这里最小公倍数不是简单的 4 · 10 = 40，因为两个数有公共因数 2。所以必须真正比较倍数列表。`,
+  task6Step1: `计算除法：42 : 6 = 7。`, task6Step2: `因为没有余数，所以 42 能被 6 整除。`, task6Step3: `结果：7。`,
+  task6Hint: `如果除法除不尽，说明这个数不能被整除。这里正好整除。`,
+  task7Step1: `20 的约数：1, 2, 4, 5, 10, 20。`, task7Step2: `30 的约数：1, 2, 3, 5, 6, 10, 15, 30。`, task7Step3: `公共约数：1, 2, 5, 10 → 最大的是 10。这就是最大公约数(20, 30)。`,
+  task7Hint: `"尽可能多的相等小组，不能有剩余"是典型的最大公约数信号：要找的是没有余数的最大相等分组数。`,
+  task8Step1: `8 的倍数：8, 16, 24, 32。`, task8Step2: `12 的倍数：12, 24, 36。`, task8Step3: `第一个公共数是 24。这就是最小公倍数(8, 12)。`,
+  task8Hint: `"两者何时再次相遇"是典型的最小公倍数信号：要找的是第一个共同的时间点。`,
+  hintLabel: `常见错误：`,
+  footerMessage: `慢慢算，需要的话看看答案。你能做到！`,
+  fbEmpty: `请先输入一个数字再检查。`,
+  fbCorrect: `正确！做得好！`,
+  fbIncorrect: `还不完全正确。看看下面的答案，再试一次。`
+}
+};
+
+var currentLang = 'de';
+
+function setLanguage(lang){
+  var dict = TRANSLATIONS[lang] || TRANSLATIONS.de;
+  currentLang = TRANSLATIONS[lang] ? lang : 'de';
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = (currentLang === 'ar') ? 'rtl' : 'ltr';
+
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var key = el.getAttribute('data-i18n');
+    if(dict[key] !== undefined){ el.innerHTML = dict[key]; }
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-placeholder');
+    if(dict[key] !== undefined){ el.setAttribute('placeholder', dict[key]); }
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-aria');
+    if(dict[key] !== undefined){ el.setAttribute('aria-label', dict[key]); }
+  });
+
+  try{ localStorage.setItem('mathecoach_lang', currentLang); }catch(e){}
+  var sel = document.getElementById('langSelect');
+  if(sel) sel.value = currentLang;
+}
+
+function check(id, correct){
+  var dict = TRANSLATIONS[currentLang] || TRANSLATIONS.de;
+  var input = document.getElementById('input' + id);
+  var feedback = document.getElementById('feedback' + id);
+  var raw = input.value.trim();
+  var match = raw.match(/-?\d+/);
+
+  feedback.classList.remove('show', 'correct', 'incorrect');
+
+  if(!match){
+    feedback.textContent = dict.fbEmpty;
+    feedback.classList.add('show', 'incorrect');
+    return;
+  }
+
+  var value = parseInt(match[0], 10);
+
+  if(value === correct){
+    feedback.textContent = dict.fbCorrect;
+    feedback.classList.add('show', 'correct');
+  } else {
+    feedback.textContent = dict.fbIncorrect;
+    feedback.classList.add('show', 'incorrect');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var saved = 'de';
+  try{ saved = localStorage.getItem('mathecoach_lang') || 'de'; }catch(e){}
+  setLanguage(saved);
+});
+</script>
+
+</body>
+</html>
