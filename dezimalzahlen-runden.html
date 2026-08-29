@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dezimalzahlen runden und umwandeln</title>
+<style>
+  :root{
+    --bg:#FAFAF9; --card:#FFFFFF; --ink:#241C1C; --ink-soft:#5C4F4C;
+    --red:#C41230; --gold:#E0A526; --blue:#2478B5;
+    --merke-bg:#FBF1DC; --merke-border:#E0A526;
+    --success:#1E8E5A; --success-bg:#E5F5EC; --error:#B3401D; --error-bg:#FBEDE6;
+    --font-display: ui-rounded, "SF Pro Rounded", "Segoe UI Rounded", "Nunito", system-ui, sans-serif;
+    --font-body: system-ui, "Segoe UI", Roboto, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:18px; line-height:1.5; padding-bottom:60px; }
+  .wrap{ max-width:640px; margin:0 auto; padding:0 20px; }
+  header{ background:var(--card); padding:30px 20px 0; text-align:center; position:relative; }
+  .header-inner{ padding-bottom:26px; }
+  .lang-switch{ display:flex; justify-content:center; margin-bottom:14px; }
+  #langSelect{ font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--ink); background:var(--card); border:2px solid #E3DFDA; border-radius:999px; padding:6px 14px; cursor:pointer; }
+  #langSelect:focus-visible{ outline:3px solid var(--blue); }
+  .back-link{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--blue); text-decoration:none; margin-bottom:16px; }
+  .eyebrow{ font-family:var(--font-display); font-weight:700; font-size:14px; letter-spacing:0.08em; text-transform:uppercase; color:var(--blue); margin-bottom:8px; }
+  h1{ font-family:var(--font-display); font-size:28px; font-weight:800; margin:0; line-height:1.25; }
+  h1 .accent{ color:var(--red); }
+  .wave{ display:block; width:100%; height:30px; }
+  section{ margin-top:32px; }
+  .card{ background:var(--card); border-radius:22px; padding:24px 22px; box-shadow:0 2px 14px rgba(36,28,28,0.07); }
+  h2{ font-family:var(--font-display); font-size:21px; font-weight:800; margin:0 0 14px; }
+  h2 .num{ display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:var(--blue); color:white; font-size:16px; margin-inline-end:10px; vertical-align:middle; }
+  p{ margin:0 0 14px; color:var(--ink-soft); }
+  .merke{ background:var(--merke-bg); border:2px solid var(--merke-border); border-radius:16px; padding:16px 18px; margin-top:16px; }
+  .merke-title{ font-family:var(--font-display); font-weight:800; color:#8A5A0F; font-size:15px; letter-spacing:0.04em; text-transform:uppercase; margin-bottom:6px; }
+  .merke-body{ color:#6B4A12; font-weight:600; margin:0; }
+  .round-diagram{ width:100%; height:auto; margin:18px 0 6px; }
+  .task-card{ margin-top:18px; }
+  .task-question{ font-family:var(--font-display); font-weight:700; font-size:19px; margin-bottom:16px; }
+  .answer-row{ display:flex; gap:10px; margin-bottom:6px; }
+  input[type="text"]{ flex:1; font-size:18px; font-family:var(--font-body); padding:12px 14px; border-radius:12px; border:2px solid #E3DFDA; background:#FBFAF9; color:var(--ink); }
+  input[type="text"]:focus{ outline:3px solid #C9DCEA; border-color:var(--blue); }
+  button.check{ font-family:var(--font-display); font-weight:700; font-size:16px; color:white; background:var(--blue); border:none; border-radius:12px; padding:0 20px; cursor:pointer; }
+  button.check:active{ transform:translateY(1px); }
+  button.check:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
+  .feedback{ margin-top:10px; padding:12px 14px; border-radius:12px; font-weight:700; display:none; }
+  .feedback.show{ display:block; }
+  .feedback.correct{ background:var(--success-bg); color:var(--success); }
+  .feedback.incorrect{ background:var(--error-bg); color:var(--error); }
+  details{ margin-top:14px; border-top:2px dashed #E3DFDA; padding-top:12px; }
+  summary{ font-family:var(--font-display); font-weight:700; color:var(--blue); cursor:pointer; font-size:15px; }
+  .solution{ margin-top:12px; }
+  .solution ol{ margin:0 0 12px; padding-inline-start:22px; color:var(--ink-soft); }
+  .solution li{ margin-bottom:6px; }
+  .solution-result{ font-family:var(--font-display); font-weight:800; color:var(--ink); margin-bottom:12px; }
+  .hint-box{ background:#F1EFEC; border-radius:12px; padding:12px 14px; font-size:16px; color:var(--ink-soft); }
+  .hint-box strong{ color:var(--ink); }
+  footer{ text-align:center; margin-top:36px; padding:0 20px; }
+  footer p{ font-family:var(--font-display); font-weight:700; color:var(--ink); }
+  .footer-wave{ display:block; width:100%; max-width:280px; height:16px; margin:0 auto 18px; opacity:0.6; }
+  [dir="rtl"] .back-link{ flex-direction:row-reverse; }
+  @media (prefers-reduced-motion: no-preference){ button.check{ transition:transform 0.1s ease; } }
+  @media (max-width: 480px){ .answer-row{ flex-direction:column; } button.check{ width:100%; padding:14px 20px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="lang-switch">
+      <select id="langSelect" onchange="setLanguage(this.value)">
+        <option value="de">Deutsch</option><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="tr">Türkçe</option><option value="ru">Русский</option><option value="ar">العربية</option><option value="zh">中文</option>
+      </select>
+    </div>
+    <a class="back-link" href="index.html" data-i18n="backLink">← Alle Themen</a>
+    <div class="eyebrow" data-i18n="eyebrow">Luisen-Gymnasium · Klasse 6</div>
+    <h1><span data-i18n="titleLine1">Dezimalzahlen</span><br><span class="accent" data-i18n="titleAccent">runden und umwandeln</span></h1>
+  </div>
+  <svg class="wave" viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+    <path d="M -10 22 C 190 4, 390 40, 590 22 S 990 4, 1210 22" fill="none" stroke="#C41230" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 32 C 190 50, 390 14, 590 32 S 990 50, 1210 32" fill="none" stroke="#E0A526" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 42 C 190 24, 390 58, 590 42 S 990 24, 1210 42" fill="none" stroke="#2478B5" stroke-width="5" stroke-linecap="round"/>
+  </svg>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <div class="card">
+      <h2 data-i18n="h2Basics">Grundlagen</h2>
+      <p data-i18n="basicsP1"><strong>Runden:</strong> Um eine Zahl zu runden, schaust du dir die Ziffer direkt nach der Rundungsstelle an. Ist sie 0 bis 4, bleibt die Rundungsstelle gleich (abrunden). Ist sie 5 bis 9, wird die Rundungsstelle um 1 erhöht (aufrunden).</p>
+
+      <svg class="round-diagram" viewBox="0 0 600 90" xmlns="http://www.w3.org/2000/svg" role="img" data-i18n-aria="roundAria" aria-label="Ziffern 0 bis 4 werden abgerundet, Ziffern 5 bis 9 werden aufgerundet">
+        <defs>
+          <linearGradient id="splitround" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#DCEAF6"/><stop offset="50%" stop-color="#DCEAF6"/>
+            <stop offset="50%" stop-color="#FBE3DA"/><stop offset="100%" stop-color="#FBE3DA"/>
+          </linearGradient>
+        </defs>
+        <rect x="10" y="20" width="580" height="30" rx="15" fill="url(#splitround)"/>
+        <line x1="10" y1="35" x2="590" y2="35" stroke="#241C1C" stroke-width="2"/>
+        <text x="30" y="15" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="13" font-weight="700" fill="#241C1C">0</text>
+        <text x="580" y="15" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="13" font-weight="700" fill="#241C1C">9</text>
+        <line x1="300" y1="20" x2="300" y2="50" stroke="#241C1C" stroke-width="3"/>
+        <text x="300" y="15" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="13" font-weight="800" fill="#241C1C">5</text>
+        <text data-i18n="roundDownLabel" x="150" y="75" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="15" font-weight="800" fill="#2478B5">0–4: abrunden</text>
+        <text data-i18n="roundUpLabel" x="450" y="75" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="15" font-weight="800" fill="#C41230">5–9: aufrunden</text>
+      </svg>
+
+      <p data-i18n="basicsExample1Label"><strong>Beispiel Schritt für Schritt:</strong> Runde 3,65 auf eine Nachkommastelle.</p>
+      <p data-i18n="basicsExample1Steps">1. Rundungsstelle ist die erste Nachkommastelle (6). Schau dir die nächste Ziffer an: 5.<br>2. 5 bedeutet aufrunden: die 6 wird zur 7.<br>3. Ergebnis: 3,7</p>
+
+      <p data-i18n="basicsP2Convert"><strong>Bruch in Dezimalzahl umwandeln:</strong> Man teilt den Zähler durch den Nenner. <strong>Dezimalzahl in Bruch umwandeln:</strong> Man liest die Nachkommastellen als Bruch (z.B. Zehntel oder Hundertstel) und kürzt dann.</p>
+
+      <p data-i18n="basicsExample2Label"><strong>Beispiel Schritt für Schritt:</strong> Wandle 3/4 in eine Dezimalzahl um.</p>
+      <p data-i18n="basicsExample2Steps">1. Zähler durch Nenner teilen: 3 : 4 = 0,75<br>2. Ergebnis: 0,75</p>
+
+      <div class="merke">
+        <div class="merke-title" data-i18n="merkeTitle">Merke</div>
+        <p class="merke-body" data-i18n="merkeBody">Ziffer 0–4 nach der Rundungsstelle: abrunden.<br>Ziffer 5–9 nach der Rundungsstelle: aufrunden.<br>Bruch → Dezimalzahl: Zähler durch Nenner teilen.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">1</span><span data-i18n="taskWord">Aufgabe</span> 1</h2>
+      <div class="task-question" data-i18n="task1Question">Runde 4,23 auf eine Nachkommastelle.</div>
+      <div class="answer-row">
+        <input type="text" id="input1" data-i18n-placeholder="answerPlaceholder" placeholder="z.B. 4,2" inputmode="decimal">
+        <button class="check" data-i18n="checkButton" onclick="check(1, 4.2)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback1"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task1Result">Ergebnis: 4,2</div>
+          <ol>
+            <li data-i18n="task1Step1">Nächste Ziffer nach der Rundungsstelle anschauen: die 3 in 4,23.</li>
+            <li data-i18n="task1Step2">3 ist kleiner als 5, also wird abgerundet.</li>
+            <li data-i18n="task1Step3">Ergebnis: 4,2.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task1Hint">Man schaut nur auf die direkt folgende Ziffer, nicht auf alle weiteren Nachkommastellen.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">2</span><span data-i18n="taskWord">Aufgabe</span> 2</h2>
+      <div class="task-question" data-i18n="task2Question">Runde 7,58 auf eine Nachkommastelle.</div>
+      <div class="answer-row">
+        <input type="text" id="input2" data-i18n-placeholder="answerPlaceholder" placeholder="z.B. 4,2" inputmode="decimal">
+        <button class="check" data-i18n="checkButton" onclick="check(2, 7.6)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback2"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task2Result">Ergebnis: 7,6</div>
+          <ol>
+            <li data-i18n="task2Step1">Nächste Ziffer anschauen: die 8 in 7,58.</li>
+            <li data-i18n="task2Step2">8 ist 5 oder größer, also wird aufgerundet.</li>
+            <li data-i18n="task2Step3">Ergebnis: 7,6.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task2Hint">Beim Aufrunden wird die Rundungsstelle um 1 erhöht, nicht die ganze Zahl neu erfunden.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">3</span><span data-i18n="taskWord">Aufgabe</span> 3</h2>
+      <div class="task-question" data-i18n="task3Question">Runde 12,449 auf eine Nachkommastelle.</div>
+      <div class="answer-row">
+        <input type="text" id="input3" data-i18n-placeholder="answerPlaceholder" placeholder="z.B. 4,2" inputmode="decimal">
+        <button class="check" data-i18n="checkButton" onclick="check(3, 12.4)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback3"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task3Result">Ergebnis: 12,4</div>
+          <ol>
+            <li data-i18n="task3Step1">Nächste Ziffer anschauen: die 4 in 12,449 (direkt nach der ersten Nachkommastelle).</li>
+            <li data-i18n="task3Step2">4 ist kleiner als 5, also wird abgerundet.</li>
+            <li data-i18n="task3Step3">Ergebnis: 12,4.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task3Hint">Man lässt sich von der 9 am Ende täuschen – aber entscheidend ist nur die Ziffer direkt nach der Rundungsstelle.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">4</span><span data-i18n="taskWord">Aufgabe</span> 4</h2>
+      <div class="task-question" data-i18n="task4Question">Wandle den Bruch 3/4 in eine Dezimalzahl um.</div>
+      <div class="answer-row">
+        <input type="text" id="input4" data-i18n-placeholder="answerPlaceholder" placeholder="z.B. 4,2" inputmode="decimal">
+        <button class="check" data-i18n="checkButton" onclick="check(4, 0.75)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback4"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task4Result">Ergebnis: 0,75</div>
+          <ol>
+            <li data-i18n="task4Step1">Zähler durch Nenner teilen: 3 : 4.</li>
+            <li data-i18n="task4Step2">3 : 4 = 0,75.</li>
+            <li data-i18n="task4Step3">Ergebnis: 0,75.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task4Hint">Man teilt den Zähler durch den Nenner, nicht umgekehrt.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">5</span><span data-i18n="taskWord">Aufgabe</span> 5</h2>
+      <div class="task-question" data-i18n="task5Question">Wandle den Bruch 1/8 in eine Dezimalzahl um.</div>
+      <div class="answer-row">
+        <input type="text" id="input5" data-i18n-placeholder="answerPlaceholder" placeholder="z.B. 4,2" inputmode="decimal">
+        <button class="check" data-i18n="checkButton" onclick="check(5, 0.125)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback5"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task5Result">Ergebnis: 0,125</div>
+          <ol>
+            <li data-i18n="task5Step1">Zähler durch Nenner teilen: 1 : 8.</li>
+            <li data-i18n="task5Step2">1 : 8 = 0,125.</li>
+            <li data-i18n="task5Step3">Ergebnis: 0,125.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task5Hint">Nicht jeder Bruch hat nur eine Nachkommastelle – manche haben mehrere, wie hier drei.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">6</span><span data-i18n="taskWord">Aufgabe</span> 6</h2>
+      <div class="task-question" data-i18n="task6Question">Wandle 0,6 in einen vollständig gekürzten Bruch um. Wie lautet der Nenner?</div>
+      <div class="answer-row">
+        <input type="text" id="input6" data-i18n-placeholder="answerPlaceholder" placeholder="z.B. 4,2" inputmode="decimal">
+        <button class="check" data-i18n="checkButton" onclick="check(6, 5)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback6"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task6Result">Ergebnis: 5</div>
+          <ol>
+            <li data-i18n="task6Step1">0,6 bedeutet 6 Zehntel, also 6/10.</li>
+            <li data-i18n="task6Step2">Kürzen (ggT von 6 und 10 ist 2): 6/10 = 3/5.</li>
+            <li data-i18n="task6Step3">Der Nenner ist 5.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task6Hint">Nach dem Aufstellen des Bruchs (z.B. 6/10) nicht vergessen, noch zu kürzen.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">7</span><span data-i18n="taskWord">Aufgabe</span> 7</h2>
+      <div class="task-question" data-i18n="task7Question">Ein Fahrrad kostet 129,49 Euro. Runde den Preis auf ganze Euro.</div>
+      <div class="answer-row">
+        <input type="text" id="input7" data-i18n-placeholder="answerPlaceholder" placeholder="z.B. 4,2" inputmode="decimal">
+        <button class="check" data-i18n="checkButton" onclick="check(7, 129)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback7"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task7Result">Ergebnis: 129 Euro</div>
+          <ol>
+            <li data-i18n="task7Step1">Nächste Ziffer nach dem Komma anschauen: die 4 in 129,49.</li>
+            <li data-i18n="task7Step2">4 ist kleiner als 5, also wird abgerundet.</li>
+            <li data-i18n="task7Step3">Ergebnis: 129 Euro.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task7Hint">Beim Runden auf ganze Euro zählt nur die erste Nachkommastelle, nicht der ganze Centbetrag.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">8</span><span data-i18n="taskWord">Aufgabe</span> 8</h2>
+      <div class="task-question" data-i18n="task8Question">In einer Klasse mit 8 Kindern sind 5 Mädchen. Wandle den Anteil der Mädchen in eine Dezimalzahl um (gerundet auf zwei Nachkommastellen).</div>
+      <div class="answer-row">
+        <input type="text" id="input8" data-i18n-placeholder="answerPlaceholder" placeholder="z.B. 4,2" inputmode="decimal">
+        <button class="check" data-i18n="checkButton" onclick="check(8, 0.63)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback8"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task8Result">Ergebnis: 0,63</div>
+          <ol>
+            <li data-i18n="task8Step1">Der Anteil ist 5/8. Teilen: 5 : 8 = 0,625.</li>
+            <li data-i18n="task8Step2">Auf zwei Nachkommastellen runden: die dritte Nachkommastelle (5) rundet auf.</li>
+            <li data-i18n="task8Step3">Ergebnis: 0,63.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task8Hint">Zuerst den vollständigen Dezimalwert berechnen, erst danach auf die verlangte Stelle runden.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <footer>
+    <svg class="footer-wave" viewBox="0 0 280 16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+      <path d="M -5 8 C 40 1, 80 15, 140 8 S 240 1, 285 8" fill="none" stroke="#C41230" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M -5 8 C 40 15, 80 1, 140 8 S 240 15, 285 8" fill="none" stroke="#2478B5" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+    </svg>
+    <p id="footer-msg" data-i18n="footerMessage">Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!</p>
+  </footer>
+
+</div>
+
+<script>
+const TRANSLATIONS = {
+de: {
+  eyebrow: `Luisen-Gymnasium · Klasse 6`, titleLine1: `Dezimalzahlen`, titleAccent: `runden und umwandeln`, backLink: `← Alle Themen`, h2Basics: `Grundlagen`,
+  basicsP1: `<strong>Runden:</strong> Um eine Zahl zu runden, schaust du dir die Ziffer direkt nach der Rundungsstelle an. Ist sie 0 bis 4, bleibt die Rundungsstelle gleich (abrunden). Ist sie 5 bis 9, wird die Rundungsstelle um 1 erhöht (aufrunden).`,
+  roundAria: `Ziffern 0 bis 4 werden abgerundet, Ziffern 5 bis 9 werden aufgerundet`,
+  roundDownLabel: `0–4: abrunden`, roundUpLabel: `5–9: aufrunden`,
+  basicsExample1Label: `<strong>Beispiel Schritt für Schritt:</strong> Runde 3,65 auf eine Nachkommastelle.`,
+  basicsExample1Steps: `1. Rundungsstelle ist die erste Nachkommastelle (6). Schau dir die nächste Ziffer an: 5.<br>2. 5 bedeutet aufrunden: die 6 wird zur 7.<br>3. Ergebnis: 3,7`,
+  basicsP2Convert: `<strong>Bruch in Dezimalzahl umwandeln:</strong> Man teilt den Zähler durch den Nenner. <strong>Dezimalzahl in Bruch umwandeln:</strong> Man liest die Nachkommastellen als Bruch (z.B. Zehntel oder Hundertstel) und kürzt dann.`,
+  basicsExample2Label: `<strong>Beispiel Schritt für Schritt:</strong> Wandle 3/4 in eine Dezimalzahl um.`,
+  basicsExample2Steps: `1. Zähler durch Nenner teilen: 3 : 4 = 0,75<br>2. Ergebnis: 0,75`,
+  merkeTitle: `Merke`, merkeBody: `Ziffer 0–4 nach der Rundungsstelle: abrunden.<br>Ziffer 5–9 nach der Rundungsstelle: aufrunden.<br>Bruch → Dezimalzahl: Zähler durch Nenner teilen.`,
+  taskWord: `Aufgabe`,
+  task1Question: `Runde 4,23 auf eine Nachkommastelle.`, task2Question: `Runde 7,58 auf eine Nachkommastelle.`, task3Question: `Runde 12,449 auf eine Nachkommastelle.`, task4Question: `Wandle den Bruch 3/4 in eine Dezimalzahl um.`, task5Question: `Wandle den Bruch 1/8 in eine Dezimalzahl um.`, task6Question: `Wandle 0,6 in einen vollständig gekürzten Bruch um. Wie lautet der Nenner?`,
+  task7Question: `Ein Fahrrad kostet 129,49 Euro. Runde den Preis auf ganze Euro.`,
+  task8Question: `In einer Klasse mit 8 Kindern sind 5 Mädchen. Wandle den Anteil der Mädchen in eine Dezimalzahl um (gerundet auf zwei Nachkommastellen).`,
+  answerPlaceholder: `z.B. 4,2`, checkButton: `Prüfen`, solutionSummary: `Lösung anzeigen`,
+  task1Result: `Ergebnis: 4,2`, task2Result: `Ergebnis: 7,6`, task3Result: `Ergebnis: 12,4`, task4Result: `Ergebnis: 0,75`, task5Result: `Ergebnis: 0,125`, task6Result: `Ergebnis: 5`, task7Result: `Ergebnis: 129 Euro`, task8Result: `Ergebnis: 0,63`,
+  task1Step1: `Nächste Ziffer nach der Rundungsstelle anschauen: die 3 in 4,23.`, task1Step2: `3 ist kleiner als 5, also wird abgerundet.`, task1Step3: `Ergebnis: 4,2.`,
+  task1Hint: `Man schaut nur auf die direkt folgende Ziffer, nicht auf alle weiteren Nachkommastellen.`,
+  task2Step1: `Nächste Ziffer anschauen: die 8 in 7,58.`, task2Step2: `8 ist 5 oder größer, also wird aufgerundet.`, task2Step3: `Ergebnis: 7,6.`,
+  task2Hint: `Beim Aufrunden wird die Rundungsstelle um 1 erhöht, nicht die ganze Zahl neu erfunden.`,
+  task3Step1: `Nächste Ziffer anschauen: die 4 in 12,449 (direkt nach der ersten Nachkommastelle).`, task3Step2: `4 ist kleiner als 5, also wird abgerundet.`, task3Step3: `Ergebnis: 12,4.`,
+  task3Hint: `Man lässt sich von der 9 am Ende täuschen – aber entscheidend ist nur die Ziffer direkt nach der Rundungsstelle.`,
+  task4Step1: `Zähler durch Nenner teilen: 3 : 4.`, task4Step2: `3 : 4 = 0,75.`, task4Step3: `Ergebnis: 0,75.`,
+  task4Hint: `Man teilt den Zähler durch den Nenner, nicht umgekehrt.`,
+  task5Step1: `Zähler durch Nenner teilen: 1 : 8.`, task5Step2: `1 : 8 = 0,125.`, task5Step3: `Ergebnis: 0,125.`,
+  task5Hint: `Nicht jeder Bruch hat nur eine Nachkommastelle – manche haben mehrere, wie hier drei.`,
+  task6Step1: `0,6 bedeutet 6 Zehntel, also 6/10.`, task6Step2: `Kürzen (ggT von 6 und 10 ist 2): 6/10 = 3/5.`, task6Step3: `Der Nenner ist 5.`,
+  task6Hint: `Nach dem Aufstellen des Bruchs (z.B. 6/10) nicht vergessen, noch zu kürzen.`,
+  task7Step1: `Nächste Ziffer nach dem Komma anschauen: die 4 in 129,49.`, task7Step2: `4 ist kleiner als 5, also wird abgerundet.`, task7Step3: `Ergebnis: 129 Euro.`,
+  task7Hint: `Beim Runden auf ganze Euro zählt nur die erste Nachkommastelle, nicht der ganze Centbetrag.`,
+  task8Step1: `Der Anteil ist 5/8. Teilen: 5 : 8 = 0,625.`, task8Step2: `Auf zwei Nachkommastellen runden: die dritte Nachkommastelle (5) rundet auf.`, task8Step3: `Ergebnis: 0,63.`,
+  task8Hint: `Zuerst den vollständigen Dezimalwert berechnen, erst danach auf die verlangte Stelle runden.`,
+  hintLabel: `Typischer Fehler:`, footerMessage: `Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!`,
+  fbEmpty: `Trag bitte eine Zahl ein, bevor du prüfst.`, fbCorrect: `Richtig! Gut gemacht!`, fbIncorrect: `Noch nicht ganz richtig. Schau dir die Lösung weiter unten an und versuch es dann nochmal.`
+},
+en: {
+  eyebrow: `Luisen-Gymnasium · Grade 6`, titleLine1: `Decimal Numbers:`, titleAccent: `Rounding and Converting`, backLink: `← All Topics`, h2Basics: `Basics`,
+  basicsP1: `<strong>Rounding:</strong> to round a number, look at the digit right after the rounding place. If it's 0 to 4, the rounding place stays the same (round down). If it's 5 to 9, the rounding place goes up by 1 (round up).`,
+  roundAria: `Digits 0 to 4 round down, digits 5 to 9 round up`,
+  roundDownLabel: `0–4: round down`, roundUpLabel: `5–9: round up`,
+  basicsExample1Label: `<strong>Step-by-step example:</strong> Round 3.65 to one decimal place.`,
+  basicsExample1Steps: `1. The rounding place is the first decimal (6). Look at the next digit: 5.<br>2. 5 means round up: the 6 becomes 7.<br>3. Result: 3.7`,
+  basicsP2Convert: `<strong>Converting a fraction to a decimal:</strong> divide the numerator by the denominator. <strong>Converting a decimal to a fraction:</strong> read the decimal places as a fraction (e.g. tenths or hundredths) and then reduce.`,
+  basicsExample2Label: `<strong>Step-by-step example:</strong> Convert 3/4 to a decimal.`,
+  basicsExample2Steps: `1. Divide numerator by denominator: 3 : 4 = 0.75<br>2. Result: 0.75`,
+  merkeTitle: `Remember`, merkeBody: `Digit 0–4 after the rounding place: round down.<br>Digit 5–9 after the rounding place: round up.<br>Fraction → decimal: divide numerator by denominator.`,
+  taskWord: `Exercise`,
+  task1Question: `Round 4.23 to one decimal place.`, task2Question: `Round 7.58 to one decimal place.`, task3Question: `Round 12.449 to one decimal place.`, task4Question: `Convert the fraction 3/4 to a decimal.`, task5Question: `Convert the fraction 1/8 to a decimal.`, task6Question: `Convert 0.6 to a fully reduced fraction. What's the denominator?`,
+  task7Question: `A bike costs 129.49 euros. Round the price to whole euros.`,
+  task8Question: `A class of 8 children has 5 girls. Convert the share of girls into a decimal (rounded to two decimal places).`,
+  answerPlaceholder: `e.g. 4.2`, checkButton: `Check`, solutionSummary: `Show solution`,
+  task1Result: `Result: 4.2`, task2Result: `Result: 7.6`, task3Result: `Result: 12.4`, task4Result: `Result: 0.75`, task5Result: `Result: 0.125`, task6Result: `Result: 5`, task7Result: `Result: 129 euros`, task8Result: `Result: 0.63`,
+  task1Step1: `Look at the next digit after the rounding place: the 3 in 4.23.`, task1Step2: `3 is less than 5, so you round down.`, task1Step3: `Result: 4.2.`,
+  task1Hint: `You only look at the digit immediately following, not at any further decimal places.`,
+  task2Step1: `Look at the next digit: the 8 in 7.58.`, task2Step2: `8 is 5 or more, so you round up.`, task2Step3: `Result: 7.6.`,
+  task2Hint: `Rounding up increases the rounding place by 1 — it doesn't reinvent the whole number.`,
+  task3Step1: `Look at the next digit: the 4 in 12.449 (right after the first decimal place).`, task3Step2: `4 is less than 5, so you round down.`, task3Step3: `Result: 12.4.`,
+  task3Hint: `Don't be misled by the 9 at the end — only the digit right after the rounding place matters.`,
+  task4Step1: `Divide numerator by denominator: 3 : 4.`, task4Step2: `3 : 4 = 0.75.`, task4Step3: `Result: 0.75.`,
+  task4Hint: `You divide the numerator by the denominator, not the other way around.`,
+  task5Step1: `Divide numerator by denominator: 1 : 8.`, task5Step2: `1 : 8 = 0.125.`, task5Step3: `Result: 0.125.`,
+  task5Hint: `Not every fraction has just one decimal place — some have several, like three here.`,
+  task6Step1: `0.6 means 6 tenths, so 6/10.`, task6Step2: `Reduce (GCD of 6 and 10 is 2): 6/10 = 3/5.`, task6Step3: `The denominator is 5.`,
+  task6Hint: `After setting up the fraction (e.g. 6/10), don't forget to reduce it.`,
+  task7Step1: `Look at the next digit after the decimal point: the 4 in 129.49.`, task7Step2: `4 is less than 5, so you round down.`, task7Step3: `Result: 129 euros.`,
+  task7Hint: `Rounding to whole euros only depends on the first decimal digit, not the whole cent amount.`,
+  task8Step1: `The share is 5/8. Divide: 5 : 8 = 0.625.`, task8Step2: `Round to two decimal places: the third decimal digit (5) rounds up.`, task8Step3: `Result: 0.63.`,
+  task8Hint: `First calculate the full decimal value, only then round to the required place.`,
+  hintLabel: `Common mistake:`, footerMessage: `Take your time and check the solution if you need to. You can do this!`,
+  fbEmpty: `Please enter a number before checking.`, fbCorrect: `Correct! Well done!`, fbIncorrect: `Not quite right yet. Check the solution below and try again.`
+},
+es: {
+  eyebrow: `Luisen-Gymnasium · 6.º curso`, titleLine1: `Números decimales:`, titleAccent: `redondear y convertir`, backLink: `← Todos los temas`, h2Basics: `Fundamentos`,
+  basicsP1: `<strong>Redondear:</strong> para redondear un número, mira la cifra justo después de la posición de redondeo. Si es de 0 a 4, la posición se queda igual (redondear hacia abajo). Si es de 5 a 9, la posición sube en 1 (redondear hacia arriba).`,
+  roundAria: `Las cifras del 0 al 4 se redondean hacia abajo, las del 5 al 9 se redondean hacia arriba`,
+  roundDownLabel: `0–4: redondear abajo`, roundUpLabel: `5–9: redondear arriba`,
+  basicsExample1Label: `<strong>Ejemplo paso a paso:</strong> Redondea 3,65 a una cifra decimal.`,
+  basicsExample1Steps: `1. La posición de redondeo es la primera cifra decimal (6). Mira la siguiente cifra: 5.<br>2. El 5 indica redondear hacia arriba: el 6 se convierte en 7.<br>3. Resultado: 3,7`,
+  basicsP2Convert: `<strong>Convertir una fracción en decimal:</strong> se divide el numerador entre el denominador. <strong>Convertir un decimal en fracción:</strong> se leen las cifras decimales como una fracción (por ejemplo, décimas o centésimas) y luego se simplifica.`,
+  basicsExample2Label: `<strong>Ejemplo paso a paso:</strong> Convierte 3/4 en decimal.`,
+  basicsExample2Steps: `1. Divide numerador entre denominador: 3 : 4 = 0,75<br>2. Resultado: 0,75`,
+  merkeTitle: `Recuerda`, merkeBody: `Cifra 0–4 después de la posición de redondeo: redondea hacia abajo.<br>Cifra 5–9 después de la posición de redondeo: redondea hacia arriba.<br>Fracción → decimal: divide numerador entre denominador.`,
+  taskWord: `Ejercicio`,
+  task1Question: `Redondea 4,23 a una cifra decimal.`, task2Question: `Redondea 7,58 a una cifra decimal.`, task3Question: `Redondea 12,449 a una cifra decimal.`, task4Question: `Convierte la fracción 3/4 en decimal.`, task5Question: `Convierte la fracción 1/8 en decimal.`, task6Question: `Convierte 0,6 en una fracción totalmente simplificada. ¿Cuál es el denominador?`,
+  task7Question: `Una bicicleta cuesta 129,49 euros. Redondea el precio a euros enteros.`,
+  task8Question: `Una clase de 8 niños tiene 5 niñas. Convierte la proporción de niñas en decimal (redondeado a dos cifras decimales).`,
+  answerPlaceholder: `p.ej. 4,2`, checkButton: `Comprobar`, solutionSummary: `Ver solución`,
+  task1Result: `Resultado: 4,2`, task2Result: `Resultado: 7,6`, task3Result: `Resultado: 12,4`, task4Result: `Resultado: 0,75`, task5Result: `Resultado: 0,125`, task6Result: `Resultado: 5`, task7Result: `Resultado: 129 euros`, task8Result: `Resultado: 0,63`,
+  task1Step1: `Mira la siguiente cifra después de la posición de redondeo: el 3 en 4,23.`, task1Step2: `3 es menor que 5, así que se redondea hacia abajo.`, task1Step3: `Resultado: 4,2.`,
+  task1Hint: `Solo se mira la cifra inmediatamente siguiente, no las demás cifras decimales.`,
+  task2Step1: `Mira la siguiente cifra: el 8 en 7,58.`, task2Step2: `8 es 5 o mayor, así que se redondea hacia arriba.`, task2Step3: `Resultado: 7,6.`,
+  task2Hint: `Redondear hacia arriba aumenta la posición de redondeo en 1 — no se reinventa todo el número.`,
+  task3Step1: `Mira la siguiente cifra: el 4 en 12,449 (justo después de la primera cifra decimal).`, task3Step2: `4 es menor que 5, así que se redondea hacia abajo.`, task3Step3: `Resultado: 12,4.`,
+  task3Hint: `No te dejes engañar por el 9 al final — solo importa la cifra justo después de la posición de redondeo.`,
+  task4Step1: `Divide numerador entre denominador: 3 : 4.`, task4Step2: `3 : 4 = 0,75.`, task4Step3: `Resultado: 0,75.`,
+  task4Hint: `Se divide el numerador entre el denominador, no al revés.`,
+  task5Step1: `Divide numerador entre denominador: 1 : 8.`, task5Step2: `1 : 8 = 0,125.`, task5Step3: `Resultado: 0,125.`,
+  task5Hint: `No toda fracción tiene solo una cifra decimal — algunas tienen varias, como tres aquí.`,
+  task6Step1: `0,6 significa 6 décimas, es decir, 6/10.`, task6Step2: `Simplifica (el MCD de 6 y 10 es 2): 6/10 = 3/5.`, task6Step3: `El denominador es 5.`,
+  task6Hint: `Después de plantear la fracción (por ejemplo 6/10), no olvides simplificarla.`,
+  task7Step1: `Mira la siguiente cifra después de la coma: el 4 en 129,49.`, task7Step2: `4 es menor que 5, así que se redondea hacia abajo.`, task7Step3: `Resultado: 129 euros.`,
+  task7Hint: `Redondear a euros enteros solo depende de la primera cifra decimal, no de todo el importe en céntimos.`,
+  task8Step1: `La proporción es 5/8. Divide: 5 : 8 = 0,625.`, task8Step2: `Redondea a dos cifras decimales: la tercera cifra decimal (5) redondea hacia arriba.`, task8Step3: `Resultado: 0,63.`,
+  task8Hint: `Primero calcula el valor decimal completo, y solo después redondea a la posición requerida.`,
+  hintLabel: `Error típico:`, footerMessage: `Tómate tu tiempo y revisa la solución si la necesitas. ¡Tú puedes!`,
+  fbEmpty: `Introduce un número antes de comprobar.`, fbCorrect: `¡Correcto! ¡Muy bien!`, fbIncorrect: `Todavía no es correcto. Revisa la solución de abajo e inténtalo de nuevo.`
+},
+fr: {
+  eyebrow: `Luisen-Gymnasium · 6e`, titleLine1: `Nombres décimaux :`, titleAccent: `arrondir et convertir`, backLink: `← Tous les thèmes`, h2Basics: `Les bases`,
+  basicsP1: `<strong>Arrondir :</strong> pour arrondir un nombre, regarde le chiffre juste après la position d'arrondi. S'il est de 0 à 4, la position reste la même (arrondi vers le bas). S'il est de 5 à 9, la position augmente de 1 (arrondi vers le haut).`,
+  roundAria: `Les chiffres de 0 à 4 s'arrondissent vers le bas, ceux de 5 à 9 vers le haut`,
+  roundDownLabel: `0–4 : arrondi vers le bas`, roundUpLabel: `5–9 : arrondi vers le haut`,
+  basicsExample1Label: `<strong>Exemple étape par étape :</strong> Arrondis 3,65 à une décimale.`,
+  basicsExample1Steps: `1. La position d'arrondi est la première décimale (6). Regarde le chiffre suivant : 5.<br>2. 5 signifie arrondir vers le haut : le 6 devient 7.<br>3. Résultat : 3,7`,
+  basicsP2Convert: `<strong>Convertir une fraction en décimal :</strong> on divise le numérateur par le dénominateur. <strong>Convertir un décimal en fraction :</strong> on lit les décimales comme une fraction (par exemple des dixièmes ou des centièmes), puis on simplifie.`,
+  basicsExample2Label: `<strong>Exemple étape par étape :</strong> Convertis 3/4 en décimal.`,
+  basicsExample2Steps: `1. Divise numérateur par dénominateur : 3 : 4 = 0,75<br>2. Résultat : 0,75`,
+  merkeTitle: `À retenir`, merkeBody: `Chiffre 0–4 après la position d'arrondi : arrondir vers le bas.<br>Chiffre 5–9 après la position d'arrondi : arrondir vers le haut.<br>Fraction → décimal : diviser le numérateur par le dénominateur.`,
+  taskWord: `Exercice`,
+  task1Question: `Arrondis 4,23 à une décimale.`, task2Question: `Arrondis 7,58 à une décimale.`, task3Question: `Arrondis 12,449 à une décimale.`, task4Question: `Convertis la fraction 3/4 en décimal.`, task5Question: `Convertis la fraction 1/8 en décimal.`, task6Question: `Convertis 0,6 en fraction entièrement simplifiée. Quel est le dénominateur ?`,
+  task7Question: `Un vélo coûte 129,49 euros. Arrondis le prix à l'euro entier.`,
+  task8Question: `Une classe de 8 enfants compte 5 filles. Convertis la proportion de filles en décimal (arrondi à deux décimales).`,
+  answerPlaceholder: `ex. 4,2`, checkButton: `Vérifier`, solutionSummary: `Voir la solution`,
+  task1Result: `Résultat : 4,2`, task2Result: `Résultat : 7,6`, task3Result: `Résultat : 12,4`, task4Result: `Résultat : 0,75`, task5Result: `Résultat : 0,125`, task6Result: `Résultat : 5`, task7Result: `Résultat : 129 euros`, task8Result: `Résultat : 0,63`,
+  task1Step1: `Regarde le chiffre suivant après la position d'arrondi : le 3 dans 4,23.`, task1Step2: `3 est inférieur à 5, donc on arrondit vers le bas.`, task1Step3: `Résultat : 4,2.`,
+  task1Hint: `On regarde uniquement le chiffre immédiatement suivant, pas les autres décimales.`,
+  task2Step1: `Regarde le chiffre suivant : le 8 dans 7,58.`, task2Step2: `8 est supérieur ou égal à 5, donc on arrondit vers le haut.`, task2Step3: `Résultat : 7,6.`,
+  task2Hint: `Arrondir vers le haut augmente la position d'arrondi de 1 — ça ne réinvente pas tout le nombre.`,
+  task3Step1: `Regarde le chiffre suivant : le 4 dans 12,449 (juste après la première décimale).`, task3Step2: `4 est inférieur à 5, donc on arrondit vers le bas.`, task3Step3: `Résultat : 12,4.`,
+  task3Hint: `Ne te laisse pas tromper par le 9 à la fin — seul le chiffre juste après la position d'arrondi compte.`,
+  task4Step1: `Divise numérateur par dénominateur : 3 : 4.`, task4Step2: `3 : 4 = 0,75.`, task4Step3: `Résultat : 0,75.`,
+  task4Hint: `On divise le numérateur par le dénominateur, pas l'inverse.`,
+  task5Step1: `Divise numérateur par dénominateur : 1 : 8.`, task5Step2: `1 : 8 = 0,125.`, task5Step3: `Résultat : 0,125.`,
+  task5Hint: `Toutes les fractions n'ont pas qu'une seule décimale — certaines en ont plusieurs, comme trois ici.`,
+  task6Step1: `0,6 signifie 6 dixièmes, donc 6/10.`, task6Step2: `Simplifie (le PGCD de 6 et 10 est 2) : 6/10 = 3/5.`, task6Step3: `Le dénominateur est 5.`,
+  task6Hint: `Après avoir posé la fraction (par exemple 6/10), n'oublie pas de la simplifier.`,
+  task7Step1: `Regarde le chiffre suivant après la virgule : le 4 dans 129,49.`, task7Step2: `4 est inférieur à 5, donc on arrondit vers le bas.`, task7Step3: `Résultat : 129 euros.`,
+  task7Hint: `Arrondir à l'euro entier ne dépend que de la première décimale, pas de tout le montant en centimes.`,
+  task8Step1: `La proportion est 5/8. Divise : 5 : 8 = 0,625.`, task8Step2: `Arrondis à deux décimales : la troisième décimale (5) arrondit vers le haut.`, task8Step3: `Résultat : 0,63.`,
+  task8Hint: `Calcule d'abord la valeur décimale complète, puis seulement arrondis à la position demandée.`,
+  hintLabel: `Erreur fréquente :`, footerMessage: `Prends ton temps et regarde la solution si besoin. Tu vas y arriver !`,
+  fbEmpty: `Merci d'indiquer un nombre avant de vérifier.`, fbCorrect: `Correct ! Bien joué !`, fbIncorrect: `Pas encore tout à fait juste. Regarde la solution ci-dessous et réessaie.`
+},
+tr: {
+  eyebrow: `Luisen-Gymnasium · 6. Sınıf`, titleLine1: `Ondalık Sayılar:`, titleAccent: `Yuvarlama ve Dönüştürme`, backLink: `← Tüm Konular`, h2Basics: `Temel Bilgiler`,
+  basicsP1: `<strong>Yuvarlama:</strong> bir sayıyı yuvarlamak için yuvarlama basamağından hemen sonraki rakama bakarsın. 0-4 ise yuvarlama basamağı aynı kalır (aşağı yuvarlama). 5-9 ise yuvarlama basamağı 1 artar (yukarı yuvarlama).`,
+  roundAria: `0-4 rakamları aşağı, 5-9 rakamları yukarı yuvarlanır`,
+  roundDownLabel: `0–4: aşağı yuvarla`, roundUpLabel: `5–9: yukarı yuvarla`,
+  basicsExample1Label: `<strong>Adım adım örnek:</strong> 3,65'i bir ondalık basamağa yuvarla.`,
+  basicsExample1Steps: `1. Yuvarlama basamağı ilk ondalık basamaktır (6). Bir sonraki rakama bak: 5.<br>2. 5, yukarı yuvarlama demektir: 6, 7 olur.<br>3. Sonuç: 3,7`,
+  basicsP2Convert: `<strong>Kesri ondalık sayıya dönüştürme:</strong> pay paydaya bölünür. <strong>Ondalık sayıyı kesre dönüştürme:</strong> ondalık basamaklar kesir olarak okunur (örneğin onda birler veya yüzde birler) ve sonra sadeleştirilir.`,
+  basicsExample2Label: `<strong>Adım adım örnek:</strong> 3/4'ü ondalık sayıya dönüştür.`,
+  basicsExample2Steps: `1. Payı paydaya böl: 3 : 4 = 0,75<br>2. Sonuç: 0,75`,
+  merkeTitle: `Unutma`, merkeBody: `Yuvarlama basamağından sonraki 0–4: aşağı yuvarla.<br>Yuvarlama basamağından sonraki 5–9: yukarı yuvarla.<br>Kesir → ondalık: payı paydaya böl.`,
+  taskWord: `Alıştırma`,
+  task1Question: `4,23'ü bir ondalık basamağa yuvarla.`, task2Question: `7,58'i bir ondalık basamağa yuvarla.`, task3Question: `12,449'u bir ondalık basamağa yuvarla.`, task4Question: `3/4 kesrini ondalık sayıya dönüştür.`, task5Question: `1/8 kesrini ondalık sayıya dönüştür.`, task6Question: `0,6'yı tamamen sadeleştirilmiş bir kesre dönüştür. Payda nedir?`,
+  task7Question: `Bir bisiklet 129,49 avro. Fiyatı tam avroya yuvarla.`,
+  task8Question: `8 çocuklu bir sınıfta 5 kız var. Kızların oranını ondalık sayıya dönüştür (iki ondalık basamağa yuvarlanmış).`,
+  answerPlaceholder: `örn. 4,2`, checkButton: `Kontrol et`, solutionSummary: `Çözümü göster`,
+  task1Result: `Sonuç: 4,2`, task2Result: `Sonuç: 7,6`, task3Result: `Sonuç: 12,4`, task4Result: `Sonuç: 0,75`, task5Result: `Sonuç: 0,125`, task6Result: `Sonuç: 5`, task7Result: `Sonuç: 129 avro`, task8Result: `Sonuç: 0,63`,
+  task1Step1: `Yuvarlama basamağından sonraki rakama bak: 4,23'teki 3.`, task1Step2: `3, 5'ten küçük, yani aşağı yuvarlanır.`, task1Step3: `Sonuç: 4,2.`,
+  task1Hint: `Sadece hemen sonraki rakama bakılır, diğer ondalık basamaklara değil.`,
+  task2Step1: `Sonraki rakama bak: 7,58'deki 8.`, task2Step2: `8, 5 veya daha büyük, yani yukarı yuvarlanır.`, task2Step3: `Sonuç: 7,6.`,
+  task2Hint: `Yukarı yuvarlama, yuvarlama basamağını 1 artırır — tüm sayı yeniden icat edilmez.`,
+  task3Step1: `Sonraki rakama bak: 12,449'daki 4 (ilk ondalık basamaktan hemen sonra).`, task3Step2: `4, 5'ten küçük, yani aşağı yuvarlanır.`, task3Step3: `Sonuç: 12,4.`,
+  task3Hint: `Sondaki 9'a aldanma — sadece yuvarlama basamağından hemen sonraki rakam önemlidir.`,
+  task4Step1: `Payı paydaya böl: 3 : 4.`, task4Step2: `3 : 4 = 0,75.`, task4Step3: `Sonuç: 0,75.`,
+  task4Hint: `Pay paydaya bölünür, tersi değil.`,
+  task5Step1: `Payı paydaya böl: 1 : 8.`, task5Step2: `1 : 8 = 0,125.`, task5Step3: `Sonuç: 0,125.`,
+  task5Hint: `Her kesrin sadece bir ondalık basamağı yoktur — bazılarının, burada olduğu gibi, üç basamağı vardır.`,
+  task6Step1: `0,6, 6 onda bir demektir, yani 6/10.`, task6Step2: `Sadeleştir (6 ve 10'un EBOB'u 2'dir): 6/10 = 3/5.`, task6Step3: `Payda 5'tir.`,
+  task6Hint: `Kesri kurduktan sonra (örneğin 6/10) sadeleştirmeyi unutma.`,
+  task7Step1: `Virgülden sonraki rakama bak: 129,49'daki 4.`, task7Step2: `4, 5'ten küçük, yani aşağı yuvarlanır.`, task7Step3: `Sonuç: 129 avro.`,
+  task7Hint: `Tam avroya yuvarlarken sadece ilk ondalık basamak önemlidir, tüm cent miktarı değil.`,
+  task8Step1: `Oran 5/8'dir. Böl: 5 : 8 = 0,625.`, task8Step2: `İki ondalık basamağa yuvarla: üçüncü ondalık basamak (5) yukarı yuvarlar.`, task8Step3: `Sonuç: 0,63.`,
+  task8Hint: `Önce tam ondalık değeri hesapla, ancak sonra istenen basamağa yuvarla.`,
+  hintLabel: `Sık yapılan hata:`, footerMessage: `Sakin sakin hesapla, gerekirse çözüme bak. Bunu başarabilirsin!`,
+  fbEmpty: `Kontrol etmeden önce lütfen bir sayı gir.`, fbCorrect: `Doğru! Aferin!`, fbIncorrect: `Henüz tam doğru değil. Aşağıdaki çözüme bak ve tekrar dene.`
+},
+ru: {
+  eyebrow: `Luisen-Gymnasium · 6 класс`, titleLine1: `Десятичные дроби:`, titleAccent: `округление и преобразование`, backLink: `← Все темы`, h2Basics: `Основы`,
+  basicsP1: `<strong>Округление:</strong> чтобы округлить число, посмотри на цифру сразу после разряда округления. Если она от 0 до 4, разряд остаётся прежним (округление вниз). Если от 5 до 9, разряд увеличивается на 1 (округление вверх).`,
+  roundAria: `Цифры от 0 до 4 округляются вниз, цифры от 5 до 9 округляются вверх`,
+  roundDownLabel: `0–4: вниз`, roundUpLabel: `5–9: вверх`,
+  basicsExample1Label: `<strong>Пример по шагам:</strong> Округли 3,65 до одного знака после запятой.`,
+  basicsExample1Steps: `1. Разряд округления — первый знак после запятой (6). Посмотри на следующую цифру: 5.<br>2. 5 означает округление вверх: 6 становится 7.<br>3. Результат: 3,7`,
+  basicsP2Convert: `<strong>Преобразование дроби в десятичную:</strong> числитель делят на знаменатель. <strong>Преобразование десятичной в дробь:</strong> знаки после запятой читают как дробь (например, десятые или сотые), а затем сокращают.`,
+  basicsExample2Label: `<strong>Пример по шагам:</strong> Преобразуй 3/4 в десятичную дробь.`,
+  basicsExample2Steps: `1. Раздели числитель на знаменатель: 3 : 4 = 0,75<br>2. Результат: 0,75`,
+  merkeTitle: `Запомни`, merkeBody: `Цифра 0–4 после разряда округления: вниз.<br>Цифра 5–9 после разряда округления: вверх.<br>Дробь → десятичная: раздели числитель на знаменатель.`,
+  taskWord: `Задание`,
+  task1Question: `Округли 4,23 до одного знака после запятой.`, task2Question: `Округли 7,58 до одного знака после запятой.`, task3Question: `Округли 12,449 до одного знака после запятой.`, task4Question: `Преобразуй дробь 3/4 в десятичную.`, task5Question: `Преобразуй дробь 1/8 в десятичную.`, task6Question: `Преобразуй 0,6 в полностью сокращённую дробь. Чему равен знаменатель?`,
+  task7Question: `Велосипед стоит 129,49 евро. Округли цену до целых евро.`,
+  task8Question: `В классе из 8 детей 5 девочек. Преобразуй долю девочек в десятичную дробь (округлённую до двух знаков после запятой).`,
+  answerPlaceholder: `напр. 4,2`, checkButton: `Проверить`, solutionSummary: `Показать решение`,
+  task1Result: `Результат: 4,2`, task2Result: `Результат: 7,6`, task3Result: `Результат: 12,4`, task4Result: `Результат: 0,75`, task5Result: `Результат: 0,125`, task6Result: `Результат: 5`, task7Result: `Результат: 129 евро`, task8Result: `Результат: 0,63`,
+  task1Step1: `Посмотри на следующую цифру после разряда округления: 3 в 4,23.`, task1Step2: `3 меньше 5, значит округляем вниз.`, task1Step3: `Результат: 4,2.`,
+  task1Hint: `Смотрят только на непосредственно следующую цифру, а не на все остальные знаки после запятой.`,
+  task2Step1: `Посмотри на следующую цифру: 8 в 7,58.`, task2Step2: `8 равно или больше 5, значит округляем вверх.`, task2Step3: `Результат: 7,6.`,
+  task2Hint: `При округлении вверх разряд увеличивается на 1, а не всё число придумывается заново.`,
+  task3Step1: `Посмотри на следующую цифру: 4 в 12,449 (сразу после первого знака после запятой).`, task3Step2: `4 меньше 5, значит округляем вниз.`, task3Step3: `Результат: 12,4.`,
+  task3Hint: `Не дай себя обмануть девяткой в конце — важна только цифра сразу после разряда округления.`,
+  task4Step1: `Раздели числитель на знаменатель: 3 : 4.`, task4Step2: `3 : 4 = 0,75.`, task4Step3: `Результат: 0,75.`,
+  task4Hint: `Числитель делят на знаменатель, а не наоборот.`,
+  task5Step1: `Раздели числитель на знаменатель: 1 : 8.`, task5Step2: `1 : 8 = 0,125.`, task5Step3: `Результат: 0,125.`,
+  task5Hint: `Не у каждой дроби только один знак после запятой — у некоторых их несколько, как здесь три.`,
+  task6Step1: `0,6 означает 6 десятых, то есть 6/10.`, task6Step2: `Сократи (НОД чисел 6 и 10 равен 2): 6/10 = 3/5.`, task6Step3: `Знаменатель равен 5.`,
+  task6Hint: `После составления дроби (например, 6/10) не забудь её сократить.`,
+  task7Step1: `Посмотри на следующую цифру после запятой: 4 в 129,49.`, task7Step2: `4 меньше 5, значит округляем вниз.`, task7Step3: `Результат: 129 евро.`,
+  task7Hint: `При округлении до целых евро важен только первый знак после запятой, а не вся сумма в центах.`,
+  task8Step1: `Доля равна 5/8. Раздели: 5 : 8 = 0,625.`, task8Step2: `Округли до двух знаков после запятой: третий знак (5) округляет вверх.`, task8Step3: `Результат: 0,63.`,
+  task8Hint: `Сначала вычисли полное десятичное значение, и только потом округляй до нужного разряда.`,
+  hintLabel: `Типичная ошибка:`, footerMessage: `Считай спокойно и при необходимости смотри решение. У тебя получится!`,
+  fbEmpty: `Пожалуйста, введи число перед проверкой.`, fbCorrect: `Правильно! Отлично!`, fbIncorrect: `Пока не совсем верно. Посмотри решение ниже и попробуй ещё раз.`
+},
+ar: {
+  eyebrow: `مدرسة لويزن الثانوية · الصف السادس`, titleLine1: `الأعداد العشرية:`, titleAccent: `التقريب والتحويل`, backLink: `← جميع المواضيع`, h2Basics: `الأساسيات`,
+  basicsP1: `<strong>التقريب:</strong> لتقريب عدد، انظر إلى الرقم الذي يلي مباشرة منزلة التقريب. إذا كان من 0 إلى 4، تبقى منزلة التقريب كما هي (التقريب لأسفل). إذا كان من 5 إلى 9، تزداد منزلة التقريب بمقدار 1 (التقريب لأعلى).`,
+  roundAria: `الأرقام من 0 إلى 4 تُقرَّب لأسفل، والأرقام من 5 إلى 9 تُقرَّب لأعلى`,
+  roundDownLabel: `0–4: تقريب لأسفل`, roundUpLabel: `5–9: تقريب لأعلى`,
+  basicsExample1Label: `<strong>مثال خطوة بخطوة:</strong> قرّب 3.65 إلى منزلة عشرية واحدة.`,
+  basicsExample1Steps: `1. منزلة التقريب هي المنزلة العشرية الأولى (6). انظر إلى الرقم التالي: 5.<br>2. الرقم 5 يعني التقريب لأعلى: يصبح 6 هو 7.<br>3. النتيجة: 3.7`,
+  basicsP2Convert: `<strong>تحويل الكسر إلى عدد عشري:</strong> يُقسَم البسط على المقام. <strong>تحويل العدد العشري إلى كسر:</strong> تُقرَأ المنازل العشرية ككسر (مثل الأعشار أو الأجزاء من مئة) ثم يُختزَل.`,
+  basicsExample2Label: `<strong>مثال خطوة بخطوة:</strong> حوّل 3/4 إلى عدد عشري.`,
+  basicsExample2Steps: `1. اقسم البسط على المقام: 3 : 4 = 0.75<br>2. النتيجة: 0.75`,
+  merkeTitle: `تذكّر`, merkeBody: `الرقم 0–4 بعد منزلة التقريب: تقريب لأسفل.<br>الرقم 5–9 بعد منزلة التقريب: تقريب لأعلى.<br>كسر ← عدد عشري: اقسم البسط على المقام.`,
+  taskWord: `تمرين`,
+  task1Question: `قرّب 4.23 إلى منزلة عشرية واحدة.`, task2Question: `قرّب 7.58 إلى منزلة عشرية واحدة.`, task3Question: `قرّب 12.449 إلى منزلة عشرية واحدة.`, task4Question: `حوّل الكسر 3/4 إلى عدد عشري.`, task5Question: `حوّل الكسر 1/8 إلى عدد عشري.`, task6Question: `حوّل 0.6 إلى كسر مختزل بالكامل. ما هو المقام؟`,
+  task7Question: `تكلف دراجة 129.49 يورو. قرّب السعر إلى يورو كامل.`,
+  task8Question: `في فصل من 8 أطفال، هناك 5 فتيات. حوّل نسبة الفتيات إلى عدد عشري (مقرّب إلى منزلتين عشريتين).`,
+  answerPlaceholder: `مثال: 4.2`, checkButton: `تحقق`, solutionSummary: `عرض الحل`,
+  task1Result: `النتيجة: 4.2`, task2Result: `النتيجة: 7.6`, task3Result: `النتيجة: 12.4`, task4Result: `النتيجة: 0.75`, task5Result: `النتيجة: 0.125`, task6Result: `النتيجة: 5`, task7Result: `النتيجة: 129 يورو`, task8Result: `النتيجة: 0.63`,
+  task1Step1: `انظر إلى الرقم التالي بعد منزلة التقريب: الرقم 3 في 4.23.`, task1Step2: `3 أصغر من 5، إذن يُقرَّب لأسفل.`, task1Step3: `النتيجة: 4.2.`,
+  task1Hint: `يُنظَر فقط إلى الرقم الذي يلي مباشرة، وليس إلى بقية المنازل العشرية.`,
+  task2Step1: `انظر إلى الرقم التالي: الرقم 8 في 7.58.`, task2Step2: `8 يساوي 5 أو أكبر، إذن يُقرَّب لأعلى.`, task2Step3: `النتيجة: 7.6.`,
+  task2Hint: `التقريب لأعلى يزيد منزلة التقريب بمقدار 1 فقط، ولا يُعاد اختراع العدد بأكمله.`,
+  task3Step1: `انظر إلى الرقم التالي: الرقم 4 في 12.449 (مباشرة بعد المنزلة العشرية الأولى).`, task3Step2: `4 أصغر من 5، إذن يُقرَّب لأسفل.`, task3Step3: `النتيجة: 12.4.`,
+  task3Hint: `لا تنخدع بالرقم 9 في النهاية — المهم فقط هو الرقم الذي يلي مباشرة منزلة التقريب.`,
+  task4Step1: `اقسم البسط على المقام: 3 : 4.`, task4Step2: `3 : 4 = 0.75.`, task4Step3: `النتيجة: 0.75.`,
+  task4Hint: `يُقسَم البسط على المقام، وليس العكس.`,
+  task5Step1: `اقسم البسط على المقام: 1 : 8.`, task5Step2: `1 : 8 = 0.125.`, task5Step3: `النتيجة: 0.125.`,
+  task5Hint: `ليس كل كسر له منزلة عشرية واحدة فقط — بعضها له عدة منازل، مثل ثلاث منازل هنا.`,
+  task6Step1: `0.6 تعني 6 أعشار، أي 6/10.`, task6Step2: `اختزل (القاسم المشترك الأكبر لـ 6 و10 هو 2): 6/10 = 3/5.`, task6Step3: `المقام هو 5.`,
+  task6Hint: `بعد كتابة الكسر (مثل 6/10)، لا تنسَ اختزاله.`,
+  task7Step1: `انظر إلى الرقم التالي بعد الفاصلة: الرقم 4 في 129.49.`, task7Step2: `4 أصغر من 5، إذن يُقرَّب لأسفل.`, task7Step3: `النتيجة: 129 يورو.`,
+  task7Hint: `التقريب إلى يورو كامل يعتمد فقط على المنزلة العشرية الأولى، وليس على كامل مبلغ السنتات.`,
+  task8Step1: `النسبة هي 5/8. اقسم: 5 : 8 = 0.625.`, task8Step2: `قرّب إلى منزلتين عشريتين: المنزلة الثالثة (5) تُقرَّب لأعلى.`, task8Step3: `النتيجة: 0.63.`,
+  task8Hint: `احسب أولًا القيمة العشرية الكاملة، ثم قرّبها إلى المنزلة المطلوبة فقط بعد ذلك.`,
+  hintLabel: `خطأ شائع:`, footerMessage: `احسب بهدوء وراجع الحل إذا احتجت إليه. أنت قادر على ذلك!`,
+  fbEmpty: `الرجاء إدخال رقم قبل التحقق.`, fbCorrect: `صحيح! أحسنت!`, fbIncorrect: `ليست صحيحة تمامًا بعد. راجع الحل أدناه وحاول مرة أخرى.`
+},
+zh: {
+  eyebrow: `路易森文理中学 · 六年级`, titleLine1: `小数：`, titleAccent: `四舍五入与换算`, backLink: `← 所有主题`, h2Basics: `基础知识`,
+  basicsP1: `<strong>四舍五入：</strong>要对一个数四舍五入，看紧接在舍入位后面的那个数字。如果是 0 到 4，舍入位保持不变（舍去）。如果是 5 到 9，舍入位加 1（进位）。`,
+  roundAria: `数字 0 到 4 舍去，数字 5 到 9 进位`,
+  roundDownLabel: `0–4：舍去`, roundUpLabel: `5–9：进位`,
+  basicsExample1Label: `<strong>分步示例：</strong> 把 3.65 四舍五入到一位小数。`,
+  basicsExample1Steps: `1. 舍入位是第一位小数（6）。看下一个数字：5。<br>2. 5 表示进位：6 变成 7。<br>3. 结果：3.7`,
+  basicsP2Convert: `<strong>把分数换算成小数：</strong>用分子除以分母。<strong>把小数换算成分数：</strong>把小数部分读作分数（例如十分之几或百分之几），然后再约分。`,
+  basicsExample2Label: `<strong>分步示例：</strong> 把 3/4 换算成小数。`,
+  basicsExample2Steps: `1. 用分子除以分母：3 : 4 = 0.75<br>2. 结果：0.75`,
+  merkeTitle: `记住`, merkeBody: `舍入位后面是 0–4：舍去。<br>舍入位后面是 5–9：进位。<br>分数 → 小数：分子除以分母。`,
+  taskWord: `练习`,
+  task1Question: `把 4.23 四舍五入到一位小数。`, task2Question: `把 7.58 四舍五入到一位小数。`, task3Question: `把 12.449 四舍五入到一位小数。`, task4Question: `把分数 3/4 换算成小数。`, task5Question: `把分数 1/8 换算成小数。`, task6Question: `把 0.6 换算成完全约分的分数。分母是多少？`,
+  task7Question: `一辆自行车 129.49 欧元。把价格四舍五入到整数欧元。`,
+  task8Question: `一个 8 人的班级里有 5 个女孩。把女孩所占的比例换算成小数（保留两位小数）。`,
+  answerPlaceholder: `例如 4.2`, checkButton: `检查`, solutionSummary: `显示答案`,
+  task1Result: `结果：4.2`, task2Result: `结果：7.6`, task3Result: `结果：12.4`, task4Result: `结果：0.75`, task5Result: `结果：0.125`, task6Result: `结果：5`, task7Result: `结果：129 欧元`, task8Result: `结果：0.63`,
+  task1Step1: `看舍入位后面的数字：4.23 中的 3。`, task1Step2: `3 小于 5，所以舍去。`, task1Step3: `结果：4.2。`,
+  task1Hint: `只看紧接着的那一位数字，不看后面所有的小数位。`,
+  task2Step1: `看下一个数字：7.58 中的 8。`, task2Step2: `8 大于或等于 5，所以进位。`, task2Step3: `结果：7.6。`,
+  task2Hint: `进位只是把舍入位加 1，并不是重新构造整个数字。`,
+  task3Step1: `看下一个数字：12.449 中的 4（紧接在第一位小数后面）。`, task3Step2: `4 小于 5，所以舍去。`, task3Step3: `结果：12.4。`,
+  task3Hint: `不要被末尾的 9 迷惑——只有紧接在舍入位后面的那一位数字才重要。`,
+  task4Step1: `用分子除以分母：3 : 4。`, task4Step2: `3 : 4 = 0.75。`, task4Step3: `结果：0.75。`,
+  task4Hint: `是用分子除以分母，而不是反过来。`,
+  task5Step1: `用分子除以分母：1 : 8。`, task5Step2: `1 : 8 = 0.125。`, task5Step3: `结果：0.125。`,
+  task5Hint: `不是每个分数都只有一位小数——有些有好几位，比如这里的三位。`,
+  task6Step1: `0.6 表示十分之六，也就是 6/10。`, task6Step2: `约分（6 和 10 的最大公约数是 2）：6/10 = 3/5。`, task6Step3: `分母是 5。`,
+  task6Hint: `列出分数后（比如 6/10），别忘了要约分。`,
+  task7Step1: `看小数点后的下一个数字：129.49 中的 4。`, task7Step2: `4 小于 5，所以舍去。`, task7Step3: `结果：129 欧元。`,
+  task7Hint: `四舍五入到整数欧元时，只看第一位小数，而不是整个分的金额。`,
+  task8Step1: `比例是 5/8。相除：5 : 8 = 0.625。`, task8Step2: `保留两位小数：第三位小数（5）要进位。`, task8Step3: `结果：0.63。`,
+  task8Hint: `先算出完整的小数值，然后才按要求的位数四舍五入。`,
+  hintLabel: `常见错误：`, footerMessage: `慢慢算，需要的话看看答案。你能做到！`,
+  fbEmpty: `请先输入一个数字再检查。`, fbCorrect: `正确！做得好！`, fbIncorrect: `还不完全正确。看看下面的答案，再试一次。`
+}
+};
+
+var currentLang = 'de';
+
+function setLanguage(lang){
+  var dict = TRANSLATIONS[lang] || TRANSLATIONS.de;
+  currentLang = TRANSLATIONS[lang] ? lang : 'de';
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = (currentLang === 'ar') ? 'rtl' : 'ltr';
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var key = el.getAttribute('data-i18n');
+    if(dict[key] !== undefined){ el.innerHTML = dict[key]; }
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-placeholder');
+    if(dict[key] !== undefined){ el.setAttribute('placeholder', dict[key]); }
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-aria');
+    if(dict[key] !== undefined){ el.setAttribute('aria-label', dict[key]); }
+  });
+  try{ localStorage.setItem('mathecoach_lang', currentLang); }catch(e){}
+  var sel = document.getElementById('langSelect');
+  if(sel) sel.value = currentLang;
+}
+
+function check(id, correct){
+  var dict = TRANSLATIONS[currentLang] || TRANSLATIONS.de;
+  var input = document.getElementById('input' + id);
+  var feedback = document.getElementById('feedback' + id);
+  var raw = input.value.trim().replace(',', '.');
+  var match = raw.match(/-?\d+(\.\d+)?/);
+  feedback.classList.remove('show', 'correct', 'incorrect');
+  if(!match){
+    feedback.textContent = dict.fbEmpty;
+    feedback.classList.add('show', 'incorrect');
+    return;
+  }
+  var value = parseFloat(match[0]);
+  if(Math.abs(value - correct) < 0.001){
+    feedback.textContent = dict.fbCorrect;
+    feedback.classList.add('show', 'correct');
+  } else {
+    feedback.textContent = dict.fbIncorrect;
+    feedback.classList.add('show', 'incorrect');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var saved = 'de';
+  try{ saved = localStorage.getItem('mathecoach_lang') || 'de'; }catch(e){}
+  setLanguage(saved);
+});
+</script>
+
+</body>
+</html>

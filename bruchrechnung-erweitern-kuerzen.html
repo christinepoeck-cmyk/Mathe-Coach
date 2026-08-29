@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bruchrechnung: Erweitern und Kürzen</title>
+<style>
+  :root{
+    --bg:#FAFAF9;
+    --card:#FFFFFF;
+    --ink:#241C1C;
+    --ink-soft:#5C4F4C;
+    --red:#C41230;
+    --gold:#E0A526;
+    --blue:#2478B5;
+    --merke-bg:#FBF1DC;
+    --merke-border:#E0A526;
+    --success:#1E8E5A;
+    --success-bg:#E5F5EC;
+    --error:#B3401D;
+    --error-bg:#FBEDE6;
+    --font-display: ui-rounded, "SF Pro Rounded", "Segoe UI Rounded", "Nunito", system-ui, sans-serif;
+    --font-body: system-ui, "Segoe UI", Roboto, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:18px; line-height:1.5; padding-bottom:60px; }
+  .wrap{ max-width:640px; margin:0 auto; padding:0 20px; }
+  header{ background:var(--card); padding:30px 20px 0; text-align:center; position:relative; }
+  .header-inner{ padding-bottom:26px; }
+  .lang-switch{ display:flex; justify-content:center; margin-bottom:14px; }
+  #langSelect{ font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--ink); background:var(--card); border:2px solid #E3DFDA; border-radius:999px; padding:6px 14px; cursor:pointer; }
+  #langSelect:focus-visible{ outline:3px solid var(--blue); }
+  .back-link{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--blue); text-decoration:none; margin-bottom:16px; }
+  .eyebrow{ font-family:var(--font-display); font-weight:700; font-size:14px; letter-spacing:0.08em; text-transform:uppercase; color:var(--blue); margin-bottom:8px; }
+  h1{ font-family:var(--font-display); font-size:28px; font-weight:800; margin:0; line-height:1.25; }
+  h1 .accent{ color:var(--red); }
+  .wave{ display:block; width:100%; height:30px; }
+  section{ margin-top:32px; }
+  .card{ background:var(--card); border-radius:22px; padding:24px 22px; box-shadow:0 2px 14px rgba(36,28,28,0.07); }
+  h2{ font-family:var(--font-display); font-size:21px; font-weight:800; margin:0 0 14px; }
+  h2 .num{ display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:var(--blue); color:white; font-size:16px; margin-inline-end:10px; vertical-align:middle; }
+  p{ margin:0 0 14px; color:var(--ink-soft); }
+  .merke{ background:var(--merke-bg); border:2px solid var(--merke-border); border-radius:16px; padding:16px 18px; margin-top:16px; }
+  .merke-title{ font-family:var(--font-display); font-weight:800; color:#8A5A0F; font-size:15px; letter-spacing:0.04em; text-transform:uppercase; margin-bottom:6px; }
+  .merke-body{ color:#6B4A12; font-weight:600; margin:0; }
+  .fraction-diagram{ width:100%; height:auto; margin:18px 0 6px; }
+  .task-card{ margin-top:18px; }
+  .task-question{ font-family:var(--font-display); font-weight:700; font-size:19px; margin-bottom:16px; }
+  .answer-row{ display:flex; gap:10px; margin-bottom:6px; }
+  input[type="text"]{ flex:1; font-size:18px; font-family:var(--font-body); padding:12px 14px; border-radius:12px; border:2px solid #E3DFDA; background:#FBFAF9; color:var(--ink); }
+  input[type="text"]:focus{ outline:3px solid #C9DCEA; border-color:var(--blue); }
+  button.check{ font-family:var(--font-display); font-weight:700; font-size:16px; color:white; background:var(--blue); border:none; border-radius:12px; padding:0 20px; cursor:pointer; }
+  button.check:active{ transform:translateY(1px); }
+  button.check:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
+  .feedback{ margin-top:10px; padding:12px 14px; border-radius:12px; font-weight:700; display:none; }
+  .feedback.show{ display:block; }
+  .feedback.correct{ background:var(--success-bg); color:var(--success); }
+  .feedback.incorrect{ background:var(--error-bg); color:var(--error); }
+  details{ margin-top:14px; border-top:2px dashed #E3DFDA; padding-top:12px; }
+  summary{ font-family:var(--font-display); font-weight:700; color:var(--blue); cursor:pointer; font-size:15px; }
+  .solution{ margin-top:12px; }
+  .solution ol{ margin:0 0 12px; padding-inline-start:22px; color:var(--ink-soft); }
+  .solution li{ margin-bottom:6px; }
+  .solution-result{ font-family:var(--font-display); font-weight:800; color:var(--ink); margin-bottom:12px; }
+  .hint-box{ background:#F1EFEC; border-radius:12px; padding:12px 14px; font-size:16px; color:var(--ink-soft); }
+  .hint-box strong{ color:var(--ink); }
+  footer{ text-align:center; margin-top:36px; padding:0 20px; }
+  footer p{ font-family:var(--font-display); font-weight:700; color:var(--ink); }
+  .footer-wave{ display:block; width:100%; max-width:280px; height:16px; margin:0 auto 18px; opacity:0.6; }
+  [dir="rtl"] .back-link{ flex-direction:row-reverse; }
+  @media (prefers-reduced-motion: no-preference){ button.check{ transition:transform 0.1s ease; } }
+  @media (max-width: 480px){
+    .answer-row{ flex-direction:column; }
+    button.check{ width:100%; padding:14px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="lang-switch">
+      <select id="langSelect" onchange="setLanguage(this.value)">
+        <option value="de">Deutsch</option>
+        <option value="en">English</option>
+        <option value="es">Español</option>
+        <option value="fr">Français</option>
+        <option value="tr">Türkçe</option>
+        <option value="ru">Русский</option>
+        <option value="ar">العربية</option>
+        <option value="zh">中文</option>
+      </select>
+    </div>
+    <a class="back-link" href="index.html" data-i18n="backLink">← Alle Themen</a>
+    <div class="eyebrow" data-i18n="eyebrow">Luisen-Gymnasium · Klasse 6</div>
+    <h1><span data-i18n="titleLine1">Bruchrechnung:</span><br><span class="accent" data-i18n="titleAccent">Erweitern und Kürzen</span></h1>
+  </div>
+  <svg class="wave" viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+    <path d="M -10 22 C 190 4, 390 40, 590 22 S 990 4, 1210 22" fill="none" stroke="#C41230" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 32 C 190 50, 390 14, 590 32 S 990 50, 1210 32" fill="none" stroke="#E0A526" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 42 C 190 24, 390 58, 590 42 S 990 24, 1210 42" fill="none" stroke="#2478B5" stroke-width="5" stroke-linecap="round"/>
+  </svg>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <div class="card">
+      <h2 data-i18n="h2Basics">Grundlagen</h2>
+      <p data-i18n="basicsP1">Ein Bruch besteht aus zwei Zahlen: dem Zähler (oben) und dem Nenner (unten). Er zeigt, wie viele Teile eines Ganzen gemeint sind. Wichtig: Man kann einen Bruch verändern, ohne seinen Wert zu verändern – das nennt man erweitern oder kürzen.</p>
+
+      <p data-i18n="basicsP2Erweitern"><strong>Erweitern:</strong> Man multipliziert Zähler und Nenner mit derselben Zahl. Der Wert des Bruchs bleibt gleich, nur die Darstellung ändert sich.</p>
+
+      <svg class="fraction-diagram" viewBox="0 0 600 215" xmlns="http://www.w3.org/2000/svg" role="img" data-i18n-aria="fractionAria" aria-label="Bruchstreifen zeigen: ein halb ist gleich zwei viertel ist gleich vier achtel">
+        <text data-i18n="fractionTitle" x="300" y="14" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="15" font-weight="800" fill="#241C1C">1/2 = 2/4 = 4/8</text>
+        <text x="58" y="48" text-anchor="end" font-family="ui-rounded, system-ui, sans-serif" font-size="16" font-weight="800" fill="#C41230">1/2</text>
+        <rect x="70" y="26" width="240" height="36" fill="#C41230" fill-opacity="0.55" stroke="#241C1C" stroke-width="1.5"/>
+        <rect x="310" y="26" width="240" height="36" fill="none" stroke="#241C1C" stroke-width="1.5"/>
+        <line x1="310" y1="26" x2="310" y2="62" stroke="#241C1C" stroke-width="1.5"/>
+        <text x="58" y="118" text-anchor="end" font-family="ui-rounded, system-ui, sans-serif" font-size="16" font-weight="800" fill="#E0A526">2/4</text>
+        <rect x="70" y="96" width="120" height="36" fill="#E0A526" fill-opacity="0.55" stroke="#241C1C" stroke-width="1.5"/>
+        <rect x="190" y="96" width="120" height="36" fill="#E0A526" fill-opacity="0.55" stroke="#241C1C" stroke-width="1.5"/>
+        <rect x="310" y="96" width="120" height="36" fill="none" stroke="#241C1C" stroke-width="1.5"/>
+        <rect x="430" y="96" width="120" height="36" fill="none" stroke="#241C1C" stroke-width="1.5"/>
+        <text x="58" y="188" text-anchor="end" font-family="ui-rounded, system-ui, sans-serif" font-size="16" font-weight="800" fill="#2478B5">4/8</text>
+        <rect x="70" y="166" width="60" height="36" fill="#2478B5" fill-opacity="0.55" stroke="#241C1C" stroke-width="1.5"/>
+        <rect x="130" y="166" width="60" height="36" fill="#2478B5" fill-opacity="0.55" stroke="#241C1C" stroke-width="1.5"/>
+        <rect x="190" y="166" width="60" height="36" fill="#2478B5" fill-opacity="0.55" stroke="#241C1C" stroke-width="1.5"/>
+        <rect x="250" y="166" width="60" height="36" fill="#2478B5" fill-opacity="0.55" stroke="#241C1C" stroke-width="1.5"/>
+        <rect x="310" y="166" width="60" height="36" fill="none" stroke="#241C1C" stroke-width="1.5"/>
+        <rect x="370" y="166" width="60" height="36" fill="none" stroke="#241C1C" stroke-width="1.5"/>
+        <rect x="430" y="166" width="60" height="36" fill="none" stroke="#241C1C" stroke-width="1.5"/>
+        <rect x="490" y="166" width="60" height="36" fill="none" stroke="#241C1C" stroke-width="1.5"/>
+      </svg>
+
+      <p data-i18n="basicsExample1Label"><strong>Beispiel Schritt für Schritt:</strong> Erweitere 1/2 mit 3.</p>
+      <p data-i18n="basicsExample1Steps">1. Zähler und Nenner mit 3 multiplizieren: 1 · 3 = 3 und 2 · 3 = 6<br>2. Neuer Bruch: 3/6<br>3. Der Wert ist gleich geblieben: 1/2 = 3/6</p>
+
+      <p data-i18n="basicsP3Kuerzen"><strong>Kürzen:</strong> Man teilt Zähler und Nenner durch dieselbe Zahl (einen gemeinsamen Teiler). Am besten teilt man gleich durch den ggT, dann ist der Bruch in einem Schritt vollständig gekürzt.</p>
+
+      <p data-i18n="basicsExample2Label"><strong>Beispiel Schritt für Schritt:</strong> Kürze 8/12 vollständig.</p>
+      <p data-i18n="basicsExample2Steps">1. ggT von 8 und 12 finden: ggT(8, 12) = 4<br>2. Zähler und Nenner durch 4 teilen: 8 : 4 = 2 und 12 : 4 = 3<br>3. Ergebnis: 2/3 (vollständig gekürzt)</p>
+
+      <div class="merke">
+        <div class="merke-title" data-i18n="merkeTitle">Merke</div>
+        <p class="merke-body" data-i18n="merkeBody">Erweitern: Zähler und Nenner mit derselben Zahl multiplizieren.<br>Kürzen: Zähler und Nenner durch denselben gemeinsamen Teiler dividieren.<br>Der Wert des Bruchs bleibt in beiden Fällen gleich.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">1</span><span data-i18n="taskWord">Aufgabe</span> 1</h2>
+      <div class="task-question" data-i18n="task1Question">Erweitere den Bruch 1/4 mit 3. Wie lautet der neue Zähler?</div>
+      <div class="answer-row">
+        <input type="text" id="input1" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(1, 3)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback1"></div>
+      <details>
+        <summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task1Result">Ergebnis: 3</div>
+          <ol>
+            <li data-i18n="task1Step1">Zähler mit 3 multiplizieren: 1 · 3 = 3.</li>
+            <li data-i18n="task1Step2">Der neue Bruch lautet 3/12.</li>
+            <li data-i18n="task1Step3">Der gesuchte Zähler ist 3.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task1Hint">Beim Erweitern werden Zähler UND Nenner mit derselben Zahl multipliziert, nicht nur einer von beiden.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">2</span><span data-i18n="taskWord">Aufgabe</span> 2</h2>
+      <div class="task-question" data-i18n="task2Question">Erweitere den Bruch 5/6 mit 2. Wie lautet der neue Nenner?</div>
+      <div class="answer-row">
+        <input type="text" id="input2" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(2, 12)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback2"></div>
+      <details>
+        <summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task2Result">Ergebnis: 12</div>
+          <ol>
+            <li data-i18n="task2Step1">Nenner mit 2 multiplizieren: 6 · 2 = 12.</li>
+            <li data-i18n="task2Step2">Der neue Bruch lautet 10/12.</li>
+            <li data-i18n="task2Step3">Der gesuchte Nenner ist 12.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task2Hint">Nur den Zähler zu multiplizieren würde den Wert des Bruchs verändern. Immer beide Zahlen gleich behandeln.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">3</span><span data-i18n="taskWord">Aufgabe</span> 3</h2>
+      <div class="task-question" data-i18n="task3Question">Kürze den Bruch 10/15 vollständig. Wie lautet der neue Zähler?</div>
+      <div class="answer-row">
+        <input type="text" id="input3" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(3, 2)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback3"></div>
+      <details>
+        <summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task3Result">Ergebnis: 2</div>
+          <ol>
+            <li data-i18n="task3Step1">ggT von 10 und 15 finden: ggT(10, 15) = 5.</li>
+            <li data-i18n="task3Step2">Zähler und Nenner durch 5 teilen: 10 : 5 = 2 und 15 : 5 = 3.</li>
+            <li data-i18n="task3Step3">Ergebnis: 2/3, der Zähler ist 2.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task3Hint">Wenn man nicht durch den ggT teilt, ist der Bruch am Ende oft noch nicht vollständig gekürzt.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">4</span><span data-i18n="taskWord">Aufgabe</span> 4</h2>
+      <div class="task-question" data-i18n="task4Question">Kürze den Bruch 18/24 vollständig. Wie lautet der neue Nenner?</div>
+      <div class="answer-row">
+        <input type="text" id="input4" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(4, 4)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback4"></div>
+      <details>
+        <summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task4Result">Ergebnis: 4</div>
+          <ol>
+            <li data-i18n="task4Step1">ggT von 18 und 24 finden: ggT(18, 24) = 6.</li>
+            <li data-i18n="task4Step2">Zähler und Nenner durch 6 teilen: 18 : 6 = 3 und 24 : 6 = 4.</li>
+            <li data-i18n="task4Step3">Ergebnis: 3/4, der Nenner ist 4.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task4Hint">Manche teilen nur durch einen kleineren gemeinsamen Teiler (z.B. 2 oder 3) und übersehen, dass noch weiter gekürzt werden kann.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">5</span><span data-i18n="taskWord">Aufgabe</span> 5</h2>
+      <div class="task-question" data-i18n="task5Question">Welcher Zähler macht 3/5 zu einem gleichwertigen Bruch mit dem Nenner 20?</div>
+      <div class="answer-row">
+        <input type="text" id="input5" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(5, 12)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback5"></div>
+      <details>
+        <summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task5Result">Ergebnis: 12</div>
+          <ol>
+            <li data-i18n="task5Step1">Herausfinden, womit der Nenner erweitert wurde: 20 : 5 = 4.</li>
+            <li data-i18n="task5Step2">Zähler mit derselben Zahl multiplizieren: 3 · 4 = 12.</li>
+            <li data-i18n="task5Step3">Ergebnis: 12/20, der gesuchte Zähler ist 12.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task5Hint">Erst herausfinden, mit welcher Zahl der Nenner erweitert wurde, dann dieselbe Zahl beim Zähler verwenden.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">6</span><span data-i18n="taskWord">Aufgabe</span> 6</h2>
+      <div class="task-question" data-i18n="task6Question">Kürze den Bruch 9/27 vollständig. Wie lautet der neue Nenner?</div>
+      <div class="answer-row">
+        <input type="text" id="input6" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(6, 3)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback6"></div>
+      <details>
+        <summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task6Result">Ergebnis: 3</div>
+          <ol>
+            <li data-i18n="task6Step1">ggT von 9 und 27 finden: ggT(9, 27) = 9.</li>
+            <li data-i18n="task6Step2">Zähler und Nenner durch 9 teilen: 9 : 9 = 1 und 27 : 9 = 3.</li>
+            <li data-i18n="task6Step3">Ergebnis: 1/3, der Nenner ist 3.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task6Hint">Da 9 der Zähler selbst ist, kann man direkt durch 9 teilen – das ist hier der größtmögliche gemeinsame Teiler.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">7</span><span data-i18n="taskWord">Aufgabe</span> 7</h2>
+      <div class="task-question" data-i18n="task7Question">Ein Kuchen wird in 8 gleiche Stücke geschnitten. Mia isst 4 Stücke. Kürze den Bruch, den sie gegessen hat, vollständig. Wie lautet der neue Nenner?</div>
+      <div class="answer-row">
+        <input type="text" id="input7" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(7, 2)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback7"></div>
+      <details>
+        <summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task7Result">Ergebnis: 2</div>
+          <ol>
+            <li data-i18n="task7Step1">Mia hat 4/8 des Kuchens gegessen.</li>
+            <li data-i18n="task7Step2">ggT von 4 und 8 finden: ggT(4, 8) = 4. Beide Zahlen durch 4 teilen: 4 : 4 = 1 und 8 : 4 = 2.</li>
+            <li data-i18n="task7Step3">Ergebnis: 1/2, der Nenner ist 2.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task7Hint">Zuerst den Bruch aus der Textaufgabe richtig aufstellen (gegessene Stücke über Gesamtstücke), dann erst kürzen.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">8</span><span data-i18n="taskWord">Aufgabe</span> 8</h2>
+      <div class="task-question" data-i18n="task8Question">In einer Klasse sind 24 Kinder, davon 18 Mädchen. Kürze den Bruch der Mädchen vollständig. Wie lautet der neue Zähler?</div>
+      <div class="answer-row">
+        <input type="text" id="input8" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(8, 3)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback8"></div>
+      <details>
+        <summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task8Result">Ergebnis: 3</div>
+          <ol>
+            <li data-i18n="task8Step1">Der Bruch der Mädchen lautet 18/24.</li>
+            <li data-i18n="task8Step2">ggT von 18 und 24 finden: ggT(18, 24) = 6. Beide Zahlen durch 6 teilen: 18 : 6 = 3 und 24 : 6 = 4.</li>
+            <li data-i18n="task8Step3">Ergebnis: 3/4, der Zähler ist 3.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task8Hint">In Textaufgaben muss man zuerst erkennen, was Zähler und was Nenner ist, bevor man kürzt.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <footer>
+    <svg class="footer-wave" viewBox="0 0 280 16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+      <path d="M -5 8 C 40 1, 80 15, 140 8 S 240 1, 285 8" fill="none" stroke="#C41230" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M -5 8 C 40 15, 80 1, 140 8 S 240 15, 285 8" fill="none" stroke="#2478B5" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+    </svg>
+    <p id="footer-msg" data-i18n="footerMessage">Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!</p>
+  </footer>
+
+</div>
+
+<script>
+const TRANSLATIONS = {
+de: {
+  eyebrow: `Luisen-Gymnasium · Klasse 6`, titleLine1: `Bruchrechnung:`, titleAccent: `Erweitern und Kürzen`, backLink: `← Alle Themen`, h2Basics: `Grundlagen`,
+  basicsP1: `Ein Bruch besteht aus zwei Zahlen: dem Zähler (oben) und dem Nenner (unten). Er zeigt, wie viele Teile eines Ganzen gemeint sind. Wichtig: Man kann einen Bruch verändern, ohne seinen Wert zu verändern – das nennt man erweitern oder kürzen.`,
+  basicsP2Erweitern: `<strong>Erweitern:</strong> Man multipliziert Zähler und Nenner mit derselben Zahl. Der Wert des Bruchs bleibt gleich, nur die Darstellung ändert sich.`,
+  fractionAria: `Bruchstreifen zeigen: ein halb ist gleich zwei viertel ist gleich vier achtel`,
+  fractionTitle: `1/2 = 2/4 = 4/8`,
+  basicsExample1Label: `<strong>Beispiel Schritt für Schritt:</strong> Erweitere 1/2 mit 3.`,
+  basicsExample1Steps: `1. Zähler und Nenner mit 3 multiplizieren: 1 · 3 = 3 und 2 · 3 = 6<br>2. Neuer Bruch: 3/6<br>3. Der Wert ist gleich geblieben: 1/2 = 3/6`,
+  basicsP3Kuerzen: `<strong>Kürzen:</strong> Man teilt Zähler und Nenner durch dieselbe Zahl (einen gemeinsamen Teiler). Am besten teilt man gleich durch den ggT, dann ist der Bruch in einem Schritt vollständig gekürzt.`,
+  basicsExample2Label: `<strong>Beispiel Schritt für Schritt:</strong> Kürze 8/12 vollständig.`,
+  basicsExample2Steps: `1. ggT von 8 und 12 finden: ggT(8, 12) = 4<br>2. Zähler und Nenner durch 4 teilen: 8 : 4 = 2 und 12 : 4 = 3<br>3. Ergebnis: 2/3 (vollständig gekürzt)`,
+  merkeTitle: `Merke`, merkeBody: `Erweitern: Zähler und Nenner mit derselben Zahl multiplizieren.<br>Kürzen: Zähler und Nenner durch denselben gemeinsamen Teiler dividieren.<br>Der Wert des Bruchs bleibt in beiden Fällen gleich.`,
+  taskWord: `Aufgabe`,
+  task1Question: `Erweitere den Bruch 1/4 mit 3. Wie lautet der neue Zähler?`, task2Question: `Erweitere den Bruch 5/6 mit 2. Wie lautet der neue Nenner?`, task3Question: `Kürze den Bruch 10/15 vollständig. Wie lautet der neue Zähler?`, task4Question: `Kürze den Bruch 18/24 vollständig. Wie lautet der neue Nenner?`, task5Question: `Welcher Zähler macht 3/5 zu einem gleichwertigen Bruch mit dem Nenner 20?`, task6Question: `Kürze den Bruch 9/27 vollständig. Wie lautet der neue Nenner?`,
+  task7Question: `Ein Kuchen wird in 8 gleiche Stücke geschnitten. Mia isst 4 Stücke. Kürze den Bruch, den sie gegessen hat, vollständig. Wie lautet der neue Nenner?`,
+  task8Question: `In einer Klasse sind 24 Kinder, davon 18 Mädchen. Kürze den Bruch der Mädchen vollständig. Wie lautet der neue Zähler?`,
+  answerPlaceholder: `Deine Antwort`, checkButton: `Prüfen`, solutionSummary: `Lösung anzeigen`,
+  task1Result: `Ergebnis: 3`, task2Result: `Ergebnis: 12`, task3Result: `Ergebnis: 2`, task4Result: `Ergebnis: 4`, task5Result: `Ergebnis: 12`, task6Result: `Ergebnis: 3`, task7Result: `Ergebnis: 2`, task8Result: `Ergebnis: 3`,
+  task1Step1: `Zähler mit 3 multiplizieren: 1 · 3 = 3.`, task1Step2: `Der neue Bruch lautet 3/12.`, task1Step3: `Der gesuchte Zähler ist 3.`,
+  task1Hint: `Beim Erweitern werden Zähler UND Nenner mit derselben Zahl multipliziert, nicht nur einer von beiden.`,
+  task2Step1: `Nenner mit 2 multiplizieren: 6 · 2 = 12.`, task2Step2: `Der neue Bruch lautet 10/12.`, task2Step3: `Der gesuchte Nenner ist 12.`,
+  task2Hint: `Nur den Zähler zu multiplizieren würde den Wert des Bruchs verändern. Immer beide Zahlen gleich behandeln.`,
+  task3Step1: `ggT von 10 und 15 finden: ggT(10, 15) = 5.`, task3Step2: `Zähler und Nenner durch 5 teilen: 10 : 5 = 2 und 15 : 5 = 3.`, task3Step3: `Ergebnis: 2/3, der Zähler ist 2.`,
+  task3Hint: `Wenn man nicht durch den ggT teilt, ist der Bruch am Ende oft noch nicht vollständig gekürzt.`,
+  task4Step1: `ggT von 18 und 24 finden: ggT(18, 24) = 6.`, task4Step2: `Zähler und Nenner durch 6 teilen: 18 : 6 = 3 und 24 : 6 = 4.`, task4Step3: `Ergebnis: 3/4, der Nenner ist 4.`,
+  task4Hint: `Manche teilen nur durch einen kleineren gemeinsamen Teiler (z.B. 2 oder 3) und übersehen, dass noch weiter gekürzt werden kann.`,
+  task5Step1: `Herausfinden, womit der Nenner erweitert wurde: 20 : 5 = 4.`, task5Step2: `Zähler mit derselben Zahl multiplizieren: 3 · 4 = 12.`, task5Step3: `Ergebnis: 12/20, der gesuchte Zähler ist 12.`,
+  task5Hint: `Erst herausfinden, mit welcher Zahl der Nenner erweitert wurde, dann dieselbe Zahl beim Zähler verwenden.`,
+  task6Step1: `ggT von 9 und 27 finden: ggT(9, 27) = 9.`, task6Step2: `Zähler und Nenner durch 9 teilen: 9 : 9 = 1 und 27 : 9 = 3.`, task6Step3: `Ergebnis: 1/3, der Nenner ist 3.`,
+  task6Hint: `Da 9 der Zähler selbst ist, kann man direkt durch 9 teilen – das ist hier der größtmögliche gemeinsame Teiler.`,
+  task7Step1: `Mia hat 4/8 des Kuchens gegessen.`, task7Step2: `ggT von 4 und 8 finden: ggT(4, 8) = 4. Beide Zahlen durch 4 teilen: 4 : 4 = 1 und 8 : 4 = 2.`, task7Step3: `Ergebnis: 1/2, der Nenner ist 2.`,
+  task7Hint: `Zuerst den Bruch aus der Textaufgabe richtig aufstellen (gegessene Stücke über Gesamtstücke), dann erst kürzen.`,
+  task8Step1: `Der Bruch der Mädchen lautet 18/24.`, task8Step2: `ggT von 18 und 24 finden: ggT(18, 24) = 6. Beide Zahlen durch 6 teilen: 18 : 6 = 3 und 24 : 6 = 4.`, task8Step3: `Ergebnis: 3/4, der Zähler ist 3.`,
+  task8Hint: `In Textaufgaben muss man zuerst erkennen, was Zähler und was Nenner ist, bevor man kürzt.`,
+  hintLabel: `Typischer Fehler:`, footerMessage: `Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!`,
+  fbEmpty: `Trag bitte eine Zahl ein, bevor du prüfst.`, fbCorrect: `Richtig! Gut gemacht!`, fbIncorrect: `Noch nicht ganz richtig. Schau dir die Lösung weiter unten an und versuch es dann nochmal.`
+},
+en: {
+  eyebrow: `Luisen-Gymnasium · Grade 6`, titleLine1: `Fractions:`, titleAccent: `Expanding and Reducing`, backLink: `← All Topics`, h2Basics: `Basics`,
+  basicsP1: `A fraction consists of two numbers: the numerator (top) and the denominator (bottom). It shows how many parts of a whole are meant. Important: you can change how a fraction looks without changing its value — that's called expanding or reducing.`,
+  basicsP2Erweitern: `<strong>Expanding:</strong> You multiply the numerator and denominator by the same number. The value of the fraction stays the same, only how it looks changes.`,
+  fractionAria: `Fraction bars showing: one half equals two quarters equals four eighths`,
+  fractionTitle: `1/2 = 2/4 = 4/8`,
+  basicsExample1Label: `<strong>Step-by-step example:</strong> Expand 1/2 by 3.`,
+  basicsExample1Steps: `1. Multiply numerator and denominator by 3: 1 · 3 = 3 and 2 · 3 = 6<br>2. New fraction: 3/6<br>3. The value stayed the same: 1/2 = 3/6`,
+  basicsP3Kuerzen: `<strong>Reducing:</strong> You divide the numerator and denominator by the same number (a common factor). It's best to divide by the GCD right away — then the fraction is fully reduced in one step.`,
+  basicsExample2Label: `<strong>Step-by-step example:</strong> Fully reduce 8/12.`,
+  basicsExample2Steps: `1. Find the GCD of 8 and 12: GCD(8, 12) = 4<br>2. Divide numerator and denominator by 4: 8 : 4 = 2 and 12 : 4 = 3<br>3. Result: 2/3 (fully reduced)`,
+  merkeTitle: `Remember`, merkeBody: `Expanding: multiply numerator and denominator by the same number.<br>Reducing: divide numerator and denominator by the same common factor.<br>The value of the fraction stays the same in both cases.`,
+  taskWord: `Exercise`,
+  task1Question: `Expand the fraction 1/4 by 3. What's the new numerator?`, task2Question: `Expand the fraction 5/6 by 2. What's the new denominator?`, task3Question: `Fully reduce the fraction 10/15. What's the new numerator?`, task4Question: `Fully reduce the fraction 18/24. What's the new denominator?`, task5Question: `Which numerator makes 3/5 into an equivalent fraction with denominator 20?`, task6Question: `Fully reduce the fraction 9/27. What's the new denominator?`,
+  task7Question: `A cake is cut into 8 equal pieces. Mia eats 4 pieces. Fully reduce the fraction of what she ate. What's the new denominator?`,
+  task8Question: `A class has 24 children, 18 of them girls. Fully reduce the fraction of girls. What's the new numerator?`,
+  answerPlaceholder: `Your answer`, checkButton: `Check`, solutionSummary: `Show solution`,
+  task1Result: `Result: 3`, task2Result: `Result: 12`, task3Result: `Result: 2`, task4Result: `Result: 4`, task5Result: `Result: 12`, task6Result: `Result: 3`, task7Result: `Result: 2`, task8Result: `Result: 3`,
+  task1Step1: `Multiply the numerator by 3: 1 · 3 = 3.`, task1Step2: `The new fraction is 3/12.`, task1Step3: `The numerator you're looking for is 3.`,
+  task1Hint: `When expanding, both the numerator AND the denominator are multiplied by the same number, not just one of them.`,
+  task2Step1: `Multiply the denominator by 2: 6 · 2 = 12.`, task2Step2: `The new fraction is 10/12.`, task2Step3: `The denominator you're looking for is 12.`,
+  task2Hint: `Multiplying only the numerator would change the value of the fraction. Always treat both numbers the same way.`,
+  task3Step1: `Find the GCD of 10 and 15: GCD(10, 15) = 5.`, task3Step2: `Divide numerator and denominator by 5: 10 : 5 = 2 and 15 : 5 = 3.`, task3Step3: `Result: 2/3, the numerator is 2.`,
+  task3Hint: `If you don't divide by the GCD, the fraction often ends up not fully reduced.`,
+  task4Step1: `Find the GCD of 18 and 24: GCD(18, 24) = 6.`, task4Step2: `Divide numerator and denominator by 6: 18 : 6 = 3 and 24 : 6 = 4.`, task4Step3: `Result: 3/4, the denominator is 4.`,
+  task4Hint: `Some people only divide by a smaller common factor (like 2 or 3) and miss that it can be reduced further.`,
+  task5Step1: `Find out what the denominator was multiplied by: 20 : 5 = 4.`, task5Step2: `Multiply the numerator by the same number: 3 · 4 = 12.`, task5Step3: `Result: 12/20, the numerator you're looking for is 12.`,
+  task5Hint: `First find what number the denominator was expanded by, then use the same number for the numerator.`,
+  task6Step1: `Find the GCD of 9 and 27: GCD(9, 27) = 9.`, task6Step2: `Divide numerator and denominator by 9: 9 : 9 = 1 and 27 : 9 = 3.`, task6Step3: `Result: 1/3, the denominator is 3.`,
+  task6Hint: `Since 9 is the numerator itself, you can divide by 9 directly — that's the largest possible common factor here.`,
+  task7Step1: `Mia ate 4/8 of the cake.`, task7Step2: `Find the GCD of 4 and 8: GCD(4, 8) = 4. Divide both numbers by 4: 4 : 4 = 1 and 8 : 4 = 2.`, task7Step3: `Result: 1/2, the denominator is 2.`,
+  task7Hint: `First set up the fraction correctly from the word problem (pieces eaten over total pieces), then reduce it.`,
+  task8Step1: `The fraction of girls is 18/24.`, task8Step2: `Find the GCD of 18 and 24: GCD(18, 24) = 6. Divide both numbers by 6: 18 : 6 = 3 and 24 : 6 = 4.`, task8Step3: `Result: 3/4, the numerator is 3.`,
+  task8Hint: `In word problems, you first need to identify what's the numerator and what's the denominator before reducing.`,
+  hintLabel: `Common mistake:`, footerMessage: `Take your time and check the solution if you need to. You can do this!`,
+  fbEmpty: `Please enter a number before checking.`, fbCorrect: `Correct! Well done!`, fbIncorrect: `Not quite right yet. Check the solution below and try again.`
+},
+es: {
+  eyebrow: `Luisen-Gymnasium · 6.º curso`, titleLine1: `Fracciones:`, titleAccent: `Ampliar y simplificar`, backLink: `← Todos los temas`, h2Basics: `Fundamentos`,
+  basicsP1: `Una fracción consta de dos números: el numerador (arriba) y el denominador (abajo). Indica cuántas partes de un todo se representan. Importante: puedes cambiar cómo se ve una fracción sin cambiar su valor — eso se llama ampliar o simplificar.`,
+  basicsP2Erweitern: `<strong>Ampliar:</strong> Multiplicas el numerador y el denominador por el mismo número. El valor de la fracción no cambia, solo cambia su forma.`,
+  fractionAria: `Barras de fracciones que muestran: un medio es igual a dos cuartos es igual a cuatro octavos`,
+  fractionTitle: `1/2 = 2/4 = 4/8`,
+  basicsExample1Label: `<strong>Ejemplo paso a paso:</strong> Amplía 1/2 por 3.`,
+  basicsExample1Steps: `1. Multiplica numerador y denominador por 3: 1 · 3 = 3 y 2 · 3 = 6<br>2. Nueva fracción: 3/6<br>3. El valor no cambió: 1/2 = 3/6`,
+  basicsP3Kuerzen: `<strong>Simplificar:</strong> Divides el numerador y el denominador por el mismo número (un factor común). Lo mejor es dividir directamente por el MCD, así la fracción queda simplificada del todo en un paso.`,
+  basicsExample2Label: `<strong>Ejemplo paso a paso:</strong> Simplifica 8/12 al máximo.`,
+  basicsExample2Steps: `1. Halla el MCD de 8 y 12: MCD(8, 12) = 4<br>2. Divide numerador y denominador entre 4: 8 : 4 = 2 y 12 : 4 = 3<br>3. Resultado: 2/3 (simplificada al máximo)`,
+  merkeTitle: `Recuerda`, merkeBody: `Ampliar: multiplica numerador y denominador por el mismo número.<br>Simplificar: divide numerador y denominador entre el mismo factor común.<br>El valor de la fracción se mantiene en ambos casos.`,
+  taskWord: `Ejercicio`,
+  task1Question: `Amplía la fracción 1/4 por 3. ¿Cuál es el nuevo numerador?`, task2Question: `Amplía la fracción 5/6 por 2. ¿Cuál es el nuevo denominador?`, task3Question: `Simplifica la fracción 10/15 al máximo. ¿Cuál es el nuevo numerador?`, task4Question: `Simplifica la fracción 18/24 al máximo. ¿Cuál es el nuevo denominador?`, task5Question: `¿Qué numerador convierte a 3/5 en una fracción equivalente con denominador 20?`, task6Question: `Simplifica la fracción 9/27 al máximo. ¿Cuál es el nuevo denominador?`,
+  task7Question: `Un pastel se corta en 8 porciones iguales. Mia come 4 porciones. Simplifica al máximo la fracción de lo que comió. ¿Cuál es el nuevo denominador?`,
+  task8Question: `En una clase hay 24 niños, 18 de ellos niñas. Simplifica al máximo la fracción de niñas. ¿Cuál es el nuevo numerador?`,
+  answerPlaceholder: `Tu respuesta`, checkButton: `Comprobar`, solutionSummary: `Ver solución`,
+  task1Result: `Resultado: 3`, task2Result: `Resultado: 12`, task3Result: `Resultado: 2`, task4Result: `Resultado: 4`, task5Result: `Resultado: 12`, task6Result: `Resultado: 3`, task7Result: `Resultado: 2`, task8Result: `Resultado: 3`,
+  task1Step1: `Multiplica el numerador por 3: 1 · 3 = 3.`, task1Step2: `La nueva fracción es 3/12.`, task1Step3: `El numerador buscado es 3.`,
+  task1Hint: `Al ampliar, se multiplican el numerador Y el denominador por el mismo número, no solo uno de ellos.`,
+  task2Step1: `Multiplica el denominador por 2: 6 · 2 = 12.`, task2Step2: `La nueva fracción es 10/12.`, task2Step3: `El denominador buscado es 12.`,
+  task2Hint: `Multiplicar solo el numerador cambiaría el valor de la fracción. Trata siempre ambos números igual.`,
+  task3Step1: `Halla el MCD de 10 y 15: MCD(10, 15) = 5.`, task3Step2: `Divide numerador y denominador entre 5: 10 : 5 = 2 y 15 : 5 = 3.`, task3Step3: `Resultado: 2/3, el numerador es 2.`,
+  task3Hint: `Si no divides entre el MCD, la fracción a menudo no queda del todo simplificada.`,
+  task4Step1: `Halla el MCD de 18 y 24: MCD(18, 24) = 6.`, task4Step2: `Divide numerador y denominador entre 6: 18 : 6 = 3 y 24 : 6 = 4.`, task4Step3: `Resultado: 3/4, el denominador es 4.`,
+  task4Hint: `Algunos dividen solo entre un factor común más pequeño (como 2 o 3) y no ven que se puede simplificar más.`,
+  task5Step1: `Averigua por qué número se multiplicó el denominador: 20 : 5 = 4.`, task5Step2: `Multiplica el numerador por el mismo número: 3 · 4 = 12.`, task5Step3: `Resultado: 12/20, el numerador buscado es 12.`,
+  task5Hint: `Primero averigua por qué número se amplió el denominador, luego usa ese mismo número en el numerador.`,
+  task6Step1: `Halla el MCD de 9 y 27: MCD(9, 27) = 9.`, task6Step2: `Divide numerador y denominador entre 9: 9 : 9 = 1 y 27 : 9 = 3.`, task6Step3: `Resultado: 1/3, el denominador es 3.`,
+  task6Hint: `Como 9 es el propio numerador, se puede dividir directamente entre 9 — ese es el mayor factor común posible aquí.`,
+  task7Step1: `Mia comió 4/8 del pastel.`, task7Step2: `Halla el MCD de 4 y 8: MCD(4, 8) = 4. Divide ambos números entre 4: 4 : 4 = 1 y 8 : 4 = 2.`, task7Step3: `Resultado: 1/2, el denominador es 2.`,
+  task7Hint: `Primero plantea bien la fracción del problema (porciones comidas sobre porciones totales), y luego simplifica.`,
+  task8Step1: `La fracción de niñas es 18/24.`, task8Step2: `Halla el MCD de 18 y 24: MCD(18, 24) = 6. Divide ambos números entre 6: 18 : 6 = 3 y 24 : 6 = 4.`, task8Step3: `Resultado: 3/4, el numerador es 3.`,
+  task8Hint: `En los problemas de texto hay que identificar primero qué es el numerador y qué es el denominador antes de simplificar.`,
+  hintLabel: `Error típico:`, footerMessage: `Tómate tu tiempo y revisa la solución si la necesitas. ¡Tú puedes!`,
+  fbEmpty: `Introduce un número antes de comprobar.`, fbCorrect: `¡Correcto! ¡Muy bien!`, fbIncorrect: `Todavía no es correcto. Revisa la solución de abajo e inténtalo de nuevo.`
+},
+fr: {
+  eyebrow: `Luisen-Gymnasium · 6e`, titleLine1: `Fractions :`, titleAccent: `agrandir et simplifier`, backLink: `← Tous les thèmes`, h2Basics: `Les bases`,
+  basicsP1: `Une fraction est composée de deux nombres : le numérateur (en haut) et le dénominateur (en bas). Elle indique combien de parts d'un tout sont représentées. Important : on peut changer l'apparence d'une fraction sans changer sa valeur — c'est ce qu'on appelle agrandir ou simplifier.`,
+  basicsP2Erweitern: `<strong>Agrandir :</strong> on multiplie le numérateur et le dénominateur par le même nombre. La valeur de la fraction reste la même, seule son apparence change.`,
+  fractionAria: `Bandes de fractions montrant : un demi égale deux quarts égale quatre huitièmes`,
+  fractionTitle: `1/2 = 2/4 = 4/8`,
+  basicsExample1Label: `<strong>Exemple étape par étape :</strong> Agrandis 1/2 par 3.`,
+  basicsExample1Steps: `1. Multiplie numérateur et dénominateur par 3 : 1 · 3 = 3 et 2 · 3 = 6<br>2. Nouvelle fraction : 3/6<br>3. La valeur est restée la même : 1/2 = 3/6`,
+  basicsP3Kuerzen: `<strong>Simplifier :</strong> on divise le numérateur et le dénominateur par le même nombre (un diviseur commun). Le mieux est de diviser directement par le PGCD, la fraction est alors entièrement simplifiée en une étape.`,
+  basicsExample2Label: `<strong>Exemple étape par étape :</strong> Simplifie complètement 8/12.`,
+  basicsExample2Steps: `1. Trouve le PGCD de 8 et 12 : PGCD(8, 12) = 4<br>2. Divise numérateur et dénominateur par 4 : 8 : 4 = 2 et 12 : 4 = 3<br>3. Résultat : 2/3 (entièrement simplifiée)`,
+  merkeTitle: `À retenir`, merkeBody: `Agrandir : multiplier numérateur et dénominateur par le même nombre.<br>Simplifier : diviser numérateur et dénominateur par le même diviseur commun.<br>La valeur de la fraction reste la même dans les deux cas.`,
+  taskWord: `Exercice`,
+  task1Question: `Agrandis la fraction 1/4 par 3. Quel est le nouveau numérateur ?`, task2Question: `Agrandis la fraction 5/6 par 2. Quel est le nouveau dénominateur ?`, task3Question: `Simplifie complètement la fraction 10/15. Quel est le nouveau numérateur ?`, task4Question: `Simplifie complètement la fraction 18/24. Quel est le nouveau dénominateur ?`, task5Question: `Quel numérateur transforme 3/5 en une fraction équivalente de dénominateur 20 ?`, task6Question: `Simplifie complètement la fraction 9/27. Quel est le nouveau dénominateur ?`,
+  task7Question: `Un gâteau est coupé en 8 parts égales. Mia mange 4 parts. Simplifie complètement la fraction de ce qu'elle a mangé. Quel est le nouveau dénominateur ?`,
+  task8Question: `Une classe compte 24 enfants, dont 18 filles. Simplifie complètement la fraction des filles. Quel est le nouveau numérateur ?`,
+  answerPlaceholder: `Ta réponse`, checkButton: `Vérifier`, solutionSummary: `Voir la solution`,
+  task1Result: `Résultat : 3`, task2Result: `Résultat : 12`, task3Result: `Résultat : 2`, task4Result: `Résultat : 4`, task5Result: `Résultat : 12`, task6Result: `Résultat : 3`, task7Result: `Résultat : 2`, task8Result: `Résultat : 3`,
+  task1Step1: `Multiplie le numérateur par 3 : 1 · 3 = 3.`, task1Step2: `La nouvelle fraction est 3/12.`, task1Step3: `Le numérateur recherché est 3.`,
+  task1Hint: `En agrandissant, le numérateur ET le dénominateur sont multipliés par le même nombre, pas seulement l'un des deux.`,
+  task2Step1: `Multiplie le dénominateur par 2 : 6 · 2 = 12.`, task2Step2: `La nouvelle fraction est 10/12.`, task2Step3: `Le dénominateur recherché est 12.`,
+  task2Hint: `Multiplier seulement le numérateur changerait la valeur de la fraction. Traite toujours les deux nombres de la même façon.`,
+  task3Step1: `Trouve le PGCD de 10 et 15 : PGCD(10, 15) = 5.`, task3Step2: `Divise numérateur et dénominateur par 5 : 10 : 5 = 2 et 15 : 5 = 3.`, task3Step3: `Résultat : 2/3, le numérateur est 2.`,
+  task3Hint: `Si on ne divise pas par le PGCD, la fraction finit souvent par ne pas être complètement simplifiée.`,
+  task4Step1: `Trouve le PGCD de 18 et 24 : PGCD(18, 24) = 6.`, task4Step2: `Divise numérateur et dénominateur par 6 : 18 : 6 = 3 et 24 : 6 = 4.`, task4Step3: `Résultat : 3/4, le dénominateur est 4.`,
+  task4Hint: `Certains divisent seulement par un diviseur commun plus petit (comme 2 ou 3) et ne voient pas qu'on peut simplifier davantage.`,
+  task5Step1: `Trouve par quel nombre le dénominateur a été multiplié : 20 : 5 = 4.`, task5Step2: `Multiplie le numérateur par le même nombre : 3 · 4 = 12.`, task5Step3: `Résultat : 12/20, le numérateur recherché est 12.`,
+  task5Hint: `Trouve d'abord par quel nombre le dénominateur a été agrandi, puis utilise ce même nombre pour le numérateur.`,
+  task6Step1: `Trouve le PGCD de 9 et 27 : PGCD(9, 27) = 9.`, task6Step2: `Divise numérateur et dénominateur par 9 : 9 : 9 = 1 et 27 : 9 = 3.`, task6Step3: `Résultat : 1/3, le dénominateur est 3.`,
+  task6Hint: `Comme 9 est le numérateur lui-même, on peut diviser directement par 9 — c'est le plus grand diviseur commun possible ici.`,
+  task7Step1: `Mia a mangé 4/8 du gâteau.`, task7Step2: `Trouve le PGCD de 4 et 8 : PGCD(4, 8) = 4. Divise les deux nombres par 4 : 4 : 4 = 1 et 8 : 4 = 2.`, task7Step3: `Résultat : 1/2, le dénominateur est 2.`,
+  task7Hint: `Établis d'abord correctement la fraction à partir du problème (parts mangées sur parts totales), puis simplifie.`,
+  task8Step1: `La fraction des filles est 18/24.`, task8Step2: `Trouve le PGCD de 18 et 24 : PGCD(18, 24) = 6. Divise les deux nombres par 6 : 18 : 6 = 3 et 24 : 6 = 4.`, task8Step3: `Résultat : 3/4, le numérateur est 3.`,
+  task8Hint: `Dans les problèmes, il faut d'abord identifier ce qui est le numérateur et ce qui est le dénominateur avant de simplifier.`,
+  hintLabel: `Erreur fréquente :`, footerMessage: `Prends ton temps et regarde la solution si besoin. Tu vas y arriver !`,
+  fbEmpty: `Merci d'indiquer un nombre avant de vérifier.`, fbCorrect: `Correct ! Bien joué !`, fbIncorrect: `Pas encore tout à fait juste. Regarde la solution ci-dessous et réessaie.`
+},
+tr: {
+  eyebrow: `Luisen-Gymnasium · 6. Sınıf`, titleLine1: `Kesirler:`, titleAccent: `Genişletme ve Sadeleştirme`, backLink: `← Tüm Konular`, h2Basics: `Temel Bilgiler`,
+  basicsP1: `Bir kesir iki sayıdan oluşur: pay (üstte) ve payda (altta). Bir bütünün kaç parçasının kastedildiğini gösterir. Önemli: bir kesrin görünümünü değerini değiştirmeden değiştirebilirsin — buna genişletme veya sadeleştirme denir.`,
+  basicsP2Erweitern: `<strong>Genişletme:</strong> Pay ve paydayı aynı sayı ile çarparsın. Kesrin değeri aynı kalır, sadece görünümü değişir.`,
+  fractionAria: `Kesir şeritleri gösteriyor: yarım, iki bölü dört'e eşit, dört bölü sekiz'e eşit`,
+  fractionTitle: `1/2 = 2/4 = 4/8`,
+  basicsExample1Label: `<strong>Adım adım örnek:</strong> 1/2'yi 3 ile genişlet.`,
+  basicsExample1Steps: `1. Pay ve paydayı 3 ile çarp: 1 · 3 = 3 ve 2 · 3 = 6<br>2. Yeni kesir: 3/6<br>3. Değer aynı kaldı: 1/2 = 3/6`,
+  basicsP3Kuerzen: `<strong>Sadeleştirme:</strong> Pay ve paydayı aynı sayıya (ortak bir bölene) bölersin. En iyisi doğrudan EBOB'a bölmektir, o zaman kesir tek adımda tamamen sadeleşir.`,
+  basicsExample2Label: `<strong>Adım adım örnek:</strong> 8/12'yi tamamen sadeleştir.`,
+  basicsExample2Steps: `1. 8 ve 12'nin EBOB'unu bul: EBOB(8, 12) = 4<br>2. Pay ve paydayı 4'e böl: 8 : 4 = 2 ve 12 : 4 = 3<br>3. Sonuç: 2/3 (tamamen sadeleşmiş)`,
+  merkeTitle: `Unutma`, merkeBody: `Genişletme: pay ve paydayı aynı sayı ile çarp.<br>Sadeleştirme: pay ve paydayı aynı ortak bölene böl.<br>Kesrin değeri her iki durumda da aynı kalır.`,
+  taskWord: `Alıştırma`,
+  task1Question: `1/4 kesrini 3 ile genişlet. Yeni pay nedir?`, task2Question: `5/6 kesrini 2 ile genişlet. Yeni payda nedir?`, task3Question: `10/15 kesrini tamamen sadeleştir. Yeni pay nedir?`, task4Question: `18/24 kesrini tamamen sadeleştir. Yeni payda nedir?`, task5Question: `3/5'i paydası 20 olan eşdeğer bir kesre dönüştürmek için hangi pay gerekir?`, task6Question: `9/27 kesrini tamamen sadeleştir. Yeni payda nedir?`,
+  task7Question: `Bir pasta 8 eşit parçaya kesiliyor. Mia 4 parça yiyor. Yediği kesri tamamen sadeleştir. Yeni payda nedir?`,
+  task8Question: `Bir sınıfta 24 çocuk var, bunların 18'i kız. Kızların kesrini tamamen sadeleştir. Yeni pay nedir?`,
+  answerPlaceholder: `Cevabın`, checkButton: `Kontrol et`, solutionSummary: `Çözümü göster`,
+  task1Result: `Sonuç: 3`, task2Result: `Sonuç: 12`, task3Result: `Sonuç: 2`, task4Result: `Sonuç: 4`, task5Result: `Sonuç: 12`, task6Result: `Sonuç: 3`, task7Result: `Sonuç: 2`, task8Result: `Sonuç: 3`,
+  task1Step1: `Payı 3 ile çarp: 1 · 3 = 3.`, task1Step2: `Yeni kesir 3/12'dir.`, task1Step3: `Aranan pay 3'tür.`,
+  task1Hint: `Genişletirken pay VE payda aynı sayı ile çarpılır, sadece biri değil.`,
+  task2Step1: `Paydayı 2 ile çarp: 6 · 2 = 12.`, task2Step2: `Yeni kesir 10/12'dir.`, task2Step3: `Aranan payda 12'dir.`,
+  task2Hint: `Sadece payı çarpmak kesrin değerini değiştirir. Her zaman iki sayıya da aynı işlemi uygula.`,
+  task3Step1: `10 ve 15'in EBOB'unu bul: EBOB(10, 15) = 5.`, task3Step2: `Pay ve paydayı 5'e böl: 10 : 5 = 2 ve 15 : 5 = 3.`, task3Step3: `Sonuç: 2/3, pay 2'dir.`,
+  task3Hint: `EBOB'a bölmezsen, kesir genellikle tam sadeleşmemiş olur.`,
+  task4Step1: `18 ve 24'ün EBOB'unu bul: EBOB(18, 24) = 6.`, task4Step2: `Pay ve paydayı 6'ya böl: 18 : 6 = 3 ve 24 : 6 = 4.`, task4Step3: `Sonuç: 3/4, payda 4'tür.`,
+  task4Hint: `Bazıları sadece daha küçük bir ortak bölene (örneğin 2 veya 3) böler ve daha fazla sadeleştirilebileceğini gözden kaçırır.`,
+  task5Step1: `Paydanın hangi sayıyla çarpıldığını bul: 20 : 5 = 4.`, task5Step2: `Payı aynı sayıyla çarp: 3 · 4 = 12.`, task5Step3: `Sonuç: 12/20, aranan pay 12'dir.`,
+  task5Hint: `Önce paydanın hangi sayıyla genişletildiğini bul, sonra aynı sayıyı payda kullan.`,
+  task6Step1: `9 ve 27'nin EBOB'unu bul: EBOB(9, 27) = 9.`, task6Step2: `Pay ve paydayı 9'a böl: 9 : 9 = 1 ve 27 : 9 = 3.`, task6Step3: `Sonuç: 1/3, payda 3'tür.`,
+  task6Hint: `9 zaten payın kendisi olduğu için doğrudan 9'a bölünebilir — burada mümkün olan en büyük ortak bölen budur.`,
+  task7Step1: `Mia pastanın 4/8'ini yedi.`, task7Step2: `4 ve 8'in EBOB'unu bul: EBOB(4, 8) = 4. Her iki sayıyı 4'e böl: 4 : 4 = 1 ve 8 : 4 = 2.`, task7Step3: `Sonuç: 1/2, payda 2'dir.`,
+  task7Hint: `Önce metin probleminden kesri doğru kur (yenen parça bölü toplam parça), sonra sadeleştir.`,
+  task8Step1: `Kızların kesri 18/24'tür.`, task8Step2: `18 ve 24'ün EBOB'unu bul: EBOB(18, 24) = 6. Her iki sayıyı 6'ya böl: 18 : 6 = 3 ve 24 : 6 = 4.`, task8Step3: `Sonuç: 3/4, pay 3'tür.`,
+  task8Hint: `Metin problemlerinde sadeleştirmeden önce önce neyin pay, neyin payda olduğunu belirlemek gerekir.`,
+  hintLabel: `Sık yapılan hata:`, footerMessage: `Sakin sakin hesapla, gerekirse çözüme bak. Bunu başarabilirsin!`,
+  fbEmpty: `Kontrol etmeden önce lütfen bir sayı gir.`, fbCorrect: `Doğru! Aferin!`, fbIncorrect: `Henüz tam doğru değil. Aşağıdaki çözüme bak ve tekrar dene.`
+},
+ru: {
+  eyebrow: `Luisen-Gymnasium · 6 класс`, titleLine1: `Дроби:`, titleAccent: `расширение и сокращение`, backLink: `← Все темы`, h2Basics: `Основы`,
+  basicsP1: `Дробь состоит из двух чисел: числителя (сверху) и знаменателя (снизу). Она показывает, сколько частей целого имеется в виду. Важно: можно изменить вид дроби, не меняя её значения — это называется расширением или сокращением.`,
+  basicsP2Erweitern: `<strong>Расширение:</strong> числитель и знаменатель умножают на одно и то же число. Значение дроби остаётся прежним, меняется только её вид.`,
+  fractionAria: `Полосы дробей показывают: одна вторая равна двум четвёртым равна четырём восьмым`,
+  fractionTitle: `1/2 = 2/4 = 4/8`,
+  basicsExample1Label: `<strong>Пример по шагам:</strong> Расширь 1/2 на 3.`,
+  basicsExample1Steps: `1. Умножь числитель и знаменатель на 3: 1 · 3 = 3 и 2 · 3 = 6<br>2. Новая дробь: 3/6<br>3. Значение осталось прежним: 1/2 = 3/6`,
+  basicsP3Kuerzen: `<strong>Сокращение:</strong> числитель и знаменатель делят на одно и то же число (общий делитель). Лучше сразу делить на НОД — тогда дробь сокращается полностью за один шаг.`,
+  basicsExample2Label: `<strong>Пример по шагам:</strong> Полностью сократи 8/12.`,
+  basicsExample2Steps: `1. Найди НОД чисел 8 и 12: НОД(8, 12) = 4<br>2. Раздели числитель и знаменатель на 4: 8 : 4 = 2 и 12 : 4 = 3<br>3. Результат: 2/3 (полностью сокращена)`,
+  merkeTitle: `Запомни`, merkeBody: `Расширение: умножить числитель и знаменатель на одно и то же число.<br>Сокращение: разделить числитель и знаменатель на один и тот же общий делитель.<br>Значение дроби в обоих случаях остаётся прежним.`,
+  taskWord: `Задание`,
+  task1Question: `Расширь дробь 1/4 на 3. Чему равен новый числитель?`, task2Question: `Расширь дробь 5/6 на 2. Чему равен новый знаменатель?`, task3Question: `Полностью сократи дробь 10/15. Чему равен новый числитель?`, task4Question: `Полностью сократи дробь 18/24. Чему равен новый знаменатель?`, task5Question: `Какой числитель превращает 3/5 в равную дробь со знаменателем 20?`, task6Question: `Полностью сократи дробь 9/27. Чему равен новый знаменатель?`,
+  task7Question: `Торт разрезают на 8 равных кусков. Мия съедает 4 куска. Полностью сократи дробь того, что она съела. Чему равен новый знаменатель?`,
+  task8Question: `В классе 24 ребёнка, из них 18 девочек. Полностью сократи дробь девочек. Чему равен новый числитель?`,
+  answerPlaceholder: `Твой ответ`, checkButton: `Проверить`, solutionSummary: `Показать решение`,
+  task1Result: `Результат: 3`, task2Result: `Результат: 12`, task3Result: `Результат: 2`, task4Result: `Результат: 4`, task5Result: `Результат: 12`, task6Result: `Результат: 3`, task7Result: `Результат: 2`, task8Result: `Результат: 3`,
+  task1Step1: `Умножь числитель на 3: 1 · 3 = 3.`, task1Step2: `Новая дробь — 3/12.`, task1Step3: `Искомый числитель — 3.`,
+  task1Hint: `При расширении числитель И знаменатель умножаются на одно и то же число, а не только один из них.`,
+  task2Step1: `Умножь знаменатель на 2: 6 · 2 = 12.`, task2Step2: `Новая дробь — 10/12.`, task2Step3: `Искомый знаменатель — 12.`,
+  task2Hint: `Умножение только числителя изменило бы значение дроби. Всегда обращайся одинаково с обоими числами.`,
+  task3Step1: `Найди НОД чисел 10 и 15: НОД(10, 15) = 5.`, task3Step2: `Раздели числитель и знаменатель на 5: 10 : 5 = 2 и 15 : 5 = 3.`, task3Step3: `Результат: 2/3, числитель равен 2.`,
+  task3Hint: `Если не делить на НОД, дробь часто оказывается не до конца сокращённой.`,
+  task4Step1: `Найди НОД чисел 18 и 24: НОД(18, 24) = 6.`, task4Step2: `Раздели числитель и знаменатель на 6: 18 : 6 = 3 и 24 : 6 = 4.`, task4Step3: `Результат: 3/4, знаменатель равен 4.`,
+  task4Hint: `Некоторые делят только на меньший общий делитель (например, 2 или 3) и не замечают, что можно сократить ещё.`,
+  task5Step1: `Выясни, на какое число умножили знаменатель: 20 : 5 = 4.`, task5Step2: `Умножь числитель на то же число: 3 · 4 = 12.`, task5Step3: `Результат: 12/20, искомый числитель — 12.`,
+  task5Hint: `Сначала выясни, на какое число расширили знаменатель, затем используй то же число для числителя.`,
+  task6Step1: `Найди НОД чисел 9 и 27: НОД(9, 27) = 9.`, task6Step2: `Раздели числитель и знаменатель на 9: 9 : 9 = 1 и 27 : 9 = 3.`, task6Step3: `Результат: 1/3, знаменатель равен 3.`,
+  task6Hint: `Поскольку 9 — это сам числитель, можно сразу делить на 9 — это наибольший возможный общий делитель здесь.`,
+  task7Step1: `Мия съела 4/8 торта.`, task7Step2: `Найди НОД чисел 4 и 8: НОД(4, 8) = 4. Раздели оба числа на 4: 4 : 4 = 1 и 8 : 4 = 2.`, task7Step3: `Результат: 1/2, знаменатель равен 2.`,
+  task7Hint: `Сначала правильно составь дробь из задачи (съеденные куски на общее число кусков), затем сократи её.`,
+  task8Step1: `Дробь девочек — 18/24.`, task8Step2: `Найди НОД чисел 18 и 24: НОД(18, 24) = 6. Раздели оба числа на 6: 18 : 6 = 3 и 24 : 6 = 4.`, task8Step3: `Результат: 3/4, числитель равен 3.`,
+  task8Hint: `В текстовых задачах сначала нужно понять, что является числителем, а что знаменателем, и только потом сокращать.`,
+  hintLabel: `Типичная ошибка:`, footerMessage: `Считай спокойно и при необходимости смотри решение. У тебя получится!`,
+  fbEmpty: `Пожалуйста, введи число перед проверкой.`, fbCorrect: `Правильно! Отлично!`, fbIncorrect: `Пока не совсем верно. Посмотри решение ниже и попробуй ещё раз.`
+},
+ar: {
+  eyebrow: `مدرسة لويزن الثانوية · الصف السادس`, titleLine1: `الكسور:`, titleAccent: `التوسيع والاختزال`, backLink: `← جميع المواضيع`, h2Basics: `الأساسيات`,
+  basicsP1: `يتكون الكسر من عددين: البسط (في الأعلى) والمقام (في الأسفل). يوضح كم عدد الأجزاء المقصودة من الكل. مهم: يمكن تغيير شكل الكسر دون تغيير قيمته — يُسمى ذلك التوسيع أو الاختزال.`,
+  basicsP2Erweitern: `<strong>التوسيع:</strong> تضرب البسط والمقام في نفس العدد. تبقى قيمة الكسر كما هي، ويتغير شكله فقط.`,
+  fractionAria: `أشرطة كسور توضح: نصف يساوي ربعين يساوي أربعة أثمان`,
+  fractionTitle: `1/2 = 2/4 = 4/8`,
+  basicsExample1Label: `<strong>مثال خطوة بخطوة:</strong> وسّع 1/2 بضرب 3.`,
+  basicsExample1Steps: `1. اضرب البسط والمقام في 3: 1 · 3 = 3 و 2 · 3 = 6<br>2. الكسر الجديد: 3/6<br>3. بقيت القيمة كما هي: 1/2 = 3/6`,
+  basicsP3Kuerzen: `<strong>الاختزال:</strong> تقسم البسط والمقام على نفس العدد (قاسم مشترك). الأفضل القسمة مباشرة على القاسم المشترك الأكبر، فيصبح الكسر مختزلاً بالكامل في خطوة واحدة.`,
+  basicsExample2Label: `<strong>مثال خطوة بخطوة:</strong> اختزل 8/12 بالكامل.`,
+  basicsExample2Steps: `1. أوجد القاسم المشترك الأكبر لـ 8 و12: القاسم المشترك الأكبر(8، 12) = 4<br>2. اقسم البسط والمقام على 4: 8 : 4 = 2 و 12 : 4 = 3<br>3. النتيجة: 2/3 (مختزل بالكامل)`,
+  merkeTitle: `تذكّر`, merkeBody: `التوسيع: اضرب البسط والمقام في نفس العدد.<br>الاختزال: اقسم البسط والمقام على نفس القاسم المشترك.<br>تبقى قيمة الكسر كما هي في كلتا الحالتين.`,
+  taskWord: `تمرين`,
+  task1Question: `وسّع الكسر 1/4 بضرب 3. ما هو البسط الجديد؟`, task2Question: `وسّع الكسر 5/6 بضرب 2. ما هو المقام الجديد؟`, task3Question: `اختزل الكسر 10/15 بالكامل. ما هو البسط الجديد؟`, task4Question: `اختزل الكسر 18/24 بالكامل. ما هو المقام الجديد؟`, task5Question: `أي بسط يجعل 3/5 كسرًا مكافئًا بمقام 20؟`, task6Question: `اختزل الكسر 9/27 بالكامل. ما هو المقام الجديد؟`,
+  task7Question: `تُقطَّع كعكة إلى 8 قطع متساوية. تأكل ميا 4 قطع. اختزل الكسر الذي أكلته بالكامل. ما هو المقام الجديد؟`,
+  task8Question: `في فصل 24 طفلاً، منهم 18 فتاة. اختزل كسر الفتيات بالكامل. ما هو البسط الجديد؟`,
+  answerPlaceholder: `إجابتك`, checkButton: `تحقق`, solutionSummary: `عرض الحل`,
+  task1Result: `النتيجة: 3`, task2Result: `النتيجة: 12`, task3Result: `النتيجة: 2`, task4Result: `النتيجة: 4`, task5Result: `النتيجة: 12`, task6Result: `النتيجة: 3`, task7Result: `النتيجة: 2`, task8Result: `النتيجة: 3`,
+  task1Step1: `اضرب البسط في 3: 1 · 3 = 3.`, task1Step2: `الكسر الجديد هو 3/12.`, task1Step3: `البسط المطلوب هو 3.`,
+  task1Hint: `عند التوسيع، يُضرَب البسط والمقام معًا في نفس العدد، وليس أحدهما فقط.`,
+  task2Step1: `اضرب المقام في 2: 6 · 2 = 12.`, task2Step2: `الكسر الجديد هو 10/12.`, task2Step3: `المقام المطلوب هو 12.`,
+  task2Hint: `ضرب البسط فقط سيغيّر قيمة الكسر. عامل دائمًا الرقمين بنفس الطريقة.`,
+  task3Step1: `أوجد القاسم المشترك الأكبر لـ 10 و15: القاسم المشترك الأكبر(10، 15) = 5.`, task3Step2: `اقسم البسط والمقام على 5: 10 : 5 = 2 و 15 : 5 = 3.`, task3Step3: `النتيجة: 2/3، البسط هو 2.`,
+  task3Hint: `إذا لم تقسم على القاسم المشترك الأكبر، غالبًا لن يكون الكسر مختزلاً بالكامل.`,
+  task4Step1: `أوجد القاسم المشترك الأكبر لـ 18 و24: القاسم المشترك الأكبر(18، 24) = 6.`, task4Step2: `اقسم البسط والمقام على 6: 18 : 6 = 3 و 24 : 6 = 4.`, task4Step3: `النتيجة: 3/4، المقام هو 4.`,
+  task4Hint: `يقسم البعض فقط على قاسم مشترك أصغر (مثل 2 أو 3) ولا يلاحظون إمكانية الاختزال أكثر.`,
+  task5Step1: `اكتشف بأي عدد ضُرب المقام: 20 : 5 = 4.`, task5Step2: `اضرب البسط في نفس العدد: 3 · 4 = 12.`, task5Step3: `النتيجة: 12/20، البسط المطلوب هو 12.`,
+  task5Hint: `اكتشف أولًا بأي عدد وُسِّع المقام، ثم استخدم نفس العدد مع البسط.`,
+  task6Step1: `أوجد القاسم المشترك الأكبر لـ 9 و27: القاسم المشترك الأكبر(9، 27) = 9.`, task6Step2: `اقسم البسط والمقام على 9: 9 : 9 = 1 و 27 : 9 = 3.`, task6Step3: `النتيجة: 1/3، المقام هو 3.`,
+  task6Hint: `بما أن 9 هو البسط نفسه، يمكن القسمة عليه مباشرة — وهذا أكبر قاسم مشترك ممكن هنا.`,
+  task7Step1: `أكلت ميا 4/8 من الكعكة.`, task7Step2: `أوجد القاسم المشترك الأكبر لـ 4 و8: القاسم المشترك الأكبر(4، 8) = 4. اقسم العددين على 4: 4 : 4 = 1 و 8 : 4 = 2.`, task7Step3: `النتيجة: 1/2، المقام هو 2.`,
+  task7Hint: `اكتب الكسر أولًا بشكل صحيح من المسألة (القطع المأكولة على إجمالي القطع)، ثم اختزله.`,
+  task8Step1: `كسر الفتيات هو 18/24.`, task8Step2: `أوجد القاسم المشترك الأكبر لـ 18 و24: القاسم المشترك الأكبر(18، 24) = 6. اقسم العددين على 6: 18 : 6 = 3 و 24 : 6 = 4.`, task8Step3: `النتيجة: 3/4، البسط هو 3.`,
+  task8Hint: `في المسائل اللفظية، يجب أولًا تحديد ما هو البسط وما هو المقام قبل الاختزال.`,
+  hintLabel: `خطأ شائع:`, footerMessage: `احسب بهدوء وراجع الحل إذا احتجت إليه. أنت قادر على ذلك!`,
+  fbEmpty: `الرجاء إدخال رقم قبل التحقق.`, fbCorrect: `صحيح! أحسنت!`, fbIncorrect: `ليست صحيحة تمامًا بعد. راجع الحل أدناه وحاول مرة أخرى.`
+},
+zh: {
+  eyebrow: `路易森文理中学 · 六年级`, titleLine1: `分数：`, titleAccent: `扩分与约分`, backLink: `← 所有主题`, h2Basics: `基础知识`,
+  basicsP1: `一个分数由两个数组成：分子（上面）和分母（下面）。它表示整体中所指的部分数量。重要的是：可以改变分数的写法而不改变它的值——这叫做扩分或约分。`,
+  basicsP2Erweitern: `<strong>扩分：</strong>把分子和分母乘以同一个数。分数的值保持不变，只是写法变了。`,
+  fractionAria: `分数条显示：二分之一等于四分之二等于八分之四`,
+  fractionTitle: `1/2 = 2/4 = 4/8`,
+  basicsExample1Label: `<strong>分步示例：</strong> 把 1/2 扩分为分母含 3 倍的分数。`,
+  basicsExample1Steps: `1. 分子和分母都乘以 3：1 · 3 = 3，2 · 3 = 6<br>2. 新分数：3/6<br>3. 值保持不变：1/2 = 3/6`,
+  basicsP3Kuerzen: `<strong>约分：</strong>把分子和分母都除以同一个数（一个公约数）。最好直接除以最大公约数，这样一步就能把分数约到最简。`,
+  basicsExample2Label: `<strong>分步示例：</strong> 把 8/12 约到最简。`,
+  basicsExample2Steps: `1. 求 8 和 12 的最大公约数：最大公约数(8, 12) = 4<br>2. 分子和分母都除以 4：8 : 4 = 2，12 : 4 = 3<br>3. 结果：2/3（已约到最简）`,
+  merkeTitle: `记住`, merkeBody: `扩分：把分子和分母都乘以同一个数。<br>约分：把分子和分母都除以同一个公约数。<br>两种情况下分数的值都保持不变。`,
+  taskWord: `练习`,
+  task1Question: `把分数 1/4 扩分为分母乘以 3 后的分数。新的分子是多少？`, task2Question: `把分数 5/6 扩分为分母乘以 2 后的分数。新的分母是多少？`, task3Question: `把分数 10/15 约到最简。新的分子是多少？`, task4Question: `把分数 18/24 约到最简。新的分母是多少？`, task5Question: `要把 3/5 变成分母为 20 的等值分数，分子应该是多少？`, task6Question: `把分数 9/27 约到最简。新的分母是多少？`,
+  task7Question: `一个蛋糕被切成 8 等份。米娅吃了 4 份。把她吃的那部分的分数约到最简。新的分母是多少？`,
+  task8Question: `一个班有 24 个孩子，其中 18 个是女孩。把女孩所占的分数约到最简。新的分子是多少？`,
+  answerPlaceholder: `你的答案`, checkButton: `检查`, solutionSummary: `显示答案`,
+  task1Result: `结果：3`, task2Result: `结果：12`, task3Result: `结果：2`, task4Result: `结果：4`, task5Result: `结果：12`, task6Result: `结果：3`, task7Result: `结果：2`, task8Result: `结果：3`,
+  task1Step1: `把分子乘以 3：1 · 3 = 3。`, task1Step2: `新分数是 3/12。`, task1Step3: `所求的分子是 3。`,
+  task1Hint: `扩分时，分子和分母都要乘以同一个数，而不是只乘其中一个。`,
+  task2Step1: `把分母乘以 2：6 · 2 = 12。`, task2Step2: `新分数是 10/12。`, task2Step3: `所求的分母是 12。`,
+  task2Hint: `只乘分子会改变分数的值。分子和分母要一起处理。`,
+  task3Step1: `求 10 和 15 的最大公约数：最大公约数(10, 15) = 5。`, task3Step2: `分子和分母都除以 5：10 : 5 = 2，15 : 5 = 3。`, task3Step3: `结果：2/3，分子是 2。`,
+  task3Hint: `如果不除以最大公约数，分数往往还没有约到最简。`,
+  task4Step1: `求 18 和 24 的最大公约数：最大公约数(18, 24) = 6。`, task4Step2: `分子和分母都除以 6：18 : 6 = 3，24 : 6 = 4。`, task4Step3: `结果：3/4，分母是 4。`,
+  task4Hint: `有些人只除以一个较小的公约数（比如 2 或 3），却没发现还能继续约分。`,
+  task5Step1: `找出分母是乘以哪个数得到的：20 : 5 = 4。`, task5Step2: `把分子乘以同一个数：3 · 4 = 12。`, task5Step3: `结果：12/20，所求的分子是 12。`,
+  task5Hint: `先找出分母被扩大了多少倍，再用同样的数处理分子。`,
+  task6Step1: `求 9 和 27 的最大公约数：最大公约数(9, 27) = 9。`, task6Step2: `分子和分母都除以 9：9 : 9 = 1，27 : 9 = 3。`, task6Step3: `结果：1/3，分母是 3。`,
+  task6Hint: `因为 9 本身就是分子，可以直接除以 9——这是这里可能的最大公约数。`,
+  task7Step1: `米娅吃了蛋糕的 4/8。`, task7Step2: `求 4 和 8 的最大公约数：最大公约数(4, 8) = 4。两个数都除以 4：4 : 4 = 1，8 : 4 = 2。`, task7Step3: `结果：1/2，分母是 2。`,
+  task7Hint: `先从题目中正确列出分数（吃掉的份数除以总份数），然后再约分。`,
+  task8Step1: `女孩所占的分数是 18/24。`, task8Step2: `求 18 和 24 的最大公约数：最大公约数(18, 24) = 6。两个数都除以 6：18 : 6 = 3，24 : 6 = 4。`, task8Step3: `结果：3/4，分子是 3。`,
+  task8Hint: `在应用题中，要先弄清楚哪个是分子、哪个是分母，然后再约分。`,
+  hintLabel: `常见错误：`, footerMessage: `慢慢算，需要的话看看答案。你能做到！`,
+  fbEmpty: `请先输入一个数字再检查。`, fbCorrect: `正确！做得好！`, fbIncorrect: `还不完全正确。看看下面的答案，再试一次。`
+}
+};
+
+var currentLang = 'de';
+
+function setLanguage(lang){
+  var dict = TRANSLATIONS[lang] || TRANSLATIONS.de;
+  currentLang = TRANSLATIONS[lang] ? lang : 'de';
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = (currentLang === 'ar') ? 'rtl' : 'ltr';
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var key = el.getAttribute('data-i18n');
+    if(dict[key] !== undefined){ el.innerHTML = dict[key]; }
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-placeholder');
+    if(dict[key] !== undefined){ el.setAttribute('placeholder', dict[key]); }
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-aria');
+    if(dict[key] !== undefined){ el.setAttribute('aria-label', dict[key]); }
+  });
+  try{ localStorage.setItem('mathecoach_lang', currentLang); }catch(e){}
+  var sel = document.getElementById('langSelect');
+  if(sel) sel.value = currentLang;
+}
+
+function check(id, correct){
+  var dict = TRANSLATIONS[currentLang] || TRANSLATIONS.de;
+  var input = document.getElementById('input' + id);
+  var feedback = document.getElementById('feedback' + id);
+  var raw = input.value.trim();
+  var match = raw.match(/-?\d+/);
+  feedback.classList.remove('show', 'correct', 'incorrect');
+  if(!match){
+    feedback.textContent = dict.fbEmpty;
+    feedback.classList.add('show', 'incorrect');
+    return;
+  }
+  var value = parseInt(match[0], 10);
+  if(value === correct){
+    feedback.textContent = dict.fbCorrect;
+    feedback.classList.add('show', 'correct');
+  } else {
+    feedback.textContent = dict.fbIncorrect;
+    feedback.classList.add('show', 'incorrect');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var saved = 'de';
+  try{ saved = localStorage.getItem('mathecoach_lang') || 'de'; }catch(e){}
+  setLanguage(saved);
+});
+</script>
+
+</body>
+</html>

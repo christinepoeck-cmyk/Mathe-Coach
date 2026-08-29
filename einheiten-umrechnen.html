@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Einheiten umrechnen</title>
+<style>
+  :root{
+    --bg:#FAFAF9; --card:#FFFFFF; --ink:#241C1C; --ink-soft:#5C4F4C;
+    --red:#C41230; --gold:#E0A526; --blue:#2478B5;
+    --merke-bg:#FBF1DC; --merke-border:#E0A526;
+    --success:#1E8E5A; --success-bg:#E5F5EC; --error:#B3401D; --error-bg:#FBEDE6;
+    --font-display: ui-rounded, "SF Pro Rounded", "Segoe UI Rounded", "Nunito", system-ui, sans-serif;
+    --font-body: system-ui, "Segoe UI", Roboto, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:18px; line-height:1.5; padding-bottom:60px; }
+  .wrap{ max-width:640px; margin:0 auto; padding:0 20px; }
+  header{ background:var(--card); padding:30px 20px 0; text-align:center; position:relative; }
+  .header-inner{ padding-bottom:26px; }
+  .lang-switch{ display:flex; justify-content:center; margin-bottom:14px; }
+  #langSelect{ font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--ink); background:var(--card); border:2px solid #E3DFDA; border-radius:999px; padding:6px 14px; cursor:pointer; }
+  #langSelect:focus-visible{ outline:3px solid var(--blue); }
+  .back-link{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--blue); text-decoration:none; margin-bottom:16px; }
+  .eyebrow{ font-family:var(--font-display); font-weight:700; font-size:14px; letter-spacing:0.08em; text-transform:uppercase; color:var(--blue); margin-bottom:8px; }
+  h1{ font-family:var(--font-display); font-size:28px; font-weight:800; margin:0; line-height:1.25; }
+  h1 .accent{ color:var(--red); }
+  .wave{ display:block; width:100%; height:30px; }
+  section{ margin-top:32px; }
+  .card{ background:var(--card); border-radius:22px; padding:24px 22px; box-shadow:0 2px 14px rgba(36,28,28,0.07); }
+  h2{ font-family:var(--font-display); font-size:21px; font-weight:800; margin:0 0 14px; }
+  h2 .num{ display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:var(--blue); color:white; font-size:16px; margin-inline-end:10px; vertical-align:middle; }
+  p{ margin:0 0 14px; color:var(--ink-soft); }
+  .merke{ background:var(--merke-bg); border:2px solid var(--merke-border); border-radius:16px; padding:16px 18px; margin-top:16px; }
+  .merke-title{ font-family:var(--font-display); font-weight:800; color:#8A5A0F; font-size:15px; letter-spacing:0.04em; text-transform:uppercase; margin-bottom:6px; }
+  .merke-body{ color:#6B4A12; font-weight:600; margin:0; }
+  .ladder-diagram{ width:100%; height:auto; margin:18px 0 6px; }
+  .task-card{ margin-top:18px; }
+  .task-question{ font-family:var(--font-display); font-weight:700; font-size:19px; margin-bottom:16px; }
+  .answer-row{ display:flex; gap:10px; margin-bottom:6px; }
+  input[type="text"]{ flex:1; font-size:18px; font-family:var(--font-body); padding:12px 14px; border-radius:12px; border:2px solid #E3DFDA; background:#FBFAF9; color:var(--ink); }
+  input[type="text"]:focus{ outline:3px solid #C9DCEA; border-color:var(--blue); }
+  button.check{ font-family:var(--font-display); font-weight:700; font-size:16px; color:white; background:var(--blue); border:none; border-radius:12px; padding:0 20px; cursor:pointer; }
+  button.check:active{ transform:translateY(1px); }
+  button.check:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
+  .feedback{ margin-top:10px; padding:12px 14px; border-radius:12px; font-weight:700; display:none; }
+  .feedback.show{ display:block; }
+  .feedback.correct{ background:var(--success-bg); color:var(--success); }
+  .feedback.incorrect{ background:var(--error-bg); color:var(--error); }
+  details{ margin-top:14px; border-top:2px dashed #E3DFDA; padding-top:12px; }
+  summary{ font-family:var(--font-display); font-weight:700; color:var(--blue); cursor:pointer; font-size:15px; }
+  .solution{ margin-top:12px; }
+  .solution ol{ margin:0 0 12px; padding-inline-start:22px; color:var(--ink-soft); }
+  .solution li{ margin-bottom:6px; }
+  .solution-result{ font-family:var(--font-display); font-weight:800; color:var(--ink); margin-bottom:12px; }
+  .hint-box{ background:#F1EFEC; border-radius:12px; padding:12px 14px; font-size:16px; color:var(--ink-soft); }
+  .hint-box strong{ color:var(--ink); }
+  footer{ text-align:center; margin-top:36px; padding:0 20px; }
+  footer p{ font-family:var(--font-display); font-weight:700; color:var(--ink); }
+  .footer-wave{ display:block; width:100%; max-width:280px; height:16px; margin:0 auto 18px; opacity:0.6; }
+  [dir="rtl"] .back-link{ flex-direction:row-reverse; }
+  @media (prefers-reduced-motion: no-preference){ button.check{ transition:transform 0.1s ease; } }
+  @media (max-width: 480px){ .answer-row{ flex-direction:column; } button.check{ width:100%; padding:14px 20px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="lang-switch">
+      <select id="langSelect" onchange="setLanguage(this.value)">
+        <option value="de">Deutsch</option><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="tr">Türkçe</option><option value="ru">Русский</option><option value="ar">العربية</option><option value="zh">中文</option>
+      </select>
+    </div>
+    <a class="back-link" href="index.html" data-i18n="backLink">← Alle Themen</a>
+    <div class="eyebrow" data-i18n="eyebrow">Luisen-Gymnasium · Klasse 5</div>
+    <h1><span data-i18n="titleLine1">Einheiten</span><br><span class="accent" data-i18n="titleAccent">umrechnen</span></h1>
+  </div>
+  <svg class="wave" viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+    <path d="M -10 22 C 190 4, 390 40, 590 22 S 990 4, 1210 22" fill="none" stroke="#C41230" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 32 C 190 50, 390 14, 590 32 S 990 50, 1210 32" fill="none" stroke="#E0A526" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 42 C 190 24, 390 58, 590 42 S 990 24, 1210 42" fill="none" stroke="#2478B5" stroke-width="5" stroke-linecap="round"/>
+  </svg>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <div class="card">
+      <h2 data-i18n="h2Basics">Grundlagen</h2>
+      <p data-i18n="basicsP1">Längen, Gewichte, Volumen und Zeit werden in unterschiedlichen Einheiten gemessen. Um zwischen ihnen umzurechnen, musst du wissen, wie viele kleine Einheiten in eine größere passen.</p>
+
+      <svg class="ladder-diagram" viewBox="0 0 600 210" xmlns="http://www.w3.org/2000/svg" role="img" data-i18n-aria="ladderAria" aria-label="Umrechnungsleiter: Kilometer mal 1000 ergibt Meter, Meter mal 100 ergibt Zentimeter">
+        <defs>
+          <marker id="arrowu" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#241C1C"/></marker>
+        </defs>
+        <rect x="40" y="10" width="520" height="46" rx="23" fill="#C41230"/>
+        <text x="300" y="39" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="20" font-weight="800" fill="#FFFFFF">km</text>
+        <path d="M300 58 L300 78" stroke="#241C1C" stroke-width="3" stroke-linecap="round" marker-end="url(#arrowu)"/>
+        <text data-i18n="ladderFactor1" x="330" y="72" text-anchor="start" font-family="ui-rounded, system-ui, sans-serif" font-size="13" font-weight="700" fill="#241C1C">× 1000</text>
+        <rect x="40" y="82" width="520" height="46" rx="23" fill="#E0A526"/>
+        <text x="300" y="111" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="20" font-weight="800" fill="#241C1C">m</text>
+        <path d="M300 130 L300 150" stroke="#241C1C" stroke-width="3" stroke-linecap="round" marker-end="url(#arrowu)"/>
+        <text data-i18n="ladderFactor2" x="330" y="144" text-anchor="start" font-family="ui-rounded, system-ui, sans-serif" font-size="13" font-weight="700" fill="#241C1C">× 100</text>
+        <rect x="40" y="154" width="520" height="46" rx="23" fill="#2478B5"/>
+        <text x="300" y="183" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="20" font-weight="800" fill="#FFFFFF">cm</text>
+      </svg>
+
+      <p data-i18n="basicsExample1Label"><strong>Beispiel Schritt für Schritt:</strong> Wandle 3,5 m in cm um.</p>
+      <p data-i18n="basicsExample1Steps">1. 1 m sind 100 cm.<br>2. 3,5 · 100 = 350<br>3. Ergebnis: 350 cm</p>
+
+      <p data-i18n="basicsP2Other">Auch bei Gewicht und Volumen gilt dasselbe Prinzip: 1 kg = 1000 g, 1 l = 1000 ml. Bei der Zeit gilt: 1 min = 60 s, 1 h = 60 min.</p>
+
+      <p data-i18n="basicsExample2Label"><strong>Beispiel Schritt für Schritt:</strong> Wandle 2500 g in kg um.</p>
+      <p data-i18n="basicsExample2Steps">1. 1000 g sind 1 kg.<br>2. 2500 : 1000 = 2,5<br>3. Ergebnis: 2,5 kg</p>
+
+      <div class="merke">
+        <div class="merke-title" data-i18n="merkeTitle">Merke</div>
+        <p class="merke-body" data-i18n="merkeBody">Von einer großen in eine kleine Einheit: multiplizieren.<br>Von einer kleinen in eine große Einheit: dividieren.<br>1 km = 1000 m, 1 m = 100 cm, 1 kg = 1000 g, 1 l = 1000 ml, 1 h = 60 min, 1 min = 60 s.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">1</span><span data-i18n="taskWord">Aufgabe</span> 1</h2>
+      <div class="task-question" data-i18n="task1Question">Wie viele Zentimeter sind 3,5 Meter?</div>
+      <div class="answer-row">
+        <input type="text" id="input1" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="decimal">
+        <button class="check" data-i18n="checkButton" onclick="check(1, 350)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback1"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task1Result">Ergebnis: 350 cm</div>
+          <ol>
+            <li data-i18n="task1Step1">1 m sind 100 cm.</li>
+            <li data-i18n="task1Step2">3,5 · 100 = 350.</li>
+            <li data-i18n="task1Step3">Ergebnis: 350 cm.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task1Hint">Von einer größeren Einheit (m) in eine kleinere (cm) wird multipliziert, nicht dividiert.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">2</span><span data-i18n="taskWord">Aufgabe</span> 2</h2>
+      <div class="task-question" data-i18n="task2Question">Wie viele Kilogramm sind 2500 Gramm?</div>
+      <div class="answer-row">
+        <input type="text" id="input2" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="decimal">
+        <button class="check" data-i18n="checkButton" onclick="check(2, 2.5)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback2"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task2Result">Ergebnis: 2,5 kg</div>
+          <ol>
+            <li data-i18n="task2Step1">1000 g sind 1 kg.</li>
+            <li data-i18n="task2Step2">2500 : 1000 = 2,5.</li>
+            <li data-i18n="task2Step3">Ergebnis: 2,5 kg.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task2Hint">Von einer kleineren Einheit (g) in eine größere (kg) wird dividiert, nicht multipliziert.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">3</span><span data-i18n="taskWord">Aufgabe</span> 3</h2>
+      <div class="task-question" data-i18n="task3Question">Wie viele Milliliter sind 1,2 Liter?</div>
+      <div class="answer-row">
+        <input type="text" id="input3" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="decimal">
+        <button class="check" data-i18n="checkButton" onclick="check(3, 1200)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback3"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task3Result">Ergebnis: 1200 ml</div>
+          <ol>
+            <li data-i18n="task3Step1">1 l sind 1000 ml.</li>
+            <li data-i18n="task3Step2">1,2 · 1000 = 1200.</li>
+            <li data-i18n="task3Step3">Ergebnis: 1200 ml.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task3Hint">Beim Multiplizieren mit 1000 einfach das Komma um drei Stellen nach rechts verschieben.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">4</span><span data-i18n="taskWord">Aufgabe</span> 4</h2>
+      <div class="task-question" data-i18n="task4Question">Wie viele Meter sind 4,2 Kilometer?</div>
+      <div class="answer-row">
+        <input type="text" id="input4" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="decimal">
+        <button class="check" data-i18n="checkButton" onclick="check(4, 4200)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback4"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task4Result">Ergebnis: 4200 m</div>
+          <ol>
+            <li data-i18n="task4Step1">1 km sind 1000 m.</li>
+            <li data-i18n="task4Step2">4,2 · 1000 = 4200.</li>
+            <li data-i18n="task4Step3">Ergebnis: 4200 m.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task4Hint">Km in m ist immer mal 1000, nicht mal 100 wie bei m in cm.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">5</span><span data-i18n="taskWord">Aufgabe</span> 5</h2>
+      <div class="task-question" data-i18n="task5Question">Wie viele Minuten sind 150 Sekunden?</div>
+      <div class="answer-row">
+        <input type="text" id="input5" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="decimal">
+        <button class="check" data-i18n="checkButton" onclick="check(5, 2.5)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback5"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task5Result">Ergebnis: 2,5 min</div>
+          <ol>
+            <li data-i18n="task5Step1">1 min sind 60 s.</li>
+            <li data-i18n="task5Step2">150 : 60 = 2,5.</li>
+            <li data-i18n="task5Step3">Ergebnis: 2,5 min.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task5Hint">Bei der Zeit wird nicht durch 100 oder 1000 geteilt, sondern durch 60 (Minuten und Sekunden).</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">6</span><span data-i18n="taskWord">Aufgabe</span> 6</h2>
+      <div class="task-question" data-i18n="task6Question">Wie viele Stunden sind 90 Minuten?</div>
+      <div class="answer-row">
+        <input type="text" id="input6" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="decimal">
+        <button class="check" data-i18n="checkButton" onclick="check(6, 1.5)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback6"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task6Result">Ergebnis: 1,5 h</div>
+          <ol>
+            <li data-i18n="task6Step1">1 h sind 60 min.</li>
+            <li data-i18n="task6Step2">90 : 60 = 1,5.</li>
+            <li data-i18n="task6Step3">Ergebnis: 1,5 h.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task6Hint">1,5 Stunden bedeutet 1 Stunde und 30 Minuten, nicht 1 Stunde und 5 Minuten – die Dezimalzahl bezieht sich auf die ganze Stunde.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">7</span><span data-i18n="taskWord">Aufgabe</span> 7</h2>
+      <div class="task-question" data-i18n="task7Question">Ein Auto fährt 3,2 km zur Schule. Wie viele Meter sind das?</div>
+      <div class="answer-row">
+        <input type="text" id="input7" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="decimal">
+        <button class="check" data-i18n="checkButton" onclick="check(7, 3200)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback7"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task7Result">Ergebnis: 3200 m</div>
+          <ol>
+            <li data-i18n="task7Step1">1 km sind 1000 m.</li>
+            <li data-i18n="task7Step2">3,2 · 1000 = 3200.</li>
+            <li data-i18n="task7Step3">Ergebnis: 3200 m.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task7Hint">Auch in Sachaufgaben zuerst überlegen, ob multipliziert oder dividiert werden muss.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">8</span><span data-i18n="taskWord">Aufgabe</span> 8</h2>
+      <div class="task-question" data-i18n="task8Question">Eine Flasche enthält 750 ml Saft. Wie viele Liter sind das?</div>
+      <div class="answer-row">
+        <input type="text" id="input8" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="decimal">
+        <button class="check" data-i18n="checkButton" onclick="check(8, 0.75)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback8"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task8Result">Ergebnis: 0,75 l</div>
+          <ol>
+            <li data-i18n="task8Step1">1000 ml sind 1 l.</li>
+            <li data-i18n="task8Step2">750 : 1000 = 0,75.</li>
+            <li data-i18n="task8Step3">Ergebnis: 0,75 l.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task8Hint">Beim Dividieren durch 1000 das Komma drei Stellen nach links verschieben.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <footer>
+    <svg class="footer-wave" viewBox="0 0 280 16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+      <path d="M -5 8 C 40 1, 80 15, 140 8 S 240 1, 285 8" fill="none" stroke="#C41230" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M -5 8 C 40 15, 80 1, 140 8 S 240 15, 285 8" fill="none" stroke="#2478B5" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+    </svg>
+    <p id="footer-msg" data-i18n="footerMessage">Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!</p>
+  </footer>
+
+</div>
+
+<script>
+const TRANSLATIONS = {
+de: {
+  eyebrow: `Luisen-Gymnasium · Klasse 5`, titleLine1: `Einheiten`, titleAccent: `umrechnen`, backLink: `← Alle Themen`, h2Basics: `Grundlagen`,
+  basicsP1: `Längen, Gewichte, Volumen und Zeit werden in unterschiedlichen Einheiten gemessen. Um zwischen ihnen umzurechnen, musst du wissen, wie viele kleine Einheiten in eine größere passen.`,
+  ladderAria: `Umrechnungsleiter: Kilometer mal 1000 ergibt Meter, Meter mal 100 ergibt Zentimeter`,
+  ladderFactor1: `× 1000`, ladderFactor2: `× 100`,
+  basicsExample1Label: `<strong>Beispiel Schritt für Schritt:</strong> Wandle 3,5 m in cm um.`,
+  basicsExample1Steps: `1. 1 m sind 100 cm.<br>2. 3,5 · 100 = 350<br>3. Ergebnis: 350 cm`,
+  basicsP2Other: `Auch bei Gewicht und Volumen gilt dasselbe Prinzip: 1 kg = 1000 g, 1 l = 1000 ml. Bei der Zeit gilt: 1 min = 60 s, 1 h = 60 min.`,
+  basicsExample2Label: `<strong>Beispiel Schritt für Schritt:</strong> Wandle 2500 g in kg um.`,
+  basicsExample2Steps: `1. 1000 g sind 1 kg.<br>2. 2500 : 1000 = 2,5<br>3. Ergebnis: 2,5 kg`,
+  merkeTitle: `Merke`, merkeBody: `Von einer großen in eine kleine Einheit: multiplizieren.<br>Von einer kleinen in eine große Einheit: dividieren.<br>1 km = 1000 m, 1 m = 100 cm, 1 kg = 1000 g, 1 l = 1000 ml, 1 h = 60 min, 1 min = 60 s.`,
+  taskWord: `Aufgabe`,
+  task1Question: `Wie viele Zentimeter sind 3,5 Meter?`, task2Question: `Wie viele Kilogramm sind 2500 Gramm?`, task3Question: `Wie viele Milliliter sind 1,2 Liter?`, task4Question: `Wie viele Meter sind 4,2 Kilometer?`, task5Question: `Wie viele Minuten sind 150 Sekunden?`, task6Question: `Wie viele Stunden sind 90 Minuten?`,
+  task7Question: `Ein Auto fährt 3,2 km zur Schule. Wie viele Meter sind das?`, task8Question: `Eine Flasche enthält 750 ml Saft. Wie viele Liter sind das?`,
+  answerPlaceholder: `Deine Antwort`, checkButton: `Prüfen`, solutionSummary: `Lösung anzeigen`,
+  task1Result: `Ergebnis: 350 cm`, task2Result: `Ergebnis: 2,5 kg`, task3Result: `Ergebnis: 1200 ml`, task4Result: `Ergebnis: 4200 m`, task5Result: `Ergebnis: 2,5 min`, task6Result: `Ergebnis: 1,5 h`, task7Result: `Ergebnis: 3200 m`, task8Result: `Ergebnis: 0,75 l`,
+  task1Step1: `1 m sind 100 cm.`, task1Step2: `3,5 · 100 = 350.`, task1Step3: `Ergebnis: 350 cm.`,
+  task1Hint: `Von einer größeren Einheit (m) in eine kleinere (cm) wird multipliziert, nicht dividiert.`,
+  task2Step1: `1000 g sind 1 kg.`, task2Step2: `2500 : 1000 = 2,5.`, task2Step3: `Ergebnis: 2,5 kg.`,
+  task2Hint: `Von einer kleineren Einheit (g) in eine größere (kg) wird dividiert, nicht multipliziert.`,
+  task3Step1: `1 l sind 1000 ml.`, task3Step2: `1,2 · 1000 = 1200.`, task3Step3: `Ergebnis: 1200 ml.`,
+  task3Hint: `Beim Multiplizieren mit 1000 einfach das Komma um drei Stellen nach rechts verschieben.`,
+  task4Step1: `1 km sind 1000 m.`, task4Step2: `4,2 · 1000 = 4200.`, task4Step3: `Ergebnis: 4200 m.`,
+  task4Hint: `Km in m ist immer mal 1000, nicht mal 100 wie bei m in cm.`,
+  task5Step1: `1 min sind 60 s.`, task5Step2: `150 : 60 = 2,5.`, task5Step3: `Ergebnis: 2,5 min.`,
+  task5Hint: `Bei der Zeit wird nicht durch 100 oder 1000 geteilt, sondern durch 60 (Minuten und Sekunden).`,
+  task6Step1: `1 h sind 60 min.`, task6Step2: `90 : 60 = 1,5.`, task6Step3: `Ergebnis: 1,5 h.`,
+  task6Hint: `1,5 Stunden bedeutet 1 Stunde und 30 Minuten, nicht 1 Stunde und 5 Minuten – die Dezimalzahl bezieht sich auf die ganze Stunde.`,
+  task7Step1: `1 km sind 1000 m.`, task7Step2: `3,2 · 1000 = 3200.`, task7Step3: `Ergebnis: 3200 m.`,
+  task7Hint: `Auch in Sachaufgaben zuerst überlegen, ob multipliziert oder dividiert werden muss.`,
+  task8Step1: `1000 ml sind 1 l.`, task8Step2: `750 : 1000 = 0,75.`, task8Step3: `Ergebnis: 0,75 l.`,
+  task8Hint: `Beim Dividieren durch 1000 das Komma drei Stellen nach links verschieben.`,
+  hintLabel: `Typischer Fehler:`, footerMessage: `Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!`,
+  fbEmpty: `Trag bitte eine Zahl ein, bevor du prüfst.`, fbCorrect: `Richtig! Gut gemacht!`, fbIncorrect: `Noch nicht ganz richtig. Schau dir die Lösung weiter unten an und versuch es dann nochmal.`
+},
+en: {
+  eyebrow: `Luisen-Gymnasium · Grade 5`, titleLine1: `Converting`, titleAccent: `Units`, backLink: `← All Topics`, h2Basics: `Basics`,
+  basicsP1: `Lengths, weights, volumes and time are measured in different units. To convert between them, you need to know how many small units fit into a larger one.`,
+  ladderAria: `Conversion ladder: kilometer times 1000 gives meters, meter times 100 gives centimeters`,
+  ladderFactor1: `× 1000`, ladderFactor2: `× 100`,
+  basicsExample1Label: `<strong>Step-by-step example:</strong> Convert 3.5 m to cm.`,
+  basicsExample1Steps: `1. 1 m is 100 cm.<br>2. 3.5 · 100 = 350<br>3. Result: 350 cm`,
+  basicsP2Other: `The same principle applies to weight and volume: 1 kg = 1000 g, 1 l = 1000 ml. For time: 1 min = 60 s, 1 h = 60 min.`,
+  basicsExample2Label: `<strong>Step-by-step example:</strong> Convert 2500 g to kg.`,
+  basicsExample2Steps: `1. 1000 g is 1 kg.<br>2. 2500 : 1000 = 2.5<br>3. Result: 2.5 kg`,
+  merkeTitle: `Remember`, merkeBody: `From a larger to a smaller unit: multiply.<br>From a smaller to a larger unit: divide.<br>1 km = 1000 m, 1 m = 100 cm, 1 kg = 1000 g, 1 l = 1000 ml, 1 h = 60 min, 1 min = 60 s.`,
+  taskWord: `Exercise`,
+  task1Question: `How many centimeters are 3.5 meters?`, task2Question: `How many kilograms are 2500 grams?`, task3Question: `How many milliliters are 1.2 liters?`, task4Question: `How many meters are 4.2 kilometers?`, task5Question: `How many minutes are 150 seconds?`, task6Question: `How many hours are 90 minutes?`,
+  task7Question: `A car drives 3.2 km to school. How many meters is that?`, task8Question: `A bottle contains 750 ml of juice. How many liters is that?`,
+  answerPlaceholder: `Your answer`, checkButton: `Check`, solutionSummary: `Show solution`,
+  task1Result: `Result: 350 cm`, task2Result: `Result: 2.5 kg`, task3Result: `Result: 1200 ml`, task4Result: `Result: 4200 m`, task5Result: `Result: 2.5 min`, task6Result: `Result: 1.5 h`, task7Result: `Result: 3200 m`, task8Result: `Result: 0.75 l`,
+  task1Step1: `1 m is 100 cm.`, task1Step2: `3.5 · 100 = 350.`, task1Step3: `Result: 350 cm.`,
+  task1Hint: `Going from a larger unit (m) to a smaller one (cm), you multiply, not divide.`,
+  task2Step1: `1000 g is 1 kg.`, task2Step2: `2500 : 1000 = 2.5.`, task2Step3: `Result: 2.5 kg.`,
+  task2Hint: `Going from a smaller unit (g) to a larger one (kg), you divide, not multiply.`,
+  task3Step1: `1 l is 1000 ml.`, task3Step2: `1.2 · 1000 = 1200.`, task3Step3: `Result: 1200 ml.`,
+  task3Hint: `When multiplying by 1000, just move the decimal point three places to the right.`,
+  task4Step1: `1 km is 1000 m.`, task4Step2: `4.2 · 1000 = 4200.`, task4Step3: `Result: 4200 m.`,
+  task4Hint: `Km to m is always times 1000, not times 100 like m to cm.`,
+  task5Step1: `1 min is 60 s.`, task5Step2: `150 : 60 = 2.5.`, task5Step3: `Result: 2.5 min.`,
+  task5Hint: `For time, you don't divide by 100 or 1000, but by 60 (minutes and seconds).`,
+  task6Step1: `1 h is 60 min.`, task6Step2: `90 : 60 = 1.5.`, task6Step3: `Result: 1.5 h.`,
+  task6Hint: `1.5 hours means 1 hour and 30 minutes, not 1 hour and 5 minutes — the decimal refers to the whole hour.`,
+  task7Step1: `1 km is 1000 m.`, task7Step2: `3.2 · 1000 = 3200.`, task7Step3: `Result: 3200 m.`,
+  task7Hint: `In word problems too, first think about whether you need to multiply or divide.`,
+  task8Step1: `1000 ml is 1 l.`, task8Step2: `750 : 1000 = 0.75.`, task8Step3: `Result: 0.75 l.`,
+  task8Hint: `When dividing by 1000, move the decimal point three places to the left.`,
+  hintLabel: `Common mistake:`, footerMessage: `Take your time and check the solution if you need to. You can do this!`,
+  fbEmpty: `Please enter a number before checking.`, fbCorrect: `Correct! Well done!`, fbIncorrect: `Not quite right yet. Check the solution below and try again.`
+},
+es: {
+  eyebrow: `Luisen-Gymnasium · 5.º curso`, titleLine1: `Convertir`, titleAccent: `unidades`, backLink: `← Todos los temas`, h2Basics: `Fundamentos`,
+  basicsP1: `Las longitudes, los pesos, los volúmenes y el tiempo se miden en distintas unidades. Para convertir entre ellas, necesitas saber cuántas unidades pequeñas caben en una más grande.`,
+  ladderAria: `Escalera de conversión: kilómetro por 1000 da metros, metro por 100 da centímetros`,
+  ladderFactor1: `× 1000`, ladderFactor2: `× 100`,
+  basicsExample1Label: `<strong>Ejemplo paso a paso:</strong> Convierte 3,5 m a cm.`,
+  basicsExample1Steps: `1. 1 m son 100 cm.<br>2. 3,5 · 100 = 350<br>3. Resultado: 350 cm`,
+  basicsP2Other: `El mismo principio se aplica al peso y al volumen: 1 kg = 1000 g, 1 l = 1000 ml. Para el tiempo: 1 min = 60 s, 1 h = 60 min.`,
+  basicsExample2Label: `<strong>Ejemplo paso a paso:</strong> Convierte 2500 g a kg.`,
+  basicsExample2Steps: `1. 1000 g son 1 kg.<br>2. 2500 : 1000 = 2,5<br>3. Resultado: 2,5 kg`,
+  merkeTitle: `Recuerda`, merkeBody: `De una unidad grande a una pequeña: multiplica.<br>De una unidad pequeña a una grande: divide.<br>1 km = 1000 m, 1 m = 100 cm, 1 kg = 1000 g, 1 l = 1000 ml, 1 h = 60 min, 1 min = 60 s.`,
+  taskWord: `Ejercicio`,
+  task1Question: `¿Cuántos centímetros son 3,5 metros?`, task2Question: `¿Cuántos kilogramos son 2500 gramos?`, task3Question: `¿Cuántos mililitros son 1,2 litros?`, task4Question: `¿Cuántos metros son 4,2 kilómetros?`, task5Question: `¿Cuántos minutos son 150 segundos?`, task6Question: `¿Cuántas horas son 90 minutos?`,
+  task7Question: `Un coche recorre 3,2 km hasta la escuela. ¿Cuántos metros son?`, task8Question: `Una botella contiene 750 ml de zumo. ¿Cuántos litros son?`,
+  answerPlaceholder: `Tu respuesta`, checkButton: `Comprobar`, solutionSummary: `Ver solución`,
+  task1Result: `Resultado: 350 cm`, task2Result: `Resultado: 2,5 kg`, task3Result: `Resultado: 1200 ml`, task4Result: `Resultado: 4200 m`, task5Result: `Resultado: 2,5 min`, task6Result: `Resultado: 1,5 h`, task7Result: `Resultado: 3200 m`, task8Result: `Resultado: 0,75 l`,
+  task1Step1: `1 m son 100 cm.`, task1Step2: `3,5 · 100 = 350.`, task1Step3: `Resultado: 350 cm.`,
+  task1Hint: `Al pasar de una unidad más grande (m) a una más pequeña (cm), se multiplica, no se divide.`,
+  task2Step1: `1000 g son 1 kg.`, task2Step2: `2500 : 1000 = 2,5.`, task2Step3: `Resultado: 2,5 kg.`,
+  task2Hint: `Al pasar de una unidad más pequeña (g) a una más grande (kg), se divide, no se multiplica.`,
+  task3Step1: `1 l son 1000 ml.`, task3Step2: `1,2 · 1000 = 1200.`, task3Step3: `Resultado: 1200 ml.`,
+  task3Hint: `Al multiplicar por 1000, simplemente desplaza la coma tres posiciones a la derecha.`,
+  task4Step1: `1 km son 1000 m.`, task4Step2: `4,2 · 1000 = 4200.`, task4Step3: `Resultado: 4200 m.`,
+  task4Hint: `De km a m siempre es por 1000, no por 100 como de m a cm.`,
+  task5Step1: `1 min son 60 s.`, task5Step2: `150 : 60 = 2,5.`, task5Step3: `Resultado: 2,5 min.`,
+  task5Hint: `Con el tiempo no se divide entre 100 ni 1000, sino entre 60 (minutos y segundos).`,
+  task6Step1: `1 h son 60 min.`, task6Step2: `90 : 60 = 1,5.`, task6Step3: `Resultado: 1,5 h.`,
+  task6Hint: `1,5 horas significa 1 hora y 30 minutos, no 1 hora y 5 minutos — el decimal se refiere a la hora completa.`,
+  task7Step1: `1 km son 1000 m.`, task7Step2: `3,2 · 1000 = 3200.`, task7Step3: `Resultado: 3200 m.`,
+  task7Hint: `También en los problemas hay que pensar primero si se debe multiplicar o dividir.`,
+  task8Step1: `1000 ml son 1 l.`, task8Step2: `750 : 1000 = 0,75.`, task8Step3: `Resultado: 0,75 l.`,
+  task8Hint: `Al dividir entre 1000, desplaza la coma tres posiciones a la izquierda.`,
+  hintLabel: `Error típico:`, footerMessage: `Tómate tu tiempo y revisa la solución si la necesitas. ¡Tú puedes!`,
+  fbEmpty: `Introduce un número antes de comprobar.`, fbCorrect: `¡Correcto! ¡Muy bien!`, fbIncorrect: `Todavía no es correcto. Revisa la solución de abajo e inténtalo de nuevo.`
+},
+fr: {
+  eyebrow: `Luisen-Gymnasium · 5e`, titleLine1: `Convertir`, titleAccent: `les unités`, backLink: `← Tous les thèmes`, h2Basics: `Les bases`,
+  basicsP1: `Les longueurs, les poids, les volumes et le temps se mesurent dans différentes unités. Pour convertir entre elles, il faut savoir combien de petites unités entrent dans une plus grande.`,
+  ladderAria: `Échelle de conversion : kilomètre fois 1000 donne des mètres, mètre fois 100 donne des centimètres`,
+  ladderFactor1: `× 1000`, ladderFactor2: `× 100`,
+  basicsExample1Label: `<strong>Exemple étape par étape :</strong> Convertis 3,5 m en cm.`,
+  basicsExample1Steps: `1. 1 m fait 100 cm.<br>2. 3,5 · 100 = 350<br>3. Résultat : 350 cm`,
+  basicsP2Other: `Le même principe s'applique au poids et au volume : 1 kg = 1000 g, 1 l = 1000 ml. Pour le temps : 1 min = 60 s, 1 h = 60 min.`,
+  basicsExample2Label: `<strong>Exemple étape par étape :</strong> Convertis 2500 g en kg.`,
+  basicsExample2Steps: `1. 1000 g font 1 kg.<br>2. 2500 : 1000 = 2,5<br>3. Résultat : 2,5 kg`,
+  merkeTitle: `À retenir`, merkeBody: `D'une grande à une petite unité : multiplier.<br>D'une petite à une grande unité : diviser.<br>1 km = 1000 m, 1 m = 100 cm, 1 kg = 1000 g, 1 l = 1000 ml, 1 h = 60 min, 1 min = 60 s.`,
+  taskWord: `Exercice`,
+  task1Question: `Combien de centimètres font 3,5 mètres ?`, task2Question: `Combien de kilogrammes font 2500 grammes ?`, task3Question: `Combien de millilitres font 1,2 litre ?`, task4Question: `Combien de mètres font 4,2 kilomètres ?`, task5Question: `Combien de minutes font 150 secondes ?`, task6Question: `Combien d'heures font 90 minutes ?`,
+  task7Question: `Une voiture parcourt 3,2 km jusqu'à l'école. Combien de mètres cela fait-il ?`, task8Question: `Une bouteille contient 750 ml de jus. Combien de litres cela fait-il ?`,
+  answerPlaceholder: `Ta réponse`, checkButton: `Vérifier`, solutionSummary: `Voir la solution`,
+  task1Result: `Résultat : 350 cm`, task2Result: `Résultat : 2,5 kg`, task3Result: `Résultat : 1200 ml`, task4Result: `Résultat : 4200 m`, task5Result: `Résultat : 2,5 min`, task6Result: `Résultat : 1,5 h`, task7Result: `Résultat : 3200 m`, task8Result: `Résultat : 0,75 l`,
+  task1Step1: `1 m fait 100 cm.`, task1Step2: `3,5 · 100 = 350.`, task1Step3: `Résultat : 350 cm.`,
+  task1Hint: `En passant d'une unité plus grande (m) à une plus petite (cm), on multiplie, on ne divise pas.`,
+  task2Step1: `1000 g font 1 kg.`, task2Step2: `2500 : 1000 = 2,5.`, task2Step3: `Résultat : 2,5 kg.`,
+  task2Hint: `En passant d'une unité plus petite (g) à une plus grande (kg), on divise, on ne multiplie pas.`,
+  task3Step1: `1 l fait 1000 ml.`, task3Step2: `1,2 · 1000 = 1200.`, task3Step3: `Résultat : 1200 ml.`,
+  task3Hint: `En multipliant par 1000, il suffit de déplacer la virgule de trois rangs vers la droite.`,
+  task4Step1: `1 km fait 1000 m.`, task4Step2: `4,2 · 1000 = 4200.`, task4Step3: `Résultat : 4200 m.`,
+  task4Hint: `Km en m, c'est toujours fois 1000, pas fois 100 comme pour m en cm.`,
+  task5Step1: `1 min fait 60 s.`, task5Step2: `150 : 60 = 2,5.`, task5Step3: `Résultat : 2,5 min.`,
+  task5Hint: `Pour le temps, on ne divise pas par 100 ou 1000, mais par 60 (minutes et secondes).`,
+  task6Step1: `1 h fait 60 min.`, task6Step2: `90 : 60 = 1,5.`, task6Step3: `Résultat : 1,5 h.`,
+  task6Hint: `1,5 heure signifie 1 heure et 30 minutes, pas 1 heure et 5 minutes — le nombre décimal se rapporte à l'heure entière.`,
+  task7Step1: `1 km fait 1000 m.`, task7Step2: `3,2 · 1000 = 3200.`, task7Step3: `Résultat : 3200 m.`,
+  task7Hint: `Dans les problèmes aussi, réfléchis d'abord s'il faut multiplier ou diviser.`,
+  task8Step1: `1000 ml font 1 l.`, task8Step2: `750 : 1000 = 0,75.`, task8Step3: `Résultat : 0,75 l.`,
+  task8Hint: `En divisant par 1000, déplace la virgule de trois rangs vers la gauche.`,
+  hintLabel: `Erreur fréquente :`, footerMessage: `Prends ton temps et regarde la solution si besoin. Tu vas y arriver !`,
+  fbEmpty: `Merci d'indiquer un nombre avant de vérifier.`, fbCorrect: `Correct ! Bien joué !`, fbIncorrect: `Pas encore tout à fait juste. Regarde la solution ci-dessous et réessaie.`
+},
+tr: {
+  eyebrow: `Luisen-Gymnasium · 5. Sınıf`, titleLine1: `Birim`, titleAccent: `Dönüştürme`, backLink: `← Tüm Konular`, h2Basics: `Temel Bilgiler`,
+  basicsP1: `Uzunluk, ağırlık, hacim ve zaman farklı birimlerle ölçülür. Bunlar arasında dönüşüm yapmak için, küçük bir birimden büyük bir birime kaç tanesinin sığdığını bilmen gerekir.`,
+  ladderAria: `Dönüşüm merdiveni: kilometre çarpı 1000 metre eder, metre çarpı 100 santimetre eder`,
+  ladderFactor1: `× 1000`, ladderFactor2: `× 100`,
+  basicsExample1Label: `<strong>Adım adım örnek:</strong> 3,5 m'yi cm'ye dönüştür.`,
+  basicsExample1Steps: `1. 1 m, 100 cm'dir.<br>2. 3,5 · 100 = 350<br>3. Sonuç: 350 cm`,
+  basicsP2Other: `Ağırlık ve hacimde de aynı ilke geçerlidir: 1 kg = 1000 g, 1 l = 1000 ml. Zamanda ise: 1 dk = 60 sn, 1 saat = 60 dk.`,
+  basicsExample2Label: `<strong>Adım adım örnek:</strong> 2500 g'ı kg'a dönüştür.`,
+  basicsExample2Steps: `1. 1000 g, 1 kg'dır.<br>2. 2500 : 1000 = 2,5<br>3. Sonuç: 2,5 kg`,
+  merkeTitle: `Unutma`, merkeBody: `Büyük birimden küçük birime: çarp.<br>Küçük birimden büyük birime: böl.<br>1 km = 1000 m, 1 m = 100 cm, 1 kg = 1000 g, 1 l = 1000 ml, 1 saat = 60 dk, 1 dk = 60 sn.`,
+  taskWord: `Alıştırma`,
+  task1Question: `3,5 metre kaç santimetredir?`, task2Question: `2500 gram kaç kilogramdır?`, task3Question: `1,2 litre kaç mililitredir?`, task4Question: `4,2 kilometre kaç metredir?`, task5Question: `150 saniye kaç dakikadır?`, task6Question: `90 dakika kaç saattir?`,
+  task7Question: `Bir araba okula 3,2 km yol gidiyor. Bu kaç metredir?`, task8Question: `Bir şişe 750 ml meyve suyu içeriyor. Bu kaç litredir?`,
+  answerPlaceholder: `Cevabın`, checkButton: `Kontrol et`, solutionSummary: `Çözümü göster`,
+  task1Result: `Sonuç: 350 cm`, task2Result: `Sonuç: 2,5 kg`, task3Result: `Sonuç: 1200 ml`, task4Result: `Sonuç: 4200 m`, task5Result: `Sonuç: 2,5 dk`, task6Result: `Sonuç: 1,5 saat`, task7Result: `Sonuç: 3200 m`, task8Result: `Sonuç: 0,75 l`,
+  task1Step1: `1 m, 100 cm'dir.`, task1Step2: `3,5 · 100 = 350.`, task1Step3: `Sonuç: 350 cm.`,
+  task1Hint: `Büyük bir birimden (m) küçük bir birime (cm) geçerken çarpılır, bölünmez.`,
+  task2Step1: `1000 g, 1 kg'dır.`, task2Step2: `2500 : 1000 = 2,5.`, task2Step3: `Sonuç: 2,5 kg.`,
+  task2Hint: `Küçük bir birimden (g) büyük bir birime (kg) geçerken bölünür, çarpılmaz.`,
+  task3Step1: `1 l, 1000 ml'dir.`, task3Step2: `1,2 · 1000 = 1200.`, task3Step3: `Sonuç: 1200 ml.`,
+  task3Hint: `1000 ile çarparken virgülü sadece üç basamak sağa kaydır.`,
+  task4Step1: `1 km, 1000 m'dir.`, task4Step2: `4,2 · 1000 = 4200.`, task4Step3: `Sonuç: 4200 m.`,
+  task4Hint: `Km'den m'ye her zaman 1000 ile çarpılır, m'den cm'ye olduğu gibi 100 ile değil.`,
+  task5Step1: `1 dk, 60 sn'dir.`, task5Step2: `150 : 60 = 2,5.`, task5Step3: `Sonuç: 2,5 dk.`,
+  task5Hint: `Zamanda 100 veya 1000'e değil, 60'a bölünür (dakika ve saniye).`,
+  task6Step1: `1 saat, 60 dk'dır.`, task6Step2: `90 : 60 = 1,5.`, task6Step3: `Sonuç: 1,5 saat.`,
+  task6Hint: `1,5 saat, 1 saat 30 dakika demektir, 1 saat 5 dakika değil — ondalık kısım tüm saate göredir.`,
+  task7Step1: `1 km, 1000 m'dir.`, task7Step2: `3,2 · 1000 = 3200.`, task7Step3: `Sonuç: 3200 m.`,
+  task7Hint: `Metin problemlerinde de önce çarpma mı bölme mi gerektiğini düşün.`,
+  task8Step1: `1000 ml, 1 l'dir.`, task8Step2: `750 : 1000 = 0,75.`, task8Step3: `Sonuç: 0,75 l.`,
+  task8Hint: `1000'e bölerken virgülü üç basamak sola kaydır.`,
+  hintLabel: `Sık yapılan hata:`, footerMessage: `Sakin sakin hesapla, gerekirse çözüme bak. Bunu başarabilirsin!`,
+  fbEmpty: `Kontrol etmeden önce lütfen bir sayı gir.`, fbCorrect: `Doğru! Aferin!`, fbIncorrect: `Henüz tam doğru değil. Aşağıdaki çözüme bak ve tekrar dene.`
+},
+ru: {
+  eyebrow: `Luisen-Gymnasium · 5 класс`, titleLine1: `Перевод`, titleAccent: `единиц измерения`, backLink: `← Все темы`, h2Basics: `Основы`,
+  basicsP1: `Длины, вес, объём и время измеряются в разных единицах. Чтобы переводить между ними, нужно знать, сколько маленьких единиц помещается в одну большую.`,
+  ladderAria: `Лестница перевода: километр умножить на 1000 даёт метры, метр умножить на 100 даёт сантиметры`,
+  ladderFactor1: `× 1000`, ladderFactor2: `× 100`,
+  basicsExample1Label: `<strong>Пример по шагам:</strong> Переведи 3,5 м в см.`,
+  basicsExample1Steps: `1. 1 м — это 100 см.<br>2. 3,5 · 100 = 350<br>3. Результат: 350 см`,
+  basicsP2Other: `Тот же принцип действует для веса и объёма: 1 кг = 1000 г, 1 л = 1000 мл. Для времени: 1 мин = 60 с, 1 ч = 60 мин.`,
+  basicsExample2Label: `<strong>Пример по шагам:</strong> Переведи 2500 г в кг.`,
+  basicsExample2Steps: `1. 1000 г — это 1 кг.<br>2. 2500 : 1000 = 2,5<br>3. Результат: 2,5 кг`,
+  merkeTitle: `Запомни`, merkeBody: `Из большой единицы в маленькую: умножить.<br>Из маленькой единицы в большую: разделить.<br>1 км = 1000 м, 1 м = 100 см, 1 кг = 1000 г, 1 л = 1000 мл, 1 ч = 60 мин, 1 мин = 60 с.`,
+  taskWord: `Задание`,
+  task1Question: `Сколько сантиметров в 3,5 метра?`, task2Question: `Сколько килограммов в 2500 граммах?`, task3Question: `Сколько миллилитров в 1,2 литра?`, task4Question: `Сколько метров в 4,2 километра?`, task5Question: `Сколько минут в 150 секундах?`, task6Question: `Сколько часов в 90 минутах?`,
+  task7Question: `Машина едет 3,2 км до школы. Сколько это метров?`, task8Question: `Бутылка содержит 750 мл сока. Сколько это литров?`,
+  answerPlaceholder: `Твой ответ`, checkButton: `Проверить`, solutionSummary: `Показать решение`,
+  task1Result: `Результат: 350 см`, task2Result: `Результат: 2,5 кг`, task3Result: `Результат: 1200 мл`, task4Result: `Результат: 4200 м`, task5Result: `Результат: 2,5 мин`, task6Result: `Результат: 1,5 ч`, task7Result: `Результат: 3200 м`, task8Result: `Результат: 0,75 л`,
+  task1Step1: `1 м — это 100 см.`, task1Step2: `3,5 · 100 = 350.`, task1Step3: `Результат: 350 см.`,
+  task1Hint: `При переходе от большей единицы (м) к меньшей (см) умножают, а не делят.`,
+  task2Step1: `1000 г — это 1 кг.`, task2Step2: `2500 : 1000 = 2,5.`, task2Step3: `Результат: 2,5 кг.`,
+  task2Hint: `При переходе от меньшей единицы (г) к большей (кг) делят, а не умножают.`,
+  task3Step1: `1 л — это 1000 мл.`, task3Step2: `1,2 · 1000 = 1200.`, task3Step3: `Результат: 1200 мл.`,
+  task3Hint: `При умножении на 1000 просто перенеси запятую на три знака вправо.`,
+  task4Step1: `1 км — это 1000 м.`, task4Step2: `4,2 · 1000 = 4200.`, task4Step3: `Результат: 4200 м.`,
+  task4Hint: `Из км в м всегда умножают на 1000, а не на 100, как из м в см.`,
+  task5Step1: `1 мин — это 60 с.`, task5Step2: `150 : 60 = 2,5.`, task5Step3: `Результат: 2,5 мин.`,
+  task5Hint: `Для времени делят не на 100 или 1000, а на 60 (минуты и секунды).`,
+  task6Step1: `1 ч — это 60 мин.`, task6Step2: `90 : 60 = 1,5.`, task6Step3: `Результат: 1,5 ч.`,
+  task6Hint: `1,5 часа означает 1 час 30 минут, а не 1 час 5 минут — десятичная дробь относится ко всему часу.`,
+  task7Step1: `1 км — это 1000 м.`, task7Step2: `3,2 · 1000 = 3200.`, task7Step3: `Результат: 3200 м.`,
+  task7Hint: `И в текстовых задачах сначала подумай, нужно умножать или делить.`,
+  task8Step1: `1000 мл — это 1 л.`, task8Step2: `750 : 1000 = 0,75.`, task8Step3: `Результат: 0,75 л.`,
+  task8Hint: `При делении на 1000 перенеси запятую на три знака влево.`,
+  hintLabel: `Типичная ошибка:`, footerMessage: `Считай спокойно и при необходимости смотри решение. У тебя получится!`,
+  fbEmpty: `Пожалуйста, введи число перед проверкой.`, fbCorrect: `Правильно! Отлично!`, fbIncorrect: `Пока не совсем верно. Посмотри решение ниже и попробуй ещё раз.`
+},
+ar: {
+  eyebrow: `مدرسة لويزن الثانوية · الصف الخامس`, titleLine1: `تحويل`, titleAccent: `الوحدات`, backLink: `← جميع المواضيع`, h2Basics: `الأساسيات`,
+  basicsP1: `تُقاس الأطوال والأوزان والحجوم والزمن بوحدات مختلفة. للتحويل بينها، يجب أن تعرف كم عدد الوحدات الصغيرة التي تشكّل وحدة أكبر.`,
+  ladderAria: `سلم التحويل: كيلومتر × 1000 يعطي أمتارًا، ومتر × 100 يعطي سنتيمترات`,
+  ladderFactor1: `× 1000`, ladderFactor2: `× 100`,
+  basicsExample1Label: `<strong>مثال خطوة بخطوة:</strong> حوّل 3.5 م إلى سم.`,
+  basicsExample1Steps: `1. 1 م يساوي 100 سم.<br>2. 3.5 · 100 = 350<br>3. النتيجة: 350 سم`,
+  basicsP2Other: `نفس المبدأ ينطبق على الوزن والحجم: 1 كغ = 1000 غ، 1 لتر = 1000 مل. بالنسبة للزمن: 1 دقيقة = 60 ثانية، 1 ساعة = 60 دقيقة.`,
+  basicsExample2Label: `<strong>مثال خطوة بخطوة:</strong> حوّل 2500 غ إلى كغ.`,
+  basicsExample2Steps: `1. 1000 غ يساوي 1 كغ.<br>2. 2500 : 1000 = 2.5<br>3. النتيجة: 2.5 كغ`,
+  merkeTitle: `تذكّر`, merkeBody: `من وحدة كبيرة إلى وحدة صغيرة: اضرب.<br>من وحدة صغيرة إلى وحدة كبيرة: اقسم.<br>1 كم = 1000 م، 1 م = 100 سم، 1 كغ = 1000 غ، 1 لتر = 1000 مل، 1 ساعة = 60 دقيقة، 1 دقيقة = 60 ثانية.`,
+  taskWord: `تمرين`,
+  task1Question: `كم سنتيمترًا يساوي 3.5 متر؟`, task2Question: `كم كيلوغرامًا يساوي 2500 غرام؟`, task3Question: `كم مليلترًا يساوي 1.2 لتر؟`, task4Question: `كم مترًا يساوي 4.2 كيلومتر؟`, task5Question: `كم دقيقة تساوي 150 ثانية؟`, task6Question: `كم ساعة تساوي 90 دقيقة؟`,
+  task7Question: `تسير سيارة 3.2 كم إلى المدرسة. كم مترًا يساوي ذلك؟`, task8Question: `تحتوي زجاجة على 750 مل من العصير. كم لترًا يساوي ذلك؟`,
+  answerPlaceholder: `إجابتك`, checkButton: `تحقق`, solutionSummary: `عرض الحل`,
+  task1Result: `النتيجة: 350 سم`, task2Result: `النتيجة: 2.5 كغ`, task3Result: `النتيجة: 1200 مل`, task4Result: `النتيجة: 4200 م`, task5Result: `النتيجة: 2.5 دقيقة`, task6Result: `النتيجة: 1.5 ساعة`, task7Result: `النتيجة: 3200 م`, task8Result: `النتيجة: 0.75 لتر`,
+  task1Step1: `1 م يساوي 100 سم.`, task1Step2: `3.5 · 100 = 350.`, task1Step3: `النتيجة: 350 سم.`,
+  task1Hint: `عند الانتقال من وحدة أكبر (م) إلى وحدة أصغر (سم)، يُضرَب، ولا يُقسَم.`,
+  task2Step1: `1000 غ يساوي 1 كغ.`, task2Step2: `2500 : 1000 = 2.5.`, task2Step3: `النتيجة: 2.5 كغ.`,
+  task2Hint: `عند الانتقال من وحدة أصغر (غ) إلى وحدة أكبر (كغ)، يُقسَم، ولا يُضرَب.`,
+  task3Step1: `1 لتر يساوي 1000 مل.`, task3Step2: `1.2 · 1000 = 1200.`, task3Step3: `النتيجة: 1200 مل.`,
+  task3Hint: `عند الضرب في 1000، ببساطة انقل الفاصلة ثلاث منازل إلى اليمين.`,
+  task4Step1: `1 كم يساوي 1000 م.`, task4Step2: `4.2 · 1000 = 4200.`, task4Step3: `النتيجة: 4200 م.`,
+  task4Hint: `التحويل من كم إلى م يكون دائمًا بالضرب في 1000، وليس في 100 كما في م إلى سم.`,
+  task5Step1: `1 دقيقة يساوي 60 ثانية.`, task5Step2: `150 : 60 = 2.5.`, task5Step3: `النتيجة: 2.5 دقيقة.`,
+  task5Hint: `في الزمن لا يُقسَم على 100 أو 1000، بل على 60 (الدقائق والثواني).`,
+  task6Step1: `1 ساعة يساوي 60 دقيقة.`, task6Step2: `90 : 60 = 1.5.`, task6Step3: `النتيجة: 1.5 ساعة.`,
+  task6Hint: `1.5 ساعة تعني ساعة واحدة و30 دقيقة، وليس ساعة و5 دقائق — العدد العشري يشير إلى الساعة كاملة.`,
+  task7Step1: `1 كم يساوي 1000 م.`, task7Step2: `3.2 · 1000 = 3200.`, task7Step3: `النتيجة: 3200 م.`,
+  task7Hint: `في المسائل اللفظية أيضًا، فكّر أولًا هل يجب الضرب أم القسمة.`,
+  task8Step1: `1000 مل يساوي 1 لتر.`, task8Step2: `750 : 1000 = 0.75.`, task8Step3: `النتيجة: 0.75 لتر.`,
+  task8Hint: `عند القسمة على 1000، انقل الفاصلة ثلاث منازل إلى اليسار.`,
+  hintLabel: `خطأ شائع:`, footerMessage: `احسب بهدوء وراجع الحل إذا احتجت إليه. أنت قادر على ذلك!`,
+  fbEmpty: `الرجاء إدخال رقم قبل التحقق.`, fbCorrect: `صحيح! أحسنت!`, fbIncorrect: `ليست صحيحة تمامًا بعد. راجع الحل أدناه وحاول مرة أخرى.`
+},
+zh: {
+  eyebrow: `路易森文理中学 · 五年级`, titleLine1: `单位`, titleAccent: `换算`, backLink: `← 所有主题`, h2Basics: `基础知识`,
+  basicsP1: `长度、重量、体积和时间用不同的单位来测量。要在它们之间换算，你需要知道多少个小单位组成一个大单位。`,
+  ladderAria: `换算阶梯：千米乘以1000等于米，米乘以100等于厘米`,
+  ladderFactor1: `× 1000`, ladderFactor2: `× 100`,
+  basicsExample1Label: `<strong>分步示例：</strong> 把 3.5 米换算成厘米。`,
+  basicsExample1Steps: `1. 1 米是 100 厘米。<br>2. 3.5 · 100 = 350<br>3. 结果：350 厘米`,
+  basicsP2Other: `重量和体积也遵循同样的原理：1 千克 = 1000 克，1 升 = 1000 毫升。时间方面：1 分钟 = 60 秒，1 小时 = 60 分钟。`,
+  basicsExample2Label: `<strong>分步示例：</strong> 把 2500 克换算成千克。`,
+  basicsExample2Steps: `1. 1000 克是 1 千克。<br>2. 2500 : 1000 = 2.5<br>3. 结果：2.5 千克`,
+  merkeTitle: `记住`, merkeBody: `从大单位到小单位：乘。<br>从小单位到大单位：除。<br>1 千米 = 1000 米，1 米 = 100 厘米，1 千克 = 1000 克，1 升 = 1000 毫升，1 小时 = 60 分钟，1 分钟 = 60 秒。`,
+  taskWord: `练习`,
+  task1Question: `3.5 米等于多少厘米？`, task2Question: `2500 克等于多少千克？`, task3Question: `1.2 升等于多少毫升？`, task4Question: `4.2 千米等于多少米？`, task5Question: `150 秒等于多少分钟？`, task6Question: `90 分钟等于多少小时？`,
+  task7Question: `一辆车开 3.2 千米到学校。这是多少米？`, task8Question: `一瓶果汁有 750 毫升。这是多少升？`,
+  answerPlaceholder: `你的答案`, checkButton: `检查`, solutionSummary: `显示答案`,
+  task1Result: `结果：350 厘米`, task2Result: `结果：2.5 千克`, task3Result: `结果：1200 毫升`, task4Result: `结果：4200 米`, task5Result: `结果：2.5 分钟`, task6Result: `结果：1.5 小时`, task7Result: `结果：3200 米`, task8Result: `结果：0.75 升`,
+  task1Step1: `1 米是 100 厘米。`, task1Step2: `3.5 · 100 = 350。`, task1Step3: `结果：350 厘米。`,
+  task1Hint: `从较大单位（米）换算到较小单位（厘米）时要乘，而不是除。`,
+  task2Step1: `1000 克是 1 千克。`, task2Step2: `2500 : 1000 = 2.5。`, task2Step3: `结果：2.5 千克。`,
+  task2Hint: `从较小单位（克）换算到较大单位（千克）时要除，而不是乘。`,
+  task3Step1: `1 升是 1000 毫升。`, task3Step2: `1.2 · 1000 = 1200。`, task3Step3: `结果：1200 毫升。`,
+  task3Hint: `乘以 1000 时，只需把小数点向右移三位。`,
+  task4Step1: `1 千米是 1000 米。`, task4Step2: `4.2 · 1000 = 4200。`, task4Step3: `结果：4200 米。`,
+  task4Hint: `千米换算成米总是乘以 1000，而不是像米换算成厘米那样乘以 100。`,
+  task5Step1: `1 分钟是 60 秒。`, task5Step2: `150 : 60 = 2.5。`, task5Step3: `结果：2.5 分钟。`,
+  task5Hint: `时间不是除以 100 或 1000，而是除以 60（分钟和秒）。`,
+  task6Step1: `1 小时是 60 分钟。`, task6Step2: `90 : 60 = 1.5。`, task6Step3: `结果：1.5 小时。`,
+  task6Hint: `1.5 小时表示 1 小时 30 分钟，不是 1 小时 5 分钟——小数部分是对整个小时而言的。`,
+  task7Step1: `1 千米是 1000 米。`, task7Step2: `3.2 · 1000 = 3200。`, task7Step3: `结果：3200 米。`,
+  task7Hint: `在应用题中也要先想清楚是该乘还是该除。`,
+  task8Step1: `1000 毫升是 1 升。`, task8Step2: `750 : 1000 = 0.75。`, task8Step3: `结果：0.75 升。`,
+  task8Hint: `除以 1000 时，把小数点向左移三位。`,
+  hintLabel: `常见错误：`, footerMessage: `慢慢算，需要的话看看答案。你能做到！`,
+  fbEmpty: `请先输入一个数字再检查。`, fbCorrect: `正确！做得好！`, fbIncorrect: `还不完全正确。看看下面的答案，再试一次。`
+}
+};
+
+var currentLang = 'de';
+
+function setLanguage(lang){
+  var dict = TRANSLATIONS[lang] || TRANSLATIONS.de;
+  currentLang = TRANSLATIONS[lang] ? lang : 'de';
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = (currentLang === 'ar') ? 'rtl' : 'ltr';
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var key = el.getAttribute('data-i18n');
+    if(dict[key] !== undefined){ el.innerHTML = dict[key]; }
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-placeholder');
+    if(dict[key] !== undefined){ el.setAttribute('placeholder', dict[key]); }
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-aria');
+    if(dict[key] !== undefined){ el.setAttribute('aria-label', dict[key]); }
+  });
+  try{ localStorage.setItem('mathecoach_lang', currentLang); }catch(e){}
+  var sel = document.getElementById('langSelect');
+  if(sel) sel.value = currentLang;
+}
+
+function check(id, correct){
+  var dict = TRANSLATIONS[currentLang] || TRANSLATIONS.de;
+  var input = document.getElementById('input' + id);
+  var feedback = document.getElementById('feedback' + id);
+  var raw = input.value.trim().replace(',', '.');
+  var match = raw.match(/-?\d+(\.\d+)?/);
+  feedback.classList.remove('show', 'correct', 'incorrect');
+  if(!match){
+    feedback.textContent = dict.fbEmpty;
+    feedback.classList.add('show', 'incorrect');
+    return;
+  }
+  var value = parseFloat(match[0]);
+  if(Math.abs(value - correct) < 0.001){
+    feedback.textContent = dict.fbCorrect;
+    feedback.classList.add('show', 'correct');
+  } else {
+    feedback.textContent = dict.fbIncorrect;
+    feedback.classList.add('show', 'incorrect');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var saved = 'de';
+  try{ saved = localStorage.getItem('mathecoach_lang') || 'de'; }catch(e){}
+  setLanguage(saved);
+});
+</script>
+
+</body>
+</html>
