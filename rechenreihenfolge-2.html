@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rechenreihenfolge: Punkt vor Strich</title>
+<style>
+  :root{
+    --bg:#FAFAF9;
+    --card:#FFFFFF;
+    --ink:#241C1C;
+    --ink-soft:#5C4F4C;
+    --red:#C41230;
+    --gold:#E0A526;
+    --blue:#2478B5;
+    --merke-bg:#FBF1DC;
+    --merke-border:#E0A526;
+    --success:#1E8E5A;
+    --success-bg:#E5F5EC;
+    --error:#B3401D;
+    --error-bg:#FBEDE6;
+    --font-display: ui-rounded, "SF Pro Rounded", "Segoe UI Rounded", "Nunito", system-ui, sans-serif;
+    --font-body: system-ui, "Segoe UI", Roboto, sans-serif;
+  }
+
+  *{ box-sizing:border-box; }
+
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:18px;
+    line-height:1.5;
+    padding-bottom:60px;
+  }
+
+  .wrap{
+    max-width:640px;
+    margin:0 auto;
+    padding:0 20px;
+  }
+
+  header{
+    background:var(--card);
+    padding:30px 20px 0;
+    text-align:center;
+    position:relative;
+  }
+
+  .header-inner{ padding-bottom:26px; }
+
+  .lang-switch{
+    display:flex;
+    justify-content:center;
+    margin-bottom:14px;
+  }
+
+  #langSelect{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:14px;
+    color:var(--ink);
+    background:var(--card);
+    border:2px solid #E3DFDA;
+    border-radius:999px;
+    padding:6px 14px;
+    cursor:pointer;
+  }
+
+  #langSelect:focus-visible{ outline:3px solid var(--blue); }
+
+  .back-link{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:14px;
+    color:var(--blue);
+    text-decoration:none;
+    margin-bottom:16px;
+  }
+
+  .eyebrow{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:14px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--blue);
+    margin-bottom:8px;
+  }
+
+  h1{
+    font-family:var(--font-display);
+    font-size:28px;
+    font-weight:800;
+    margin:0;
+    line-height:1.25;
+  }
+
+  h1 .accent{ color:var(--red); }
+
+  .wave{
+    display:block;
+    width:100%;
+    height:30px;
+  }
+
+  section{
+    margin-top:32px;
+  }
+
+  .card{
+    background:var(--card);
+    border-radius:22px;
+    padding:24px 22px;
+    box-shadow:0 2px 14px rgba(36,28,28,0.07);
+  }
+
+  h2{
+    font-family:var(--font-display);
+    font-size:21px;
+    font-weight:800;
+    margin:0 0 14px;
+  }
+
+  h2 .num{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:32px;
+    height:32px;
+    border-radius:50%;
+    background:var(--blue);
+    color:white;
+    font-size:16px;
+    margin-inline-end:10px;
+    vertical-align:middle;
+  }
+
+  p{ margin:0 0 14px; color:var(--ink-soft); }
+
+  .merke{
+    background:var(--merke-bg);
+    border:2px solid var(--merke-border);
+    border-radius:16px;
+    padding:16px 18px;
+    margin-top:16px;
+  }
+
+  .merke-title{
+    font-family:var(--font-display);
+    font-weight:800;
+    color:#8A5A0F;
+    font-size:15px;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    margin-bottom:6px;
+  }
+
+  .merke-body{ color:#6B4A12; font-weight:600; margin:0; }
+
+  .priority-diagram{
+    width:100%;
+    height:auto;
+    margin:18px 0 6px;
+  }
+
+  .task-card{ margin-top:18px; }
+
+  .task-question{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:19px;
+    margin-bottom:16px;
+  }
+
+  .answer-row{
+    display:flex;
+    gap:10px;
+    margin-bottom:6px;
+  }
+
+  input[type="text"]{
+    flex:1;
+    font-size:18px;
+    font-family:var(--font-body);
+    padding:12px 14px;
+    border-radius:12px;
+    border:2px solid #E3DFDA;
+    background:#FBFAF9;
+    color:var(--ink);
+  }
+
+  input[type="text"]:focus{
+    outline:3px solid #C9DCEA;
+    border-color:var(--blue);
+  }
+
+  button.check{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:16px;
+    color:white;
+    background:var(--blue);
+    border:none;
+    border-radius:12px;
+    padding:0 20px;
+    cursor:pointer;
+  }
+
+  button.check:active{ transform:translateY(1px); }
+  button.check:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
+
+  .feedback{
+    margin-top:10px;
+    padding:12px 14px;
+    border-radius:12px;
+    font-weight:700;
+    display:none;
+  }
+
+  .feedback.show{ display:block; }
+  .feedback.correct{ background:var(--success-bg); color:var(--success); }
+  .feedback.incorrect{ background:var(--error-bg); color:var(--error); }
+
+  details{
+    margin-top:14px;
+    border-top:2px dashed #E3DFDA;
+    padding-top:12px;
+  }
+
+  summary{
+    font-family:var(--font-display);
+    font-weight:700;
+    color:var(--blue);
+    cursor:pointer;
+    font-size:15px;
+  }
+
+  .solution{ margin-top:12px; }
+
+  .solution ol{ margin:0 0 12px; padding-inline-start:22px; color:var(--ink-soft); }
+  .solution li{ margin-bottom:6px; }
+
+  .solution-result{
+    font-family:var(--font-display);
+    font-weight:800;
+    color:var(--ink);
+    margin-bottom:12px;
+  }
+
+  .hint-box{
+    background:#F1EFEC;
+    border-radius:12px;
+    padding:12px 14px;
+    font-size:16px;
+    color:var(--ink-soft);
+  }
+
+  .hint-box strong{ color:var(--ink); }
+
+  footer{
+    text-align:center;
+    margin-top:36px;
+    padding:0 20px;
+  }
+
+  footer p{
+    font-family:var(--font-display);
+    font-weight:700;
+    color:var(--ink);
+  }
+
+  .footer-wave{
+    display:block;
+    width:100%;
+    max-width:280px;
+    height:16px;
+    margin:0 auto 18px;
+    opacity:0.6;
+  }
+
+  [dir="rtl"] .back-link{ flex-direction:row-reverse; }
+
+  @media (prefers-reduced-motion: no-preference){
+    button.check{ transition:transform 0.1s ease; }
+  }
+
+  @media (max-width: 480px){
+    .answer-row{
+      flex-direction:column;
+    }
+    button.check{
+      width:100%;
+      padding:14px 20px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="lang-switch">
+      <select id="langSelect" onchange="setLanguage(this.value)">
+        <option value="de">Deutsch</option>
+        <option value="en">English</option>
+        <option value="es">Español</option>
+        <option value="fr">Français</option>
+        <option value="tr">Türkçe</option>
+        <option value="ru">Русский</option>
+        <option value="ar">العربية</option>
+        <option value="zh">中文</option>
+      </select>
+    </div>
+    <a class="back-link" href="index.html" data-i18n="backLink">← Alle Themen</a>
+    <div class="eyebrow" data-i18n="eyebrow">Luisen-Gymnasium · Klasse 5</div>
+    <h1><span data-i18n="titleLine1">Rechenreihenfolge:</span><br><span class="accent" data-i18n="titleAccent">Punkt vor Strich</span></h1>
+  </div>
+  <svg class="wave" viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+    <path d="M -10 22 C 190 4, 390 40, 590 22 S 990 4, 1210 22" fill="none" stroke="#C41230" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 32 C 190 50, 390 14, 590 32 S 990 50, 1210 32" fill="none" stroke="#E0A526" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 42 C 190 24, 390 58, 590 42 S 990 24, 1210 42" fill="none" stroke="#2478B5" stroke-width="5" stroke-linecap="round"/>
+  </svg>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <div class="card">
+      <h2 data-i18n="h2Basics">Grundlagen</h2>
+      <p data-i18n="basicsP1">Wenn in einer Rechnung mehrere Rechenzeichen vorkommen, muss man eine bestimmte Reihenfolge einhalten. Sonst kann für dieselbe Aufgabe ein falsches Ergebnis herauskommen. Schau dir dieses Beispiel an: 2 + 3 · 4. Rechnet man einfach von links nach rechts, bekommt man (2 + 3) · 4 = 20. Das ist aber falsch! Die richtige Reihenfolge ergibt 14.</p>
+
+      <p data-i18n="basicsP2Intro">Für die richtige Reihenfolge gilt eine feste Rangfolge:</p>
+
+      <svg class="priority-diagram" viewBox="0 0 600 210" xmlns="http://www.w3.org/2000/svg" role="img" data-i18n-aria="priorityAria" aria-label="Rangfolge: erst Klammern, dann Punktrechnung, dann Strichrechnung">
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 z" fill="#241C1C"/>
+          </marker>
+        </defs>
+        <rect x="40" y="10" width="520" height="46" rx="23" fill="#C41230"/>
+        <text data-i18n="priorityStep1" x="300" y="39" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="20" font-weight="800" fill="#FFFFFF">1. Klammern ( )</text>
+        <path d="M300 58 L300 78" stroke="#241C1C" stroke-width="3" stroke-linecap="round" marker-end="url(#arrow)"/>
+        <rect x="40" y="82" width="520" height="46" rx="23" fill="#E0A526"/>
+        <text data-i18n="priorityStep2" x="300" y="111" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="20" font-weight="800" fill="#241C1C">2. Punkt: · und :</text>
+        <path d="M300 130 L300 150" stroke="#241C1C" stroke-width="3" stroke-linecap="round" marker-end="url(#arrow)"/>
+        <rect x="40" y="154" width="520" height="46" rx="23" fill="#2478B5"/>
+        <text data-i18n="priorityStep3" x="300" y="183" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="20" font-weight="800" fill="#FFFFFF">3. Strich: + und −</text>
+      </svg>
+
+      <p data-i18n="basicsExample1Label"><strong>Beispiel Schritt für Schritt:</strong><br>2 + 3 · 4 = ?</p>
+      <p data-i18n="basicsExample1Steps">1. Punktrechnung zuerst: 3 · 4 = 12<br>2. Strichrechnung: 2 + 12 = 14<br>3. Ergebnis: 14</p>
+
+      <p data-i18n="basicsP3Brackets"><strong>Und wenn Klammern dabei sind?</strong> Klammern haben immer Vorrang – sie werden zuerst berechnet, egal welches Rechenzeichen davor steht.</p>
+
+      <p data-i18n="basicsExample2Label"><strong>Beispiel Schritt für Schritt:</strong><br>(2 + 3) · 4 = ?</p>
+      <p data-i18n="basicsExample2Steps">1. Klammer zuerst ausrechnen: 2 + 3 = 5<br>2. Dann multiplizieren: 5 · 4 = 20<br>3. Ergebnis: 20</p>
+
+      <p data-i18n="basicsP4LeftRight"><strong>Wichtig, wenn mehrere gleichrangige Rechenzeichen vorkommen:</strong> Wenn zum Beispiel nur Punktrechnungen (Mal und Geteilt) hintereinander stehen, rechnet man von links nach rechts.</p>
+
+      <div class="merke">
+        <div class="merke-title" data-i18n="merkeTitle">Merke</div>
+        <p class="merke-body" data-i18n="merkeBody">1. Klammern zuerst.<br>2. Dann Punkt vor Strich (Mal und Geteilt vor Plus und Minus).<br>3. Bei gleicher Rangstufe: von links nach rechts rechnen.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">1</span><span data-i18n="taskWord">Aufgabe</span> 1</h2>
+      <div class="task-question" data-i18n="task1Question">2 + 3 · 4 = ?</div>
+      <div class="answer-row">
+        <input type="text" id="input1" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(1, 14)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback1"></div>
+
+      <details>
+        <summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task1Result">Ergebnis: 14</div>
+          <ol>
+            <li data-i18n="task1Step1">Punkt vor Strich: zuerst die Multiplikation rechnen: 3 · 4 = 12.</li>
+            <li data-i18n="task1Step2">Jetzt addieren: 2 + 12 = 14.</li>
+            <li data-i18n="task1Step3">Ergebnis: 14.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task1Hint">Viele rechnen einfach von links nach rechts und bekommen (2+3)·4 = 20. Das ist falsch, weil Punkt vor Strich gilt.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">2</span><span data-i18n="taskWord">Aufgabe</span> 2</h2>
+      <div class="task-question" data-i18n="task2Question">(2 + 3) · 4 = ?</div>
+      <div class="answer-row">
+        <input type="text" id="input2" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(2, 20)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback2"></div>
+
+      <details>
+        <summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task2Result">Ergebnis: 20</div>
+          <ol>
+            <li data-i18n="task2Step1">Klammer hat Vorrang: zuerst die Klammer ausrechnen: 2 + 3 = 5.</li>
+            <li data-i18n="task2Step2">Jetzt multiplizieren: 5 · 4 = 20.</li>
+            <li data-i18n="task2Step3">Ergebnis: 20.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task2Hint">Ohne die Klammer wäre das Ergebnis anders (14). Die Klammer verändert die Reihenfolge bewusst.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">3</span><span data-i18n="taskWord">Aufgabe</span> 3</h2>
+      <div class="task-question" data-i18n="task3Question">10 − 6 : 2 = ?</div>
+      <div class="answer-row">
+        <input type="text" id="input3" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(3, 7)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback3"></div>
+
+      <details>
+        <summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task3Result">Ergebnis: 7</div>
+          <ol>
+            <li data-i18n="task3Step1">Punkt vor Strich: zuerst dividieren: 6 : 2 = 3.</li>
+            <li data-i18n="task3Step2">Jetzt subtrahieren: 10 − 3 = 7.</li>
+            <li data-i18n="task3Step3">Ergebnis: 7.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task3Hint">Manche rechnen 10 − 6 = 4 zuerst und dann : 2, das ergibt aber ein falsches Ergebnis (2). Punktrechnung kommt zuerst.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">4</span><span data-i18n="taskWord">Aufgabe</span> 4</h2>
+      <div class="task-question" data-i18n="task4Question">4 · 3 − 2 · 5 = ?</div>
+      <div class="answer-row">
+        <input type="text" id="input4" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(4, 2)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback4"></div>
+
+      <details>
+        <summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task4Result">Ergebnis: 2</div>
+          <ol>
+            <li data-i18n="task4Step1">Beide Multiplikationen zuerst rechnen: 4 · 3 = 12 und 2 · 5 = 10.</li>
+            <li data-i18n="task4Step2">Jetzt subtrahieren: 12 − 10 = 2.</li>
+            <li data-i18n="task4Step3">Ergebnis: 2.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task4Hint">Es gibt hier zwei Punktrechnungen — beide müssen zuerst berechnet werden, bevor man subtrahiert.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">5</span><span data-i18n="taskWord">Aufgabe</span> 5</h2>
+      <div class="task-question" data-i18n="task5Question">(8 − 3) · (2 + 1) = ?</div>
+      <div class="answer-row">
+        <input type="text" id="input5" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(5, 15)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback5"></div>
+
+      <details>
+        <summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task5Result">Ergebnis: 15</div>
+          <ol>
+            <li data-i18n="task5Step1">Beide Klammern zuerst ausrechnen: 8 − 3 = 5 und 2 + 1 = 3.</li>
+            <li data-i18n="task5Step2">Jetzt multiplizieren: 5 · 3 = 15.</li>
+            <li data-i18n="task5Step3">Ergebnis: 15.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task5Hint">Bei zwei Klammern werden beide zuerst einzeln berechnet, bevor man sie miteinander verrechnet.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">6</span><span data-i18n="taskWord">Aufgabe</span> 6</h2>
+      <div class="task-question" data-i18n="task6Question">20 : 4 + 3 · 2 = ?</div>
+      <div class="answer-row">
+        <input type="text" id="input6" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(6, 11)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback6"></div>
+
+      <details>
+        <summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task6Result">Ergebnis: 11</div>
+          <ol>
+            <li data-i18n="task6Step1">Beide Punktrechnungen zuerst: 20 : 4 = 5 und 3 · 2 = 6.</li>
+            <li data-i18n="task6Step2">Jetzt addieren: 5 + 6 = 11.</li>
+            <li data-i18n="task6Step3">Ergebnis: 11.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task6Hint">Auch wenn zwei verschiedene Punktrechnungen (Geteilt und Mal) vorkommen, werden beide vor der Strichrechnung berechnet.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">7</span><span data-i18n="taskWord">Aufgabe</span> 7</h2>
+      <div class="task-question" data-i18n="task7Question">6 + (12 − 4) : 2 = ?</div>
+      <div class="answer-row">
+        <input type="text" id="input7" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(7, 10)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback7"></div>
+
+      <details>
+        <summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task7Result">Ergebnis: 10</div>
+          <ol>
+            <li data-i18n="task7Step1">Klammer zuerst: 12 − 4 = 8.</li>
+            <li data-i18n="task7Step2">Jetzt Punkt vor Strich: 8 : 2 = 4.</li>
+            <li data-i18n="task7Step3">Zuletzt addieren: 6 + 4 = 10.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task7Hint">Hier gelten alle drei Regeln nacheinander: erst Klammer, dann Punkt, dann Strich. Wird eine Regel übersprungen, kommt ein falsches Ergebnis heraus.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">8</span><span data-i18n="taskWord">Aufgabe</span> 8</h2>
+      <div class="task-question" data-i18n="task8Question">Lena kauft 4 Hefte zu je 2 Euro und einen Radiergummi für 1 Euro. Wie viel bezahlt sie insgesamt?</div>
+      <div class="answer-row">
+        <input type="text" id="input8" data-i18n-placeholder="task8Placeholder" placeholder="Deine Antwort in Euro" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(8, 9)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback8"></div>
+
+      <details>
+        <summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task8Result">Ergebnis: 9 Euro</div>
+          <ol>
+            <li data-i18n="task8Step1">Erst die Hefte berechnen: 4 · 2 = 8 Euro.</li>
+            <li data-i18n="task8Step2">Dann den Radiergummi dazuzählen: 8 + 1 = 9 Euro.</li>
+            <li data-i18n="task8Step3">Ergebnis: 9 Euro.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task8Hint">Auch in Sachaufgaben gilt Punkt vor Strich: zuerst wird das Malnehmen für die Hefte gerechnet, erst danach addiert.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <footer>
+    <svg class="footer-wave" viewBox="0 0 280 16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+      <path d="M -5 8 C 40 1, 80 15, 140 8 S 240 1, 285 8" fill="none" stroke="#C41230" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M -5 8 C 40 15, 80 1, 140 8 S 240 15, 285 8" fill="none" stroke="#2478B5" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+    </svg>
+    <p id="footer-msg" data-i18n="footerMessage">Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!</p>
+  </footer>
+
+</div>
+
+<script>
+const TRANSLATIONS = {
+de: {
+  eyebrow: `Luisen-Gymnasium · Klasse 5`,
+  titleLine1: `Rechenreihenfolge:`,
+  titleAccent: `Punkt vor Strich`,
+  backLink: `← Alle Themen`,
+  h2Basics: `Grundlagen`,
+  basicsP1: `Wenn in einer Rechnung mehrere Rechenzeichen vorkommen, muss man eine bestimmte Reihenfolge einhalten. Sonst kann für dieselbe Aufgabe ein falsches Ergebnis herauskommen. Schau dir dieses Beispiel an: 2 + 3 · 4. Rechnet man einfach von links nach rechts, bekommt man (2 + 3) · 4 = 20. Das ist aber falsch! Die richtige Reihenfolge ergibt 14.`,
+  basicsP2Intro: `Für die richtige Reihenfolge gilt eine feste Rangfolge:`,
+  priorityAria: `Rangfolge: erst Klammern, dann Punktrechnung, dann Strichrechnung`,
+  priorityStep1: `1. Klammern ( )`,
+  priorityStep2: `2. Punkt: · und :`,
+  priorityStep3: `3. Strich: + und −`,
+  basicsExample1Label: `<strong>Beispiel Schritt für Schritt:</strong><br>2 + 3 · 4 = ?`,
+  basicsExample1Steps: `1. Punktrechnung zuerst: 3 · 4 = 12<br>2. Strichrechnung: 2 + 12 = 14<br>3. Ergebnis: 14`,
+  basicsP3Brackets: `<strong>Und wenn Klammern dabei sind?</strong> Klammern haben immer Vorrang – sie werden zuerst berechnet, egal welches Rechenzeichen davor steht.`,
+  basicsExample2Label: `<strong>Beispiel Schritt für Schritt:</strong><br>(2 + 3) · 4 = ?`,
+  basicsExample2Steps: `1. Klammer zuerst ausrechnen: 2 + 3 = 5<br>2. Dann multiplizieren: 5 · 4 = 20<br>3. Ergebnis: 20`,
+  basicsP4LeftRight: `<strong>Wichtig, wenn mehrere gleichrangige Rechenzeichen vorkommen:</strong> Wenn zum Beispiel nur Punktrechnungen (Mal und Geteilt) hintereinander stehen, rechnet man von links nach rechts.`,
+  merkeTitle: `Merke`,
+  merkeBody: `1. Klammern zuerst.<br>2. Dann Punkt vor Strich (Mal und Geteilt vor Plus und Minus).<br>3. Bei gleicher Rangstufe: von links nach rechts rechnen.`,
+  taskWord: `Aufgabe`,
+  task1Question: `2 + 3 · 4 = ?`, task2Question: `(2 + 3) · 4 = ?`, task3Question: `10 − 6 : 2 = ?`, task4Question: `4 · 3 − 2 · 5 = ?`, task5Question: `(8 − 3) · (2 + 1) = ?`, task6Question: `20 : 4 + 3 · 2 = ?`, task7Question: `6 + (12 − 4) : 2 = ?`,
+  task8Question: `Lena kauft 4 Hefte zu je 2 Euro und einen Radiergummi für 1 Euro. Wie viel bezahlt sie insgesamt?`,
+  answerPlaceholder: `Deine Antwort`,
+  task8Placeholder: `Deine Antwort in Euro`,
+  checkButton: `Prüfen`,
+  solutionSummary: `Lösung anzeigen`,
+  task1Result: `Ergebnis: 14`, task2Result: `Ergebnis: 20`, task3Result: `Ergebnis: 7`, task4Result: `Ergebnis: 2`, task5Result: `Ergebnis: 15`, task6Result: `Ergebnis: 11`, task7Result: `Ergebnis: 10`, task8Result: `Ergebnis: 9 Euro`,
+  task1Step1: `Punkt vor Strich: zuerst die Multiplikation rechnen: 3 · 4 = 12.`, task1Step2: `Jetzt addieren: 2 + 12 = 14.`, task1Step3: `Ergebnis: 14.`,
+  task1Hint: `Viele rechnen einfach von links nach rechts und bekommen (2+3)·4 = 20. Das ist falsch, weil Punkt vor Strich gilt.`,
+  task2Step1: `Klammer hat Vorrang: zuerst die Klammer ausrechnen: 2 + 3 = 5.`, task2Step2: `Jetzt multiplizieren: 5 · 4 = 20.`, task2Step3: `Ergebnis: 20.`,
+  task2Hint: `Ohne die Klammer wäre das Ergebnis anders (14). Die Klammer verändert die Reihenfolge bewusst.`,
+  task3Step1: `Punkt vor Strich: zuerst dividieren: 6 : 2 = 3.`, task3Step2: `Jetzt subtrahieren: 10 − 3 = 7.`, task3Step3: `Ergebnis: 7.`,
+  task3Hint: `Manche rechnen 10 − 6 = 4 zuerst und dann : 2, das ergibt aber ein falsches Ergebnis (2). Punktrechnung kommt zuerst.`,
+  task4Step1: `Beide Multiplikationen zuerst rechnen: 4 · 3 = 12 und 2 · 5 = 10.`, task4Step2: `Jetzt subtrahieren: 12 − 10 = 2.`, task4Step3: `Ergebnis: 2.`,
+  task4Hint: `Es gibt hier zwei Punktrechnungen — beide müssen zuerst berechnet werden, bevor man subtrahiert.`,
+  task5Step1: `Beide Klammern zuerst ausrechnen: 8 − 3 = 5 und 2 + 1 = 3.`, task5Step2: `Jetzt multiplizieren: 5 · 3 = 15.`, task5Step3: `Ergebnis: 15.`,
+  task5Hint: `Bei zwei Klammern werden beide zuerst einzeln berechnet, bevor man sie miteinander verrechnet.`,
+  task6Step1: `Beide Punktrechnungen zuerst: 20 : 4 = 5 und 3 · 2 = 6.`, task6Step2: `Jetzt addieren: 5 + 6 = 11.`, task6Step3: `Ergebnis: 11.`,
+  task6Hint: `Auch wenn zwei verschiedene Punktrechnungen (Geteilt und Mal) vorkommen, werden beide vor der Strichrechnung berechnet.`,
+  task7Step1: `Klammer zuerst: 12 − 4 = 8.`, task7Step2: `Jetzt Punkt vor Strich: 8 : 2 = 4.`, task7Step3: `Zuletzt addieren: 6 + 4 = 10.`,
+  task7Hint: `Hier gelten alle drei Regeln nacheinander: erst Klammer, dann Punkt, dann Strich. Wird eine Regel übersprungen, kommt ein falsches Ergebnis heraus.`,
+  task8Step1: `Erst die Hefte berechnen: 4 · 2 = 8 Euro.`, task8Step2: `Dann den Radiergummi dazuzählen: 8 + 1 = 9 Euro.`, task8Step3: `Ergebnis: 9 Euro.`,
+  task8Hint: `Auch in Sachaufgaben gilt Punkt vor Strich: zuerst wird das Malnehmen für die Hefte gerechnet, erst danach addiert.`,
+  hintLabel: `Typischer Fehler:`,
+  footerMessage: `Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!`,
+  fbEmpty: `Trag bitte eine Zahl ein, bevor du prüfst.`,
+  fbCorrect: `Richtig! Gut gemacht!`,
+  fbIncorrect: `Noch nicht ganz richtig. Schau dir die Lösung weiter unten an und versuch es dann nochmal.`
+},
+en: {
+  eyebrow: `Luisen-Gymnasium · Grade 5`,
+  titleLine1: `Order of Operations:`,
+  titleAccent: `Multiplication Before Addition`,
+  backLink: `← All Topics`,
+  h2Basics: `Basics`,
+  basicsP1: `When a calculation has several operation signs, you have to follow a fixed order. Otherwise the same problem can give a wrong result. Look at this example: 2 + 3 · 4. If you just calculate from left to right, you get (2 + 3) · 4 = 20. But that's wrong! The correct order gives 14.`,
+  basicsP2Intro: `There is a fixed order of priority for calculating correctly:`,
+  priorityAria: `Order of priority: first brackets, then multiplication/division, then addition/subtraction`,
+  priorityStep1: `1. Brackets ( )`,
+  priorityStep2: `2. Times/Divide: · and :`,
+  priorityStep3: `3. Plus/Minus: + and −`,
+  basicsExample1Label: `<strong>Step-by-step example:</strong><br>2 + 3 · 4 = ?`,
+  basicsExample1Steps: `1. Multiplication first: 3 · 4 = 12<br>2. Then addition: 2 + 12 = 14<br>3. Result: 14`,
+  basicsP3Brackets: `<strong>What about brackets?</strong> Brackets always come first – they are calculated before anything else, no matter which sign is in front of them.`,
+  basicsExample2Label: `<strong>Step-by-step example:</strong><br>(2 + 3) · 4 = ?`,
+  basicsExample2Steps: `1. Calculate the bracket first: 2 + 3 = 5<br>2. Then multiply: 5 · 4 = 20<br>3. Result: 20`,
+  basicsP4LeftRight: `<strong>Important when several operations of the same rank appear:</strong> if, for example, only multiplications/divisions appear in a row, you calculate from left to right.`,
+  merkeTitle: `Remember`,
+  merkeBody: `1. Brackets first.<br>2. Then multiplication/division before addition/subtraction.<br>3. With the same rank: calculate from left to right.`,
+  taskWord: `Exercise`,
+  task1Question: `2 + 3 · 4 = ?`, task2Question: `(2 + 3) · 4 = ?`, task3Question: `10 − 6 : 2 = ?`, task4Question: `4 · 3 − 2 · 5 = ?`, task5Question: `(8 − 3) · (2 + 1) = ?`, task6Question: `20 : 4 + 3 · 2 = ?`, task7Question: `6 + (12 − 4) : 2 = ?`,
+  task8Question: `Lena buys 4 notebooks at 2 euros each and an eraser for 1 euro. How much does she pay in total?`,
+  answerPlaceholder: `Your answer`,
+  task8Placeholder: `Your answer in euros`,
+  checkButton: `Check`,
+  solutionSummary: `Show solution`,
+  task1Result: `Result: 14`, task2Result: `Result: 20`, task3Result: `Result: 7`, task4Result: `Result: 2`, task5Result: `Result: 15`, task6Result: `Result: 11`, task7Result: `Result: 10`, task8Result: `Result: 9 euros`,
+  task1Step1: `Multiplication before addition: first calculate the multiplication: 3 · 4 = 12.`, task1Step2: `Now add: 2 + 12 = 14.`, task1Step3: `Result: 14.`,
+  task1Hint: `Many just calculate from left to right and get (2+3)·4 = 20. That's wrong because multiplication comes before addition.`,
+  task2Step1: `The bracket has priority: calculate the bracket first: 2 + 3 = 5.`, task2Step2: `Now multiply: 5 · 4 = 20.`, task2Step3: `Result: 20.`,
+  task2Hint: `Without the bracket the result would be different (14). The bracket deliberately changes the order.`,
+  task3Step1: `Multiplication before addition: divide first: 6 : 2 = 3.`, task3Step2: `Now subtract: 10 − 3 = 7.`, task3Step3: `Result: 7.`,
+  task3Hint: `Some calculate 10 − 6 = 4 first and then : 2, but that gives a wrong result (2). Division comes first.`,
+  task4Step1: `Calculate both multiplications first: 4 · 3 = 12 and 2 · 5 = 10.`, task4Step2: `Now subtract: 12 − 10 = 2.`, task4Step3: `Result: 2.`,
+  task4Hint: `There are two multiplications here — both must be calculated before you subtract.`,
+  task5Step1: `Calculate both brackets first: 8 − 3 = 5 and 2 + 1 = 3.`, task5Step2: `Now multiply: 5 · 3 = 15.`, task5Step3: `Result: 15.`,
+  task5Hint: `With two brackets, both are calculated individually first, before combining them.`,
+  task6Step1: `Both multiplications/divisions first: 20 : 4 = 5 and 3 · 2 = 6.`, task6Step2: `Now add: 5 + 6 = 11.`, task6Step3: `Result: 11.`,
+  task6Hint: `Even with two different operations (division and multiplication), both are calculated before the addition.`,
+  task7Step1: `Bracket first: 12 − 4 = 8.`, task7Step2: `Now multiplication/division before addition: 8 : 2 = 4.`, task7Step3: `Finally add: 6 + 4 = 10.`,
+  task7Hint: `Here all three rules apply one after another: first brackets, then times/divide, then plus/minus. Skip a rule and you get a wrong result.`,
+  task8Step1: `Calculate the notebooks first: 4 · 2 = 8 euros.`, task8Step2: `Then add the eraser: 8 + 1 = 9 euros.`, task8Step3: `Result: 9 euros.`,
+  task8Hint: `Order of operations also applies in word problems: first the multiplication for the notebooks, only then the addition.`,
+  hintLabel: `Common mistake:`,
+  footerMessage: `Take your time and check the solution if you need to. You can do this!`,
+  fbEmpty: `Please enter a number before checking.`,
+  fbCorrect: `Correct! Well done!`,
+  fbIncorrect: `Not quite right yet. Check the solution below and try again.`
+},
+es: {
+  eyebrow: `Luisen-Gymnasium · 5.º curso`,
+  titleLine1: `Orden de las operaciones:`,
+  titleAccent: `multiplicación antes que suma`,
+  backLink: `← Todos los temas`,
+  h2Basics: `Fundamentos`,
+  basicsP1: `Cuando en un cálculo aparecen varios signos, hay que seguir un orden fijo. Si no, el mismo ejercicio puede dar un resultado incorrecto. Mira este ejemplo: 2 + 3 · 4. Si calculas simplemente de izquierda a derecha, obtienes (2 + 3) · 4 = 20. ¡Pero eso es incorrecto! El orden correcto da 14.`,
+  basicsP2Intro: `Para el orden correcto existe una jerarquía fija:`,
+  priorityAria: `Orden de prioridad: primero paréntesis, luego multiplicación/división, luego suma/resta`,
+  priorityStep1: `1. Paréntesis ( )`,
+  priorityStep2: `2. Multiplicación/división: · y :`,
+  priorityStep3: `3. Suma/resta: + y −`,
+  basicsExample1Label: `<strong>Ejemplo paso a paso:</strong><br>2 + 3 · 4 = ?`,
+  basicsExample1Steps: `1. Primero la multiplicación: 3 · 4 = 12<br>2. Luego la suma: 2 + 12 = 14<br>3. Resultado: 14`,
+  basicsP3Brackets: `<strong>¿Y si hay paréntesis?</strong> Los paréntesis siempre tienen prioridad: se calculan primero, sin importar qué signo tengan delante.`,
+  basicsExample2Label: `<strong>Ejemplo paso a paso:</strong><br>(2 + 3) · 4 = ?`,
+  basicsExample2Steps: `1. Calcula primero el paréntesis: 2 + 3 = 5<br>2. Luego multiplica: 5 · 4 = 20<br>3. Resultado: 20`,
+  basicsP4LeftRight: `<strong>Importante cuando aparecen varias operaciones del mismo nivel:</strong> si, por ejemplo, solo hay multiplicaciones/divisiones seguidas, se calcula de izquierda a derecha.`,
+  merkeTitle: `Recuerda`,
+  merkeBody: `1. Primero los paréntesis.<br>2. Luego multiplicación/división antes que suma/resta.<br>3. Con el mismo nivel: calcula de izquierda a derecha.`,
+  taskWord: `Ejercicio`,
+  task1Question: `2 + 3 · 4 = ?`, task2Question: `(2 + 3) · 4 = ?`, task3Question: `10 − 6 : 2 = ?`, task4Question: `4 · 3 − 2 · 5 = ?`, task5Question: `(8 − 3) · (2 + 1) = ?`, task6Question: `20 : 4 + 3 · 2 = ?`, task7Question: `6 + (12 − 4) : 2 = ?`,
+  task8Question: `Lena compra 4 cuadernos a 2 euros cada uno y una goma de borrar por 1 euro. ¿Cuánto paga en total?`,
+  answerPlaceholder: `Tu respuesta`,
+  task8Placeholder: `Tu respuesta en euros`,
+  checkButton: `Comprobar`,
+  solutionSummary: `Ver solución`,
+  task1Result: `Resultado: 14`, task2Result: `Resultado: 20`, task3Result: `Resultado: 7`, task4Result: `Resultado: 2`, task5Result: `Resultado: 15`, task6Result: `Resultado: 11`, task7Result: `Resultado: 10`, task8Result: `Resultado: 9 euros`,
+  task1Step1: `Multiplicación antes que suma: calcula primero la multiplicación: 3 · 4 = 12.`, task1Step2: `Ahora suma: 2 + 12 = 14.`, task1Step3: `Resultado: 14.`,
+  task1Hint: `Muchos calculan simplemente de izquierda a derecha y obtienen (2+3)·4 = 20. Eso es incorrecto porque la multiplicación va antes que la suma.`,
+  task2Step1: `El paréntesis tiene prioridad: calcula primero el paréntesis: 2 + 3 = 5.`, task2Step2: `Ahora multiplica: 5 · 4 = 20.`, task2Step3: `Resultado: 20.`,
+  task2Hint: `Sin el paréntesis el resultado sería distinto (14). El paréntesis cambia deliberadamente el orden.`,
+  task3Step1: `Multiplicación antes que suma: divide primero: 6 : 2 = 3.`, task3Step2: `Ahora resta: 10 − 3 = 7.`, task3Step3: `Resultado: 7.`,
+  task3Hint: `Algunos calculan primero 10 − 6 = 4 y luego : 2, pero eso da un resultado incorrecto (2). La división va primero.`,
+  task4Step1: `Calcula primero ambas multiplicaciones: 4 · 3 = 12 y 2 · 5 = 10.`, task4Step2: `Ahora resta: 12 − 10 = 2.`, task4Step3: `Resultado: 2.`,
+  task4Hint: `Aquí hay dos multiplicaciones — ambas deben calcularse antes de restar.`,
+  task5Step1: `Calcula primero ambos paréntesis: 8 − 3 = 5 y 2 + 1 = 3.`, task5Step2: `Ahora multiplica: 5 · 3 = 15.`, task5Step3: `Resultado: 15.`,
+  task5Hint: `Con dos paréntesis, ambos se calculan primero por separado antes de combinarlos.`,
+  task6Step1: `Ambas multiplicaciones/divisiones primero: 20 : 4 = 5 y 3 · 2 = 6.`, task6Step2: `Ahora suma: 5 + 6 = 11.`, task6Step3: `Resultado: 11.`,
+  task6Hint: `Aunque haya dos operaciones distintas (división y multiplicación), ambas se calculan antes de la suma.`,
+  task7Step1: `Primero el paréntesis: 12 − 4 = 8.`, task7Step2: `Ahora multiplicación/división antes que suma: 8 : 2 = 4.`, task7Step3: `Por último suma: 6 + 4 = 10.`,
+  task7Hint: `Aquí se aplican las tres reglas una tras otra: primero paréntesis, luego multiplicación/división, luego suma/resta. Si te saltas una regla, el resultado es incorrecto.`,
+  task8Step1: `Calcula primero los cuadernos: 4 · 2 = 8 euros.`, task8Step2: `Luego suma la goma: 8 + 1 = 9 euros.`, task8Step3: `Resultado: 9 euros.`,
+  task8Hint: `El orden de las operaciones también se aplica en problemas de texto: primero la multiplicación de los cuadernos, y solo después la suma.`,
+  hintLabel: `Error típico:`,
+  footerMessage: `Tómate tu tiempo y revisa la solución si la necesitas. ¡Tú puedes!`,
+  fbEmpty: `Introduce un número antes de comprobar.`,
+  fbCorrect: `¡Correcto! ¡Muy bien!`,
+  fbIncorrect: `Todavía no es correcto. Revisa la solución de abajo e inténtalo de nuevo.`
+},
+fr: {
+  eyebrow: `Luisen-Gymnasium · 5e`,
+  titleLine1: `Priorité des opérations :`,
+  titleAccent: `multiplication avant addition`,
+  backLink: `← Tous les thèmes`,
+  h2Basics: `Les bases`,
+  basicsP1: `Quand un calcul contient plusieurs signes, il faut respecter un ordre précis. Sinon, le même exercice peut donner un résultat faux. Regarde cet exemple : 2 + 3 · 4. Si on calcule simplement de gauche à droite, on obtient (2 + 3) · 4 = 20. Mais c'est faux ! Le bon ordre donne 14.`,
+  basicsP2Intro: `Pour calculer correctement, il existe un ordre de priorité fixe :`,
+  priorityAria: `Ordre de priorité : d'abord les parenthèses, puis multiplication/division, puis addition/soustraction`,
+  priorityStep1: `1. Parenthèses ( )`,
+  priorityStep2: `2. Multiplication/division : · et :`,
+  priorityStep3: `3. Addition/soustraction : + et −`,
+  basicsExample1Label: `<strong>Exemple étape par étape :</strong><br>2 + 3 · 4 = ?`,
+  basicsExample1Steps: `1. D'abord la multiplication : 3 · 4 = 12<br>2. Puis l'addition : 2 + 12 = 14<br>3. Résultat : 14`,
+  basicsP3Brackets: `<strong>Et s'il y a des parenthèses ?</strong> Les parenthèses sont toujours prioritaires – elles sont calculées en premier, peu importe le signe qui les précède.`,
+  basicsExample2Label: `<strong>Exemple étape par étape :</strong><br>(2 + 3) · 4 = ?`,
+  basicsExample2Steps: `1. Calcule d'abord la parenthèse : 2 + 3 = 5<br>2. Puis multiplie : 5 · 4 = 20<br>3. Résultat : 20`,
+  basicsP4LeftRight: `<strong>Important quand plusieurs opérations de même niveau apparaissent :</strong> si, par exemple, il n'y a que des multiplications/divisions à la suite, on calcule de gauche à droite.`,
+  merkeTitle: `À retenir`,
+  merkeBody: `1. D'abord les parenthèses.<br>2. Puis multiplication/division avant addition/soustraction.<br>3. Au même niveau : calcule de gauche à droite.`,
+  taskWord: `Exercice`,
+  task1Question: `2 + 3 · 4 = ?`, task2Question: `(2 + 3) · 4 = ?`, task3Question: `10 − 6 : 2 = ?`, task4Question: `4 · 3 − 2 · 5 = ?`, task5Question: `(8 − 3) · (2 + 1) = ?`, task6Question: `20 : 4 + 3 · 2 = ?`, task7Question: `6 + (12 − 4) : 2 = ?`,
+  task8Question: `Lena achète 4 cahiers à 2 euros chacun et une gomme pour 1 euro. Combien paie-t-elle au total ?`,
+  answerPlaceholder: `Ta réponse`,
+  task8Placeholder: `Ta réponse en euros`,
+  checkButton: `Vérifier`,
+  solutionSummary: `Voir la solution`,
+  task1Result: `Résultat : 14`, task2Result: `Résultat : 20`, task3Result: `Résultat : 7`, task4Result: `Résultat : 2`, task5Result: `Résultat : 15`, task6Result: `Résultat : 11`, task7Result: `Résultat : 10`, task8Result: `Résultat : 9 euros`,
+  task1Step1: `Multiplication avant addition : calcule d'abord la multiplication : 3 · 4 = 12.`, task1Step2: `Maintenant additionne : 2 + 12 = 14.`, task1Step3: `Résultat : 14.`,
+  task1Hint: `Beaucoup calculent simplement de gauche à droite et obtiennent (2+3)·4 = 20. C'est faux car la multiplication passe avant l'addition.`,
+  task2Step1: `La parenthèse est prioritaire : calcule d'abord la parenthèse : 2 + 3 = 5.`, task2Step2: `Maintenant multiplie : 5 · 4 = 20.`, task2Step3: `Résultat : 20.`,
+  task2Hint: `Sans la parenthèse, le résultat serait différent (14). La parenthèse change volontairement l'ordre.`,
+  task3Step1: `Multiplication avant addition : divise d'abord : 6 : 2 = 3.`, task3Step2: `Maintenant soustrais : 10 − 3 = 7.`, task3Step3: `Résultat : 7.`,
+  task3Hint: `Certains calculent d'abord 10 − 6 = 4 puis : 2, mais cela donne un résultat faux (2). La division vient en premier.`,
+  task4Step1: `Calcule d'abord les deux multiplications : 4 · 3 = 12 et 2 · 5 = 10.`, task4Step2: `Maintenant soustrais : 12 − 10 = 2.`, task4Step3: `Résultat : 2.`,
+  task4Hint: `Il y a ici deux multiplications — les deux doivent être calculées avant de soustraire.`,
+  task5Step1: `Calcule d'abord les deux parenthèses : 8 − 3 = 5 et 2 + 1 = 3.`, task5Step2: `Maintenant multiplie : 5 · 3 = 15.`, task5Step3: `Résultat : 15.`,
+  task5Hint: `Avec deux parenthèses, les deux sont calculées séparément d'abord, avant de les combiner.`,
+  task6Step1: `Les deux multiplications/divisions d'abord : 20 : 4 = 5 et 3 · 2 = 6.`, task6Step2: `Maintenant additionne : 5 + 6 = 11.`, task6Step3: `Résultat : 11.`,
+  task6Hint: `Même avec deux opérations différentes (division et multiplication), les deux sont calculées avant l'addition.`,
+  task7Step1: `D'abord la parenthèse : 12 − 4 = 8.`, task7Step2: `Maintenant multiplication/division avant addition : 8 : 2 = 4.`, task7Step3: `Enfin additionne : 6 + 4 = 10.`,
+  task7Hint: `Ici, les trois règles s'appliquent l'une après l'autre : d'abord les parenthèses, puis multiplication/division, puis addition/soustraction. Sauter une règle donne un résultat faux.`,
+  task8Step1: `Calcule d'abord les cahiers : 4 · 2 = 8 euros.`, task8Step2: `Puis ajoute la gomme : 8 + 1 = 9 euros.`, task8Step3: `Résultat : 9 euros.`,
+  task8Hint: `La priorité des opérations s'applique aussi dans les problèmes : d'abord la multiplication pour les cahiers, puis seulement l'addition.`,
+  hintLabel: `Erreur fréquente :`,
+  footerMessage: `Prends ton temps et regarde la solution si besoin. Tu vas y arriver !`,
+  fbEmpty: `Merci d'indiquer un nombre avant de vérifier.`,
+  fbCorrect: `Correct ! Bien joué !`,
+  fbIncorrect: `Pas encore tout à fait juste. Regarde la solution ci-dessous et réessaie.`
+},
+tr: {
+  eyebrow: `Luisen-Gymnasium · 5. Sınıf`,
+  titleLine1: `İşlem Sırası:`,
+  titleAccent: `Çarpma Toplamadan Önce`,
+  backLink: `← Tüm Konular`,
+  h2Basics: `Temel Bilgiler`,
+  basicsP1: `Bir hesaplamada birden fazla işlem işareti varsa, belirli bir sıra izlenmelidir. Aksi takdirde aynı soru için yanlış bir sonuç çıkabilir. Şu örneğe bak: 2 + 3 · 4. Basitçe soldan sağa hesaplarsan (2 + 3) · 4 = 20 elde edersin. Ama bu yanlış! Doğru sıra 14 sonucunu verir.`,
+  basicsP2Intro: `Doğru sıra için sabit bir öncelik sırası vardır:`,
+  priorityAria: `Öncelik sırası: önce parantez, sonra çarpma/bölme, sonra toplama/çıkarma`,
+  priorityStep1: `1. Parantez ( )`,
+  priorityStep2: `2. Çarpma/Bölme: · ve :`,
+  priorityStep3: `3. Toplama/Çıkarma: + ve −`,
+  basicsExample1Label: `<strong>Adım adım örnek:</strong><br>2 + 3 · 4 = ?`,
+  basicsExample1Steps: `1. Önce çarpma: 3 · 4 = 12<br>2. Sonra toplama: 2 + 12 = 14<br>3. Sonuç: 14`,
+  basicsP3Brackets: `<strong>Peki parantez varsa?</strong> Parantezler her zaman önceliklidir – önlerinde hangi işaret olursa olsun önce hesaplanırlar.`,
+  basicsExample2Label: `<strong>Adım adım örnek:</strong><br>(2 + 3) · 4 = ?`,
+  basicsExample2Steps: `1. Önce parantezi hesapla: 2 + 3 = 5<br>2. Sonra çarp: 5 · 4 = 20<br>3. Sonuç: 20`,
+  basicsP4LeftRight: `<strong>Aynı öncelikte birden fazla işlem varsa önemli:</strong> örneğin sadece çarpma/bölme işlemleri art arda geliyorsa, soldan sağa hesaplanır.`,
+  merkeTitle: `Unutma`,
+  merkeBody: `1. Önce parantez.<br>2. Sonra çarpma/bölme, toplama/çıkarmadan önce.<br>3. Aynı öncelikte: soldan sağa hesapla.`,
+  taskWord: `Alıştırma`,
+  task1Question: `2 + 3 · 4 = ?`, task2Question: `(2 + 3) · 4 = ?`, task3Question: `10 − 6 : 2 = ?`, task4Question: `4 · 3 − 2 · 5 = ?`, task5Question: `(8 − 3) · (2 + 1) = ?`, task6Question: `20 : 4 + 3 · 2 = ?`, task7Question: `6 + (12 − 4) : 2 = ?`,
+  task8Question: `Lena, tanesi 2 avro olan 4 defter ve 1 avroluk bir silgi satın alıyor. Toplamda kaç avro öder?`,
+  answerPlaceholder: `Cevabın`,
+  task8Placeholder: `Cevabın (avro)`,
+  checkButton: `Kontrol et`,
+  solutionSummary: `Çözümü göster`,
+  task1Result: `Sonuç: 14`, task2Result: `Sonuç: 20`, task3Result: `Sonuç: 7`, task4Result: `Sonuç: 2`, task5Result: `Sonuç: 15`, task6Result: `Sonuç: 11`, task7Result: `Sonuç: 10`, task8Result: `Sonuç: 9 avro`,
+  task1Step1: `Çarpma toplamadan önce gelir: önce çarpmayı hesapla: 3 · 4 = 12.`, task1Step2: `Şimdi topla: 2 + 12 = 14.`, task1Step3: `Sonuç: 14.`,
+  task1Hint: `Birçok kişi basitçe soldan sağa hesaplar ve (2+3)·4 = 20 bulur. Bu yanlıştır çünkü çarpma toplamadan önce gelir.`,
+  task2Step1: `Parantez önceliklidir: önce parantezi hesapla: 2 + 3 = 5.`, task2Step2: `Şimdi çarp: 5 · 4 = 20.`, task2Step3: `Sonuç: 20.`,
+  task2Hint: `Parantez olmasaydı sonuç farklı olurdu (14). Parantez sırayı bilinçli olarak değiştirir.`,
+  task3Step1: `Çarpma/bölme toplamadan önce gelir: önce böl: 6 : 2 = 3.`, task3Step2: `Şimdi çıkar: 10 − 3 = 7.`, task3Step3: `Sonuç: 7.`,
+  task3Hint: `Bazıları önce 10 − 6 = 4 hesaplayıp sonra : 2 yapar, ama bu yanlış bir sonuç (2) verir. Bölme önce gelir.`,
+  task4Step1: `Önce iki çarpmayı hesapla: 4 · 3 = 12 ve 2 · 5 = 10.`, task4Step2: `Şimdi çıkar: 12 − 10 = 2.`, task4Step3: `Sonuç: 2.`,
+  task4Hint: `Burada iki çarpma işlemi var — çıkarma yapılmadan önce ikisi de hesaplanmalıdır.`,
+  task5Step1: `Önce iki parantezi hesapla: 8 − 3 = 5 ve 2 + 1 = 3.`, task5Step2: `Şimdi çarp: 5 · 3 = 15.`, task5Step3: `Sonuç: 15.`,
+  task5Hint: `İki parantez olduğunda, birleştirmeden önce ikisi de ayrı ayrı hesaplanır.`,
+  task6Step1: `Önce iki çarpma/bölme: 20 : 4 = 5 ve 3 · 2 = 6.`, task6Step2: `Şimdi topla: 5 + 6 = 11.`, task6Step3: `Sonuç: 11.`,
+  task6Hint: `İki farklı işlem (bölme ve çarpma) olsa bile, toplamadan önce ikisi de hesaplanır.`,
+  task7Step1: `Önce parantez: 12 − 4 = 8.`, task7Step2: `Şimdi çarpma/bölme toplamadan önce: 8 : 2 = 4.`, task7Step3: `Son olarak topla: 6 + 4 = 10.`,
+  task7Hint: `Burada üç kural da sırayla geçerlidir: önce parantez, sonra çarpma/bölme, sonra toplama/çıkarma. Bir kural atlanırsa yanlış sonuç çıkar.`,
+  task8Step1: `Önce defterleri hesapla: 4 · 2 = 8 avro.`, task8Step2: `Sonra silgiyi ekle: 8 + 1 = 9 avro.`, task8Step3: `Sonuç: 9 avro.`,
+  task8Hint: `İşlem sırası kelime problemlerinde de geçerlidir: önce defterler için çarpma yapılır, ancak sonra toplama yapılır.`,
+  hintLabel: `Sık yapılan hata:`,
+  footerMessage: `Sakin sakin hesapla, gerekirse çözüme bak. Bunu başarabilirsin!`,
+  fbEmpty: `Kontrol etmeden önce lütfen bir sayı gir.`,
+  fbCorrect: `Doğru! Aferin!`,
+  fbIncorrect: `Henüz tam doğru değil. Aşağıdaki çözüme bak ve tekrar dene.`
+},
+ru: {
+  eyebrow: `Luisen-Gymnasium · 5 класс`,
+  titleLine1: `Порядок действий:`,
+  titleAccent: `умножение раньше сложения`,
+  backLink: `← Все темы`,
+  h2Basics: `Основы`,
+  basicsP1: `Если в вычислении встречается несколько знаков действий, нужно соблюдать определённый порядок. Иначе для одного и того же задания может получиться неверный результат. Посмотри на этот пример: 2 + 3 · 4. Если считать просто слева направо, получится (2 + 3) · 4 = 20. Но это неверно! Правильный порядок даёт 14.`,
+  basicsP2Intro: `Для правильного порядка действует фиксированная последовательность:`,
+  priorityAria: `Порядок действий: сначала скобки, затем умножение/деление, затем сложение/вычитание`,
+  priorityStep1: `1. Скобки ( )`,
+  priorityStep2: `2. Умножение/деление: · и :`,
+  priorityStep3: `3. Сложение/вычитание: + и −`,
+  basicsExample1Label: `<strong>Пример по шагам:</strong><br>2 + 3 · 4 = ?`,
+  basicsExample1Steps: `1. Сначала умножение: 3 · 4 = 12<br>2. Потом сложение: 2 + 12 = 14<br>3. Результат: 14`,
+  basicsP3Brackets: `<strong>А если есть скобки?</strong> Скобки всегда имеют приоритет — они вычисляются первыми, независимо от того, какой знак стоит перед ними.`,
+  basicsExample2Label: `<strong>Пример по шагам:</strong><br>(2 + 3) · 4 = ?`,
+  basicsExample2Steps: `1. Сначала вычисли скобку: 2 + 3 = 5<br>2. Потом умножь: 5 · 4 = 20<br>3. Результат: 20`,
+  basicsP4LeftRight: `<strong>Важно, если встречается несколько действий одного уровня:</strong> если, например, подряд идут только умножения/деления, считают слева направо.`,
+  merkeTitle: `Запомни`,
+  merkeBody: `1. Сначала скобки.<br>2. Потом умножение/деление раньше сложения/вычитания.<br>3. При одинаковом уровне: считай слева направо.`,
+  taskWord: `Задание`,
+  task1Question: `2 + 3 · 4 = ?`, task2Question: `(2 + 3) · 4 = ?`, task3Question: `10 − 6 : 2 = ?`, task4Question: `4 · 3 − 2 · 5 = ?`, task5Question: `(8 − 3) · (2 + 1) = ?`, task6Question: `20 : 4 + 3 · 2 = ?`, task7Question: `6 + (12 − 4) : 2 = ?`,
+  task8Question: `Лена покупает 4 тетради по 2 евро каждая и ластик за 1 евро. Сколько она платит всего?`,
+  answerPlaceholder: `Твой ответ`,
+  task8Placeholder: `Твой ответ в евро`,
+  checkButton: `Проверить`,
+  solutionSummary: `Показать решение`,
+  task1Result: `Результат: 14`, task2Result: `Результат: 20`, task3Result: `Результат: 7`, task4Result: `Результат: 2`, task5Result: `Результат: 15`, task6Result: `Результат: 11`, task7Result: `Результат: 10`, task8Result: `Результат: 9 евро`,
+  task1Step1: `Умножение раньше сложения: сначала вычисли умножение: 3 · 4 = 12.`, task1Step2: `Теперь сложи: 2 + 12 = 14.`, task1Step3: `Результат: 14.`,
+  task1Hint: `Многие просто считают слева направо и получают (2+3)·4 = 20. Это неверно, потому что умножение важнее сложения.`,
+  task2Step1: `Скобка имеет приоритет: сначала вычисли скобку: 2 + 3 = 5.`, task2Step2: `Теперь умножь: 5 · 4 = 20.`, task2Step3: `Результат: 20.`,
+  task2Hint: `Без скобки результат был бы другим (14). Скобка намеренно меняет порядок.`,
+  task3Step1: `Умножение/деление раньше сложения: сначала раздели: 6 : 2 = 3.`, task3Step2: `Теперь вычти: 10 − 3 = 7.`, task3Step3: `Результат: 7.`,
+  task3Hint: `Некоторые сначала считают 10 − 6 = 4, а потом : 2, но это даёт неверный результат (2). Деление идёт первым.`,
+  task4Step1: `Сначала вычисли оба умножения: 4 · 3 = 12 и 2 · 5 = 10.`, task4Step2: `Теперь вычти: 12 − 10 = 2.`, task4Step3: `Результат: 2.`,
+  task4Hint: `Здесь два умножения — оба нужно вычислить перед вычитанием.`,
+  task5Step1: `Сначала вычисли обе скобки: 8 − 3 = 5 и 2 + 1 = 3.`, task5Step2: `Теперь умножь: 5 · 3 = 15.`, task5Step3: `Результат: 15.`,
+  task5Hint: `При двух скобках обе сначала вычисляются отдельно, прежде чем их объединять.`,
+  task6Step1: `Сначала оба умножения/деления: 20 : 4 = 5 и 3 · 2 = 6.`, task6Step2: `Теперь сложи: 5 + 6 = 11.`, task6Step3: `Результат: 11.`,
+  task6Hint: `Даже при двух разных действиях (деление и умножение) оба вычисляются перед сложением.`,
+  task7Step1: `Сначала скобка: 12 − 4 = 8.`, task7Step2: `Теперь умножение/деление раньше сложения: 8 : 2 = 4.`, task7Step3: `Наконец сложи: 6 + 4 = 10.`,
+  task7Hint: `Здесь применяются все три правила по очереди: сначала скобки, потом умножение/деление, потом сложение/вычитание. Если пропустить правило, результат будет неверным.`,
+  task8Step1: `Сначала вычисли тетради: 4 · 2 = 8 евро.`, task8Step2: `Потом прибавь ластик: 8 + 1 = 9 евро.`, task8Step3: `Результат: 9 евро.`,
+  task8Hint: `Порядок действий применяется и в текстовых задачах: сначала умножение для тетрадей, только потом сложение.`,
+  hintLabel: `Типичная ошибка:`,
+  footerMessage: `Считай спокойно и при необходимости смотри решение. У тебя получится!`,
+  fbEmpty: `Пожалуйста, введи число перед проверкой.`,
+  fbCorrect: `Правильно! Отлично!`,
+  fbIncorrect: `Пока не совсем верно. Посмотри решение ниже и попробуй ещё раз.`
+},
+ar: {
+  eyebrow: `مدرسة لويزن الثانوية · الصف الخامس`,
+  titleLine1: `ترتيب العمليات:`,
+  titleAccent: `الضرب قبل الجمع`,
+  backLink: `← جميع المواضيع`,
+  h2Basics: `الأساسيات`,
+  basicsP1: `عندما تحتوي عملية حسابية على عدة إشارات، يجب اتباع ترتيب معين. وإلا يمكن أن تظهر نتيجة خاطئة لنفس التمرين. انظر إلى هذا المثال: 2 + 3 · 4. إذا حسبت ببساطة من اليسار إلى اليمين، تحصل على (2 + 3) · 4 = 20. لكن هذا خطأ! الترتيب الصحيح يعطي 14.`,
+  basicsP2Intro: `للترتيب الصحيح توجد أولوية ثابتة:`,
+  priorityAria: `الترتيب: أولًا الأقواس، ثم الضرب والقسمة، ثم الجمع والطرح`,
+  priorityStep1: `1. الأقواس ( )`,
+  priorityStep2: `2. الضرب/القسمة: · و :`,
+  priorityStep3: `3. الجمع/الطرح: + و −`,
+  basicsExample1Label: `<strong>مثال خطوة بخطوة:</strong><br>2 + 3 · 4 = ؟`,
+  basicsExample1Steps: `1. الضرب أولًا: 3 · 4 = 12<br>2. ثم الجمع: 2 + 12 = 14<br>3. النتيجة: 14`,
+  basicsP3Brackets: `<strong>وماذا عن الأقواس؟</strong> تُحسَب الأقواس دائمًا أولًا، بغض النظر عن الإشارة التي تسبقها.`,
+  basicsExample2Label: `<strong>مثال خطوة بخطوة:</strong><br>(2 + 3) · 4 = ؟`,
+  basicsExample2Steps: `1. احسب القوس أولًا: 2 + 3 = 5<br>2. ثم اضرب: 5 · 4 = 20<br>3. النتيجة: 20`,
+  basicsP4LeftRight: `<strong>مهم عند وجود عدة عمليات من نفس الرتبة:</strong> إذا توالت مثلًا عمليات ضرب/قسمة فقط، فإنها تُحسَب من اليسار إلى اليمين.`,
+  merkeTitle: `تذكّر`,
+  merkeBody: `1. الأقواس أولًا.<br>2. ثم الضرب/القسمة قبل الجمع/الطرح.<br>3. عند نفس الرتبة: احسب من اليسار إلى اليمين.`,
+  taskWord: `تمرين`,
+  task1Question: `2 + 3 · 4 = ؟`, task2Question: `(2 + 3) · 4 = ؟`, task3Question: `10 − 6 : 2 = ؟`, task4Question: `4 · 3 − 2 · 5 = ؟`, task5Question: `(8 − 3) · (2 + 1) = ؟`, task6Question: `20 : 4 + 3 · 2 = ؟`, task7Question: `6 + (12 − 4) : 2 = ؟`,
+  task8Question: `تشتري لينا 4 دفاتر بسعر 2 يورو لكل واحد، وممحاة بيورو واحد. كم تدفع في المجموع؟`,
+  answerPlaceholder: `إجابتك`,
+  task8Placeholder: `إجابتك باليورو`,
+  checkButton: `تحقق`,
+  solutionSummary: `عرض الحل`,
+  task1Result: `النتيجة: 14`, task2Result: `النتيجة: 20`, task3Result: `النتيجة: 7`, task4Result: `النتيجة: 2`, task5Result: `النتيجة: 15`, task6Result: `النتيجة: 11`, task7Result: `النتيجة: 10`, task8Result: `النتيجة: 9 يورو`,
+  task1Step1: `الضرب قبل الجمع: احسب الضرب أولًا: 3 · 4 = 12.`, task1Step2: `الآن اجمع: 2 + 12 = 14.`, task1Step3: `النتيجة: 14.`,
+  task1Hint: `كثيرون يحسبون ببساطة من اليسار إلى اليمين ويحصلون على (2+3)·4 = 20. هذا خطأ لأن الضرب يأتي قبل الجمع.`,
+  task2Step1: `القوس له الأولوية: احسب القوس أولًا: 2 + 3 = 5.`, task2Step2: `الآن اضرب: 5 · 4 = 20.`, task2Step3: `النتيجة: 20.`,
+  task2Hint: `بدون القوس ستكون النتيجة مختلفة (14). القوس يغيّر الترتيب عمدًا.`,
+  task3Step1: `الضرب/القسمة قبل الجمع/الطرح: اقسم أولًا: 6 : 2 = 3.`, task3Step2: `الآن اطرح: 10 − 3 = 7.`, task3Step3: `النتيجة: 7.`,
+  task3Hint: `يحسب البعض 10 − 6 = 4 أولًا ثم : 2، لكن هذا يعطي نتيجة خاطئة (2). القسمة تأتي أولًا.`,
+  task4Step1: `احسب عمليتي الضرب أولًا: 4 · 3 = 12 و 2 · 5 = 10.`, task4Step2: `الآن اطرح: 12 − 10 = 2.`, task4Step3: `النتيجة: 2.`,
+  task4Hint: `توجد هنا عمليتا ضرب — يجب حساب كلتيهما قبل الطرح.`,
+  task5Step1: `احسب القوسين أولًا: 8 − 3 = 5 و 2 + 1 = 3.`, task5Step2: `الآن اضرب: 5 · 3 = 15.`, task5Step3: `النتيجة: 15.`,
+  task5Hint: `عند وجود قوسين، يُحسَب كل منهما على حدة أولًا قبل دمجهما.`,
+  task6Step1: `عمليتا الضرب/القسمة أولًا: 20 : 4 = 5 و 3 · 2 = 6.`, task6Step2: `الآن اجمع: 5 + 6 = 11.`, task6Step3: `النتيجة: 11.`,
+  task6Hint: `حتى مع وجود عمليتين مختلفتين (قسمة وضرب)، تُحسَب كلتاهما قبل الجمع.`,
+  task7Step1: `القوس أولًا: 12 − 4 = 8.`, task7Step2: `الآن الضرب/القسمة قبل الجمع: 8 : 2 = 4.`, task7Step3: `أخيرًا اجمع: 6 + 4 = 10.`,
+  task7Hint: `هنا تُطبَّق القواعد الثلاث تباعًا: أولًا الأقواس، ثم الضرب/القسمة، ثم الجمع/الطرح. تجاوز إحدى القواعد يؤدي إلى نتيجة خاطئة.`,
+  task8Step1: `احسب الدفاتر أولًا: 4 · 2 = 8 يورو.`, task8Step2: `ثم أضف الممحاة: 8 + 1 = 9 يورو.`, task8Step3: `النتيجة: 9 يورو.`,
+  task8Hint: `يُطبَّق ترتيب العمليات أيضًا في المسائل اللفظية: يُحسَب الضرب للدفاتر أولًا، ثم الجمع بعد ذلك فقط.`,
+  hintLabel: `خطأ شائع:`,
+  footerMessage: `احسب بهدوء وراجع الحل إذا احتجت إليه. أنت قادر على ذلك!`,
+  fbEmpty: `الرجاء إدخال رقم قبل التحقق.`,
+  fbCorrect: `صحيح! أحسنت!`,
+  fbIncorrect: `ليست صحيحة تمامًا بعد. راجع الحل أدناه وحاول مرة أخرى.`
+},
+zh: {
+  eyebrow: `路易森文理中学 · 五年级`,
+  titleLine1: `运算顺序：`,
+  titleAccent: `先乘除后加减`,
+  backLink: `← 所有主题`,
+  h2Basics: `基础知识`,
+  basicsP1: `当一个算式中出现多个运算符号时，必须遵循固定的顺序，否则同一道题可能会得出错误的结果。看看这个例子：2 + 3 · 4。如果只是简单地从左到右计算，会得到 (2 + 3) · 4 = 20。但这是错的！正确的顺序应该是 14。`,
+  basicsP2Intro: `正确的计算顺序遵循一个固定的优先级：`,
+  priorityAria: `优先顺序：先括号，再乘除，最后加减`,
+  priorityStep1: `1. 括号 ( )`,
+  priorityStep2: `2. 乘除：· 和 :`,
+  priorityStep3: `3. 加减：+ 和 −`,
+  basicsExample1Label: `<strong>分步示例：</strong> 2 + 3 · 4 = ?`,
+  basicsExample1Steps: `1. 先算乘法：3 · 4 = 12<br>2. 再算加法：2 + 12 = 14<br>3. 结果：14`,
+  basicsP3Brackets: `<strong>那有括号的情况呢？</strong>括号总是优先——无论括号前面是什么符号，都要先计算括号里的内容。`,
+  basicsExample2Label: `<strong>分步示例：</strong> (2 + 3) · 4 = ?`,
+  basicsExample2Steps: `1. 先算括号：2 + 3 = 5<br>2. 再相乘：5 · 4 = 20<br>3. 结果：20`,
+  basicsP4LeftRight: `<strong>当出现多个同级运算时要注意：</strong>比如如果连续只有乘法/除法，就从左到右依次计算。`,
+  merkeTitle: `记住`,
+  merkeBody: `1. 先算括号。<br>2. 再乘除，后加减。<br>3. 同级运算：从左到右计算。`,
+  taskWord: `练习`,
+  task1Question: `2 + 3 · 4 = ?`, task2Question: `(2 + 3) · 4 = ?`, task3Question: `10 − 6 : 2 = ?`, task4Question: `4 · 3 − 2 · 5 = ?`, task5Question: `(8 − 3) · (2 + 1) = ?`, task6Question: `20 : 4 + 3 · 2 = ?`, task7Question: `6 + (12 − 4) : 2 = ?`,
+  task8Question: `莱娜买了4本笔记本，每本2欧元，还买了一块橡皮，1欧元。她一共要付多少钱？`,
+  answerPlaceholder: `你的答案`,
+  task8Placeholder: `你的答案（欧元）`,
+  checkButton: `检查`,
+  solutionSummary: `显示答案`,
+  task1Result: `结果：14`, task2Result: `结果：20`, task3Result: `结果：7`, task4Result: `结果：2`, task5Result: `结果：15`, task6Result: `结果：11`, task7Result: `结果：10`, task8Result: `结果：9 欧元`,
+  task1Step1: `先乘除后加减：先计算乘法：3 · 4 = 12。`, task1Step2: `现在加：2 + 12 = 14。`, task1Step3: `结果：14。`,
+  task1Hint: `很多人直接从左到右计算，得到 (2+3)·4 = 20。这是错的，因为乘法要先于加法。`,
+  task2Step1: `括号优先：先计算括号：2 + 3 = 5。`, task2Step2: `现在相乘：5 · 4 = 20。`, task2Step3: `结果：20。`,
+  task2Hint: `如果没有括号，结果会不同（14）。括号是有意改变运算顺序的。`,
+  task3Step1: `先乘除后加减：先做除法：6 : 2 = 3。`, task3Step2: `现在减：10 − 3 = 7。`, task3Step3: `结果：7。`,
+  task3Hint: `有些人先算 10 − 6 = 4，再除以 2，但这样会得出错误结果（2）。除法应该先算。`,
+  task4Step1: `先计算两个乘法：4 · 3 = 12 和 2 · 5 = 10。`, task4Step2: `现在减：12 − 10 = 2。`, task4Step3: `结果：2。`,
+  task4Hint: `这里有两个乘法运算——两个都必须先算，然后才能相减。`,
+  task5Step1: `先计算两个括号：8 − 3 = 5 和 2 + 1 = 3。`, task5Step2: `现在相乘：5 · 3 = 15。`, task5Step3: `结果：15。`,
+  task5Hint: `有两个括号时，两个都要先单独计算，然后再合并。`,
+  task6Step1: `先计算两个乘除法：20 : 4 = 5 和 3 · 2 = 6。`, task6Step2: `现在加：5 + 6 = 11。`, task6Step3: `结果：11。`,
+  task6Hint: `即使是两种不同的运算（除法和乘法），也都要在加法之前计算。`,
+  task7Step1: `先算括号：12 − 4 = 8。`, task7Step2: `现在乘除先于加减：8 : 2 = 4。`, task7Step3: `最后加：6 + 4 = 10。`,
+  task7Hint: `这里三条规则依次适用：先括号，再乘除，最后加减。跳过某一条规则就会得出错误结果。`,
+  task8Step1: `先计算笔记本：4 · 2 = 8 欧元。`, task8Step2: `再加上橡皮：8 + 1 = 9 欧元。`, task8Step3: `结果：9 欧元。`,
+  task8Hint: `运算顺序在应用题中同样适用：先计算笔记本的乘法，然后才做加法。`,
+  hintLabel: `常见错误：`,
+  footerMessage: `慢慢算，需要的话看看答案。你能做到！`,
+  fbEmpty: `请先输入一个数字再检查。`,
+  fbCorrect: `正确！做得好！`,
+  fbIncorrect: `还不完全正确。看看下面的答案，再试一次。`
+}
+};
+
+var currentLang = 'de';
+
+function setLanguage(lang){
+  var dict = TRANSLATIONS[lang] || TRANSLATIONS.de;
+  currentLang = TRANSLATIONS[lang] ? lang : 'de';
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = (currentLang === 'ar') ? 'rtl' : 'ltr';
+
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var key = el.getAttribute('data-i18n');
+    if(dict[key] !== undefined){ el.innerHTML = dict[key]; }
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-placeholder');
+    if(dict[key] !== undefined){ el.setAttribute('placeholder', dict[key]); }
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-aria');
+    if(dict[key] !== undefined){ el.setAttribute('aria-label', dict[key]); }
+  });
+
+  try{ localStorage.setItem('mathecoach_lang', currentLang); }catch(e){}
+  var sel = document.getElementById('langSelect');
+  if(sel) sel.value = currentLang;
+}
+
+function check(id, correct){
+  var dict = TRANSLATIONS[currentLang] || TRANSLATIONS.de;
+  var input = document.getElementById('input' + id);
+  var feedback = document.getElementById('feedback' + id);
+  var raw = input.value.trim();
+  var match = raw.match(/-?\d+/);
+
+  feedback.classList.remove('show', 'correct', 'incorrect');
+
+  if(!match){
+    feedback.textContent = dict.fbEmpty;
+    feedback.classList.add('show', 'incorrect');
+    return;
+  }
+
+  var value = parseInt(match[0], 10);
+
+  if(value === correct){
+    feedback.textContent = dict.fbCorrect;
+    feedback.classList.add('show', 'correct');
+  } else {
+    feedback.textContent = dict.fbIncorrect;
+    feedback.classList.add('show', 'incorrect');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var saved = 'de';
+  try{ saved = localStorage.getItem('mathecoach_lang') || 'de'; }catch(e){}
+  setLanguage(saved);
+});
+</script>
+
+</body>
+</html>
