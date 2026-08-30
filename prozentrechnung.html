@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prozentrechnung</title>
+<style>
+  :root{
+    --bg:#FAFAF9; --card:#FFFFFF; --ink:#241C1C; --ink-soft:#5C4F4C;
+    --red:#C41230; --gold:#E0A526; --blue:#2478B5;
+    --merke-bg:#FBF1DC; --merke-border:#E0A526;
+    --success:#1E8E5A; --success-bg:#E5F5EC; --error:#B3401D; --error-bg:#FBEDE6;
+    --font-display: ui-rounded, "SF Pro Rounded", "Segoe UI Rounded", "Nunito", system-ui, sans-serif;
+    --font-body: system-ui, "Segoe UI", Roboto, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:18px; line-height:1.5; padding-bottom:60px; }
+  .wrap{ max-width:640px; margin:0 auto; padding:0 20px; }
+  header{ background:var(--card); padding:30px 20px 0; text-align:center; position:relative; }
+  .header-inner{ padding-bottom:26px; }
+  .lang-switch{ display:flex; justify-content:center; margin-bottom:14px; }
+  #langSelect{ font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--ink); background:var(--card); border:2px solid #E3DFDA; border-radius:999px; padding:6px 14px; cursor:pointer; }
+  #langSelect:focus-visible{ outline:3px solid var(--blue); }
+  .back-link{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--blue); text-decoration:none; margin-bottom:16px; }
+  .eyebrow{ font-family:var(--font-display); font-weight:700; font-size:14px; letter-spacing:0.08em; text-transform:uppercase; color:var(--blue); margin-bottom:8px; }
+  h1{ font-family:var(--font-display); font-size:28px; font-weight:800; margin:0; line-height:1.25; }
+  h1 .accent{ color:var(--red); }
+  .wave{ display:block; width:100%; height:30px; }
+  section{ margin-top:32px; }
+  .card{ background:var(--card); border-radius:22px; padding:24px 22px; box-shadow:0 2px 14px rgba(36,28,28,0.07); }
+  h2{ font-family:var(--font-display); font-size:21px; font-weight:800; margin:0 0 14px; }
+  h2 .num{ display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:var(--blue); color:white; font-size:16px; margin-inline-end:10px; vertical-align:middle; }
+  p{ margin:0 0 14px; color:var(--ink-soft); }
+  .merke{ background:var(--merke-bg); border:2px solid var(--merke-border); border-radius:16px; padding:16px 18px; margin-top:16px; }
+  .merke-title{ font-family:var(--font-display); font-weight:800; color:#8A5A0F; font-size:15px; letter-spacing:0.04em; text-transform:uppercase; margin-bottom:6px; }
+  .merke-body{ color:#6B4A12; font-weight:600; margin:0; }
+  .percent-diagram{ width:100%; height:auto; margin:18px 0 6px; }
+  .task-card{ margin-top:18px; }
+  .task-question{ font-family:var(--font-display); font-weight:700; font-size:19px; margin-bottom:16px; }
+  .answer-row{ display:flex; gap:10px; margin-bottom:6px; }
+  input[type="text"]{ flex:1; font-size:18px; font-family:var(--font-body); padding:12px 14px; border-radius:12px; border:2px solid #E3DFDA; background:#FBFAF9; color:var(--ink); }
+  input[type="text"]:focus{ outline:3px solid #C9DCEA; border-color:var(--blue); }
+  button.check{ font-family:var(--font-display); font-weight:700; font-size:16px; color:white; background:var(--blue); border:none; border-radius:12px; padding:0 20px; cursor:pointer; }
+  button.check:active{ transform:translateY(1px); }
+  button.check:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
+  .feedback{ margin-top:10px; padding:12px 14px; border-radius:12px; font-weight:700; display:none; }
+  .feedback.show{ display:block; }
+  .feedback.correct{ background:var(--success-bg); color:var(--success); }
+  .feedback.incorrect{ background:var(--error-bg); color:var(--error); }
+  details{ margin-top:14px; border-top:2px dashed #E3DFDA; padding-top:12px; }
+  summary{ font-family:var(--font-display); font-weight:700; color:var(--blue); cursor:pointer; font-size:15px; }
+  .solution{ margin-top:12px; }
+  .solution ol{ margin:0 0 12px; padding-inline-start:22px; color:var(--ink-soft); }
+  .solution li{ margin-bottom:6px; }
+  .solution-result{ font-family:var(--font-display); font-weight:800; color:var(--ink); margin-bottom:12px; }
+  .hint-box{ background:#F1EFEC; border-radius:12px; padding:12px 14px; font-size:16px; color:var(--ink-soft); }
+  .hint-box strong{ color:var(--ink); }
+  footer{ text-align:center; margin-top:36px; padding:0 20px; }
+  footer p{ font-family:var(--font-display); font-weight:700; color:var(--ink); }
+  .footer-wave{ display:block; width:100%; max-width:280px; height:16px; margin:0 auto 18px; opacity:0.6; }
+  [dir="rtl"] .back-link{ flex-direction:row-reverse; }
+  @media (prefers-reduced-motion: no-preference){ button.check{ transition:transform 0.1s ease; } }
+  @media (max-width: 480px){ .answer-row{ flex-direction:column; } button.check{ width:100%; padding:14px 20px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="lang-switch">
+      <select id="langSelect" onchange="setLanguage(this.value)">
+        <option value="de">Deutsch</option><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="tr">Türkçe</option><option value="ru">Русский</option><option value="ar">العربية</option><option value="zh">中文</option>
+      </select>
+    </div>
+    <a class="back-link" href="index.html" data-i18n="backLink">← Alle Themen</a>
+    <div class="eyebrow" data-i18n="eyebrow">Luisen-Gymnasium · Klasse 7</div>
+    <h1><span data-i18n="titleLine1">Prozent-</span><br><span class="accent" data-i18n="titleAccent">rechnung</span></h1>
+  </div>
+  <svg class="wave" viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+    <path d="M -10 22 C 190 4, 390 40, 590 22 S 990 4, 1210 22" fill="none" stroke="#C41230" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 32 C 190 50, 390 14, 590 32 S 990 50, 1210 32" fill="none" stroke="#E0A526" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 42 C 190 24, 390 58, 590 42 S 990 24, 1210 42" fill="none" stroke="#2478B5" stroke-width="5" stroke-linecap="round"/>
+  </svg>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <div class="card">
+      <h2 data-i18n="h2Basics">Grundlagen</h2>
+      <p data-i18n="basicsP1">"Prozent" bedeutet "von Hundert". 1% ist der hundertste Teil von etwas, also 1/100 oder 0,01. Es gibt drei wichtige Größen: den Grundwert (das Ganze, 100%), den Prozentsatz (die Angabe in %) und den Prozentwert (der berechnete Teil).</p>
+
+      <svg class="percent-diagram" viewBox="0 0 600 100" xmlns="http://www.w3.org/2000/svg" role="img" data-i18n-aria="percentAria" aria-label="Ein Balken von 0 bis 100 Prozent, bei dem 25 Prozent markiert und farbig hervorgehoben sind">
+        <rect x="10" y="30" width="580" height="30" rx="15" fill="#EFEFEF" stroke="#241C1C" stroke-width="1.5"/>
+        <rect x="10" y="30" width="145" height="30" rx="15" fill="#C41230" fill-opacity="0.75"/>
+        <line x1="155" y1="20" x2="155" y2="70" stroke="#241C1C" stroke-width="2"/>
+        <text x="10" y="15" text-anchor="start" font-family="ui-rounded, system-ui, sans-serif" font-size="13" font-weight="700" fill="#241C1C">0%</text>
+        <text x="155" y="90" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="14" font-weight="800" fill="#C41230">25%</text>
+        <text x="590" y="15" text-anchor="end" font-family="ui-rounded, system-ui, sans-serif" font-size="13" font-weight="700" fill="#241C1C">100%</text>
+      </svg>
+
+      <p data-i18n="basicsExample1Label"><strong>Beispiel Schritt für Schritt:</strong> Wie viel sind 25% von 80?</p>
+      <p data-i18n="basicsExample1Steps">1. Prozentsatz als Dezimalzahl schreiben: 25% = 0,25<br>2. Grundwert damit multiplizieren: 80 · 0,25 = 20<br>3. Ergebnis: 20</p>
+
+      <p data-i18n="basicsP2Formula"><strong>Die drei Formeln:</strong> Prozentwert = Grundwert · Prozentsatz. Prozentsatz = Prozentwert : Grundwert · 100. Grundwert = Prozentwert : Prozentsatz.</p>
+
+      <p data-i18n="basicsExample2Label"><strong>Beispiel Schritt für Schritt:</strong> 15 ist 20% von welcher Zahl (Grundwert)?</p>
+      <p data-i18n="basicsExample2Steps">1. Prozentsatz als Dezimalzahl: 20% = 0,20<br>2. Prozentwert durch den Prozentsatz teilen: 15 : 0,20 = 75<br>3. Ergebnis: 75</p>
+
+      <div class="merke">
+        <div class="merke-title" data-i18n="merkeTitle">Merke</div>
+        <p class="merke-body" data-i18n="merkeBody">Prozentwert finden: Grundwert mal Prozentsatz.<br>Prozentsatz finden: Prozentwert geteilt durch Grundwert, mal 100.<br>Grundwert finden: Prozentwert geteilt durch Prozentsatz.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">1</span><span data-i18n="taskWord">Aufgabe</span> 1</h2>
+      <div class="task-question" data-i18n="task1Question">Wie viel sind 20% von 150?</div>
+      <div class="answer-row">
+        <input type="text" id="input1" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="decimal">
+        <button class="check" data-i18n="checkButton" onclick="check(1, 30)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback1"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task1Result">Ergebnis: 30</div>
+          <ol>
+            <li data-i18n="task1Step1">20% als Dezimalzahl: 0,20.</li>
+            <li data-i18n="task1Step2">150 · 0,20 = 30.</li>
+            <li data-i18n="task1Step3">Ergebnis: 30.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task1Hint">20% ist 0,20, nicht 20 – nicht vergessen, das Komma zu verschieben.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">2</span><span data-i18n="taskWord">Aufgabe</span> 2</h2>
+      <div class="task-question" data-i18n="task2Question">Wie viel sind 8% von 250?</div>
+      <div class="answer-row">
+        <input type="text" id="input2" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="decimal">
+        <button class="check" data-i18n="checkButton" onclick="check(2, 20)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback2"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task2Result">Ergebnis: 20</div>
+          <ol>
+            <li data-i18n="task2Step1">8% als Dezimalzahl: 0,08.</li>
+            <li data-i18n="task2Step2">250 · 0,08 = 20.</li>
+            <li data-i18n="task2Step3">Ergebnis: 20.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task2Hint">Bei einstelligen Prozentzahlen wie 8% wird oft die 0 vor dem Komma vergessen: 0,08, nicht 0,8.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">3</span><span data-i18n="taskWord">Aufgabe</span> 3</h2>
+      <div class="task-question" data-i18n="task3Question">45 ist wie viel Prozent von 180?</div>
+      <div class="answer-row">
+        <input type="text" id="input3" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="decimal">
+        <button class="check" data-i18n="checkButton" onclick="check(3, 25)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback3"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task3Result">Ergebnis: 25%</div>
+          <ol>
+            <li data-i18n="task3Step1">Prozentwert durch Grundwert teilen: 45 : 180 = 0,25.</li>
+            <li data-i18n="task3Step2">Mit 100 multiplizieren: 0,25 · 100 = 25.</li>
+            <li data-i18n="task3Step3">Ergebnis: 25%.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task3Hint">Nach dem Teilen nicht vergessen, das Ergebnis mit 100 zu multiplizieren, um auf Prozent zu kommen.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">4</span><span data-i18n="taskWord">Aufgabe</span> 4</h2>
+      <div class="task-question" data-i18n="task4Question">18 ist wie viel Prozent von 40?</div>
+      <div class="answer-row">
+        <input type="text" id="input4" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="decimal">
+        <button class="check" data-i18n="checkButton" onclick="check(4, 45)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback4"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task4Result">Ergebnis: 45%</div>
+          <ol>
+            <li data-i18n="task4Step1">Prozentwert durch Grundwert teilen: 18 : 40 = 0,45.</li>
+            <li data-i18n="task4Step2">Mit 100 multiplizieren: 0,45 · 100 = 45.</li>
+            <li data-i18n="task4Step3">Ergebnis: 45%.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task4Hint">Manche verwechseln Grundwert und Prozentwert und teilen in die falsche Richtung.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">5</span><span data-i18n="taskWord">Aufgabe</span> 5</h2>
+      <div class="task-question" data-i18n="task5Question">15% einer Zahl sind 30. Wie groß ist die Zahl (der Grundwert)?</div>
+      <div class="answer-row">
+        <input type="text" id="input5" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="decimal">
+        <button class="check" data-i18n="checkButton" onclick="check(5, 200)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback5"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task5Result">Ergebnis: 200</div>
+          <ol>
+            <li data-i18n="task5Step1">15% als Dezimalzahl: 0,15.</li>
+            <li data-i18n="task5Step2">Prozentwert durch Prozentsatz teilen: 30 : 0,15 = 200.</li>
+            <li data-i18n="task5Step3">Ergebnis: 200.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task5Hint">Hier wird geteilt, nicht multipliziert – man sucht ja den Grundwert, nicht den Prozentwert.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">6</span><span data-i18n="taskWord">Aufgabe</span> 6</h2>
+      <div class="task-question" data-i18n="task6Question">8% einer Zahl sind 24. Wie groß ist die Zahl?</div>
+      <div class="answer-row">
+        <input type="text" id="input6" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="decimal">
+        <button class="check" data-i18n="checkButton" onclick="check(6, 300)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback6"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task6Result">Ergebnis: 300</div>
+          <ol>
+            <li data-i18n="task6Step1">8% als Dezimalzahl: 0,08.</li>
+            <li data-i18n="task6Step2">Prozentwert durch Prozentsatz teilen: 24 : 0,08 = 300.</li>
+            <li data-i18n="task6Step3">Ergebnis: 300.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task6Hint">Bei kleinen Prozentsätzen wird der Grundwert oft unterschätzt – prüfe das Ergebnis, indem du zurückrechnest.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">7</span><span data-i18n="taskWord">Aufgabe</span> 7</h2>
+      <div class="task-question" data-i18n="task7Question">Ein Fernseher kostet ursprünglich 400 Euro und wird um 15% reduziert. Wie viel Euro beträgt der Rabatt?</div>
+      <div class="answer-row">
+        <input type="text" id="input7" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="decimal">
+        <button class="check" data-i18n="checkButton" onclick="check(7, 60)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback7"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task7Result">Ergebnis: 60 Euro</div>
+          <ol>
+            <li data-i18n="task7Step1">15% als Dezimalzahl: 0,15.</li>
+            <li data-i18n="task7Step2">400 · 0,15 = 60.</li>
+            <li data-i18n="task7Step3">Ergebnis: 60 Euro Rabatt.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task7Hint">Gefragt ist nur der Rabatt (der Prozentwert), nicht der neue Preis nach dem Rabatt.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">8</span><span data-i18n="taskWord">Aufgabe</span> 8</h2>
+      <div class="task-question" data-i18n="task8Question">In einer Schule mit 320 Schülern sind 60% Mädchen. Wie viele Mädchen sind das?</div>
+      <div class="answer-row">
+        <input type="text" id="input8" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="decimal">
+        <button class="check" data-i18n="checkButton" onclick="check(8, 192)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback8"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task8Result">Ergebnis: 192</div>
+          <ol>
+            <li data-i18n="task8Step1">60% als Dezimalzahl: 0,60.</li>
+            <li data-i18n="task8Step2">320 · 0,60 = 192.</li>
+            <li data-i18n="task8Step3">Ergebnis: 192 Mädchen.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task8Hint">Die Gesamtzahl (320) ist der Grundwert (100%), nicht der gesuchte Wert.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <footer>
+    <svg class="footer-wave" viewBox="0 0 280 16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+      <path d="M -5 8 C 40 1, 80 15, 140 8 S 240 1, 285 8" fill="none" stroke="#C41230" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M -5 8 C 40 15, 80 1, 140 8 S 240 15, 285 8" fill="none" stroke="#2478B5" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+    </svg>
+    <p id="footer-msg" data-i18n="footerMessage">Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!</p>
+  </footer>
+
+</div>
+
+<script>
+const TRANSLATIONS = {
+de: {
+  eyebrow: `Luisen-Gymnasium · Klasse 7`, titleLine1: `Prozent-`, titleAccent: `rechnung`, backLink: `← Alle Themen`, h2Basics: `Grundlagen`,
+  basicsP1: `"Prozent" bedeutet "von Hundert". 1% ist der hundertste Teil von etwas, also 1/100 oder 0,01. Es gibt drei wichtige Größen: den Grundwert (das Ganze, 100%), den Prozentsatz (die Angabe in %) und den Prozentwert (der berechnete Teil).`,
+  percentAria: `Ein Balken von 0 bis 100 Prozent, bei dem 25 Prozent markiert und farbig hervorgehoben sind`,
+  basicsExample1Label: `<strong>Beispiel Schritt für Schritt:</strong> Wie viel sind 25% von 80?`,
+  basicsExample1Steps: `1. Prozentsatz als Dezimalzahl schreiben: 25% = 0,25<br>2. Grundwert damit multiplizieren: 80 · 0,25 = 20<br>3. Ergebnis: 20`,
+  basicsP2Formula: `<strong>Die drei Formeln:</strong> Prozentwert = Grundwert · Prozentsatz. Prozentsatz = Prozentwert : Grundwert · 100. Grundwert = Prozentwert : Prozentsatz.`,
+  basicsExample2Label: `<strong>Beispiel Schritt für Schritt:</strong> 15 ist 20% von welcher Zahl (Grundwert)?`,
+  basicsExample2Steps: `1. Prozentsatz als Dezimalzahl: 20% = 0,20<br>2. Prozentwert durch den Prozentsatz teilen: 15 : 0,20 = 75<br>3. Ergebnis: 75`,
+  merkeTitle: `Merke`, merkeBody: `Prozentwert finden: Grundwert mal Prozentsatz.<br>Prozentsatz finden: Prozentwert geteilt durch Grundwert, mal 100.<br>Grundwert finden: Prozentwert geteilt durch Prozentsatz.`,
+  taskWord: `Aufgabe`,
+  task1Question: `Wie viel sind 20% von 150?`, task2Question: `Wie viel sind 8% von 250?`, task3Question: `45 ist wie viel Prozent von 180?`, task4Question: `18 ist wie viel Prozent von 40?`, task5Question: `15% einer Zahl sind 30. Wie groß ist die Zahl (der Grundwert)?`, task6Question: `8% einer Zahl sind 24. Wie groß ist die Zahl?`,
+  task7Question: `Ein Fernseher kostet ursprünglich 400 Euro und wird um 15% reduziert. Wie viel Euro beträgt der Rabatt?`,
+  task8Question: `In einer Schule mit 320 Schülern sind 60% Mädchen. Wie viele Mädchen sind das?`,
+  answerPlaceholder: `Deine Antwort`, checkButton: `Prüfen`, solutionSummary: `Lösung anzeigen`,
+  task1Result: `Ergebnis: 30`, task2Result: `Ergebnis: 20`, task3Result: `Ergebnis: 25%`, task4Result: `Ergebnis: 45%`, task5Result: `Ergebnis: 200`, task6Result: `Ergebnis: 300`, task7Result: `Ergebnis: 60 Euro`, task8Result: `Ergebnis: 192`,
+  task1Step1: `20% als Dezimalzahl: 0,20.`, task1Step2: `150 · 0,20 = 30.`, task1Step3: `Ergebnis: 30.`,
+  task1Hint: `20% ist 0,20, nicht 20 – nicht vergessen, das Komma zu verschieben.`,
+  task2Step1: `8% als Dezimalzahl: 0,08.`, task2Step2: `250 · 0,08 = 20.`, task2Step3: `Ergebnis: 20.`,
+  task2Hint: `Bei einstelligen Prozentzahlen wie 8% wird oft die 0 vor dem Komma vergessen: 0,08, nicht 0,8.`,
+  task3Step1: `Prozentwert durch Grundwert teilen: 45 : 180 = 0,25.`, task3Step2: `Mit 100 multiplizieren: 0,25 · 100 = 25.`, task3Step3: `Ergebnis: 25%.`,
+  task3Hint: `Nach dem Teilen nicht vergessen, das Ergebnis mit 100 zu multiplizieren, um auf Prozent zu kommen.`,
+  task4Step1: `Prozentwert durch Grundwert teilen: 18 : 40 = 0,45.`, task4Step2: `Mit 100 multiplizieren: 0,45 · 100 = 45.`, task4Step3: `Ergebnis: 45%.`,
+  task4Hint: `Manche verwechseln Grundwert und Prozentwert und teilen in die falsche Richtung.`,
+  task5Step1: `15% als Dezimalzahl: 0,15.`, task5Step2: `Prozentwert durch Prozentsatz teilen: 30 : 0,15 = 200.`, task5Step3: `Ergebnis: 200.`,
+  task5Hint: `Hier wird geteilt, nicht multipliziert – man sucht ja den Grundwert, nicht den Prozentwert.`,
+  task6Step1: `8% als Dezimalzahl: 0,08.`, task6Step2: `Prozentwert durch Prozentsatz teilen: 24 : 0,08 = 300.`, task6Step3: `Ergebnis: 300.`,
+  task6Hint: `Bei kleinen Prozentsätzen wird der Grundwert oft unterschätzt – prüfe das Ergebnis, indem du zurückrechnest.`,
+  task7Step1: `15% als Dezimalzahl: 0,15.`, task7Step2: `400 · 0,15 = 60.`, task7Step3: `Ergebnis: 60 Euro Rabatt.`,
+  task7Hint: `Gefragt ist nur der Rabatt (der Prozentwert), nicht der neue Preis nach dem Rabatt.`,
+  task8Step1: `60% als Dezimalzahl: 0,60.`, task8Step2: `320 · 0,60 = 192.`, task8Step3: `Ergebnis: 192 Mädchen.`,
+  task8Hint: `Die Gesamtzahl (320) ist der Grundwert (100%), nicht der gesuchte Wert.`,
+  hintLabel: `Typischer Fehler:`, footerMessage: `Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!`,
+  fbEmpty: `Trag bitte eine Zahl ein, bevor du prüfst.`, fbCorrect: `Richtig! Gut gemacht!`, fbIncorrect: `Noch nicht ganz richtig. Schau dir die Lösung weiter unten an und versuch es dann nochmal.`
+},
+en: {
+  eyebrow: `Luisen-Gymnasium · Grade 7`, titleLine1: `Percentage`, titleAccent: `Calculations`, backLink: `← All Topics`, h2Basics: `Basics`,
+  basicsP1: `"Percent" means "per hundred". 1% is the hundredth part of something, so 1/100 or 0.01. There are three key quantities: the base value (the whole, 100%), the percentage rate (the % figure), and the percentage amount (the calculated part).`,
+  percentAria: `A bar from 0 to 100 percent, with 25 percent marked and highlighted in color`,
+  basicsExample1Label: `<strong>Step-by-step example:</strong> How much is 25% of 80?`,
+  basicsExample1Steps: `1. Write the percentage rate as a decimal: 25% = 0.25<br>2. Multiply the base value by it: 80 · 0.25 = 20<br>3. Result: 20`,
+  basicsP2Formula: `<strong>The three formulas:</strong> Percentage amount = base value · percentage rate. Percentage rate = percentage amount : base value · 100. Base value = percentage amount : percentage rate.`,
+  basicsExample2Label: `<strong>Step-by-step example:</strong> 15 is 20% of which number (base value)?`,
+  basicsExample2Steps: `1. Percentage rate as a decimal: 20% = 0.20<br>2. Divide the percentage amount by the rate: 15 : 0.20 = 75<br>3. Result: 75`,
+  merkeTitle: `Remember`, merkeBody: `Finding the percentage amount: base value times percentage rate.<br>Finding the percentage rate: percentage amount divided by base value, times 100.<br>Finding the base value: percentage amount divided by percentage rate.`,
+  taskWord: `Exercise`,
+  task1Question: `How much is 20% of 150?`, task2Question: `How much is 8% of 250?`, task3Question: `45 is what percent of 180?`, task4Question: `18 is what percent of 40?`, task5Question: `15% of a number is 30. What is the number (the base value)?`, task6Question: `8% of a number is 24. What is the number?`,
+  task7Question: `A TV originally costs 400 euros and is reduced by 15%. How many euros is the discount?`,
+  task8Question: `A school with 320 students has 60% girls. How many girls is that?`,
+  answerPlaceholder: `Your answer`, checkButton: `Check`, solutionSummary: `Show solution`,
+  task1Result: `Result: 30`, task2Result: `Result: 20`, task3Result: `Result: 25%`, task4Result: `Result: 45%`, task5Result: `Result: 200`, task6Result: `Result: 300`, task7Result: `Result: 60 euros`, task8Result: `Result: 192`,
+  task1Step1: `20% as a decimal: 0.20.`, task1Step2: `150 · 0.20 = 30.`, task1Step3: `Result: 30.`,
+  task1Hint: `20% is 0.20, not 20 — don't forget to shift the decimal point.`,
+  task2Step1: `8% as a decimal: 0.08.`, task2Step2: `250 · 0.08 = 20.`, task2Step3: `Result: 20.`,
+  task2Hint: `With single-digit percentages like 8%, the leading zero is often forgotten: 0.08, not 0.8.`,
+  task3Step1: `Divide the percentage amount by the base value: 45 : 180 = 0.25.`, task3Step2: `Multiply by 100: 0.25 · 100 = 25.`, task3Step3: `Result: 25%.`,
+  task3Hint: `After dividing, don't forget to multiply by 100 to get the percentage.`,
+  task4Step1: `Divide the percentage amount by the base value: 18 : 40 = 0.45.`, task4Step2: `Multiply by 100: 0.45 · 100 = 45.`, task4Step3: `Result: 45%.`,
+  task4Hint: `Some people mix up the base value and the percentage amount and divide in the wrong direction.`,
+  task5Step1: `15% as a decimal: 0.15.`, task5Step2: `Divide the percentage amount by the rate: 30 : 0.15 = 200.`, task5Step3: `Result: 200.`,
+  task5Hint: `Here you divide, not multiply — you're looking for the base value, not the percentage amount.`,
+  task6Step1: `8% as a decimal: 0.08.`, task6Step2: `Divide the percentage amount by the rate: 24 : 0.08 = 300.`, task6Step3: `Result: 300.`,
+  task6Hint: `With small percentages, the base value is often underestimated — check by calculating back.`,
+  task7Step1: `15% as a decimal: 0.15.`, task7Step2: `400 · 0.15 = 60.`, task7Step3: `Result: 60 euros discount.`,
+  task7Hint: `Only the discount (the percentage amount) is asked for, not the new price after the discount.`,
+  task8Step1: `60% as a decimal: 0.60.`, task8Step2: `320 · 0.60 = 192.`, task8Step3: `Result: 192 girls.`,
+  task8Hint: `The total (320) is the base value (100%), not the answer you're looking for.`,
+  hintLabel: `Common mistake:`, footerMessage: `Take your time and check the solution if you need to. You can do this!`,
+  fbEmpty: `Please enter a number before checking.`, fbCorrect: `Correct! Well done!`, fbIncorrect: `Not quite right yet. Check the solution below and try again.`
+},
+es: {
+  eyebrow: `Luisen-Gymnasium · 7.º curso`, titleLine1: `Cálculo de`, titleAccent: `porcentajes`, backLink: `← Todos los temas`, h2Basics: `Fundamentos`,
+  basicsP1: `"Por ciento" significa "de cada cien". El 1% es la centésima parte de algo, es decir 1/100 o 0,01. Hay tres magnitudes importantes: el valor base (el todo, 100%), el porcentaje (la cifra en %) y el valor porcentual (la parte calculada).`,
+  percentAria: `Una barra de 0 a 100 por ciento, con el 25 por ciento marcado y resaltado en color`,
+  basicsExample1Label: `<strong>Ejemplo paso a paso:</strong> ¿Cuánto es el 25% de 80?`,
+  basicsExample1Steps: `1. Escribe el porcentaje como decimal: 25% = 0,25<br>2. Multiplícalo por el valor base: 80 · 0,25 = 20<br>3. Resultado: 20`,
+  basicsP2Formula: `<strong>Las tres fórmulas:</strong> Valor porcentual = valor base · porcentaje. Porcentaje = valor porcentual : valor base · 100. Valor base = valor porcentual : porcentaje.`,
+  basicsExample2Label: `<strong>Ejemplo paso a paso:</strong> 15 es el 20% de qué número (valor base)?`,
+  basicsExample2Steps: `1. Porcentaje como decimal: 20% = 0,20<br>2. Divide el valor porcentual entre el porcentaje: 15 : 0,20 = 75<br>3. Resultado: 75`,
+  merkeTitle: `Recuerda`, merkeBody: `Hallar el valor porcentual: valor base por porcentaje.<br>Hallar el porcentaje: valor porcentual entre valor base, por 100.<br>Hallar el valor base: valor porcentual entre porcentaje.`,
+  taskWord: `Ejercicio`,
+  task1Question: `¿Cuánto es el 20% de 150?`, task2Question: `¿Cuánto es el 8% de 250?`, task3Question: `45 es qué porcentaje de 180?`, task4Question: `18 es qué porcentaje de 40?`, task5Question: `El 15% de un número es 30. ¿Cuál es el número (el valor base)?`, task6Question: `El 8% de un número es 24. ¿Cuál es el número?`,
+  task7Question: `Un televisor cuesta originalmente 400 euros y se reduce un 15%. ¿Cuántos euros es el descuento?`,
+  task8Question: `En una escuela con 320 alumnos, el 60% son niñas. ¿Cuántas niñas son?`,
+  answerPlaceholder: `Tu respuesta`, checkButton: `Comprobar`, solutionSummary: `Ver solución`,
+  task1Result: `Resultado: 30`, task2Result: `Resultado: 20`, task3Result: `Resultado: 25%`, task4Result: `Resultado: 45%`, task5Result: `Resultado: 200`, task6Result: `Resultado: 300`, task7Result: `Resultado: 60 euros`, task8Result: `Resultado: 192`,
+  task1Step1: `20% como decimal: 0,20.`, task1Step2: `150 · 0,20 = 30.`, task1Step3: `Resultado: 30.`,
+  task1Hint: `El 20% es 0,20, no 20 — no olvides desplazar la coma.`,
+  task2Step1: `8% como decimal: 0,08.`, task2Step2: `250 · 0,08 = 20.`, task2Step3: `Resultado: 20.`,
+  task2Hint: `Con porcentajes de una cifra como el 8%, a menudo se olvida el cero inicial: 0,08, no 0,8.`,
+  task3Step1: `Divide el valor porcentual entre el valor base: 45 : 180 = 0,25.`, task3Step2: `Multiplica por 100: 0,25 · 100 = 25.`, task3Step3: `Resultado: 25%.`,
+  task3Hint: `Después de dividir, no olvides multiplicar por 100 para obtener el porcentaje.`,
+  task4Step1: `Divide el valor porcentual entre el valor base: 18 : 40 = 0,45.`, task4Step2: `Multiplica por 100: 0,45 · 100 = 45.`, task4Step3: `Resultado: 45%.`,
+  task4Hint: `Algunos confunden el valor base y el valor porcentual y dividen en el sentido equivocado.`,
+  task5Step1: `15% como decimal: 0,15.`, task5Step2: `Divide el valor porcentual entre el porcentaje: 30 : 0,15 = 200.`, task5Step3: `Resultado: 200.`,
+  task5Hint: `Aquí se divide, no se multiplica — se busca el valor base, no el valor porcentual.`,
+  task6Step1: `8% como decimal: 0,08.`, task6Step2: `Divide el valor porcentual entre el porcentaje: 24 : 0,08 = 300.`, task6Step3: `Resultado: 300.`,
+  task6Hint: `Con porcentajes pequeños, el valor base suele subestimarse — comprueba haciendo el cálculo inverso.`,
+  task7Step1: `15% como decimal: 0,15.`, task7Step2: `400 · 0,15 = 60.`, task7Step3: `Resultado: 60 euros de descuento.`,
+  task7Hint: `Solo se pregunta por el descuento (el valor porcentual), no por el nuevo precio tras el descuento.`,
+  task8Step1: `60% como decimal: 0,60.`, task8Step2: `320 · 0,60 = 192.`, task8Step3: `Resultado: 192 niñas.`,
+  task8Hint: `El total (320) es el valor base (100%), no la respuesta que se busca.`,
+  hintLabel: `Error típico:`, footerMessage: `Tómate tu tiempo y revisa la solución si la necesitas. ¡Tú puedes!`,
+  fbEmpty: `Introduce un número antes de comprobar.`, fbCorrect: `¡Correcto! ¡Muy bien!`, fbIncorrect: `Todavía no es correcto. Revisa la solución de abajo e inténtalo de nuevo.`
+},
+fr: {
+  eyebrow: `Luisen-Gymnasium · 7e`, titleLine1: `Calcul des`, titleAccent: `pourcentages`, backLink: `← Tous les thèmes`, h2Basics: `Les bases`,
+  basicsP1: `« Pour cent » signifie « pour cent ». 1 % est le centième d'une chose, donc 1/100 ou 0,01. Il y a trois grandeurs importantes : la valeur de base (le tout, 100 %), le taux de pourcentage (le chiffre en %) et la valeur du pourcentage (la partie calculée).`,
+  percentAria: `Une barre de 0 à 100 pour cent, avec 25 pour cent marqués et mis en couleur`,
+  basicsExample1Label: `<strong>Exemple étape par étape :</strong> Combien font 25 % de 80 ?`,
+  basicsExample1Steps: `1. Écris le taux en décimal : 25 % = 0,25<br>2. Multiplie la valeur de base par ce nombre : 80 · 0,25 = 20<br>3. Résultat : 20`,
+  basicsP2Formula: `<strong>Les trois formules :</strong> Valeur du pourcentage = valeur de base · taux. Taux = valeur du pourcentage : valeur de base · 100. Valeur de base = valeur du pourcentage : taux.`,
+  basicsExample2Label: `<strong>Exemple étape par étape :</strong> 15 est 20 % de quel nombre (valeur de base) ?`,
+  basicsExample2Steps: `1. Taux en décimal : 20 % = 0,20<br>2. Divise la valeur du pourcentage par le taux : 15 : 0,20 = 75<br>3. Résultat : 75`,
+  merkeTitle: `À retenir`, merkeBody: `Trouver la valeur du pourcentage : valeur de base fois taux.<br>Trouver le taux : valeur du pourcentage divisée par la valeur de base, fois 100.<br>Trouver la valeur de base : valeur du pourcentage divisée par le taux.`,
+  taskWord: `Exercice`,
+  task1Question: `Combien font 20 % de 150 ?`, task2Question: `Combien font 8 % de 250 ?`, task3Question: `45 représente quel pourcentage de 180 ?`, task4Question: `18 représente quel pourcentage de 40 ?`, task5Question: `15 % d'un nombre valent 30. Quel est ce nombre (la valeur de base) ?`, task6Question: `8 % d'un nombre valent 24. Quel est ce nombre ?`,
+  task7Question: `Un téléviseur coûte à l'origine 400 euros et est réduit de 15 %. Combien d'euros représente la réduction ?`,
+  task8Question: `Une école de 320 élèves compte 60 % de filles. Combien de filles cela fait-il ?`,
+  answerPlaceholder: `Ta réponse`, checkButton: `Vérifier`, solutionSummary: `Voir la solution`,
+  task1Result: `Résultat : 30`, task2Result: `Résultat : 20`, task3Result: `Résultat : 25 %`, task4Result: `Résultat : 45 %`, task5Result: `Résultat : 200`, task6Result: `Résultat : 300`, task7Result: `Résultat : 60 euros`, task8Result: `Résultat : 192`,
+  task1Step1: `20 % en décimal : 0,20.`, task1Step2: `150 · 0,20 = 30.`, task1Step3: `Résultat : 30.`,
+  task1Hint: `20 % égale 0,20, pas 20 — n'oublie pas de déplacer la virgule.`,
+  task2Step1: `8 % en décimal : 0,08.`, task2Step2: `250 · 0,08 = 20.`, task2Step3: `Résultat : 20.`,
+  task2Hint: `Avec des pourcentages à un chiffre comme 8 %, le zéro initial est souvent oublié : 0,08, pas 0,8.`,
+  task3Step1: `Divise la valeur du pourcentage par la valeur de base : 45 : 180 = 0,25.`, task3Step2: `Multiplie par 100 : 0,25 · 100 = 25.`, task3Step3: `Résultat : 25 %.`,
+  task3Hint: `Après avoir divisé, n'oublie pas de multiplier par 100 pour obtenir le pourcentage.`,
+  task4Step1: `Divise la valeur du pourcentage par la valeur de base : 18 : 40 = 0,45.`, task4Step2: `Multiplie par 100 : 0,45 · 100 = 45.`, task4Step3: `Résultat : 45 %.`,
+  task4Hint: `Certains confondent la valeur de base et la valeur du pourcentage et divisent dans le mauvais sens.`,
+  task5Step1: `15 % en décimal : 0,15.`, task5Step2: `Divise la valeur du pourcentage par le taux : 30 : 0,15 = 200.`, task5Step3: `Résultat : 200.`,
+  task5Hint: `Ici on divise, pas on multiplie — on cherche la valeur de base, pas la valeur du pourcentage.`,
+  task6Step1: `8 % en décimal : 0,08.`, task6Step2: `Divise la valeur du pourcentage par le taux : 24 : 0,08 = 300.`, task6Step3: `Résultat : 300.`,
+  task6Hint: `Avec de petits pourcentages, la valeur de base est souvent sous-estimée — vérifie en recalculant à l'envers.`,
+  task7Step1: `15 % en décimal : 0,15.`, task7Step2: `400 · 0,15 = 60.`, task7Step3: `Résultat : 60 euros de réduction.`,
+  task7Hint: `Seule la réduction (la valeur du pourcentage) est demandée, pas le nouveau prix après réduction.`,
+  task8Step1: `60 % en décimal : 0,60.`, task8Step2: `320 · 0,60 = 192.`, task8Step3: `Résultat : 192 filles.`,
+  task8Hint: `Le total (320) est la valeur de base (100 %), pas la réponse recherchée.`,
+  hintLabel: `Erreur fréquente :`, footerMessage: `Prends ton temps et regarde la solution si besoin. Tu vas y arriver !`,
+  fbEmpty: `Merci d'indiquer un nombre avant de vérifier.`, fbCorrect: `Correct ! Bien joué !`, fbIncorrect: `Pas encore tout à fait juste. Regarde la solution ci-dessous et réessaie.`
+},
+tr: {
+  eyebrow: `Luisen-Gymnasium · 7. Sınıf`, titleLine1: `Yüzde`, titleAccent: `Hesabı`, backLink: `← Tüm Konular`, h2Basics: `Temel Bilgiler`,
+  basicsP1: `"Yüzde" "yüzde bir" anlamına gelir. %1, bir şeyin yüzde biri, yani 1/100 veya 0,01'dir. Üç önemli büyüklük vardır: temel değer (bütün, %100), yüzde oranı (% olarak verilen değer) ve yüzde değeri (hesaplanan kısım).`,
+  percentAria: `0'dan 100 yüzdeye kadar bir çubuk, 25 yüzde işaretlenmiş ve renkli vurgulanmış`,
+  basicsExample1Label: `<strong>Adım adım örnek:</strong> 80'in %25'i kaçtır?`,
+  basicsExample1Steps: `1. Yüzde oranını ondalık olarak yaz: %25 = 0,25<br>2. Temel değerle çarp: 80 · 0,25 = 20<br>3. Sonuç: 20`,
+  basicsP2Formula: `<strong>Üç formül:</strong> Yüzde değeri = temel değer · yüzde oranı. Yüzde oranı = yüzde değeri : temel değer · 100. Temel değer = yüzde değeri : yüzde oranı.`,
+  basicsExample2Label: `<strong>Adım adım örnek:</strong> 15, hangi sayının (temel değer) %20'sidir?`,
+  basicsExample2Steps: `1. Yüzde oranı ondalık olarak: %20 = 0,20<br>2. Yüzde değerini orana böl: 15 : 0,20 = 75<br>3. Sonuç: 75`,
+  merkeTitle: `Unutma`, merkeBody: `Yüzde değerini bulma: temel değer çarpı yüzde oranı.<br>Yüzde oranını bulma: yüzde değeri bölü temel değer, çarpı 100.<br>Temel değeri bulma: yüzde değeri bölü yüzde oranı.`,
+  taskWord: `Alıştırma`,
+  task1Question: `150'nin %20'si kaçtır?`, task2Question: `250'nin %8'i kaçtır?`, task3Question: `45, 180'in yüzde kaçıdır?`, task4Question: `18, 40'ın yüzde kaçıdır?`, task5Question: `Bir sayının %15'i 30'dur. Bu sayı (temel değer) nedir?`, task6Question: `Bir sayının %8'i 24'tür. Bu sayı nedir?`,
+  task7Question: `Bir televizyon başlangıçta 400 avroya mal olur ve %15 indirim yapılır. İndirim kaç avrodur?`,
+  task8Question: `320 öğrencili bir okulda %60'ı kız. Kaç kız öğrenci vardır?`,
+  answerPlaceholder: `Cevabın`, checkButton: `Kontrol et`, solutionSummary: `Çözümü göster`,
+  task1Result: `Sonuç: 30`, task2Result: `Sonuç: 20`, task3Result: `Sonuç: %25`, task4Result: `Sonuç: %45`, task5Result: `Sonuç: 200`, task6Result: `Sonuç: 300`, task7Result: `Sonuç: 60 avro`, task8Result: `Sonuç: 192`,
+  task1Step1: `%20 ondalık olarak: 0,20.`, task1Step2: `150 · 0,20 = 30.`, task1Step3: `Sonuç: 30.`,
+  task1Hint: `%20, 0,20'dir, 20 değil — virgülü kaydırmayı unutma.`,
+  task2Step1: `%8 ondalık olarak: 0,08.`, task2Step2: `250 · 0,08 = 20.`, task2Step3: `Sonuç: 20.`,
+  task2Hint: `%8 gibi tek basamaklı yüzdelerde virgülden önceki 0 genellikle unutulur: 0,08, 0,8 değil.`,
+  task3Step1: `Yüzde değerini temel değere böl: 45 : 180 = 0,25.`, task3Step2: `100 ile çarp: 0,25 · 100 = 25.`, task3Step3: `Sonuç: %25.`,
+  task3Hint: `Böldükten sonra yüzdeye ulaşmak için 100 ile çarpmayı unutma.`,
+  task4Step1: `Yüzde değerini temel değere böl: 18 : 40 = 0,45.`, task4Step2: `100 ile çarp: 0,45 · 100 = 45.`, task4Step3: `Sonuç: %45.`,
+  task4Hint: `Bazıları temel değer ile yüzde değerini karıştırır ve yanlış yönde böler.`,
+  task5Step1: `%15 ondalık olarak: 0,15.`, task5Step2: `Yüzde değerini orana böl: 30 : 0,15 = 200.`, task5Step3: `Sonuç: 200.`,
+  task5Hint: `Burada çarpma değil bölme yapılır — çünkü temel değer aranıyor, yüzde değeri değil.`,
+  task6Step1: `%8 ondalık olarak: 0,08.`, task6Step2: `Yüzde değerini orana böl: 24 : 0,08 = 300.`, task6Step3: `Sonuç: 300.`,
+  task6Hint: `Küçük yüzdelerde temel değer genellikle olduğundan küçük tahmin edilir — geriye doğru hesaplayarak kontrol et.`,
+  task7Step1: `%15 ondalık olarak: 0,15.`, task7Step2: `400 · 0,15 = 60.`, task7Step3: `Sonuç: 60 avro indirim.`,
+  task7Hint: `Sadece indirim (yüzde değeri) sorulmuştur, indirimden sonraki yeni fiyat değil.`,
+  task8Step1: `%60 ondalık olarak: 0,60.`, task8Step2: `320 · 0,60 = 192.`, task8Step3: `Sonuç: 192 kız öğrenci.`,
+  task8Hint: `Toplam sayı (320) temel değerdir (%100), aranan sonuç değildir.`,
+  hintLabel: `Sık yapılan hata:`, footerMessage: `Sakin sakin hesapla, gerekirse çözüme bak. Bunu başarabilirsin!`,
+  fbEmpty: `Kontrol etmeden önce lütfen bir sayı gir.`, fbCorrect: `Doğru! Aferin!`, fbIncorrect: `Henüz tam doğru değil. Aşağıdaki çözüme bak ve tekrar dene.`
+},
+ru: {
+  eyebrow: `Luisen-Gymnasium · 7 класс`, titleLine1: `Проценты`, titleAccent: `и вычисления`, backLink: `← Все темы`, h2Basics: `Основы`,
+  basicsP1: `«Процент» означает «на сто». 1% — это сотая часть чего-либо, то есть 1/100 или 0,01. Есть три важные величины: базовое значение (целое, 100%), процентная ставка (число в %) и процентное значение (вычисленная часть).`,
+  percentAria: `Полоса от 0 до 100 процентов, где 25 процентов отмечены и выделены цветом`,
+  basicsExample1Label: `<strong>Пример по шагам:</strong> Сколько составляют 25% от 80?`,
+  basicsExample1Steps: `1. Запиши процентную ставку как десятичную дробь: 25% = 0,25<br>2. Умножь на базовое значение: 80 · 0,25 = 20<br>3. Результат: 20`,
+  basicsP2Formula: `<strong>Три формулы:</strong> Процентное значение = базовое значение · процентная ставка. Процентная ставка = процентное значение : базовое значение · 100. Базовое значение = процентное значение : процентная ставка.`,
+  basicsExample2Label: `<strong>Пример по шагам:</strong> 15 составляет 20% от какого числа (базового значения)?`,
+  basicsExample2Steps: `1. Процентная ставка как десятичная дробь: 20% = 0,20<br>2. Раздели процентное значение на ставку: 15 : 0,20 = 75<br>3. Результат: 75`,
+  merkeTitle: `Запомни`, merkeBody: `Найти процентное значение: базовое значение умножить на процентную ставку.<br>Найти процентную ставку: процентное значение разделить на базовое значение, умножить на 100.<br>Найти базовое значение: процентное значение разделить на процентную ставку.`,
+  taskWord: `Задание`,
+  task1Question: `Сколько составляют 20% от 150?`, task2Question: `Сколько составляют 8% от 250?`, task3Question: `Сколько процентов от 180 составляет 45?`, task4Question: `Сколько процентов от 40 составляет 18?`, task5Question: `15% числа равны 30. Чему равно это число (базовое значение)?`, task6Question: `8% числа равны 24. Чему равно это число?`,
+  task7Question: `Телевизор изначально стоит 400 евро, и цена снижается на 15%. Сколько евро составляет скидка?`,
+  task8Question: `В школе с 320 учениками 60% девочек. Сколько это девочек?`,
+  answerPlaceholder: `Твой ответ`, checkButton: `Проверить`, solutionSummary: `Показать решение`,
+  task1Result: `Результат: 30`, task2Result: `Результат: 20`, task3Result: `Результат: 25%`, task4Result: `Результат: 45%`, task5Result: `Результат: 200`, task6Result: `Результат: 300`, task7Result: `Результат: 60 евро`, task8Result: `Результат: 192`,
+  task1Step1: `20% в виде десятичной дроби: 0,20.`, task1Step2: `150 · 0,20 = 30.`, task1Step3: `Результат: 30.`,
+  task1Hint: `20% — это 0,20, а не 20 — не забудь перенести запятую.`,
+  task2Step1: `8% в виде десятичной дроби: 0,08.`, task2Step2: `250 · 0,08 = 20.`, task2Step3: `Результат: 20.`,
+  task2Hint: `При однозначных процентах вроде 8% часто забывают ноль перед запятой: 0,08, а не 0,8.`,
+  task3Step1: `Раздели процентное значение на базовое: 45 : 180 = 0,25.`, task3Step2: `Умножь на 100: 0,25 · 100 = 25.`, task3Step3: `Результат: 25%.`,
+  task3Hint: `После деления не забудь умножить на 100, чтобы получить проценты.`,
+  task4Step1: `Раздели процентное значение на базовое: 18 : 40 = 0,45.`, task4Step2: `Умножь на 100: 0,45 · 100 = 45.`, task4Step3: `Результат: 45%.`,
+  task4Hint: `Некоторые путают базовое значение и процентное значение и делят не в ту сторону.`,
+  task5Step1: `15% в виде десятичной дроби: 0,15.`, task5Step2: `Раздели процентное значение на ставку: 30 : 0,15 = 200.`, task5Step3: `Результат: 200.`,
+  task5Hint: `Здесь делят, а не умножают — ведь ищут базовое значение, а не процентное.`,
+  task6Step1: `8% в виде десятичной дроби: 0,08.`, task6Step2: `Раздели процентное значение на ставку: 24 : 0,08 = 300.`, task6Step3: `Результат: 300.`,
+  task6Hint: `При маленьких процентах базовое значение часто недооценивают — проверь, посчитав в обратную сторону.`,
+  task7Step1: `15% в виде десятичной дроби: 0,15.`, task7Step2: `400 · 0,15 = 60.`, task7Step3: `Результат: скидка 60 евро.`,
+  task7Hint: `Спрашивают только про скидку (процентное значение), а не про новую цену после скидки.`,
+  task8Step1: `60% в виде десятичной дроби: 0,60.`, task8Step2: `320 · 0,60 = 192.`, task8Step3: `Результат: 192 девочки.`,
+  task8Hint: `Общее число (320) — это базовое значение (100%), а не искомый ответ.`,
+  hintLabel: `Типичная ошибка:`, footerMessage: `Считай спокойно и при необходимости смотри решение. У тебя получится!`,
+  fbEmpty: `Пожалуйста, введи число перед проверкой.`, fbCorrect: `Правильно! Отлично!`, fbIncorrect: `Пока не совсем верно. Посмотри решение ниже и попробуй ещё раз.`
+},
+ar: {
+  eyebrow: `مدرسة لويزن الثانوية · الصف السابع`, titleLine1: `حساب`, titleAccent: `النسبة المئوية`, backLink: `← جميع المواضيع`, h2Basics: `الأساسيات`,
+  basicsP1: `"بالمئة" تعني "من كل مئة". 1% هو جزء من مئة من شيء ما، أي 1/100 أو 0.01. توجد ثلاث كميات مهمة: القيمة الأساسية (الكل، 100%)، والنسبة المئوية (الرقم بالنسبة المئوية)، والقيمة المئوية (الجزء المحسوب).`,
+  percentAria: `شريط من 0 إلى 100 بالمئة، مع تحديد 25 بالمئة وتمييزها بلون`,
+  basicsExample1Label: `<strong>مثال خطوة بخطوة:</strong> كم يساوي 25% من 80؟`,
+  basicsExample1Steps: `1. اكتب النسبة المئوية كعدد عشري: 25% = 0.25<br>2. اضربها في القيمة الأساسية: 80 · 0.25 = 20<br>3. النتيجة: 20`,
+  basicsP2Formula: `<strong>القوانين الثلاثة:</strong> القيمة المئوية = القيمة الأساسية × النسبة المئوية. النسبة المئوية = القيمة المئوية ÷ القيمة الأساسية × 100. القيمة الأساسية = القيمة المئوية ÷ النسبة المئوية.`,
+  basicsExample2Label: `<strong>مثال خطوة بخطوة:</strong> 15 يمثل 20% من أي عدد (القيمة الأساسية)؟`,
+  basicsExample2Steps: `1. النسبة المئوية كعدد عشري: 20% = 0.20<br>2. اقسم القيمة المئوية على النسبة: 15 : 0.20 = 75<br>3. النتيجة: 75`,
+  merkeTitle: `تذكّر`, merkeBody: `لإيجاد القيمة المئوية: القيمة الأساسية × النسبة المئوية.<br>لإيجاد النسبة المئوية: القيمة المئوية ÷ القيمة الأساسية × 100.<br>لإيجاد القيمة الأساسية: القيمة المئوية ÷ النسبة المئوية.`,
+  taskWord: `تمرين`,
+  task1Question: `كم يساوي 20% من 150؟`, task2Question: `كم يساوي 8% من 250؟`, task3Question: `45 يمثل كم بالمئة من 180؟`, task4Question: `18 يمثل كم بالمئة من 40؟`, task5Question: `15% من عدد ما يساوي 30. ما هو العدد (القيمة الأساسية)؟`, task6Question: `8% من عدد ما يساوي 24. ما هو العدد؟`,
+  task7Question: `يبلغ سعر تلفاز أصلًا 400 يورو ويُخفَّض بنسبة 15%. كم يورو يبلغ الخصم؟`,
+  task8Question: `في مدرسة بها 320 طالبًا، 60% منهم فتيات. كم عدد الفتيات؟`,
+  answerPlaceholder: `إجابتك`, checkButton: `تحقق`, solutionSummary: `عرض الحل`,
+  task1Result: `النتيجة: 30`, task2Result: `النتيجة: 20`, task3Result: `النتيجة: 25%`, task4Result: `النتيجة: 45%`, task5Result: `النتيجة: 200`, task6Result: `النتيجة: 300`, task7Result: `النتيجة: 60 يورو`, task8Result: `النتيجة: 192`,
+  task1Step1: `20% كعدد عشري: 0.20.`, task1Step2: `150 · 0.20 = 30.`, task1Step3: `النتيجة: 30.`,
+  task1Hint: `20% تساوي 0.20، وليس 20 — لا تنسَ نقل الفاصلة.`,
+  task2Step1: `8% كعدد عشري: 0.08.`, task2Step2: `250 · 0.08 = 20.`, task2Step3: `النتيجة: 20.`,
+  task2Hint: `في النسب ذات الخانة الواحدة مثل 8%، غالبًا ما يُنسى الصفر قبل الفاصلة: 0.08، وليس 0.8.`,
+  task3Step1: `اقسم القيمة المئوية على القيمة الأساسية: 45 : 180 = 0.25.`, task3Step2: `اضرب في 100: 0.25 · 100 = 25.`, task3Step3: `النتيجة: 25%.`,
+  task3Hint: `بعد القسمة، لا تنسَ الضرب في 100 للحصول على النسبة المئوية.`,
+  task4Step1: `اقسم القيمة المئوية على القيمة الأساسية: 18 : 40 = 0.45.`, task4Step2: `اضرب في 100: 0.45 · 100 = 45.`, task4Step3: `النتيجة: 45%.`,
+  task4Hint: `يخلط البعض بين القيمة الأساسية والقيمة المئوية ويقسمون في الاتجاه الخاطئ.`,
+  task5Step1: `15% كعدد عشري: 0.15.`, task5Step2: `اقسم القيمة المئوية على النسبة: 30 : 0.15 = 200.`, task5Step3: `النتيجة: 200.`,
+  task5Hint: `هنا تُقسَم القيمة، ولا تُضرَب — لأن المطلوب هو القيمة الأساسية، وليس القيمة المئوية.`,
+  task6Step1: `8% كعدد عشري: 0.08.`, task6Step2: `اقسم القيمة المئوية على النسبة: 24 : 0.08 = 300.`, task6Step3: `النتيجة: 300.`,
+  task6Hint: `عند النسب الصغيرة، غالبًا ما تُقدَّر القيمة الأساسية بأقل من الحقيقة — تحقق بإعادة الحساب عكسيًا.`,
+  task7Step1: `15% كعدد عشري: 0.15.`, task7Step2: `400 · 0.15 = 60.`, task7Step3: `النتيجة: خصم 60 يورو.`,
+  task7Hint: `المطلوب هو الخصم فقط (القيمة المئوية)، وليس السعر الجديد بعد الخصم.`,
+  task8Step1: `60% كعدد عشري: 0.60.`, task8Step2: `320 · 0.60 = 192.`, task8Step3: `النتيجة: 192 فتاة.`,
+  task8Hint: `العدد الإجمالي (320) هو القيمة الأساسية (100%)، وليس الإجابة المطلوبة.`,
+  hintLabel: `خطأ شائع:`, footerMessage: `احسب بهدوء وراجع الحل إذا احتجت إليه. أنت قادر على ذلك!`,
+  fbEmpty: `الرجاء إدخال رقم قبل التحقق.`, fbCorrect: `صحيح! أحسنت!`, fbIncorrect: `ليست صحيحة تمامًا بعد. راجع الحل أدناه وحاول مرة أخرى.`
+},
+zh: {
+  eyebrow: `路易森文理中学 · 七年级`, titleLine1: `百分比`, titleAccent: `计算`, backLink: `← 所有主题`, h2Basics: `基础知识`,
+  basicsP1: `"百分比"意思是"每一百中的"。1% 是某物的百分之一，也就是 1/100 或 0.01。有三个重要的量：基准值（整体，100%）、百分率（用 % 表示的数字）和百分值（计算出来的部分）。`,
+  percentAria: `一个从0到100百分比的条形图，25百分比处被标记并用颜色突出显示`,
+  basicsExample1Label: `<strong>分步示例：</strong> 80 的 25% 是多少？`,
+  basicsExample1Steps: `1. 把百分率写成小数：25% = 0.25<br>2. 用它乘以基准值：80 · 0.25 = 20<br>3. 结果：20`,
+  basicsP2Formula: `<strong>三个公式：</strong>百分值 = 基准值 × 百分率。百分率 = 百分值 ÷ 基准值 × 100。基准值 = 百分值 ÷ 百分率。`,
+  basicsExample2Label: `<strong>分步示例：</strong> 15 是哪个数（基准值）的 20%？`,
+  basicsExample2Steps: `1. 把百分率写成小数：20% = 0.20<br>2. 用百分值除以百分率：15 : 0.20 = 75<br>3. 结果：75`,
+  merkeTitle: `记住`, merkeBody: `求百分值：基准值乘以百分率。<br>求百分率：百分值除以基准值，再乘以 100。<br>求基准值：百分值除以百分率。`,
+  taskWord: `练习`,
+  task1Question: `150 的 20% 是多少？`, task2Question: `250 的 8% 是多少？`, task3Question: `45 是 180 的百分之几？`, task4Question: `18 是 40 的百分之几？`, task5Question: `一个数的 15% 是 30。这个数（基准值）是多少？`, task6Question: `一个数的 8% 是 24。这个数是多少？`,
+  task7Question: `一台电视原价 400 欧元，降价 15%。折扣是多少欧元？`,
+  task8Question: `一所有 320 名学生的学校，60% 是女生。女生有多少人？`,
+  answerPlaceholder: `你的答案`, checkButton: `检查`, solutionSummary: `显示答案`,
+  task1Result: `结果：30`, task2Result: `结果：20`, task3Result: `结果：25%`, task4Result: `结果：45%`, task5Result: `结果：200`, task6Result: `结果：300`, task7Result: `结果：60 欧元`, task8Result: `结果：192`,
+  task1Step1: `20% 写成小数：0.20。`, task1Step2: `150 · 0.20 = 30。`, task1Step3: `结果：30。`,
+  task1Hint: `20% 是 0.20，不是 20——别忘了移动小数点。`,
+  task2Step1: `8% 写成小数：0.08。`, task2Step2: `250 · 0.08 = 20。`, task2Step3: `结果：20。`,
+  task2Hint: `像 8% 这样的一位数百分比，常常忘记小数点前的 0：是 0.08，不是 0.8。`,
+  task3Step1: `用百分值除以基准值：45 : 180 = 0.25。`, task3Step2: `乘以 100：0.25 · 100 = 25。`, task3Step3: `结果：25%。`,
+  task3Hint: `相除之后别忘了乘以 100 才能得到百分比。`,
+  task4Step1: `用百分值除以基准值：18 : 40 = 0.45。`, task4Step2: `乘以 100：0.45 · 100 = 45。`, task4Step3: `结果：45%。`,
+  task4Hint: `有些人会混淆基准值和百分值，导致除法方向搞反。`,
+  task5Step1: `15% 写成小数：0.15。`, task5Step2: `用百分值除以百分率：30 : 0.15 = 200。`, task5Step3: `结果：200。`,
+  task5Hint: `这里要用除法而不是乘法——因为要求的是基准值，不是百分值。`,
+  task6Step1: `8% 写成小数：0.08。`, task6Step2: `用百分值除以百分率：24 : 0.08 = 300。`, task6Step3: `结果：300。`,
+  task6Hint: `百分比较小时，基准值常被低估——可以反过来验算一下。`,
+  task7Step1: `15% 写成小数：0.15。`, task7Step2: `400 · 0.15 = 60。`, task7Step3: `结果：折扣 60 欧元。`,
+  task7Hint: `题目只问折扣金额（百分值），不是打折后的新价格。`,
+  task8Step1: `60% 写成小数：0.60。`, task8Step2: `320 · 0.60 = 192。`, task8Step3: `结果：192 名女生。`,
+  task8Hint: `总数（320）是基准值（100%），不是要求的答案。`,
+  hintLabel: `常见错误：`, footerMessage: `慢慢算，需要的话看看答案。你能做到！`,
+  fbEmpty: `请先输入一个数字再检查。`, fbCorrect: `正确！做得好！`, fbIncorrect: `还不完全正确。看看下面的答案，再试一次。`
+}
+};
+
+var currentLang = 'de';
+
+function setLanguage(lang){
+  var dict = TRANSLATIONS[lang] || TRANSLATIONS.de;
+  currentLang = TRANSLATIONS[lang] ? lang : 'de';
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = (currentLang === 'ar') ? 'rtl' : 'ltr';
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var key = el.getAttribute('data-i18n');
+    if(dict[key] !== undefined){ el.innerHTML = dict[key]; }
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-placeholder');
+    if(dict[key] !== undefined){ el.setAttribute('placeholder', dict[key]); }
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-aria');
+    if(dict[key] !== undefined){ el.setAttribute('aria-label', dict[key]); }
+  });
+  try{ localStorage.setItem('mathecoach_lang', currentLang); }catch(e){}
+  var sel = document.getElementById('langSelect');
+  if(sel) sel.value = currentLang;
+}
+
+function check(id, correct){
+  var dict = TRANSLATIONS[currentLang] || TRANSLATIONS.de;
+  var input = document.getElementById('input' + id);
+  var feedback = document.getElementById('feedback' + id);
+  var raw = input.value.trim().replace(',', '.');
+  var match = raw.match(/-?\d+(\.\d+)?/);
+  feedback.classList.remove('show', 'correct', 'incorrect');
+  if(!match){
+    feedback.textContent = dict.fbEmpty;
+    feedback.classList.add('show', 'incorrect');
+    return;
+  }
+  var value = parseFloat(match[0]);
+  if(Math.abs(value - correct) < 0.001){
+    feedback.textContent = dict.fbCorrect;
+    feedback.classList.add('show', 'correct');
+  } else {
+    feedback.textContent = dict.fbIncorrect;
+    feedback.classList.add('show', 'incorrect');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var saved = 'de';
+  try{ saved = localStorage.getItem('mathecoach_lang') || 'de'; }catch(e){}
+  setLanguage(saved);
+});
+</script>
+
+</body>
+</html>

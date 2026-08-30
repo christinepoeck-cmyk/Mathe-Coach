@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zinsrechnung</title>
+<style>
+  :root{
+    --bg:#FAFAF9; --card:#FFFFFF; --ink:#241C1C; --ink-soft:#5C4F4C;
+    --red:#C41230; --gold:#E0A526; --blue:#2478B5;
+    --merke-bg:#FBF1DC; --merke-border:#E0A526;
+    --success:#1E8E5A; --success-bg:#E5F5EC; --error:#B3401D; --error-bg:#FBEDE6;
+    --font-display: ui-rounded, "SF Pro Rounded", "Segoe UI Rounded", "Nunito", system-ui, sans-serif;
+    --font-body: system-ui, "Segoe UI", Roboto, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:18px; line-height:1.5; padding-bottom:60px; }
+  .wrap{ max-width:640px; margin:0 auto; padding:0 20px; }
+  header{ background:var(--card); padding:30px 20px 0; text-align:center; position:relative; }
+  .header-inner{ padding-bottom:26px; }
+  .lang-switch{ display:flex; justify-content:center; margin-bottom:14px; }
+  #langSelect{ font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--ink); background:var(--card); border:2px solid #E3DFDA; border-radius:999px; padding:6px 14px; cursor:pointer; }
+  #langSelect:focus-visible{ outline:3px solid var(--blue); }
+  .back-link{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--blue); text-decoration:none; margin-bottom:16px; }
+  .eyebrow{ font-family:var(--font-display); font-weight:700; font-size:14px; letter-spacing:0.08em; text-transform:uppercase; color:var(--blue); margin-bottom:8px; }
+  h1{ font-family:var(--font-display); font-size:28px; font-weight:800; margin:0; line-height:1.25; }
+  h1 .accent{ color:var(--red); }
+  .wave{ display:block; width:100%; height:30px; }
+  section{ margin-top:32px; }
+  .card{ background:var(--card); border-radius:22px; padding:24px 22px; box-shadow:0 2px 14px rgba(36,28,28,0.07); }
+  h2{ font-family:var(--font-display); font-size:21px; font-weight:800; margin:0 0 14px; }
+  h2 .num{ display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:var(--blue); color:white; font-size:16px; margin-inline-end:10px; vertical-align:middle; }
+  p{ margin:0 0 14px; color:var(--ink-soft); }
+  .merke{ background:var(--merke-bg); border:2px solid var(--merke-border); border-radius:16px; padding:16px 18px; margin-top:16px; }
+  .merke-title{ font-family:var(--font-display); font-weight:800; color:#8A5A0F; font-size:15px; letter-spacing:0.04em; text-transform:uppercase; margin-bottom:6px; }
+  .merke-body{ color:#6B4A12; font-weight:600; margin:0; }
+  .interest-diagram{ width:100%; height:auto; margin:18px 0 6px; }
+  .task-card{ margin-top:18px; }
+  .task-question{ font-family:var(--font-display); font-weight:700; font-size:19px; margin-bottom:16px; }
+  .answer-row{ display:flex; gap:10px; margin-bottom:6px; }
+  input[type="text"]{ flex:1; font-size:18px; font-family:var(--font-body); padding:12px 14px; border-radius:12px; border:2px solid #E3DFDA; background:#FBFAF9; color:var(--ink); }
+  input[type="text"]:focus{ outline:3px solid #C9DCEA; border-color:var(--blue); }
+  button.check{ font-family:var(--font-display); font-weight:700; font-size:16px; color:white; background:var(--blue); border:none; border-radius:12px; padding:0 20px; cursor:pointer; }
+  button.check:active{ transform:translateY(1px); }
+  button.check:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
+  .feedback{ margin-top:10px; padding:12px 14px; border-radius:12px; font-weight:700; display:none; }
+  .feedback.show{ display:block; }
+  .feedback.correct{ background:var(--success-bg); color:var(--success); }
+  .feedback.incorrect{ background:var(--error-bg); color:var(--error); }
+  details{ margin-top:14px; border-top:2px dashed #E3DFDA; padding-top:12px; }
+  summary{ font-family:var(--font-display); font-weight:700; color:var(--blue); cursor:pointer; font-size:15px; }
+  .solution{ margin-top:12px; }
+  .solution ol{ margin:0 0 12px; padding-inline-start:22px; color:var(--ink-soft); }
+  .solution li{ margin-bottom:6px; }
+  .solution-result{ font-family:var(--font-display); font-weight:800; color:var(--ink); margin-bottom:12px; }
+  .hint-box{ background:#F1EFEC; border-radius:12px; padding:12px 14px; font-size:16px; color:var(--ink-soft); }
+  .hint-box strong{ color:var(--ink); }
+  footer{ text-align:center; margin-top:36px; padding:0 20px; }
+  footer p{ font-family:var(--font-display); font-weight:700; color:var(--ink); }
+  .footer-wave{ display:block; width:100%; max-width:280px; height:16px; margin:0 auto 18px; opacity:0.6; }
+  [dir="rtl"] .back-link{ flex-direction:row-reverse; }
+  @media (prefers-reduced-motion: no-preference){ button.check{ transition:transform 0.1s ease; } }
+  @media (max-width: 480px){ .answer-row{ flex-direction:column; } button.check{ width:100%; padding:14px 20px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="lang-switch">
+      <select id="langSelect" onchange="setLanguage(this.value)">
+        <option value="de">Deutsch</option><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="tr">Türkçe</option><option value="ru">Русский</option><option value="ar">العربية</option><option value="zh">中文</option>
+      </select>
+    </div>
+    <a class="back-link" href="index.html" data-i18n="backLink">← Alle Themen</a>
+    <div class="eyebrow" data-i18n="eyebrow">Luisen-Gymnasium · Klasse 7</div>
+    <h1><span data-i18n="titleLine1">Zins-</span><br><span class="accent" data-i18n="titleAccent">rechnung</span></h1>
+  </div>
+  <svg class="wave" viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+    <path d="M -10 22 C 190 4, 390 40, 590 22 S 990 4, 1210 22" fill="none" stroke="#C41230" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 32 C 190 50, 390 14, 590 32 S 990 50, 1210 32" fill="none" stroke="#E0A526" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 42 C 190 24, 390 58, 590 42 S 990 24, 1210 42" fill="none" stroke="#2478B5" stroke-width="5" stroke-linecap="round"/>
+  </svg>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <div class="card">
+      <h2 data-i18n="h2Basics">Grundlagen</h2>
+      <p data-i18n="basicsP1">Wenn du Geld anlegst oder leihst, fallen Zinsen an. Es gibt drei wichtige Größen: das Kapital K (der Geldbetrag), den Zinssatz p (in Prozent pro Jahr) und die Laufzeit t (in Jahren). Die Zinsen Z berechnest du mit einer Formel.</p>
+
+      <svg class="interest-diagram" viewBox="0 0 600 175" xmlns="http://www.w3.org/2000/svg" role="img" data-i18n-aria="interestAria" aria-label="Formel: Zinsen Z gleich Kapital K mal Zinssatz p mal Laufzeit t geteilt durch 100">
+        <text x="300" y="35" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="26" font-weight="800">
+          <tspan fill="#241C1C">Z = </tspan><tspan fill="#C41230">K</tspan><tspan fill="#241C1C"> · </tspan><tspan fill="#E0A526">p</tspan><tspan fill="#241C1C"> · </tspan><tspan fill="#2478B5">t</tspan><tspan fill="#241C1C"> ÷ 100</tspan>
+        </text>
+        <text x="300" y="70" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="14" font-weight="800" fill="#241C1C">Z = Zinsen</text>
+        <text x="300" y="98" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="14" font-weight="700" fill="#C41230">K = Kapital (Startgeld)</text>
+        <text x="300" y="124" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="14" font-weight="700" fill="#E0A526">p = Zinssatz in % pro Jahr</text>
+        <text x="300" y="150" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="14" font-weight="700" fill="#2478B5">t = Laufzeit in Jahren</text>
+      </svg>
+
+      <p data-i18n="basicsExample1Label"><strong>Beispiel Schritt für Schritt:</strong> K = 1000 €, p = 4%, t = 1 Jahr.</p>
+      <p data-i18n="basicsExample1Steps">1. Formel anwenden: Z = K · p · t : 100<br>2. Einsetzen: Z = 1000 · 4 · 1 : 100<br>3. Rechnen: 1000 · 4 = 4000, dann 4000 : 100 = 40<br>4. Ergebnis: 40 € Zinsen</p>
+
+      <p data-i18n="basicsP2Other"><strong>Wichtig bei Monaten:</strong> Läuft das Geld nicht ein ganzes Jahr, sondern z.B. 6 Monate, dann ist t = 6/12 = 0,5 Jahre.</p>
+
+      <p data-i18n="basicsExample2Label"><strong>Beispiel Schritt für Schritt:</strong> K = 2000 €, p = 3%, t = 6 Monate.</p>
+      <p data-i18n="basicsExample2Steps">1. 6 Monate als Jahre: t = 6 : 12 = 0,5<br>2. Formel anwenden: Z = 2000 · 3 · 0,5 : 100<br>3. Rechnen: 2000 · 3 · 0,5 = 3000, dann 3000 : 100 = 30<br>4. Ergebnis: 30 € Zinsen</p>
+
+      <div class="merke">
+        <div class="merke-title" data-i18n="merkeTitle">Merke</div>
+        <p class="merke-body" data-i18n="merkeBody">Zinsen Z = Kapital K · Zinssatz p · Laufzeit t : 100.<br>Monate in Jahre umrechnen: Monate : 12.<br>Umgestellt: p = Z · 100 : (K · t) und K = Z · 100 : (p · t).</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">1</span><span data-i18n="taskWord">Aufgabe</span> 1</h2>
+      <div class="task-question" data-i18n="task1Question">K = 1000 €, p = 4%, t = 1 Jahr. Berechne die Zinsen.</div>
+      <div class="answer-row">
+        <input type="text" id="input1" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(1, 40)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback1"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task1Result">Ergebnis: 40 €</div>
+          <ol>
+            <li data-i18n="task1Step1">Formel: Z = K · p · t : 100.</li>
+            <li data-i18n="task1Step2">Einsetzen: 1000 · 4 · 1 : 100.</li>
+            <li data-i18n="task1Step3">Rechnen: 1000 · 4 = 4000, dann 4000 : 100 = 40.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task1Hint">Das Teilen durch 100 am Ende nicht vergessen, da p in Prozent gegeben ist.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">2</span><span data-i18n="taskWord">Aufgabe</span> 2</h2>
+      <div class="task-question" data-i18n="task2Question">K = 2000 €, p = 3%, t = 1 Jahr. Berechne die Zinsen.</div>
+      <div class="answer-row">
+        <input type="text" id="input2" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(2, 60)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback2"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task2Result">Ergebnis: 60 €</div>
+          <ol>
+            <li data-i18n="task2Step1">Formel: Z = K · p · t : 100.</li>
+            <li data-i18n="task2Step2">Einsetzen: 2000 · 3 · 1 : 100.</li>
+            <li data-i18n="task2Step3">Rechnen: 2000 · 3 = 6000, dann 6000 : 100 = 60.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task2Hint">Bei t = 1 Jahr kann man die Zeit in der Formel auch weglassen, aber sie ist trotzdem Teil der Formel.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">3</span><span data-i18n="taskWord">Aufgabe</span> 3</h2>
+      <div class="task-question" data-i18n="task3Question">K = 1500 €, p = 5%, t = 2 Jahre. Berechne die Zinsen.</div>
+      <div class="answer-row">
+        <input type="text" id="input3" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(3, 150)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback3"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task3Result">Ergebnis: 150 €</div>
+          <ol>
+            <li data-i18n="task3Step1">Formel: Z = K · p · t : 100.</li>
+            <li data-i18n="task3Step2">Einsetzen: 1500 · 5 · 2 : 100.</li>
+            <li data-i18n="task3Step3">Rechnen: 1500 · 5 · 2 = 15000, dann 15000 : 100 = 150.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task3Hint">Bei mehr als einem Jahr Laufzeit die Zinsen für jedes Jahr mitrechnen, also mit t multiplizieren.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">4</span><span data-i18n="taskWord">Aufgabe</span> 4</h2>
+      <div class="task-question" data-i18n="task4Question">K = 800 €, p = 2,5%, t = 1 Jahr. Berechne die Zinsen.</div>
+      <div class="answer-row">
+        <input type="text" id="input4" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(4, 20)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback4"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task4Result">Ergebnis: 20 €</div>
+          <ol>
+            <li data-i18n="task4Step1">Formel: Z = K · p · t : 100.</li>
+            <li data-i18n="task4Step2">Einsetzen: 800 · 2,5 · 1 : 100.</li>
+            <li data-i18n="task4Step3">Rechnen: 800 · 2,5 = 2000, dann 2000 : 100 = 20.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task4Hint">Auch bei einem Zinssatz mit Komma (2,5%) funktioniert die Formel genauso.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">5</span><span data-i18n="taskWord">Aufgabe</span> 5</h2>
+      <div class="task-question" data-i18n="task5Question">Die Zinsen betragen 60 €, das Kapital 1200 € und die Laufzeit 1 Jahr. Wie hoch ist der Zinssatz (in %)?</div>
+      <div class="answer-row">
+        <input type="text" id="input5" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(5, 5)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback5"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task5Result">Ergebnis: 5%</div>
+          <ol>
+            <li data-i18n="task5Step1">Formel umstellen: p = Z · 100 : (K · t).</li>
+            <li data-i18n="task5Step2">Einsetzen: 60 · 100 : (1200 · 1) = 6000 : 1200.</li>
+            <li data-i18n="task5Step3">Rechnen: 6000 : 1200 = 5.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task5Hint">Beim Umstellen der Formel darauf achten, dass die 100 im Zähler steht, nicht im Nenner.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">6</span><span data-i18n="taskWord">Aufgabe</span> 6</h2>
+      <div class="task-question" data-i18n="task6Question">Die Zinsen betragen 90 €, der Zinssatz 3% und die Laufzeit 1 Jahr. Wie groß war das Kapital?</div>
+      <div class="answer-row">
+        <input type="text" id="input6" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(6, 3000)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback6"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task6Result">Ergebnis: 3000 €</div>
+          <ol>
+            <li data-i18n="task6Step1">Formel umstellen: K = Z · 100 : (p · t).</li>
+            <li data-i18n="task6Step2">Einsetzen: 90 · 100 : (3 · 1) = 9000 : 3.</li>
+            <li data-i18n="task6Step3">Rechnen: 9000 : 3 = 3000.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task6Hint">Zuerst mit 100 multiplizieren, dann erst durch Zinssatz mal Laufzeit teilen.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">7</span><span data-i18n="taskWord">Aufgabe</span> 7</h2>
+      <div class="task-question" data-i18n="task7Question">Anna legt 500 € für 1 Jahr zu 4% Zinsen an. Wie viel Geld hat sie am Ende des Jahres insgesamt (Kapital + Zinsen)?</div>
+      <div class="answer-row">
+        <input type="text" id="input7" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(7, 520)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback7"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task7Result">Ergebnis: 520 €</div>
+          <ol>
+            <li data-i18n="task7Step1">Zinsen berechnen: Z = 500 · 4 · 1 : 100 = 20.</li>
+            <li data-i18n="task7Step2">Zinsen zum Kapital addieren: 500 + 20 = 520.</li>
+            <li data-i18n="task7Step3">Ergebnis: 520 € insgesamt.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task7Hint">Gefragt ist der Gesamtbetrag (Kapital plus Zinsen), nicht nur die Zinsen allein.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">8</span><span data-i18n="taskWord">Aufgabe</span> 8</h2>
+      <div class="task-question" data-i18n="task8Question">Ein Kredit von 2000 € läuft 6 Monate zu einem Zinssatz von 6% pro Jahr. Wie viel Zinsen fallen an?</div>
+      <div class="answer-row">
+        <input type="text" id="input8" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(8, 60)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback8"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task8Result">Ergebnis: 60 €</div>
+          <ol>
+            <li data-i18n="task8Step1">6 Monate als Jahre: t = 6 : 12 = 0,5.</li>
+            <li data-i18n="task8Step2">Formel anwenden: Z = 2000 · 6 · 0,5 : 100.</li>
+            <li data-i18n="task8Step3">Rechnen: 2000 · 6 · 0,5 = 6000, dann 6000 : 100 = 60.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task8Hint">Bei Monaten immer zuerst in Jahre umrechnen (Monate : 12), sonst stimmt das Ergebnis nicht.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <footer>
+    <svg class="footer-wave" viewBox="0 0 280 16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+      <path d="M -5 8 C 40 1, 80 15, 140 8 S 240 1, 285 8" fill="none" stroke="#C41230" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M -5 8 C 40 15, 80 1, 140 8 S 240 15, 285 8" fill="none" stroke="#2478B5" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+    </svg>
+    <p id="footer-msg" data-i18n="footerMessage">Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!</p>
+  </footer>
+
+</div>
+
+<script>
+const TRANSLATIONS = {
+de: {
+  eyebrow: `Luisen-Gymnasium · Klasse 7`, titleLine1: `Zins-`, titleAccent: `rechnung`, backLink: `← Alle Themen`, h2Basics: `Grundlagen`,
+  basicsP1: `Wenn du Geld anlegst oder leihst, fallen Zinsen an. Es gibt drei wichtige Größen: das Kapital K (der Geldbetrag), den Zinssatz p (in Prozent pro Jahr) und die Laufzeit t (in Jahren). Die Zinsen Z berechnest du mit einer Formel.`,
+  interestAria: `Formel: Zinsen Z gleich Kapital K mal Zinssatz p mal Laufzeit t geteilt durch 100`,
+  basicsExample1Label: `<strong>Beispiel Schritt für Schritt:</strong> K = 1000 €, p = 4%, t = 1 Jahr.`,
+  basicsExample1Steps: `1. Formel anwenden: Z = K · p · t : 100<br>2. Einsetzen: Z = 1000 · 4 · 1 : 100<br>3. Rechnen: 1000 · 4 = 4000, dann 4000 : 100 = 40<br>4. Ergebnis: 40 € Zinsen`,
+  basicsP2Other: `<strong>Wichtig bei Monaten:</strong> Läuft das Geld nicht ein ganzes Jahr, sondern z.B. 6 Monate, dann ist t = 6/12 = 0,5 Jahre.`,
+  basicsExample2Label: `<strong>Beispiel Schritt für Schritt:</strong> K = 2000 €, p = 3%, t = 6 Monate.`,
+  basicsExample2Steps: `1. 6 Monate als Jahre: t = 6 : 12 = 0,5<br>2. Formel anwenden: Z = 2000 · 3 · 0,5 : 100<br>3. Rechnen: 2000 · 3 · 0,5 = 3000, dann 3000 : 100 = 30<br>4. Ergebnis: 30 € Zinsen`,
+  merkeTitle: `Merke`, merkeBody: `Zinsen Z = Kapital K · Zinssatz p · Laufzeit t : 100.<br>Monate in Jahre umrechnen: Monate : 12.<br>Umgestellt: p = Z · 100 : (K · t) und K = Z · 100 : (p · t).`,
+  taskWord: `Aufgabe`,
+  task1Question: `K = 1000 €, p = 4%, t = 1 Jahr. Berechne die Zinsen.`, task2Question: `K = 2000 €, p = 3%, t = 1 Jahr. Berechne die Zinsen.`, task3Question: `K = 1500 €, p = 5%, t = 2 Jahre. Berechne die Zinsen.`, task4Question: `K = 800 €, p = 2,5%, t = 1 Jahr. Berechne die Zinsen.`, task5Question: `Die Zinsen betragen 60 €, das Kapital 1200 € und die Laufzeit 1 Jahr. Wie hoch ist der Zinssatz (in %)?`, task6Question: `Die Zinsen betragen 90 €, der Zinssatz 3% und die Laufzeit 1 Jahr. Wie groß war das Kapital?`,
+  task7Question: `Anna legt 500 € für 1 Jahr zu 4% Zinsen an. Wie viel Geld hat sie am Ende des Jahres insgesamt (Kapital + Zinsen)?`,
+  task8Question: `Ein Kredit von 2000 € läuft 6 Monate zu einem Zinssatz von 6% pro Jahr. Wie viel Zinsen fallen an?`,
+  answerPlaceholder: `Deine Antwort`, checkButton: `Prüfen`, solutionSummary: `Lösung anzeigen`,
+  task1Result: `Ergebnis: 40 €`, task2Result: `Ergebnis: 60 €`, task3Result: `Ergebnis: 150 €`, task4Result: `Ergebnis: 20 €`, task5Result: `Ergebnis: 5%`, task6Result: `Ergebnis: 3000 €`, task7Result: `Ergebnis: 520 €`, task8Result: `Ergebnis: 60 €`,
+  task1Step1: `Formel: Z = K · p · t : 100.`, task1Step2: `Einsetzen: 1000 · 4 · 1 : 100.`, task1Step3: `Rechnen: 1000 · 4 = 4000, dann 4000 : 100 = 40.`,
+  task1Hint: `Das Teilen durch 100 am Ende nicht vergessen, da p in Prozent gegeben ist.`,
+  task2Step1: `Formel: Z = K · p · t : 100.`, task2Step2: `Einsetzen: 2000 · 3 · 1 : 100.`, task2Step3: `Rechnen: 2000 · 3 = 6000, dann 6000 : 100 = 60.`,
+  task2Hint: `Bei t = 1 Jahr kann man die Zeit in der Formel auch weglassen, aber sie ist trotzdem Teil der Formel.`,
+  task3Step1: `Formel: Z = K · p · t : 100.`, task3Step2: `Einsetzen: 1500 · 5 · 2 : 100.`, task3Step3: `Rechnen: 1500 · 5 · 2 = 15000, dann 15000 : 100 = 150.`,
+  task3Hint: `Bei mehr als einem Jahr Laufzeit die Zinsen für jedes Jahr mitrechnen, also mit t multiplizieren.`,
+  task4Step1: `Formel: Z = K · p · t : 100.`, task4Step2: `Einsetzen: 800 · 2,5 · 1 : 100.`, task4Step3: `Rechnen: 800 · 2,5 = 2000, dann 2000 : 100 = 20.`,
+  task4Hint: `Auch bei einem Zinssatz mit Komma (2,5%) funktioniert die Formel genauso.`,
+  task5Step1: `Formel umstellen: p = Z · 100 : (K · t).`, task5Step2: `Einsetzen: 60 · 100 : (1200 · 1) = 6000 : 1200.`, task5Step3: `Rechnen: 6000 : 1200 = 5.`,
+  task5Hint: `Beim Umstellen der Formel darauf achten, dass die 100 im Zähler steht, nicht im Nenner.`,
+  task6Step1: `Formel umstellen: K = Z · 100 : (p · t).`, task6Step2: `Einsetzen: 90 · 100 : (3 · 1) = 9000 : 3.`, task6Step3: `Rechnen: 9000 : 3 = 3000.`,
+  task6Hint: `Zuerst mit 100 multiplizieren, dann erst durch Zinssatz mal Laufzeit teilen.`,
+  task7Step1: `Zinsen berechnen: Z = 500 · 4 · 1 : 100 = 20.`, task7Step2: `Zinsen zum Kapital addieren: 500 + 20 = 520.`, task7Step3: `Ergebnis: 520 € insgesamt.`,
+  task7Hint: `Gefragt ist der Gesamtbetrag (Kapital plus Zinsen), nicht nur die Zinsen allein.`,
+  task8Step1: `6 Monate als Jahre: t = 6 : 12 = 0,5.`, task8Step2: `Formel anwenden: Z = 2000 · 6 · 0,5 : 100.`, task8Step3: `Rechnen: 2000 · 6 · 0,5 = 6000, dann 6000 : 100 = 60.`,
+  task8Hint: `Bei Monaten immer zuerst in Jahre umrechnen (Monate : 12), sonst stimmt das Ergebnis nicht.`,
+  hintLabel: `Typischer Fehler:`, footerMessage: `Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!`,
+  fbEmpty: `Trag bitte eine Zahl ein, bevor du prüfst.`, fbCorrect: `Richtig! Gut gemacht!`, fbIncorrect: `Noch nicht ganz richtig. Schau dir die Lösung weiter unten an und versuch es dann nochmal.`
+},
+en: {
+  eyebrow: `Luisen-Gymnasium · Grade 7`, titleLine1: `Interest`, titleAccent: `Calculations`, backLink: `← All Topics`, h2Basics: `Basics`,
+  basicsP1: `When you invest or borrow money, interest accrues. There are three important quantities: the principal K (the amount of money), the interest rate p (in percent per year), and the term t (in years). You calculate the interest Z using a formula.`,
+  interestAria: `Formula: interest Z equals principal K times rate p times term t divided by 100`,
+  basicsExample1Label: `<strong>Step-by-step example:</strong> K = 1000 €, p = 4%, t = 1 year.`,
+  basicsExample1Steps: `1. Apply the formula: Z = K · p · t : 100<br>2. Substitute: Z = 1000 · 4 · 1 : 100<br>3. Calculate: 1000 · 4 = 4000, then 4000 : 100 = 40<br>4. Result: 40 € interest`,
+  basicsP2Other: `<strong>Important with months:</strong> if the money doesn't run for a full year but, say, 6 months, then t = 6/12 = 0.5 years.`,
+  basicsExample2Label: `<strong>Step-by-step example:</strong> K = 2000 €, p = 3%, t = 6 months.`,
+  basicsExample2Steps: `1. 6 months as years: t = 6 : 12 = 0.5<br>2. Apply the formula: Z = 2000 · 3 · 0.5 : 100<br>3. Calculate: 2000 · 3 · 0.5 = 3000, then 3000 : 100 = 30<br>4. Result: 30 € interest`,
+  merkeTitle: `Remember`, merkeBody: `Interest Z = principal K · rate p · term t : 100.<br>Convert months to years: months : 12.<br>Rearranged: p = Z · 100 : (K · t) and K = Z · 100 : (p · t).`,
+  taskWord: `Exercise`,
+  task1Question: `K = 1000 €, p = 4%, t = 1 year. Calculate the interest.`, task2Question: `K = 2000 €, p = 3%, t = 1 year. Calculate the interest.`, task3Question: `K = 1500 €, p = 5%, t = 2 years. Calculate the interest.`, task4Question: `K = 800 €, p = 2.5%, t = 1 year. Calculate the interest.`, task5Question: `The interest is 60 €, the principal is 1200 €, and the term is 1 year. What is the interest rate (in %)?`, task6Question: `The interest is 90 €, the rate is 3%, and the term is 1 year. What was the principal?`,
+  task7Question: `Anna invests 500 € for 1 year at 4% interest. How much money does she have in total at the end of the year (principal + interest)?`,
+  task8Question: `A loan of 2000 € runs for 6 months at an interest rate of 6% per year. How much interest accrues?`,
+  answerPlaceholder: `Your answer`, checkButton: `Check`, solutionSummary: `Show solution`,
+  task1Result: `Result: 40 €`, task2Result: `Result: 60 €`, task3Result: `Result: 150 €`, task4Result: `Result: 20 €`, task5Result: `Result: 5%`, task6Result: `Result: 3000 €`, task7Result: `Result: 520 €`, task8Result: `Result: 60 €`,
+  task1Step1: `Formula: Z = K · p · t : 100.`, task1Step2: `Substitute: 1000 · 4 · 1 : 100.`, task1Step3: `Calculate: 1000 · 4 = 4000, then 4000 : 100 = 40.`,
+  task1Hint: `Don't forget to divide by 100 at the end, since p is given as a percentage.`,
+  task2Step1: `Formula: Z = K · p · t : 100.`, task2Step2: `Substitute: 2000 · 3 · 1 : 100.`, task2Step3: `Calculate: 2000 · 3 = 6000, then 6000 : 100 = 60.`,
+  task2Hint: `With t = 1 year, you could leave time out of the formula, but it's still technically part of it.`,
+  task3Step1: `Formula: Z = K · p · t : 100.`, task3Step2: `Substitute: 1500 · 5 · 2 : 100.`, task3Step3: `Calculate: 1500 · 5 · 2 = 15000, then 15000 : 100 = 150.`,
+  task3Hint: `With more than one year, count the interest for every year, i.e. multiply by t.`,
+  task4Step1: `Formula: Z = K · p · t : 100.`, task4Step2: `Substitute: 800 · 2.5 · 1 : 100.`, task4Step3: `Calculate: 800 · 2.5 = 2000, then 2000 : 100 = 20.`,
+  task4Hint: `Even with a decimal rate (2.5%), the formula works exactly the same way.`,
+  task5Step1: `Rearrange the formula: p = Z · 100 : (K · t).`, task5Step2: `Substitute: 60 · 100 : (1200 · 1) = 6000 : 1200.`, task5Step3: `Calculate: 6000 : 1200 = 5.`,
+  task5Hint: `When rearranging the formula, make sure the 100 is in the numerator, not the denominator.`,
+  task6Step1: `Rearrange the formula: K = Z · 100 : (p · t).`, task6Step2: `Substitute: 90 · 100 : (3 · 1) = 9000 : 3.`, task6Step3: `Calculate: 9000 : 3 = 3000.`,
+  task6Hint: `First multiply by 100, then divide by rate times term.`,
+  task7Step1: `Calculate the interest: Z = 500 · 4 · 1 : 100 = 20.`, task7Step2: `Add the interest to the principal: 500 + 20 = 520.`, task7Step3: `Result: 520 € total.`,
+  task7Hint: `The question asks for the total amount (principal plus interest), not just the interest alone.`,
+  task8Step1: `6 months as years: t = 6 : 12 = 0.5.`, task8Step2: `Apply the formula: Z = 2000 · 6 · 0.5 : 100.`, task8Step3: `Calculate: 2000 · 6 · 0.5 = 6000, then 6000 : 100 = 60.`,
+  task8Hint: `With months, always convert to years first (months : 12), otherwise the result will be wrong.`,
+  hintLabel: `Common mistake:`, footerMessage: `Take your time and check the solution if you need to. You can do this!`,
+  fbEmpty: `Please enter a number before checking.`, fbCorrect: `Correct! Well done!`, fbIncorrect: `Not quite right yet. Check the solution below and try again.`
+},
+es: {
+  eyebrow: `Luisen-Gymnasium · 7.º curso`, titleLine1: `Cálculo de`, titleAccent: `intereses`, backLink: `← Todos los temas`, h2Basics: `Fundamentos`,
+  basicsP1: `Cuando inviertes o pides prestado dinero, se generan intereses. Hay tres cantidades importantes: el capital K (la cantidad de dinero), la tasa de interés p (en porcentaje anual) y el plazo t (en años). Calculas el interés Z con una fórmula.`,
+  interestAria: `Fórmula: interés Z igual a capital K por tasa p por plazo t dividido entre 100`,
+  basicsExample1Label: `<strong>Ejemplo paso a paso:</strong> K = 1000 €, p = 4%, t = 1 año.`,
+  basicsExample1Steps: `1. Aplica la fórmula: Z = K · p · t : 100<br>2. Sustituye: Z = 1000 · 4 · 1 : 100<br>3. Calcula: 1000 · 4 = 4000, luego 4000 : 100 = 40<br>4. Resultado: 40 € de interés`,
+  basicsP2Other: `<strong>Importante con los meses:</strong> si el dinero no está invertido un año completo sino, por ejemplo, 6 meses, entonces t = 6/12 = 0,5 años.`,
+  basicsExample2Label: `<strong>Ejemplo paso a paso:</strong> K = 2000 €, p = 3%, t = 6 meses.`,
+  basicsExample2Steps: `1. 6 meses en años: t = 6 : 12 = 0,5<br>2. Aplica la fórmula: Z = 2000 · 3 · 0,5 : 100<br>3. Calcula: 2000 · 3 · 0,5 = 3000, luego 3000 : 100 = 30<br>4. Resultado: 30 € de interés`,
+  merkeTitle: `Recuerda`, merkeBody: `Interés Z = capital K · tasa p · plazo t : 100.<br>Convertir meses a años: meses : 12.<br>Despejado: p = Z · 100 : (K · t) y K = Z · 100 : (p · t).`,
+  taskWord: `Ejercicio`,
+  task1Question: `K = 1000 €, p = 4%, t = 1 año. Calcula el interés.`, task2Question: `K = 2000 €, p = 3%, t = 1 año. Calcula el interés.`, task3Question: `K = 1500 €, p = 5%, t = 2 años. Calcula el interés.`, task4Question: `K = 800 €, p = 2,5%, t = 1 año. Calcula el interés.`, task5Question: `El interés es de 60 €, el capital 1200 € y el plazo 1 año. ¿Cuál es la tasa de interés (en %)?`, task6Question: `El interés es de 90 €, la tasa 3% y el plazo 1 año. ¿Cuál era el capital?`,
+  task7Question: `Ana invierte 500 € durante 1 año al 4% de interés. ¿Cuánto dinero tiene en total al final del año (capital + interés)?`,
+  task8Question: `Un préstamo de 2000 € dura 6 meses con una tasa de interés del 6% anual. ¿Cuánto interés se genera?`,
+  answerPlaceholder: `Tu respuesta`, checkButton: `Comprobar`, solutionSummary: `Ver solución`,
+  task1Result: `Resultado: 40 €`, task2Result: `Resultado: 60 €`, task3Result: `Resultado: 150 €`, task4Result: `Resultado: 20 €`, task5Result: `Resultado: 5%`, task6Result: `Resultado: 3000 €`, task7Result: `Resultado: 520 €`, task8Result: `Resultado: 60 €`,
+  task1Step1: `Fórmula: Z = K · p · t : 100.`, task1Step2: `Sustituye: 1000 · 4 · 1 : 100.`, task1Step3: `Calcula: 1000 · 4 = 4000, luego 4000 : 100 = 40.`,
+  task1Hint: `No olvides dividir entre 100 al final, ya que p se da en porcentaje.`,
+  task2Step1: `Fórmula: Z = K · p · t : 100.`, task2Step2: `Sustituye: 2000 · 3 · 1 : 100.`, task2Step3: `Calcula: 2000 · 3 = 6000, luego 6000 : 100 = 60.`,
+  task2Hint: `Con t = 1 año se podría omitir el tiempo de la fórmula, pero sigue siendo parte de ella.`,
+  task3Step1: `Fórmula: Z = K · p · t : 100.`, task3Step2: `Sustituye: 1500 · 5 · 2 : 100.`, task3Step3: `Calcula: 1500 · 5 · 2 = 15000, luego 15000 : 100 = 150.`,
+  task3Hint: `Con más de un año, cuenta el interés de cada año, es decir, multiplica por t.`,
+  task4Step1: `Fórmula: Z = K · p · t : 100.`, task4Step2: `Sustituye: 800 · 2,5 · 1 : 100.`, task4Step3: `Calcula: 800 · 2,5 = 2000, luego 2000 : 100 = 20.`,
+  task4Hint: `Incluso con una tasa decimal (2,5%), la fórmula funciona exactamente igual.`,
+  task5Step1: `Despeja la fórmula: p = Z · 100 : (K · t).`, task5Step2: `Sustituye: 60 · 100 : (1200 · 1) = 6000 : 1200.`, task5Step3: `Calcula: 6000 : 1200 = 5.`,
+  task5Hint: `Al despejar la fórmula, asegúrate de que el 100 esté en el numerador, no en el denominador.`,
+  task6Step1: `Despeja la fórmula: K = Z · 100 : (p · t).`, task6Step2: `Sustituye: 90 · 100 : (3 · 1) = 9000 : 3.`, task6Step3: `Calcula: 9000 : 3 = 3000.`,
+  task6Hint: `Primero multiplica por 100, luego divide entre la tasa por el plazo.`,
+  task7Step1: `Calcula el interés: Z = 500 · 4 · 1 : 100 = 20.`, task7Step2: `Suma el interés al capital: 500 + 20 = 520.`, task7Step3: `Resultado: 520 € en total.`,
+  task7Hint: `Se pregunta por el importe total (capital más interés), no solo por el interés.`,
+  task8Step1: `6 meses en años: t = 6 : 12 = 0,5.`, task8Step2: `Aplica la fórmula: Z = 2000 · 6 · 0,5 : 100.`, task8Step3: `Calcula: 2000 · 6 · 0,5 = 6000, luego 6000 : 100 = 60.`,
+  task8Hint: `Con meses, convierte siempre primero a años (meses : 12), si no el resultado será incorrecto.`,
+  hintLabel: `Error típico:`, footerMessage: `Tómate tu tiempo y revisa la solución si la necesitas. ¡Tú puedes!`,
+  fbEmpty: `Introduce un número antes de comprobar.`, fbCorrect: `¡Correcto! ¡Muy bien!`, fbIncorrect: `Todavía no es correcto. Revisa la solución de abajo e inténtalo de nuevo.`
+},
+fr: {
+  eyebrow: `Luisen-Gymnasium · 5e (7e cl. all.)`, titleLine1: `Calcul des`, titleAccent: `intérêts`, backLink: `← Tous les thèmes`, h2Basics: `Les bases`,
+  basicsP1: `Quand tu places ou empruntes de l'argent, des intérêts s'accumulent. Il y a trois grandeurs importantes : le capital K (la somme d'argent), le taux d'intérêt p (en pourcentage par an) et la durée t (en années). Tu calcules les intérêts Z avec une formule.`,
+  interestAria: `Formule : intérêts Z égal capital K fois taux p fois durée t divisé par 100`,
+  basicsExample1Label: `<strong>Exemple étape par étape :</strong> K = 1000 €, p = 4 %, t = 1 an.`,
+  basicsExample1Steps: `1. Applique la formule : Z = K · p · t : 100<br>2. Substitue : Z = 1000 · 4 · 1 : 100<br>3. Calcule : 1000 · 4 = 4000, puis 4000 : 100 = 40<br>4. Résultat : 40 € d'intérêts`,
+  basicsP2Other: `<strong>Important avec les mois :</strong> si l'argent ne reste pas placé une année complète mais, disons, 6 mois, alors t = 6/12 = 0,5 an.`,
+  basicsExample2Label: `<strong>Exemple étape par étape :</strong> K = 2000 €, p = 3 %, t = 6 mois.`,
+  basicsExample2Steps: `1. 6 mois en années : t = 6 : 12 = 0,5<br>2. Applique la formule : Z = 2000 · 3 · 0,5 : 100<br>3. Calcule : 2000 · 3 · 0,5 = 3000, puis 3000 : 100 = 30<br>4. Résultat : 30 € d'intérêts`,
+  merkeTitle: `À retenir`, merkeBody: `Intérêts Z = capital K · taux p · durée t : 100.<br>Convertir des mois en années : mois : 12.<br>Réarrangé : p = Z · 100 : (K · t) et K = Z · 100 : (p · t).`,
+  taskWord: `Exercice`,
+  task1Question: `K = 1000 €, p = 4 %, t = 1 an. Calcule les intérêts.`, task2Question: `K = 2000 €, p = 3 %, t = 1 an. Calcule les intérêts.`, task3Question: `K = 1500 €, p = 5 %, t = 2 ans. Calcule les intérêts.`, task4Question: `K = 800 €, p = 2,5 %, t = 1 an. Calcule les intérêts.`, task5Question: `Les intérêts s'élèvent à 60 €, le capital à 1200 € et la durée à 1 an. Quel est le taux d'intérêt (en %) ?`, task6Question: `Les intérêts s'élèvent à 90 €, le taux à 3 % et la durée à 1 an. Quel était le capital ?`,
+  task7Question: `Anna place 500 € pendant 1 an à 4 % d'intérêt. Combien d'argent a-t-elle au total à la fin de l'année (capital + intérêts) ?`,
+  task8Question: `Un prêt de 2000 € dure 6 mois à un taux d'intérêt de 6 % par an. Quel est le montant des intérêts ?`,
+  answerPlaceholder: `Ta réponse`, checkButton: `Vérifier`, solutionSummary: `Voir la solution`,
+  task1Result: `Résultat : 40 €`, task2Result: `Résultat : 60 €`, task3Result: `Résultat : 150 €`, task4Result: `Résultat : 20 €`, task5Result: `Résultat : 5 %`, task6Result: `Résultat : 3000 €`, task7Result: `Résultat : 520 €`, task8Result: `Résultat : 60 €`,
+  task1Step1: `Formule : Z = K · p · t : 100.`, task1Step2: `Substitue : 1000 · 4 · 1 : 100.`, task1Step3: `Calcule : 1000 · 4 = 4000, puis 4000 : 100 = 40.`,
+  task1Hint: `N'oublie pas de diviser par 100 à la fin, puisque p est donné en pourcentage.`,
+  task2Step1: `Formule : Z = K · p · t : 100.`, task2Step2: `Substitue : 2000 · 3 · 1 : 100.`, task2Step3: `Calcule : 2000 · 3 = 6000, puis 6000 : 100 = 60.`,
+  task2Hint: `Avec t = 1 an, on pourrait omettre le temps dans la formule, mais il en fait toujours partie.`,
+  task3Step1: `Formule : Z = K · p · t : 100.`, task3Step2: `Substitue : 1500 · 5 · 2 : 100.`, task3Step3: `Calcule : 1500 · 5 · 2 = 15000, puis 15000 : 100 = 150.`,
+  task3Hint: `Avec plus d'un an, compte les intérêts pour chaque année, donc multiplie par t.`,
+  task4Step1: `Formule : Z = K · p · t : 100.`, task4Step2: `Substitue : 800 · 2,5 · 1 : 100.`, task4Step3: `Calcule : 800 · 2,5 = 2000, puis 2000 : 100 = 20.`,
+  task4Hint: `Même avec un taux décimal (2,5 %), la formule fonctionne exactement de la même façon.`,
+  task5Step1: `Réarrange la formule : p = Z · 100 : (K · t).`, task5Step2: `Substitue : 60 · 100 : (1200 · 1) = 6000 : 1200.`, task5Step3: `Calcule : 6000 : 1200 = 5.`,
+  task5Hint: `En réarrangeant la formule, veille à ce que le 100 soit au numérateur, pas au dénominateur.`,
+  task6Step1: `Réarrange la formule : K = Z · 100 : (p · t).`, task6Step2: `Substitue : 90 · 100 : (3 · 1) = 9000 : 3.`, task6Step3: `Calcule : 9000 : 3 = 3000.`,
+  task6Hint: `Multiplie d'abord par 100, puis divise par le taux fois la durée.`,
+  task7Step1: `Calcule les intérêts : Z = 500 · 4 · 1 : 100 = 20.`, task7Step2: `Ajoute les intérêts au capital : 500 + 20 = 520.`, task7Step3: `Résultat : 520 € au total.`,
+  task7Hint: `On demande le montant total (capital plus intérêts), pas seulement les intérêts.`,
+  task8Step1: `6 mois en années : t = 6 : 12 = 0,5.`, task8Step2: `Applique la formule : Z = 2000 · 6 · 0,5 : 100.`, task8Step3: `Calcule : 2000 · 6 · 0,5 = 6000, puis 6000 : 100 = 60.`,
+  task8Hint: `Avec des mois, convertis toujours d'abord en années (mois : 12), sinon le résultat sera faux.`,
+  hintLabel: `Erreur fréquente :`, footerMessage: `Prends ton temps et regarde la solution si besoin. Tu vas y arriver !`,
+  fbEmpty: `Merci d'indiquer un nombre avant de vérifier.`, fbCorrect: `Correct ! Bien joué !`, fbIncorrect: `Pas encore tout à fait juste. Regarde la solution ci-dessous et réessaie.`
+},
+tr: {
+  eyebrow: `Luisen-Gymnasium · 7. Sınıf`, titleLine1: `Faiz`, titleAccent: `Hesaplama`, backLink: `← Tüm Konular`, h2Basics: `Temel Bilgiler`,
+  basicsP1: `Para yatırdığında veya borç aldığında faiz oluşur. Üç önemli büyüklük vardır: anapara K (para miktarı), faiz oranı p (yıllık yüzde olarak) ve vade t (yıl olarak). Faiz Z'yi bir formülle hesaplarsın.`,
+  interestAria: `Formül: faiz Z, anapara K çarpı faiz oranı p çarpı vade t bölü 100'e eşittir`,
+  basicsExample1Label: `<strong>Adım adım örnek:</strong> K = 1000 €, p = %4, t = 1 yıl.`,
+  basicsExample1Steps: `1. Formülü uygula: Z = K · p · t : 100<br>2. Yerine koy: Z = 1000 · 4 · 1 : 100<br>3. Hesapla: 1000 · 4 = 4000, sonra 4000 : 100 = 40<br>4. Sonuç: 40 € faiz`,
+  basicsP2Other: `<strong>Aylarda önemli olan:</strong> Para tam bir yıl değil de örneğin 6 ay kalıyorsa, t = 6/12 = 0,5 yıldır.`,
+  basicsExample2Label: `<strong>Adım adım örnek:</strong> K = 2000 €, p = %3, t = 6 ay.`,
+  basicsExample2Steps: `1. 6 ayı yıla çevir: t = 6 : 12 = 0,5<br>2. Formülü uygula: Z = 2000 · 3 · 0,5 : 100<br>3. Hesapla: 2000 · 3 · 0,5 = 3000, sonra 3000 : 100 = 30<br>4. Sonuç: 30 € faiz`,
+  merkeTitle: `Unutma`, merkeBody: `Faiz Z = anapara K · faiz oranı p · vade t : 100.<br>Ayı yıla çevirme: ay : 12.<br>Düzenlenmiş: p = Z · 100 : (K · t) ve K = Z · 100 : (p · t).`,
+  taskWord: `Alıştırma`,
+  task1Question: `K = 1000 €, p = %4, t = 1 yıl. Faizi hesapla.`, task2Question: `K = 2000 €, p = %3, t = 1 yıl. Faizi hesapla.`, task3Question: `K = 1500 €, p = %5, t = 2 yıl. Faizi hesapla.`, task4Question: `K = 800 €, p = %2,5, t = 1 yıl. Faizi hesapla.`, task5Question: `Faiz 60 €, anapara 1200 € ve vade 1 yıl. Faiz oranı nedir (% olarak)?`, task6Question: `Faiz 90 €, faiz oranı %3 ve vade 1 yıl. Anapara ne kadardı?`,
+  task7Question: `Anna 500 €'yu 1 yıllığına %4 faizle yatırıyor. Yıl sonunda toplam ne kadar parası var (anapara + faiz)?`,
+  task8Question: `2000 €'luk bir kredi, yıllık %6 faiz oranıyla 6 ay sürüyor. Ne kadar faiz oluşur?`,
+  answerPlaceholder: `Cevabın`, checkButton: `Kontrol et`, solutionSummary: `Çözümü göster`,
+  task1Result: `Sonuç: 40 €`, task2Result: `Sonuç: 60 €`, task3Result: `Sonuç: 150 €`, task4Result: `Sonuç: 20 €`, task5Result: `Sonuç: %5`, task6Result: `Sonuç: 3000 €`, task7Result: `Sonuç: 520 €`, task8Result: `Sonuç: 60 €`,
+  task1Step1: `Formül: Z = K · p · t : 100.`, task1Step2: `Yerine koy: 1000 · 4 · 1 : 100.`, task1Step3: `Hesapla: 1000 · 4 = 4000, sonra 4000 : 100 = 40.`,
+  task1Hint: `p yüzde olarak verildiği için sonunda 100'e bölmeyi unutma.`,
+  task2Step1: `Formül: Z = K · p · t : 100.`, task2Step2: `Yerine koy: 2000 · 3 · 1 : 100.`, task2Step3: `Hesapla: 2000 · 3 = 6000, sonra 6000 : 100 = 60.`,
+  task2Hint: `t = 1 yıl olduğunda zaman formülden çıkarılabilir gibi görünse de, hâlâ formülün bir parçasıdır.`,
+  task3Step1: `Formül: Z = K · p · t : 100.`, task3Step2: `Yerine koy: 1500 · 5 · 2 : 100.`, task3Step3: `Hesapla: 1500 · 5 · 2 = 15000, sonra 15000 : 100 = 150.`,
+  task3Hint: `Bir yıldan fazla vadede, her yıl için faizi hesaba kat, yani t ile çarp.`,
+  task4Step1: `Formül: Z = K · p · t : 100.`, task4Step2: `Yerine koy: 800 · 2,5 · 1 : 100.`, task4Step3: `Hesapla: 800 · 2,5 = 2000, sonra 2000 : 100 = 20.`,
+  task4Hint: `Ondalıklı bir faiz oranında bile (%2,5) formül tamamen aynı şekilde çalışır.`,
+  task5Step1: `Formülü düzenle: p = Z · 100 : (K · t).`, task5Step2: `Yerine koy: 60 · 100 : (1200 · 1) = 6000 : 1200.`, task5Step3: `Hesapla: 6000 : 1200 = 5.`,
+  task5Hint: `Formülü düzenlerken 100'ün pay kısmında olduğuna, payda kısmında olmadığına dikkat et.`,
+  task6Step1: `Formülü düzenle: K = Z · 100 : (p · t).`, task6Step2: `Yerine koy: 90 · 100 : (3 · 1) = 9000 : 3.`, task6Step3: `Hesapla: 9000 : 3 = 3000.`,
+  task6Hint: `Önce 100 ile çarp, sonra faiz oranı çarpı vadeye böl.`,
+  task7Step1: `Faizi hesapla: Z = 500 · 4 · 1 : 100 = 20.`, task7Step2: `Faizi anaparaya ekle: 500 + 20 = 520.`, task7Step3: `Sonuç: toplam 520 €.`,
+  task7Hint: `Sorulan toplam tutardır (anapara artı faiz), sadece faiz değil.`,
+  task8Step1: `6 ayı yıla çevir: t = 6 : 12 = 0,5.`, task8Step2: `Formülü uygula: Z = 2000 · 6 · 0,5 : 100.`, task8Step3: `Hesapla: 2000 · 6 · 0,5 = 6000, sonra 6000 : 100 = 60.`,
+  task8Hint: `Aylarla çalışırken her zaman önce yıla çevir (ay : 12), yoksa sonuç yanlış çıkar.`,
+  hintLabel: `Sık yapılan hata:`, footerMessage: `Sakin sakin hesapla, gerekirse çözüme bak. Bunu başarabilirsin!`,
+  fbEmpty: `Kontrol etmeden önce lütfen bir sayı gir.`, fbCorrect: `Doğru! Aferin!`, fbIncorrect: `Henüz tam doğru değil. Aşağıdaki çözüme bak ve tekrar dene.`
+},
+ru: {
+  eyebrow: `Luisen-Gymnasium · 7 класс`, titleLine1: `Расчёт`, titleAccent: `процентов`, backLink: `← Все темы`, h2Basics: `Основы`,
+  basicsP1: `Когда ты вкладываешь или берёшь деньги в долг, начисляются проценты. Есть три важные величины: капитал K (сумма денег), процентная ставка p (в процентах в год) и срок t (в годах). Проценты Z рассчитывают по формуле.`,
+  interestAria: `Формула: проценты Z равны капитал K умножить на ставку p умножить на срок t делить на 100`,
+  basicsExample1Label: `<strong>Пример по шагам:</strong> K = 1000 €, p = 4%, t = 1 год.`,
+  basicsExample1Steps: `1. Применить формулу: Z = K · p · t : 100<br>2. Подставить: Z = 1000 · 4 · 1 : 100<br>3. Вычислить: 1000 · 4 = 4000, затем 4000 : 100 = 40<br>4. Результат: 40 € процентов`,
+  basicsP2Other: `<strong>Важно с месяцами:</strong> если деньги лежат не целый год, а, например, 6 месяцев, то t = 6/12 = 0,5 года.`,
+  basicsExample2Label: `<strong>Пример по шагам:</strong> K = 2000 €, p = 3%, t = 6 месяцев.`,
+  basicsExample2Steps: `1. 6 месяцев в годах: t = 6 : 12 = 0,5<br>2. Применить формулу: Z = 2000 · 3 · 0,5 : 100<br>3. Вычислить: 2000 · 3 · 0,5 = 3000, затем 3000 : 100 = 30<br>4. Результат: 30 € процентов`,
+  merkeTitle: `Запомни`, merkeBody: `Проценты Z = капитал K · ставка p · срок t : 100.<br>Перевод месяцев в годы: месяцы : 12.<br>Преобразовано: p = Z · 100 : (K · t) и K = Z · 100 : (p · t).`,
+  taskWord: `Задание`,
+  task1Question: `K = 1000 €, p = 4%, t = 1 год. Вычисли проценты.`, task2Question: `K = 2000 €, p = 3%, t = 1 год. Вычисли проценты.`, task3Question: `K = 1500 €, p = 5%, t = 2 года. Вычисли проценты.`, task4Question: `K = 800 €, p = 2,5%, t = 1 год. Вычисли проценты.`, task5Question: `Проценты составляют 60 €, капитал 1200 €, срок 1 год. Чему равна процентная ставка (в %)?`, task6Question: `Проценты составляют 90 €, ставка 3%, срок 1 год. Каким был капитал?`,
+  task7Question: `Анна вкладывает 500 € на 1 год под 4% годовых. Сколько денег у неё будет в итоге в конце года (капитал + проценты)?`,
+  task8Question: `Кредит на 2000 € взят на 6 месяцев под 6% годовых. Сколько составят проценты?`,
+  answerPlaceholder: `Твой ответ`, checkButton: `Проверить`, solutionSummary: `Показать решение`,
+  task1Result: `Результат: 40 €`, task2Result: `Результат: 60 €`, task3Result: `Результат: 150 €`, task4Result: `Результат: 20 €`, task5Result: `Результат: 5%`, task6Result: `Результат: 3000 €`, task7Result: `Результат: 520 €`, task8Result: `Результат: 60 €`,
+  task1Step1: `Формула: Z = K · p · t : 100.`, task1Step2: `Подставить: 1000 · 4 · 1 : 100.`, task1Step3: `Вычислить: 1000 · 4 = 4000, затем 4000 : 100 = 40.`,
+  task1Hint: `Не забудь разделить на 100 в конце, так как p дан в процентах.`,
+  task2Step1: `Формула: Z = K · p · t : 100.`, task2Step2: `Подставить: 2000 · 3 · 1 : 100.`, task2Step3: `Вычислить: 2000 · 3 = 6000, затем 6000 : 100 = 60.`,
+  task2Hint: `При t = 1 год время можно было бы опустить в формуле, но оно всё равно её часть.`,
+  task3Step1: `Формула: Z = K · p · t : 100.`, task3Step2: `Подставить: 1500 · 5 · 2 : 100.`, task3Step3: `Вычислить: 1500 · 5 · 2 = 15000, затем 15000 : 100 = 150.`,
+  task3Hint: `Если срок больше года, учитывай проценты за каждый год, то есть умножай на t.`,
+  task4Step1: `Формула: Z = K · p · t : 100.`, task4Step2: `Подставить: 800 · 2,5 · 1 : 100.`, task4Step3: `Вычислить: 800 · 2,5 = 2000, затем 2000 : 100 = 20.`,
+  task4Hint: `Даже с дробной ставкой (2,5%) формула работает точно так же.`,
+  task5Step1: `Преобразуй формулу: p = Z · 100 : (K · t).`, task5Step2: `Подставить: 60 · 100 : (1200 · 1) = 6000 : 1200.`, task5Step3: `Вычислить: 6000 : 1200 = 5.`,
+  task5Hint: `При преобразовании формулы следи, чтобы 100 было в числителе, а не в знаменателе.`,
+  task6Step1: `Преобразуй формулу: K = Z · 100 : (p · t).`, task6Step2: `Подставить: 90 · 100 : (3 · 1) = 9000 : 3.`, task6Step3: `Вычислить: 9000 : 3 = 3000.`,
+  task6Hint: `Сначала умножь на 100, потом раздели на ставку, умноженную на срок.`,
+  task7Step1: `Вычисли проценты: Z = 500 · 4 · 1 : 100 = 20.`, task7Step2: `Прибавь проценты к капиталу: 500 + 20 = 520.`, task7Step3: `Результат: 520 € всего.`,
+  task7Hint: `Спрашивается общая сумма (капитал плюс проценты), а не только проценты.`,
+  task8Step1: `6 месяцев в годах: t = 6 : 12 = 0,5.`, task8Step2: `Применить формулу: Z = 2000 · 6 · 0,5 : 100.`, task8Step3: `Вычислить: 2000 · 6 · 0,5 = 6000, затем 6000 : 100 = 60.`,
+  task8Hint: `С месяцами всегда сначала переводи в годы (месяцы : 12), иначе результат будет неверным.`,
+  hintLabel: `Типичная ошибка:`, footerMessage: `Считай спокойно и при необходимости смотри решение. У тебя получится!`,
+  fbEmpty: `Пожалуйста, введи число перед проверкой.`, fbCorrect: `Правильно! Отлично!`, fbIncorrect: `Пока не совсем верно. Посмотри решение ниже и попробуй ещё раз.`
+},
+ar: {
+  eyebrow: `مدرسة لويزن الثانوية · الصف السابع`, titleLine1: `حساب`, titleAccent: `الفوائد`, backLink: `← جميع المواضيع`, h2Basics: `الأساسيات`,
+  basicsP1: `عندما تستثمر أو تقترض مالًا، تنشأ فوائد. توجد ثلاث كميات مهمة: رأس المال K (مبلغ المال)، ونسبة الفائدة p (بالمئة سنويًا)، والمدة t (بالسنوات). تحسب الفائدة Z باستخدام معادلة.`,
+  interestAria: `المعادلة: الفائدة Z تساوي رأس المال K مضروبًا في نسبة الفائدة p مضروبًا في المدة t مقسومًا على 100`,
+  basicsExample1Label: `<strong>مثال خطوة بخطوة:</strong> K = 1000 يورو، p = 4٪، t = سنة واحدة.`,
+  basicsExample1Steps: `1. طبّق المعادلة: Z = K · p · t ÷ 100<br>2. عوّض: Z = 1000 · 4 · 1 ÷ 100<br>3. احسب: 1000 · 4 = 4000، ثم 4000 ÷ 100 = 40<br>4. النتيجة: 40 يورو فائدة`,
+  basicsP2Other: `<strong>مهم بالنسبة للأشهر:</strong> إذا لم يستمر المال سنة كاملة بل مثلًا 6 أشهر، فإن t = 6/12 = 0.5 سنة.`,
+  basicsExample2Label: `<strong>مثال خطوة بخطوة:</strong> K = 2000 يورو، p = 3٪، t = 6 أشهر.`,
+  basicsExample2Steps: `1. 6 أشهر كسنوات: t = 6 ÷ 12 = 0.5<br>2. طبّق المعادلة: Z = 2000 · 3 · 0.5 ÷ 100<br>3. احسب: 2000 · 3 · 0.5 = 3000، ثم 3000 ÷ 100 = 30<br>4. النتيجة: 30 يورو فائدة`,
+  merkeTitle: `تذكّر`, merkeBody: `الفائدة Z = رأس المال K × نسبة الفائدة p × المدة t ÷ 100.<br>تحويل الأشهر إلى سنوات: الأشهر ÷ 12.<br>بعد إعادة الترتيب: p = Z × 100 ÷ (K × t) و K = Z × 100 ÷ (p × t).`,
+  taskWord: `تمرين`,
+  task1Question: `K = 1000 يورو، p = 4٪، t = سنة واحدة. احسب الفائدة.`, task2Question: `K = 2000 يورو، p = 3٪، t = سنة واحدة. احسب الفائدة.`, task3Question: `K = 1500 يورو، p = 5٪، t = سنتان. احسب الفائدة.`, task4Question: `K = 800 يورو، p = 2.5٪، t = سنة واحدة. احسب الفائدة.`, task5Question: `الفائدة 60 يورو، ورأس المال 1200 يورو، والمدة سنة واحدة. ما هي نسبة الفائدة (بالمئة)؟`, task6Question: `الفائدة 90 يورو، ونسبة الفائدة 3٪، والمدة سنة واحدة. كم كان رأس المال؟`,
+  task7Question: `تستثمر آنا 500 يورو لمدة سنة بفائدة 4٪. كم يورو لديها إجمالًا في نهاية السنة (رأس المال + الفائدة)؟`,
+  task8Question: `قرض قيمته 2000 يورو يستمر 6 أشهر بنسبة فائدة 6٪ سنويًا. كم تبلغ الفائدة؟`,
+  answerPlaceholder: `إجابتك`, checkButton: `تحقق`, solutionSummary: `عرض الحل`,
+  task1Result: `النتيجة: 40 يورو`, task2Result: `النتيجة: 60 يورو`, task3Result: `النتيجة: 150 يورو`, task4Result: `النتيجة: 20 يورو`, task5Result: `النتيجة: 5٪`, task6Result: `النتيجة: 3000 يورو`, task7Result: `النتيجة: 520 يورو`, task8Result: `النتيجة: 60 يورو`,
+  task1Step1: `المعادلة: Z = K · p · t ÷ 100.`, task1Step2: `عوّض: 1000 · 4 · 1 ÷ 100.`, task1Step3: `احسب: 1000 · 4 = 4000، ثم 4000 ÷ 100 = 40.`,
+  task1Hint: `لا تنسَ القسمة على 100 في النهاية، لأن p مُعطاة كنسبة مئوية.`,
+  task2Step1: `المعادلة: Z = K · p · t ÷ 100.`, task2Step2: `عوّض: 2000 · 3 · 1 ÷ 100.`, task2Step3: `احسب: 2000 · 3 = 6000، ثم 6000 ÷ 100 = 60.`,
+  task2Hint: `عند t = سنة واحدة يمكن حذف الزمن ظاهريًا من المعادلة، لكنه يبقى جزءًا منها.`,
+  task3Step1: `المعادلة: Z = K · p · t ÷ 100.`, task3Step2: `عوّض: 1500 · 5 · 2 ÷ 100.`, task3Step3: `احسب: 1500 · 5 · 2 = 15000، ثم 15000 ÷ 100 = 150.`,
+  task3Hint: `عند مدة أكثر من سنة، احسب الفائدة عن كل سنة، أي اضرب في t.`,
+  task4Step1: `المعادلة: Z = K · p · t ÷ 100.`, task4Step2: `عوّض: 800 · 2.5 · 1 ÷ 100.`, task4Step3: `احسب: 800 · 2.5 = 2000، ثم 2000 ÷ 100 = 20.`,
+  task4Hint: `حتى مع نسبة فائدة عشرية (2.5٪)، تعمل المعادلة بنفس الطريقة تمامًا.`,
+  task5Step1: `أعد ترتيب المعادلة: p = Z × 100 ÷ (K × t).`, task5Step2: `عوّض: 60 × 100 ÷ (1200 × 1) = 6000 ÷ 1200.`, task5Step3: `احسب: 6000 ÷ 1200 = 5.`,
+  task5Hint: `عند إعادة ترتيب المعادلة، تأكد أن 100 في البسط، وليس في المقام.`,
+  task6Step1: `أعد ترتيب المعادلة: K = Z × 100 ÷ (p × t).`, task6Step2: `عوّض: 90 × 100 ÷ (3 × 1) = 9000 ÷ 3.`, task6Step3: `احسب: 9000 ÷ 3 = 3000.`,
+  task6Hint: `اضرب أولًا في 100، ثم اقسم على نسبة الفائدة مضروبة في المدة.`,
+  task7Step1: `احسب الفائدة: Z = 500 · 4 · 1 ÷ 100 = 20.`, task7Step2: `أضف الفائدة إلى رأس المال: 500 + 20 = 520.`, task7Step3: `النتيجة: 520 يورو إجمالًا.`,
+  task7Hint: `السؤال عن المبلغ الإجمالي (رأس المال زائد الفائدة)، وليس عن الفائدة وحدها.`,
+  task8Step1: `6 أشهر كسنوات: t = 6 ÷ 12 = 0.5.`, task8Step2: `طبّق المعادلة: Z = 2000 · 6 · 0.5 ÷ 100.`, task8Step3: `احسب: 2000 · 6 · 0.5 = 6000، ثم 6000 ÷ 100 = 60.`,
+  task8Hint: `مع الأشهر، حوّل دائمًا إلى سنوات أولًا (الأشهر ÷ 12)، وإلا ستكون النتيجة خاطئة.`,
+  hintLabel: `خطأ شائع:`, footerMessage: `احسب بهدوء وراجع الحل إذا احتجت إليه. أنت قادر على ذلك!`,
+  fbEmpty: `الرجاء إدخال رقم قبل التحقق.`, fbCorrect: `صحيح! أحسنت!`, fbIncorrect: `ليست صحيحة تمامًا بعد. راجع الحل أدناه وحاول مرة أخرى.`
+},
+zh: {
+  eyebrow: `路易森文理中学 · 七年级`, titleLine1: `利息`, titleAccent: `计算`, backLink: `← 所有主题`, h2Basics: `基础知识`,
+  basicsP1: `当你投资或借钱时，会产生利息。有三个重要的量：本金 K（钱数）、利率 p（每年百分之几）和期限 t（年数）。你用一个公式来计算利息 Z。`,
+  interestAria: `公式：利息Z等于本金K乘以利率p乘以期限t除以100`,
+  basicsExample1Label: `<strong>分步示例：</strong> K = 1000 欧元，p = 4%，t = 1 年。`,
+  basicsExample1Steps: `1. 应用公式：Z = K · p · t ÷ 100<br>2. 代入：Z = 1000 · 4 · 1 ÷ 100<br>3. 计算：1000 · 4 = 4000，然后 4000 ÷ 100 = 40<br>4. 结果：40 欧元利息`,
+  basicsP2Other: `<strong>关于月份的重要提示：</strong>如果钱不是存满整年，而是比如 6 个月，那么 t = 6/12 = 0.5 年。`,
+  basicsExample2Label: `<strong>分步示例：</strong> K = 2000 欧元，p = 3%，t = 6 个月。`,
+  basicsExample2Steps: `1. 把 6 个月换算成年：t = 6 ÷ 12 = 0.5<br>2. 应用公式：Z = 2000 · 3 · 0.5 ÷ 100<br>3. 计算：2000 · 3 · 0.5 = 3000，然后 3000 ÷ 100 = 30<br>4. 结果：30 欧元利息`,
+  merkeTitle: `记住`, merkeBody: `利息 Z = 本金 K · 利率 p · 期限 t ÷ 100。<br>把月份换算成年：月份 ÷ 12。<br>变形后：p = Z · 100 ÷ (K · t)，K = Z · 100 ÷ (p · t)。`,
+  taskWord: `练习`,
+  task1Question: `K = 1000 欧元，p = 4%，t = 1 年。计算利息。`, task2Question: `K = 2000 欧元，p = 3%，t = 1 年。计算利息。`, task3Question: `K = 1500 欧元，p = 5%，t = 2 年。计算利息。`, task4Question: `K = 800 欧元，p = 2.5%，t = 1 年。计算利息。`, task5Question: `利息是 60 欧元，本金是 1200 欧元，期限是 1 年。利率是多少（百分比）？`, task6Question: `利息是 90 欧元，利率是 3%，期限是 1 年。本金是多少？`,
+  task7Question: `安娜把 500 欧元存了 1 年，利率是 4%。到年底她一共有多少钱（本金+利息）？`,
+  task8Question: `一笔 2000 欧元的贷款，年利率 6%，期限 6 个月。产生多少利息？`,
+  answerPlaceholder: `你的答案`, checkButton: `检查`, solutionSummary: `显示答案`,
+  task1Result: `结果：40 欧元`, task2Result: `结果：60 欧元`, task3Result: `结果：150 欧元`, task4Result: `结果：20 欧元`, task5Result: `结果：5%`, task6Result: `结果：3000 欧元`, task7Result: `结果：520 欧元`, task8Result: `结果：60 欧元`,
+  task1Step1: `公式：Z = K · p · t ÷ 100。`, task1Step2: `代入：1000 · 4 · 1 ÷ 100。`, task1Step3: `计算：1000 · 4 = 4000，然后 4000 ÷ 100 = 40。`,
+  task1Hint: `别忘了最后要除以 100，因为 p 是以百分比给出的。`,
+  task2Step1: `公式：Z = K · p · t ÷ 100。`, task2Step2: `代入：2000 · 3 · 1 ÷ 100。`, task2Step3: `计算：2000 · 3 = 6000，然后 6000 ÷ 100 = 60。`,
+  task2Hint: `当 t = 1 年时，时间在公式里看起来可以省略，但它其实仍然是公式的一部分。`,
+  task3Step1: `公式：Z = K · p · t ÷ 100。`, task3Step2: `代入：1500 · 5 · 2 ÷ 100。`, task3Step3: `计算：1500 · 5 · 2 = 15000，然后 15000 ÷ 100 = 150。`,
+  task3Hint: `期限超过一年时，要把每年的利息都算上，也就是乘以 t。`,
+  task4Step1: `公式：Z = K · p · t ÷ 100。`, task4Step2: `代入：800 · 2.5 · 1 ÷ 100。`, task4Step3: `计算：800 · 2.5 = 2000，然后 2000 ÷ 100 = 20。`,
+  task4Hint: `即使利率是小数（2.5%），公式的用法也完全一样。`,
+  task5Step1: `把公式变形：p = Z · 100 ÷ (K · t)。`, task5Step2: `代入：60 · 100 ÷ (1200 · 1) = 6000 ÷ 1200。`, task5Step3: `计算：6000 ÷ 1200 = 5。`,
+  task5Hint: `变形公式时，要注意 100 在分子上，而不是分母上。`,
+  task6Step1: `把公式变形：K = Z · 100 ÷ (p · t)。`, task6Step2: `代入：90 · 100 ÷ (3 · 1) = 9000 ÷ 3。`, task6Step3: `计算：9000 ÷ 3 = 3000。`,
+  task6Hint: `先乘以 100，然后再除以利率乘以期限。`,
+  task7Step1: `计算利息：Z = 500 · 4 · 1 ÷ 100 = 20。`, task7Step2: `把利息加到本金上：500 + 20 = 520。`, task7Step3: `结果：总共 520 欧元。`,
+  task7Hint: `问的是总金额（本金加利息），不只是利息。`,
+  task8Step1: `把 6 个月换算成年：t = 6 ÷ 12 = 0.5。`, task8Step2: `应用公式：Z = 2000 · 6 · 0.5 ÷ 100。`, task8Step3: `计算：2000 · 6 · 0.5 = 6000，然后 6000 ÷ 100 = 60。`,
+  task8Hint: `涉及月份时，一定要先换算成年（月份 ÷ 12），否则结果会不对。`,
+  hintLabel: `常见错误：`, footerMessage: `慢慢算，需要的话看看答案。你能做到！`,
+  fbEmpty: `请先输入一个数字再检查。`, fbCorrect: `正确！做得好！`, fbIncorrect: `还不完全正确。看看下面的答案，再试一次。`
+}
+};
+
+var currentLang = 'de';
+
+function setLanguage(lang){
+  var dict = TRANSLATIONS[lang] || TRANSLATIONS.de;
+  currentLang = TRANSLATIONS[lang] ? lang : 'de';
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = (currentLang === 'ar') ? 'rtl' : 'ltr';
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var key = el.getAttribute('data-i18n');
+    if(dict[key] !== undefined){ el.innerHTML = dict[key]; }
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-placeholder');
+    if(dict[key] !== undefined){ el.setAttribute('placeholder', dict[key]); }
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-aria');
+    if(dict[key] !== undefined){ el.setAttribute('aria-label', dict[key]); }
+  });
+  try{ localStorage.setItem('mathecoach_lang', currentLang); }catch(e){}
+  var sel = document.getElementById('langSelect');
+  if(sel) sel.value = currentLang;
+}
+
+function check(id, correct){
+  var dict = TRANSLATIONS[currentLang] || TRANSLATIONS.de;
+  var input = document.getElementById('input' + id);
+  var feedback = document.getElementById('feedback' + id);
+  var raw = input.value.trim();
+  var match = raw.match(/-?\d+/);
+  feedback.classList.remove('show', 'correct', 'incorrect');
+  if(!match){
+    feedback.textContent = dict.fbEmpty;
+    feedback.classList.add('show', 'incorrect');
+    return;
+  }
+  var value = parseInt(match[0], 10);
+  if(value === correct){
+    feedback.textContent = dict.fbCorrect;
+    feedback.classList.add('show', 'correct');
+  } else {
+    feedback.textContent = dict.fbIncorrect;
+    feedback.classList.add('show', 'incorrect');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var saved = 'de';
+  try{ saved = localStorage.getItem('mathecoach_lang') || 'de'; }catch(e){}
+  setLanguage(saved);
+});
+</script>
+
+</body>
+</html>
