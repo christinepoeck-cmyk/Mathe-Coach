@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terme aufstellen und vereinfachen</title>
+<style>
+  :root{
+    --bg:#FAFAF9; --card:#FFFFFF; --ink:#241C1C; --ink-soft:#5C4F4C;
+    --red:#C41230; --gold:#E0A526; --blue:#2478B5;
+    --merke-bg:#FBF1DC; --merke-border:#E0A526;
+    --success:#1E8E5A; --success-bg:#E5F5EC; --error:#B3401D; --error-bg:#FBEDE6;
+    --font-display: ui-rounded, "SF Pro Rounded", "Segoe UI Rounded", "Nunito", system-ui, sans-serif;
+    --font-body: system-ui, "Segoe UI", Roboto, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:18px; line-height:1.5; padding-bottom:60px; }
+  .wrap{ max-width:640px; margin:0 auto; padding:0 20px; }
+  header{ background:var(--card); padding:30px 20px 0; text-align:center; position:relative; }
+  .header-inner{ padding-bottom:26px; }
+  .lang-switch{ display:flex; justify-content:center; margin-bottom:14px; }
+  #langSelect{ font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--ink); background:var(--card); border:2px solid #E3DFDA; border-radius:999px; padding:6px 14px; cursor:pointer; }
+  #langSelect:focus-visible{ outline:3px solid var(--blue); }
+  .back-link{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--blue); text-decoration:none; margin-bottom:16px; }
+  .eyebrow{ font-family:var(--font-display); font-weight:700; font-size:14px; letter-spacing:0.08em; text-transform:uppercase; color:var(--blue); margin-bottom:8px; }
+  h1{ font-family:var(--font-display); font-size:28px; font-weight:800; margin:0; line-height:1.25; }
+  h1 .accent{ color:var(--red); }
+  .wave{ display:block; width:100%; height:30px; }
+  section{ margin-top:32px; }
+  .card{ background:var(--card); border-radius:22px; padding:24px 22px; box-shadow:0 2px 14px rgba(36,28,28,0.07); }
+  h2{ font-family:var(--font-display); font-size:21px; font-weight:800; margin:0 0 14px; }
+  h2 .num{ display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:var(--blue); color:white; font-size:16px; margin-inline-end:10px; vertical-align:middle; }
+  p{ margin:0 0 14px; color:var(--ink-soft); }
+  .merke{ background:var(--merke-bg); border:2px solid var(--merke-border); border-radius:16px; padding:16px 18px; margin-top:16px; }
+  .merke-title{ font-family:var(--font-display); font-weight:800; color:#8A5A0F; font-size:15px; letter-spacing:0.04em; text-transform:uppercase; margin-bottom:6px; }
+  .merke-body{ color:#6B4A12; font-weight:600; margin:0; }
+  .term-diagram{ width:100%; height:auto; margin:18px 0 6px; }
+  .task-card{ margin-top:18px; }
+  .task-question{ font-family:var(--font-display); font-weight:700; font-size:19px; margin-bottom:16px; }
+  .answer-row{ display:flex; gap:10px; margin-bottom:6px; }
+  input[type="text"]{ flex:1; font-size:18px; font-family:var(--font-body); padding:12px 14px; border-radius:12px; border:2px solid #E3DFDA; background:#FBFAF9; color:var(--ink); }
+  input[type="text"]:focus{ outline:3px solid #C9DCEA; border-color:var(--blue); }
+  button.check{ font-family:var(--font-display); font-weight:700; font-size:16px; color:white; background:var(--blue); border:none; border-radius:12px; padding:0 20px; cursor:pointer; }
+  button.check:active{ transform:translateY(1px); }
+  button.check:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
+  .feedback{ margin-top:10px; padding:12px 14px; border-radius:12px; font-weight:700; display:none; }
+  .feedback.show{ display:block; }
+  .feedback.correct{ background:var(--success-bg); color:var(--success); }
+  .feedback.incorrect{ background:var(--error-bg); color:var(--error); }
+  details{ margin-top:14px; border-top:2px dashed #E3DFDA; padding-top:12px; }
+  summary{ font-family:var(--font-display); font-weight:700; color:var(--blue); cursor:pointer; font-size:15px; }
+  .solution{ margin-top:12px; }
+  .solution ol{ margin:0 0 12px; padding-inline-start:22px; color:var(--ink-soft); }
+  .solution li{ margin-bottom:6px; }
+  .solution-result{ font-family:var(--font-display); font-weight:800; color:var(--ink); margin-bottom:12px; }
+  .hint-box{ background:#F1EFEC; border-radius:12px; padding:12px 14px; font-size:16px; color:var(--ink-soft); }
+  .hint-box strong{ color:var(--ink); }
+  footer{ text-align:center; margin-top:36px; padding:0 20px; }
+  footer p{ font-family:var(--font-display); font-weight:700; color:var(--ink); }
+  .footer-wave{ display:block; width:100%; max-width:280px; height:16px; margin:0 auto 18px; opacity:0.6; }
+  [dir="rtl"] .back-link{ flex-direction:row-reverse; }
+  @media (prefers-reduced-motion: no-preference){ button.check{ transition:transform 0.1s ease; } }
+  @media (max-width: 480px){ .answer-row{ flex-direction:column; } button.check{ width:100%; padding:14px 20px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="lang-switch">
+      <select id="langSelect" onchange="setLanguage(this.value)">
+        <option value="de">Deutsch</option><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="tr">Türkçe</option><option value="ru">Русский</option><option value="ar">العربية</option><option value="zh">中文</option>
+      </select>
+    </div>
+    <a class="back-link" href="index.html" data-i18n="backLink">← Alle Themen</a>
+    <div class="eyebrow" data-i18n="eyebrow">Luisen-Gymnasium · Klasse 7</div>
+    <h1><span data-i18n="titleLine1">Terme aufstellen</span><br><span class="accent" data-i18n="titleAccent">und vereinfachen</span></h1>
+  </div>
+  <svg class="wave" viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+    <path d="M -10 22 C 190 4, 390 40, 590 22 S 990 4, 1210 22" fill="none" stroke="#C41230" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 32 C 190 50, 390 14, 590 32 S 990 50, 1210 32" fill="none" stroke="#E0A526" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 42 C 190 24, 390 58, 590 42 S 990 24, 1210 42" fill="none" stroke="#2478B5" stroke-width="5" stroke-linecap="round"/>
+  </svg>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <div class="card">
+      <h2 data-i18n="h2Basics">Grundlagen</h2>
+      <p data-i18n="basicsP1">Ein Term ist ein mathematischer Ausdruck aus Zahlen, Variablen (Buchstaben wie x) und Rechenzeichen – aber ohne Gleichheitszeichen. Ein Term hat verschiedene Bestandteile.</p>
+
+      <svg class="term-diagram" viewBox="0 0 600 150" xmlns="http://www.w3.org/2000/svg" role="img" data-i18n-aria="termAria" aria-label="Der Term 3x minus 4 mit Beschriftung: 3 ist der Koeffizient, x ist die Variable, minus 4 ist die Konstante">
+        <text x="300" y="60" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="40" font-weight="800">
+          <tspan fill="#C41230">3</tspan><tspan fill="#E0A526">x</tspan><tspan fill="#241C1C"> − </tspan><tspan fill="#2478B5">4</tspan>
+        </text>
+        <line x1="260" y1="75" x2="260" y2="95" stroke="#C41230" stroke-width="2"/>
+        <text data-i18n="termLabelCoeff" x="260" y="115" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="13" font-weight="700" fill="#C41230">Koeffizient</text>
+        <line x1="300" y1="75" x2="300" y2="95" stroke="#E0A526" stroke-width="2"/>
+        <text data-i18n="termLabelVar" x="330" y="130" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="13" font-weight="700" fill="#E0A526">Variable</text>
+        <line x1="365" y1="75" x2="365" y2="95" stroke="#2478B5" stroke-width="2"/>
+        <text data-i18n="termLabelConst" x="400" y="115" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="13" font-weight="700" fill="#2478B5">Konstante</text>
+      </svg>
+
+      <p data-i18n="basicsExample1Label"><strong>Beispiel Schritt für Schritt:</strong> Stelle einen Term auf für "das Doppelte einer Zahl x, vermehrt um 7".</p>
+      <p data-i18n="basicsExample1Steps">1. "Das Doppelte von x" bedeutet 2 · x, also 2x<br>2. "Vermehrt um 7" bedeutet plus 7<br>3. Ergebnis: 2x + 7</p>
+
+      <p data-i18n="basicsP2Simplify"><strong>Vereinfachen:</strong> Gleichartige Glieder (mit derselben Variable und demselben Exponenten) werden zusammengefasst, indem man ihre Koeffizienten addiert oder subtrahiert.</p>
+
+      <p data-i18n="basicsExample2Label"><strong>Beispiel Schritt für Schritt:</strong> Vereinfache 4x + 3 − x + 5.</p>
+      <p data-i18n="basicsExample2Steps">1. x-Glieder zusammenfassen: 4x − x = 3x<br>2. Zahlen zusammenfassen: 3 + 5 = 8<br>3. Ergebnis: 3x + 8</p>
+
+      <div class="merke">
+        <div class="merke-title" data-i18n="merkeTitle">Merke</div>
+        <p class="merke-body" data-i18n="merkeBody">Ein Term besteht aus Zahlen, Variablen und Rechenzeichen (ohne Gleichheitszeichen).<br>Beim Vereinfachen werden nur gleichartige Glieder zusammengefasst.<br>Zahlen ohne Variable (Konstanten) werden nur mit anderen Konstanten zusammengefasst.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">1</span><span data-i18n="taskWord">Aufgabe</span> 1</h2>
+      <div class="task-question" data-i18n="task1Question">Vereinfache 3x + 5x. Wie lautet der Koeffizient von x im Ergebnis?</div>
+      <div class="answer-row">
+        <input type="text" id="input1" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(1, 8)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback1"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task1Result">Ergebnis: 8</div>
+          <ol>
+            <li data-i18n="task1Step1">Beide Glieder haben die Variable x, also können sie zusammengefasst werden.</li>
+            <li data-i18n="task1Step2">Koeffizienten addieren: 3 + 5 = 8.</li>
+            <li data-i18n="task1Step3">Ergebnis: 8x, der Koeffizient ist 8.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task1Hint">Man addiert nur die Koeffizienten (die Zahlen vor dem x), die Variable x selbst bleibt einfach stehen.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">2</span><span data-i18n="taskWord">Aufgabe</span> 2</h2>
+      <div class="task-question" data-i18n="task2Question">Vereinfache 7a − 2a + 4a. Wie lautet der Koeffizient von a im Ergebnis?</div>
+      <div class="answer-row">
+        <input type="text" id="input2" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(2, 9)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback2"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task2Result">Ergebnis: 9</div>
+          <ol>
+            <li data-i18n="task2Step1">Alle drei Glieder haben die Variable a.</li>
+            <li data-i18n="task2Step2">Koeffizienten rechnen: 7 − 2 + 4 = 9.</li>
+            <li data-i18n="task2Step3">Ergebnis: 9a, der Koeffizient ist 9.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task2Hint">Auf die Vorzeichen vor jedem Glied achten: hier steht ein Minus vor der 2a.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">3</span><span data-i18n="taskWord">Aufgabe</span> 3</h2>
+      <div class="task-question" data-i18n="task3Question">Vereinfache 4x + 3 − x + 5. Wie lautet der Koeffizient von x im Ergebnis?</div>
+      <div class="answer-row">
+        <input type="text" id="input3" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(3, 3)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback3"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task3Result">Ergebnis: 3</div>
+          <ol>
+            <li data-i18n="task3Step1">x-Glieder zusammenfassen: 4x − x = 3x.</li>
+            <li data-i18n="task3Step2">Zahlen zusammenfassen: 3 + 5 = 8.</li>
+            <li data-i18n="task3Step3">Ergebnis: 3x + 8, der Koeffizient von x ist 3.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task3Hint">"−x" bedeutet "−1x", also wird bei 4x − x mit 1 subtrahiert, nicht mit 0.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">4</span><span data-i18n="taskWord">Aufgabe</span> 4</h2>
+      <div class="task-question" data-i18n="task4Question">Vereinfache 4x + 3 − x + 5. Wie lautet die Konstante (die Zahl ohne Variable) im Ergebnis?</div>
+      <div class="answer-row">
+        <input type="text" id="input4" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(4, 8)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback4"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task4Result">Ergebnis: 8</div>
+          <ol>
+            <li data-i18n="task4Step1">x-Glieder zusammenfassen: 4x − x = 3x.</li>
+            <li data-i18n="task4Step2">Zahlen zusammenfassen: 3 + 5 = 8.</li>
+            <li data-i18n="task4Step3">Ergebnis: 3x + 8, die Konstante ist 8.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task4Hint">Die Konstante wird nur mit anderen Konstanten zusammengefasst, nicht mit den x-Gliedern.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">5</span><span data-i18n="taskWord">Aufgabe</span> 5</h2>
+      <div class="task-question" data-i18n="task5Question">Stelle einen Term auf für "das Doppelte einer Zahl x, vermehrt um 7". Wie lautet der Koeffizient von x?</div>
+      <div class="answer-row">
+        <input type="text" id="input5" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(5, 2)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback5"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task5Result">Ergebnis: 2</div>
+          <ol>
+            <li data-i18n="task5Step1">"Das Doppelte von x" bedeutet 2 · x = 2x.</li>
+            <li data-i18n="task5Step2">"Vermehrt um 7" bedeutet plus 7: 2x + 7.</li>
+            <li data-i18n="task5Step3">Der Koeffizient von x ist 2.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task5Hint">"Doppelt" bedeutet mal 2, nicht plus 2.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">6</span><span data-i18n="taskWord">Aufgabe</span> 6</h2>
+      <div class="task-question" data-i18n="task6Question">Stelle einen Term auf für "eine Zahl x, vermindert um 4, dann verdreifacht". Das ergibt 3(x − 4) = 3x − 12. Wie lautet die Konstante?</div>
+      <div class="answer-row">
+        <input type="text" id="input6" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(6, -12)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback6"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task6Result">Ergebnis: −12</div>
+          <ol>
+            <li data-i18n="task6Step1">"x vermindert um 4" bedeutet x − 4.</li>
+            <li data-i18n="task6Step2">"Verdreifacht" bedeutet mal 3: 3 · (x − 4) = 3x − 12.</li>
+            <li data-i18n="task6Step3">Die Konstante ist −12.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task6Hint">Bei "verdreifacht" muss die ganze Klammer mit 3 multipliziert werden, also auch die −4.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">7</span><span data-i18n="taskWord">Aufgabe</span> 7</h2>
+      <div class="task-question" data-i18n="task7Question">Berechne den Wert des Terms 3x − 4 für x = 6.</div>
+      <div class="answer-row">
+        <input type="text" id="input7" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(7, 14)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback7"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task7Result">Ergebnis: 14</div>
+          <ol>
+            <li data-i18n="task7Step1">x = 6 in den Term einsetzen: 3 · 6 − 4.</li>
+            <li data-i18n="task7Step2">Rechnen: 3 · 6 = 18, dann 18 − 4 = 14.</li>
+            <li data-i18n="task7Step3">Ergebnis: 14.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task7Hint">Punkt vor Strich beachten: erst 3 · 6 rechnen, dann erst die 4 abziehen.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">8</span><span data-i18n="taskWord">Aufgabe</span> 8</h2>
+      <div class="task-question" data-i18n="task8Question">Vereinfache 5x + 3y − 2x + y. Wie lautet der Koeffizient von y im Ergebnis?</div>
+      <div class="answer-row">
+        <input type="text" id="input8" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(8, 4)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback8"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task8Result">Ergebnis: 4</div>
+          <ol>
+            <li data-i18n="task8Step1">x-Glieder zusammenfassen: 5x − 2x = 3x.</li>
+            <li data-i18n="task8Step2">y-Glieder zusammenfassen: 3y + y = 4y.</li>
+            <li data-i18n="task8Step3">Ergebnis: 3x + 4y, der Koeffizient von y ist 4.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task8Hint">x-Glieder und y-Glieder sind unterschiedliche Variablen und dürfen nicht miteinander vermischt werden.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <footer>
+    <svg class="footer-wave" viewBox="0 0 280 16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+      <path d="M -5 8 C 40 1, 80 15, 140 8 S 240 1, 285 8" fill="none" stroke="#C41230" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M -5 8 C 40 15, 80 1, 140 8 S 240 15, 285 8" fill="none" stroke="#2478B5" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+    </svg>
+    <p id="footer-msg" data-i18n="footerMessage">Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!</p>
+  </footer>
+
+</div>
+
+<script>
+const TRANSLATIONS = {
+de: {
+  eyebrow: `Luisen-Gymnasium · Klasse 7`, titleLine1: `Terme aufstellen`, titleAccent: `und vereinfachen`, backLink: `← Alle Themen`, h2Basics: `Grundlagen`,
+  basicsP1: `Ein Term ist ein mathematischer Ausdruck aus Zahlen, Variablen (Buchstaben wie x) und Rechenzeichen – aber ohne Gleichheitszeichen. Ein Term hat verschiedene Bestandteile.`,
+  termAria: `Der Term 3x minus 4 mit Beschriftung: 3 ist der Koeffizient, x ist die Variable, minus 4 ist die Konstante`,
+  termLabelCoeff: `Koeffizient`, termLabelVar: `Variable`, termLabelConst: `Konstante`,
+  basicsExample1Label: `<strong>Beispiel Schritt für Schritt:</strong> <span style="white-space:nowrap">Stelle einen Term auf für "das Doppelte einer Zahl x, vermehrt um 7".</span>`,
+  basicsExample1Steps: `1. "Das Doppelte von x" bedeutet 2 · x, also 2x<br>2. "Vermehrt um 7" bedeutet plus 7<br>3. Ergebnis: <span style="white-space:nowrap">2x + 7</span>`,
+  basicsP2Simplify: `<strong>Vereinfachen:</strong> Gleichartige Glieder (mit derselben Variable und demselben Exponenten) werden zusammengefasst, indem man ihre Koeffizienten addiert oder subtrahiert.`,
+  basicsExample2Label: `<strong>Beispiel Schritt für Schritt:</strong> <span style="white-space:nowrap">Vereinfache 4x + 3 − x + 5.</span>`,
+  basicsExample2Steps: `1. x-Glieder zusammenfassen: <span style="white-space:nowrap">4x − x = 3x</span><br>2. Zahlen zusammenfassen: <span style="white-space:nowrap">3 + 5 = 8</span><br>3. Ergebnis: <span style="white-space:nowrap">3x + 8</span>`,
+  merkeTitle: `Merke`, merkeBody: `Ein Term besteht aus Zahlen, Variablen und Rechenzeichen (ohne Gleichheitszeichen).<br>Beim Vereinfachen werden nur gleichartige Glieder zusammengefasst.<br>Zahlen ohne Variable (Konstanten) werden nur mit anderen Konstanten zusammengefasst.`,
+  taskWord: `Aufgabe`,
+  task1Question: `Vereinfache 3x + 5x. Wie lautet der Koeffizient von x im Ergebnis?`, task2Question: `Vereinfache 7a − 2a + 4a. Wie lautet der Koeffizient von a im Ergebnis?`, task3Question: `Vereinfache 4x + 3 − x + 5. Wie lautet der Koeffizient von x im Ergebnis?`, task4Question: `Vereinfache 4x + 3 − x + 5. Wie lautet die Konstante (die Zahl ohne Variable) im Ergebnis?`, task5Question: `Stelle einen Term auf für "das Doppelte einer Zahl x, vermehrt um 7". Wie lautet der Koeffizient von x?`, task6Question: `Stelle einen Term auf für "eine Zahl x, vermindert um 4, dann verdreifacht". Das ergibt 3(x − 4) = 3x − 12. Wie lautet die Konstante?`,
+  task7Question: `Berechne den Wert des Terms 3x − 4 für x = 6.`,
+  task8Question: `Vereinfache 5x + 3y − 2x + y. Wie lautet der Koeffizient von y im Ergebnis?`,
+  answerPlaceholder: `Deine Antwort`, checkButton: `Prüfen`, solutionSummary: `Lösung anzeigen`,
+  task1Result: `<span style="white-space:nowrap">Ergebnis: 8</span>`, task2Result: `<span style="white-space:nowrap">Ergebnis: 9</span>`, task3Result: `<span style="white-space:nowrap">Ergebnis: 3</span>`, task4Result: `<span style="white-space:nowrap">Ergebnis: 8</span>`, task5Result: `<span style="white-space:nowrap">Ergebnis: 2</span>`, task6Result: `<span style="white-space:nowrap">Ergebnis: −12</span>`, task7Result: `<span style="white-space:nowrap">Ergebnis: 14</span>`, task8Result: `<span style="white-space:nowrap">Ergebnis: 4</span>`,
+  task1Step1: `Beide Glieder haben die Variable x, also können sie zusammengefasst werden.`, task1Step2: `Koeffizienten addieren: 3 + 5 = 8.`, task1Step3: `Ergebnis: 8x, der Koeffizient ist 8.`,
+  task1Hint: `Man addiert nur die Koeffizienten (die Zahlen vor dem x), die Variable x selbst bleibt einfach stehen.`,
+  task2Step1: `Alle drei Glieder haben die Variable a.`, task2Step2: `Koeffizienten rechnen: 7 − 2 + 4 = 9.`, task2Step3: `Ergebnis: 9a, der Koeffizient ist 9.`,
+  task2Hint: `Auf die Vorzeichen vor jedem Glied achten: hier steht ein Minus vor der 2a.`,
+  task3Step1: `x-Glieder zusammenfassen: 4x − x = 3x.`, task3Step2: `Zahlen zusammenfassen: 3 + 5 = 8.`, task3Step3: `Ergebnis: 3x + 8, der Koeffizient von x ist 3.`,
+  task3Hint: `"−x" bedeutet "−1x", also wird bei 4x − x mit 1 subtrahiert, nicht mit 0.`,
+  task4Step1: `x-Glieder zusammenfassen: 4x − x = 3x.`, task4Step2: `Zahlen zusammenfassen: 3 + 5 = 8.`, task4Step3: `Ergebnis: 3x + 8, die Konstante ist 8.`,
+  task4Hint: `Die Konstante wird nur mit anderen Konstanten zusammengefasst, nicht mit den x-Gliedern.`,
+  task5Step1: `"Das Doppelte von x" bedeutet 2 · x = 2x.`, task5Step2: `"Vermehrt um 7" bedeutet plus 7: 2x + 7.`, task5Step3: `Der Koeffizient von x ist 2.`,
+  task5Hint: `"Doppelt" bedeutet mal 2, nicht plus 2.`,
+  task6Step1: `"x vermindert um 4" bedeutet x − 4.`, task6Step2: `"Verdreifacht" bedeutet mal 3: 3 · (x − 4) = 3x − 12.`, task6Step3: `Die Konstante ist −12.`,
+  task6Hint: `Bei "verdreifacht" muss die ganze Klammer mit 3 multipliziert werden, also auch die −4.`,
+  task7Step1: `x = 6 in den Term einsetzen: 3 · 6 − 4.`, task7Step2: `Rechnen: 3 · 6 = 18, dann 18 − 4 = 14.`, task7Step3: `Ergebnis: 14.`,
+  task7Hint: `Punkt vor Strich beachten: erst 3 · 6 rechnen, dann erst die 4 abziehen.`,
+  task8Step1: `x-Glieder zusammenfassen: 5x − 2x = 3x.`, task8Step2: `y-Glieder zusammenfassen: 3y + y = 4y.`, task8Step3: `Ergebnis: 3x + 4y, der Koeffizient von y ist 4.`,
+  task8Hint: `x-Glieder und y-Glieder sind unterschiedliche Variablen und dürfen nicht miteinander vermischt werden.`,
+  hintLabel: `Typischer Fehler:`, footerMessage: `Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!`,
+  fbEmpty: `Trag bitte eine Zahl ein, bevor du prüfst.`, fbCorrect: `Richtig! Gut gemacht!`, fbIncorrect: `Noch nicht ganz richtig. Schau dir die Lösung weiter unten an und versuch es dann nochmal.`
+},
+en: {
+  eyebrow: `Luisen-Gymnasium · Grade 7`, titleLine1: `Setting Up`, titleAccent: `and Simplifying Terms`, backLink: `← All Topics`, h2Basics: `Basics`,
+  basicsP1: `A term is a mathematical expression made of numbers, variables (letters like x) and operation signs — but without an equals sign. A term has different parts.`,
+  termAria: `The term 3x minus 4 labeled: 3 is the coefficient, x is the variable, minus 4 is the constant`,
+  termLabelCoeff: `Coefficient`, termLabelVar: `Variable`, termLabelConst: `Constant`,
+  basicsExample1Label: `<strong>Step-by-step example:</strong> <span style="white-space:nowrap">Set up a term for "twice a number x, increased by 7".</span>`,
+  basicsExample1Steps: `1. "Twice x" means 2 · x, i.e. 2x<br>2. "Increased by 7" means plus 7<br>3. Result: <span style="white-space:nowrap">2x + 7</span>`,
+  basicsP2Simplify: `<strong>Simplifying:</strong> like terms (with the same variable and the same exponent) are combined by adding or subtracting their coefficients.`,
+  basicsExample2Label: `<strong>Step-by-step example:</strong> <span style="white-space:nowrap">Simplify 4x + 3 − x + 5.</span>`,
+  basicsExample2Steps: `1. Combine the x terms: <span style="white-space:nowrap">4x − x = 3x</span><br>2. Combine the numbers: <span style="white-space:nowrap">3 + 5 = 8</span><br>3. Result: <span style="white-space:nowrap">3x + 8</span>`,
+  merkeTitle: `Remember`, merkeBody: `A term consists of numbers, variables and operation signs (no equals sign).<br>When simplifying, only like terms are combined.<br>Numbers without a variable (constants) are only combined with other constants.`,
+  taskWord: `Exercise`,
+  task1Question: `Simplify 3x + 5x. What's the coefficient of x in the result?`, task2Question: `Simplify 7a − 2a + 4a. What's the coefficient of a in the result?`, task3Question: `Simplify 4x + 3 − x + 5. What's the coefficient of x in the result?`, task4Question: `Simplify 4x + 3 − x + 5. What's the constant (the number without a variable) in the result?`, task5Question: `Set up a term for "twice a number x, increased by 7". What's the coefficient of x?`, task6Question: `Set up a term for "a number x, decreased by 4, then tripled". That gives 3(x − 4) = 3x − 12. What's the constant?`,
+  task7Question: `Calculate the value of the term 3x − 4 for x = 6.`,
+  task8Question: `Simplify 5x + 3y − 2x + y. What's the coefficient of y in the result?`,
+  answerPlaceholder: `Your answer`, checkButton: `Check`, solutionSummary: `Show solution`,
+  task1Result: `<span style="white-space:nowrap">Result: 8</span>`, task2Result: `<span style="white-space:nowrap">Result: 9</span>`, task3Result: `<span style="white-space:nowrap">Result: 3</span>`, task4Result: `<span style="white-space:nowrap">Result: 8</span>`, task5Result: `<span style="white-space:nowrap">Result: 2</span>`, task6Result: `<span style="white-space:nowrap">Result: −12</span>`, task7Result: `<span style="white-space:nowrap">Result: 14</span>`, task8Result: `<span style="white-space:nowrap">Result: 4</span>`,
+  task1Step1: `Both terms have the variable x, so they can be combined.`, task1Step2: `Add the coefficients: 3 + 5 = 8.`, task1Step3: `Result: 8x, the coefficient is 8.`,
+  task1Hint: `You only add the coefficients (the numbers in front of the x) — the variable x itself just stays.`,
+  task2Step1: `All three terms have the variable a.`, task2Step2: `Calculate the coefficients: 7 − 2 + 4 = 9.`, task2Step3: `Result: 9a, the coefficient is 9.`,
+  task2Hint: `Pay attention to the sign in front of each term: here there's a minus before the 2a.`,
+  task3Step1: `Combine the x terms: 4x − x = 3x.`, task3Step2: `Combine the numbers: 3 + 5 = 8.`, task3Step3: `Result: 3x + 8, the coefficient of x is 3.`,
+  task3Hint: `"−x" means "−1x", so in 4x − x you subtract 1, not 0.`,
+  task4Step1: `Combine the x terms: 4x − x = 3x.`, task4Step2: `Combine the numbers: 3 + 5 = 8.`, task4Step3: `Result: 3x + 8, the constant is 8.`,
+  task4Hint: `The constant is only combined with other constants, not with the x terms.`,
+  task5Step1: `"Twice x" means 2 · x = 2x.`, task5Step2: `"Increased by 7" means plus 7: 2x + 7.`, task5Step3: `The coefficient of x is 2.`,
+  task5Hint: `"Twice" means times 2, not plus 2.`,
+  task6Step1: `"x decreased by 4" means x − 4.`, task6Step2: `"Tripled" means times 3: 3 · (x − 4) = 3x − 12.`, task6Step3: `The constant is −12.`,
+  task6Hint: `With "tripled" the whole bracket has to be multiplied by 3, including the −4.`,
+  task7Step1: `Substitute x = 6 into the term: 3 · 6 − 4.`, task7Step2: `Calculate: 3 · 6 = 18, then 18 − 4 = 14.`, task7Step3: `Result: 14.`,
+  task7Hint: `Follow order of operations: first calculate 3 · 6, then subtract 4.`,
+  task8Step1: `Combine the x terms: 5x − 2x = 3x.`, task8Step2: `Combine the y terms: 3y + y = 4y.`, task8Step3: `Result: 3x + 4y, the coefficient of y is 4.`,
+  task8Hint: `x terms and y terms are different variables and must not be mixed with each other.`,
+  hintLabel: `Common mistake:`, footerMessage: `Take your time and check the solution if you need to. You can do this!`,
+  fbEmpty: `Please enter a number before checking.`, fbCorrect: `Correct! Well done!`, fbIncorrect: `Not quite right yet. Check the solution below and try again.`
+},
+es: {
+  eyebrow: `Luisen-Gymnasium · 7.º curso`, titleLine1: `Plantear y`, titleAccent: `simplificar expresiones`, backLink: `← Todos los temas`, h2Basics: `Fundamentos`,
+  basicsP1: `Una expresión algebraica (término) es una expresión matemática formada por números, variables (letras como x) y signos de operación — pero sin signo igual. Un término tiene varias partes.`,
+  termAria: `El término 3x menos 4 etiquetado: 3 es el coeficiente, x es la variable, menos 4 es la constante`,
+  termLabelCoeff: `Coeficiente`, termLabelVar: `Variable`, termLabelConst: `Constante`,
+  basicsExample1Label: `<strong>Ejemplo paso a paso:</strong> <span style="white-space:nowrap">Plantea un término para "el doble de un número x, aumentado en 7".</span>`,
+  basicsExample1Steps: `1. "El doble de x" significa 2 · x, es decir 2x<br>2. "Aumentado en 7" significa más 7<br>3. Resultado: <span style="white-space:nowrap">2x + 7</span>`,
+  basicsP2Simplify: `<strong>Simplificar:</strong> los términos semejantes (con la misma variable y el mismo exponente) se combinan sumando o restando sus coeficientes.`,
+  basicsExample2Label: `<strong>Ejemplo paso a paso:</strong> <span style="white-space:nowrap">Simplifica 4x + 3 − x + 5.</span>`,
+  basicsExample2Steps: `1. Combina los términos con x: <span style="white-space:nowrap">4x − x = 3x</span><br>2. Combina los números: <span style="white-space:nowrap">3 + 5 = 8</span><br>3. Resultado: <span style="white-space:nowrap">3x + 8</span>`,
+  merkeTitle: `Recuerda`, merkeBody: `Un término consta de números, variables y signos de operación (sin signo igual).<br>Al simplificar, solo se combinan términos semejantes.<br>Los números sin variable (constantes) solo se combinan con otras constantes.`,
+  taskWord: `Ejercicio`,
+  task1Question: `Simplifica 3x + 5x. ¿Cuál es el coeficiente de x en el resultado?`, task2Question: `Simplifica 7a − 2a + 4a. ¿Cuál es el coeficiente de a en el resultado?`, task3Question: `Simplifica 4x + 3 − x + 5. ¿Cuál es el coeficiente de x en el resultado?`, task4Question: `Simplifica 4x + 3 − x + 5. ¿Cuál es la constante (el número sin variable) en el resultado?`, task5Question: `Plantea un término para "el doble de un número x, aumentado en 7". ¿Cuál es el coeficiente de x?`, task6Question: `Plantea un término para "un número x, disminuido en 4, luego triplicado". Eso da 3(x − 4) = 3x − 12. ¿Cuál es la constante?`,
+  task7Question: `Calcula el valor del término 3x − 4 para x = 6.`,
+  task8Question: `Simplifica 5x + 3y − 2x + y. ¿Cuál es el coeficiente de y en el resultado?`,
+  answerPlaceholder: `Tu respuesta`, checkButton: `Comprobar`, solutionSummary: `Ver solución`,
+  task1Result: `<span style="white-space:nowrap">Resultado: 8</span>`, task2Result: `<span style="white-space:nowrap">Resultado: 9</span>`, task3Result: `<span style="white-space:nowrap">Resultado: 3</span>`, task4Result: `<span style="white-space:nowrap">Resultado: 8</span>`, task5Result: `<span style="white-space:nowrap">Resultado: 2</span>`, task6Result: `<span style="white-space:nowrap">Resultado: −12</span>`, task7Result: `<span style="white-space:nowrap">Resultado: 14</span>`, task8Result: `<span style="white-space:nowrap">Resultado: 4</span>`,
+  task1Step1: `Ambos términos tienen la variable x, así que se pueden combinar.`, task1Step2: `Suma los coeficientes: 3 + 5 = 8.`, task1Step3: `Resultado: 8x, el coeficiente es 8.`,
+  task1Hint: `Solo se suman los coeficientes (los números delante de la x) — la variable x en sí se queda igual.`,
+  task2Step1: `Los tres términos tienen la variable a.`, task2Step2: `Calcula los coeficientes: 7 − 2 + 4 = 9.`, task2Step3: `Resultado: 9a, el coeficiente es 9.`,
+  task2Hint: `Presta atención al signo delante de cada término: aquí hay un menos delante del 2a.`,
+  task3Step1: `Combina los términos con x: 4x − x = 3x.`, task3Step2: `Combina los números: 3 + 5 = 8.`, task3Step3: `Resultado: 3x + 8, el coeficiente de x es 3.`,
+  task3Hint: `"−x" significa "−1x", así que en 4x − x se resta 1, no 0.`,
+  task4Step1: `Combina los términos con x: 4x − x = 3x.`, task4Step2: `Combina los números: 3 + 5 = 8.`, task4Step3: `Resultado: 3x + 8, la constante es 8.`,
+  task4Hint: `La constante solo se combina con otras constantes, no con los términos con x.`,
+  task5Step1: `"El doble de x" significa 2 · x = 2x.`, task5Step2: `"Aumentado en 7" significa más 7: 2x + 7.`, task5Step3: `El coeficiente de x es 2.`,
+  task5Hint: `"Doble" significa por 2, no más 2.`,
+  task6Step1: `"x disminuido en 4" significa x − 4.`, task6Step2: `"Triplicado" significa por 3: 3 · (x − 4) = 3x − 12.`, task6Step3: `La constante es −12.`,
+  task6Hint: `Con "triplicado" hay que multiplicar todo el paréntesis por 3, incluyendo el −4.`,
+  task7Step1: `Sustituye x = 6 en el término: 3 · 6 − 4.`, task7Step2: `Calcula: 3 · 6 = 18, luego 18 − 4 = 14.`, task7Step3: `Resultado: 14.`,
+  task7Hint: `Respeta el orden de las operaciones: primero calcula 3 · 6, luego resta 4.`,
+  task8Step1: `Combina los términos con x: 5x − 2x = 3x.`, task8Step2: `Combina los términos con y: 3y + y = 4y.`, task8Step3: `Resultado: 3x + 4y, el coeficiente de y es 4.`,
+  task8Hint: `Los términos con x y con y son variables distintas y no deben mezclarse entre sí.`,
+  hintLabel: `Error típico:`, footerMessage: `Tómate tu tiempo y revisa la solución si la necesitas. ¡Tú puedes!`,
+  fbEmpty: `Introduce un número antes de comprobar.`, fbCorrect: `¡Correcto! ¡Muy bien!`, fbIncorrect: `Todavía no es correcto. Revisa la solución de abajo e inténtalo de nuevo.`
+},
+fr: {
+  eyebrow: `Luisen-Gymnasium · 5e (7e cl. all.)`, titleLine1: `Poser et`, titleAccent: `simplifier des expressions`, backLink: `← Tous les thèmes`, h2Basics: `Les bases`,
+  basicsP1: `Une expression (terme) est une expression mathématique composée de nombres, de variables (des lettres comme x) et de signes d'opération — mais sans signe égal. Un terme a plusieurs composantes.`,
+  termAria: `Le terme 3x moins 4 étiqueté : 3 est le coefficient, x est la variable, moins 4 est la constante`,
+  termLabelCoeff: `Coefficient`, termLabelVar: `Variable`, termLabelConst: `Constante`,
+  basicsExample1Label: `<strong>Exemple étape par étape :</strong> <span style="white-space:nowrap">Pose un terme pour « le double d'un nombre x, augmenté de 7 ».</span>`,
+  basicsExample1Steps: `1. « Le double de x » signifie 2 · x, soit 2x<br>2. « Augmenté de 7 » signifie plus 7<br>3. Résultat : <span style="white-space:nowrap">2x + 7</span>`,
+  basicsP2Simplify: `<strong>Simplifier :</strong> les termes semblables (avec la même variable et le même exposant) sont regroupés en additionnant ou soustrayant leurs coefficients.`,
+  basicsExample2Label: `<strong>Exemple étape par étape :</strong> <span style="white-space:nowrap">Simplifie 4x + 3 − x + 5.</span>`,
+  basicsExample2Steps: `1. Regroupe les termes en x : <span style="white-space:nowrap">4x − x = 3x</span><br>2. Regroupe les nombres : <span style="white-space:nowrap">3 + 5 = 8</span><br>3. Résultat : <span style="white-space:nowrap">3x + 8</span>`,
+  merkeTitle: `À retenir`, merkeBody: `Un terme est composé de nombres, de variables et de signes d'opération (sans signe égal).<br>En simplifiant, seuls les termes semblables sont regroupés.<br>Les nombres sans variable (constantes) ne se regroupent qu'avec d'autres constantes.`,
+  taskWord: `Exercice`,
+  task1Question: `Simplifie 3x + 5x. Quel est le coefficient de x dans le résultat ?`, task2Question: `Simplifie 7a − 2a + 4a. Quel est le coefficient de a dans le résultat ?`, task3Question: `Simplifie 4x + 3 − x + 5. Quel est le coefficient de x dans le résultat ?`, task4Question: `Simplifie 4x + 3 − x + 5. Quelle est la constante (le nombre sans variable) dans le résultat ?`, task5Question: `Pose un terme pour « le double d'un nombre x, augmenté de 7 ». Quel est le coefficient de x ?`, task6Question: `Pose un terme pour « un nombre x, diminué de 4, puis triplé ». Cela donne 3(x − 4) = 3x − 12. Quelle est la constante ?`,
+  task7Question: `Calcule la valeur du terme 3x − 4 pour x = 6.`,
+  task8Question: `Simplifie 5x + 3y − 2x + y. Quel est le coefficient de y dans le résultat ?`,
+  answerPlaceholder: `Ta réponse`, checkButton: `Vérifier`, solutionSummary: `Voir la solution`,
+  task1Result: `<span style="white-space:nowrap">Résultat : 8</span>`, task2Result: `<span style="white-space:nowrap">Résultat : 9</span>`, task3Result: `<span style="white-space:nowrap">Résultat : 3</span>`, task4Result: `<span style="white-space:nowrap">Résultat : 8</span>`, task5Result: `<span style="white-space:nowrap">Résultat : 2</span>`, task6Result: `<span style="white-space:nowrap">Résultat : −12</span>`, task7Result: `<span style="white-space:nowrap">Résultat : 14</span>`, task8Result: `<span style="white-space:nowrap">Résultat : 4</span>`,
+  task1Step1: `Les deux termes ont la variable x, ils peuvent donc être regroupés.`, task1Step2: `Additionne les coefficients : 3 + 5 = 8.`, task1Step3: `Résultat : 8x, le coefficient est 8.`,
+  task1Hint: `On additionne seulement les coefficients (les nombres devant le x) — la variable x elle-même reste inchangée.`,
+  task2Step1: `Les trois termes ont la variable a.`, task2Step2: `Calcule les coefficients : 7 − 2 + 4 = 9.`, task2Step3: `Résultat : 9a, le coefficient est 9.`,
+  task2Hint: `Fais attention au signe devant chaque terme : ici il y a un moins devant le 2a.`,
+  task3Step1: `Regroupe les termes en x : 4x − x = 3x.`, task3Step2: `Regroupe les nombres : 3 + 5 = 8.`, task3Step3: `Résultat : 3x + 8, le coefficient de x est 3.`,
+  task3Hint: `« −x » signifie « −1x », donc dans 4x − x on soustrait 1, pas 0.`,
+  task4Step1: `Regroupe les termes en x : 4x − x = 3x.`, task4Step2: `Regroupe les nombres : 3 + 5 = 8.`, task4Step3: `Résultat : 3x + 8, la constante est 8.`,
+  task4Hint: `La constante ne se regroupe qu'avec d'autres constantes, pas avec les termes en x.`,
+  task5Step1: `« Le double de x » signifie 2 · x = 2x.`, task5Step2: `« Augmenté de 7 » signifie plus 7 : 2x + 7.`, task5Step3: `Le coefficient de x est 2.`,
+  task5Hint: `« Double » signifie fois 2, pas plus 2.`,
+  task6Step1: `« x diminué de 4 » signifie x − 4.`, task6Step2: `« Triplé » signifie fois 3 : 3 · (x − 4) = 3x − 12.`, task6Step3: `La constante est −12.`,
+  task6Hint: `Avec « triplé », toute la parenthèse doit être multipliée par 3, y compris le −4.`,
+  task7Step1: `Substitue x = 6 dans le terme : 3 · 6 − 4.`, task7Step2: `Calcule : 3 · 6 = 18, puis 18 − 4 = 14.`, task7Step3: `Résultat : 14.`,
+  task7Hint: `Respecte la priorité des opérations : calcule d'abord 3 · 6, puis soustrais 4.`,
+  task8Step1: `Regroupe les termes en x : 5x − 2x = 3x.`, task8Step2: `Regroupe les termes en y : 3y + y = 4y.`, task8Step3: `Résultat : 3x + 4y, le coefficient de y est 4.`,
+  task8Hint: `Les termes en x et en y sont des variables différentes et ne doivent pas être mélangés.`,
+  hintLabel: `Erreur fréquente :`, footerMessage: `Prends ton temps et regarde la solution si besoin. Tu vas y arriver !`,
+  fbEmpty: `Merci d'indiquer un nombre avant de vérifier.`, fbCorrect: `Correct ! Bien joué !`, fbIncorrect: `Pas encore tout à fait juste. Regarde la solution ci-dessous et réessaie.`
+},
+tr: {
+  eyebrow: `Luisen-Gymnasium · 7. Sınıf`, titleLine1: `İfade Kurma ve`, titleAccent: `Sadeleştirme`, backLink: `← Tüm Konular`, h2Basics: `Temel Bilgiler`,
+  basicsP1: `Bir ifade (terim), sayılar, değişkenler (x gibi harfler) ve işlem işaretlerinden oluşan matematiksel bir ifadedir — ama eşittir işareti yoktur. Bir ifadenin farklı bölümleri vardır.`,
+  termAria: `3x eksi 4 ifadesi etiketlenmiş: 3 katsayı, x değişken, eksi 4 sabittir`,
+  termLabelCoeff: `Katsayı`, termLabelVar: `Değişken`, termLabelConst: `Sabit`,
+  basicsExample1Label: `<strong>Adım adım örnek:</strong> <span style="white-space:nowrap">"Bir sayının x'in iki katı, 7 artırılmış" için bir ifade kur.</span>`,
+  basicsExample1Steps: `1. "x'in iki katı" 2 · x demektir, yani 2x<br>2. "7 artırılmış" artı 7 demektir<br>3. Sonuç: <span style="white-space:nowrap">2x + 7</span>`,
+  basicsP2Simplify: `<strong>Sadeleştirme:</strong> aynı türden terimler (aynı değişken ve aynı üsle) katsayıları toplanarak veya çıkarılarak birleştirilir.`,
+  basicsExample2Label: `<strong>Adım adım örnek:</strong> <span style="white-space:nowrap">4x + 3 − x + 5'i sadeleştir.</span>`,
+  basicsExample2Steps: `1. x terimlerini birleştir: <span style="white-space:nowrap">4x − x = 3x</span><br>2. Sayıları birleştir: <span style="white-space:nowrap">3 + 5 = 8</span><br>3. Sonuç: <span style="white-space:nowrap">3x + 8</span>`,
+  merkeTitle: `Unutma`, merkeBody: `Bir ifade sayılardan, değişkenlerden ve işlem işaretlerinden oluşur (eşittir işareti yoktur).<br>Sadeleştirirken sadece aynı türden terimler birleştirilir.<br>Değişkeni olmayan sayılar (sabitler) sadece diğer sabitlerle birleştirilir.`,
+  taskWord: `Alıştırma`,
+  task1Question: `3x + 5x'i sadeleştir. Sonuçtaki x'in katsayısı nedir?`, task2Question: `7a − 2a + 4a'yı sadeleştir. Sonuçtaki a'nın katsayısı nedir?`, task3Question: `4x + 3 − x + 5'i sadeleştir. Sonuçtaki x'in katsayısı nedir?`, task4Question: `4x + 3 − x + 5'i sadeleştir. Sonuçtaki sabit (değişkeni olmayan sayı) nedir?`, task5Question: `"Bir sayının x'in iki katı, 7 artırılmış" için bir ifade kur. x'in katsayısı nedir?`, task6Question: `"Bir sayı x, 4 azaltılmış, sonra üç katına çıkarılmış" için bir ifade kur. Bu 3(x − 4) = 3x − 12 verir. Sabit nedir?`,
+  task7Question: `x = 6 için 3x − 4 ifadesinin değerini hesapla.`,
+  task8Question: `5x + 3y − 2x + y'yi sadeleştir. Sonuçtaki y'nin katsayısı nedir?`,
+  answerPlaceholder: `Cevabın`, checkButton: `Kontrol et`, solutionSummary: `Çözümü göster`,
+  task1Result: `<span style="white-space:nowrap">Sonuç: 8</span>`, task2Result: `<span style="white-space:nowrap">Sonuç: 9</span>`, task3Result: `<span style="white-space:nowrap">Sonuç: 3</span>`, task4Result: `<span style="white-space:nowrap">Sonuç: 8</span>`, task5Result: `<span style="white-space:nowrap">Sonuç: 2</span>`, task6Result: `<span style="white-space:nowrap">Sonuç: −12</span>`, task7Result: `<span style="white-space:nowrap">Sonuç: 14</span>`, task8Result: `<span style="white-space:nowrap">Sonuç: 4</span>`,
+  task1Step1: `Her iki terimin de x değişkeni var, yani birleştirilebilirler.`, task1Step2: `Katsayıları topla: 3 + 5 = 8.`, task1Step3: `Sonuç: 8x, katsayı 8'dir.`,
+  task1Hint: `Sadece katsayılar (x'in önündeki sayılar) toplanır — x değişkeninin kendisi olduğu gibi kalır.`,
+  task2Step1: `Üç terimin de a değişkeni var.`, task2Step2: `Katsayıları hesapla: 7 − 2 + 4 = 9.`, task2Step3: `Sonuç: 9a, katsayı 9'dur.`,
+  task2Hint: `Her terimin önündeki işarete dikkat et: burada 2a'nın önünde bir eksi var.`,
+  task3Step1: `x terimlerini birleştir: 4x − x = 3x.`, task3Step2: `Sayıları birleştir: 3 + 5 = 8.`, task3Step3: `Sonuç: 3x + 8, x'in katsayısı 3'tür.`,
+  task3Hint: `"−x", "−1x" anlamına gelir, yani 4x − x'te 0 değil 1 çıkarılır.`,
+  task4Step1: `x terimlerini birleştir: 4x − x = 3x.`, task4Step2: `Sayıları birleştir: 3 + 5 = 8.`, task4Step3: `Sonuç: 3x + 8, sabit 8'dir.`,
+  task4Hint: `Sabit sadece diğer sabitlerle birleştirilir, x terimleriyle değil.`,
+  task5Step1: `"x'in iki katı" 2 · x = 2x demektir.`, task5Step2: `"7 artırılmış" artı 7 demektir: 2x + 7.`, task5Step3: `x'in katsayısı 2'dir.`,
+  task5Hint: `"İki katı" çarpı 2 demektir, artı 2 değil.`,
+  task6Step1: `"x, 4 azaltılmış" x − 4 demektir.`, task6Step2: `"Üç katına çıkarılmış" çarpı 3 demektir: 3 · (x − 4) = 3x − 12.`, task6Step3: `Sabit −12'dir.`,
+  task6Hint: `"Üç katına çıkarılmış" ile tüm parantez 3 ile çarpılmalıdır, −4 dahil.`,
+  task7Step1: `x = 6'yı ifadeye yerine koy: 3 · 6 − 4.`, task7Step2: `Hesapla: 3 · 6 = 18, sonra 18 − 4 = 14.`, task7Step3: `Sonuç: 14.`,
+  task7Hint: `İşlem sırasına dikkat et: önce 3 · 6'yı hesapla, sonra 4'ü çıkar.`,
+  task8Step1: `x terimlerini birleştir: 5x − 2x = 3x.`, task8Step2: `y terimlerini birleştir: 3y + y = 4y.`, task8Step3: `Sonuç: 3x + 4y, y'nin katsayısı 4'tür.`,
+  task8Hint: `x terimleri ve y terimleri farklı değişkenlerdir ve birbirine karıştırılmamalıdır.`,
+  hintLabel: `Sık yapılan hata:`, footerMessage: `Sakin sakin hesapla, gerekirse çözüme bak. Bunu başarabilirsin!`,
+  fbEmpty: `Kontrol etmeden önce lütfen bir sayı gir.`, fbCorrect: `Doğru! Aferin!`, fbIncorrect: `Henüz tam doğru değil. Aşağıdaki çözüme bak ve tekrar dene.`
+},
+ru: {
+  eyebrow: `Luisen-Gymnasium · 7 класс`, titleLine1: `Составление и`, titleAccent: `упрощение выражений`, backLink: `← Все темы`, h2Basics: `Основы`,
+  basicsP1: `Выражение (терм) — это математическое выражение из чисел, переменных (букв вроде x) и знаков действий — но без знака равенства. У выражения есть разные части.`,
+  termAria: `Выражение 3x минус 4 с подписями: 3 — коэффициент, x — переменная, минус 4 — константа`,
+  termLabelCoeff: `Коэффициент`, termLabelVar: `Переменная`, termLabelConst: `Константа`,
+  basicsExample1Label: `<strong>Пример по шагам:</strong> <span style="white-space:nowrap">Составь выражение для «удвоенное число x, увеличенное на 7».</span>`,
+  basicsExample1Steps: `1. «Удвоенное x» означает 2 · x, то есть 2x<br>2. «Увеличенное на 7» означает плюс 7<br>3. Результат: <span style="white-space:nowrap">2x + 7</span>`,
+  basicsP2Simplify: `<strong>Упрощение:</strong> подобные слагаемые (с одинаковой переменной и одинаковой степенью) объединяют, складывая или вычитая их коэффициенты.`,
+  basicsExample2Label: `<strong>Пример по шагам:</strong> <span style="white-space:nowrap">Упрости 4x + 3 − x + 5.</span>`,
+  basicsExample2Steps: `1. Объедини слагаемые с x: <span style="white-space:nowrap">4x − x = 3x</span><br>2. Объедини числа: <span style="white-space:nowrap">3 + 5 = 8</span><br>3. Результат: <span style="white-space:nowrap">3x + 8</span>`,
+  merkeTitle: `Запомни`, merkeBody: `Выражение состоит из чисел, переменных и знаков действий (без знака равенства).<br>При упрощении объединяют только подобные слагаемые.<br>Числа без переменной (константы) объединяют только с другими константами.`,
+  taskWord: `Задание`,
+  task1Question: `Упрости 3x + 5x. Чему равен коэффициент x в результате?`, task2Question: `Упрости 7a − 2a + 4a. Чему равен коэффициент a в результате?`, task3Question: `Упрости 4x + 3 − x + 5. Чему равен коэффициент x в результате?`, task4Question: `Упрости 4x + 3 − x + 5. Чему равна константа (число без переменной) в результате?`, task5Question: `Составь выражение для «удвоенное число x, увеличенное на 7». Чему равен коэффициент x?`, task6Question: `Составь выражение для «число x, уменьшенное на 4, затем утроенное». Получается 3(x − 4) = 3x − 12. Чему равна константа?`,
+  task7Question: `Вычисли значение выражения 3x − 4 при x = 6.`,
+  task8Question: `Упрости 5x + 3y − 2x + y. Чему равен коэффициент y в результате?`,
+  answerPlaceholder: `Твой ответ`, checkButton: `Проверить`, solutionSummary: `Показать решение`,
+  task1Result: `<span style="white-space:nowrap">Результат: 8</span>`, task2Result: `<span style="white-space:nowrap">Результат: 9</span>`, task3Result: `<span style="white-space:nowrap">Результат: 3</span>`, task4Result: `<span style="white-space:nowrap">Результат: 8</span>`, task5Result: `<span style="white-space:nowrap">Результат: 2</span>`, task6Result: `<span style="white-space:nowrap">Результат: −12</span>`, task7Result: `<span style="white-space:nowrap">Результат: 14</span>`, task8Result: `<span style="white-space:nowrap">Результат: 4</span>`,
+  task1Step1: `Оба слагаемых содержат переменную x, поэтому их можно объединить.`, task1Step2: `Сложи коэффициенты: 3 + 5 = 8.`, task1Step3: `Результат: 8x, коэффициент равен 8.`,
+  task1Hint: `Складывают только коэффициенты (числа перед x) — сама переменная x остаётся без изменений.`,
+  task2Step1: `Все три слагаемых содержат переменную a.`, task2Step2: `Вычисли коэффициенты: 7 − 2 + 4 = 9.`, task2Step3: `Результат: 9a, коэффициент равен 9.`,
+  task2Hint: `Обрати внимание на знак перед каждым слагаемым: здесь перед 2a стоит минус.`,
+  task3Step1: `Объедини слагаемые с x: 4x − x = 3x.`, task3Step2: `Объедини числа: 3 + 5 = 8.`, task3Step3: `Результат: 3x + 8, коэффициент x равен 3.`,
+  task3Hint: `«−x» означает «−1x», поэтому в 4x − x вычитают 1, а не 0.`,
+  task4Step1: `Объедини слагаемые с x: 4x − x = 3x.`, task4Step2: `Объедини числа: 3 + 5 = 8.`, task4Step3: `Результат: 3x + 8, константа равна 8.`,
+  task4Hint: `Константа объединяется только с другими константами, а не со слагаемыми с x.`,
+  task5Step1: `«Удвоенное x» означает 2 · x = 2x.`, task5Step2: `«Увеличенное на 7» означает плюс 7: 2x + 7.`, task5Step3: `Коэффициент x равен 2.`,
+  task5Hint: `«Удвоенное» означает умножить на 2, а не прибавить 2.`,
+  task6Step1: `«x, уменьшенное на 4» означает x − 4.`, task6Step2: `«Утроенное» означает умножить на 3: 3 · (x − 4) = 3x − 12.`, task6Step3: `Константа равна −12.`,
+  task6Hint: `При «утроении» на 3 нужно умножить всю скобку целиком, включая −4.`,
+  task7Step1: `Подставь x = 6 в выражение: 3 · 6 − 4.`, task7Step2: `Вычисли: 3 · 6 = 18, затем 18 − 4 = 14.`, task7Step3: `Результат: 14.`,
+  task7Hint: `Соблюдай порядок действий: сначала вычисли 3 · 6, потом вычти 4.`,
+  task8Step1: `Объедини слагаемые с x: 5x − 2x = 3x.`, task8Step2: `Объедини слагаемые с y: 3y + y = 4y.`, task8Step3: `Результат: 3x + 4y, коэффициент y равен 4.`,
+  task8Hint: `Слагаемые с x и с y — это разные переменные, их нельзя смешивать друг с другом.`,
+  hintLabel: `Типичная ошибка:`, footerMessage: `Считай спокойно и при необходимости смотри решение. У тебя получится!`,
+  fbEmpty: `Пожалуйста, введи число перед проверкой.`, fbCorrect: `Правильно! Отлично!`, fbIncorrect: `Пока не совсем верно. Посмотри решение ниже и попробуй ещё раз.`
+},
+ar: {
+  eyebrow: `مدرسة لويزن الثانوية · الصف السابع`, titleLine1: `صياغة`, titleAccent: `وتبسيط المقادير`, backLink: `← جميع المواضيع`, h2Basics: `الأساسيات`,
+  basicsP1: `المقدار (الحد) هو تعبير رياضي مكوّن من أعداد، ومتغيرات (حروف مثل x)، وإشارات عمليات — لكن دون علامة يساوي. للمقدار أجزاء مختلفة.`,
+  termAria: `المقدار 3x ناقص 4 موسوم: 3 هو المعامل، x هو المتغير، وناقص 4 هو الحد الثابت`,
+  termLabelCoeff: `المعامل`, termLabelVar: `المتغير`, termLabelConst: `الحد الثابت`,
+  basicsExample1Label: `<strong>مثال خطوة بخطوة:</strong> <span style="white-space:nowrap">اكتب مقدارًا لـ "ضعف عدد x، مزيدًا بـ 7".</span>`,
+  basicsExample1Steps: `1. "ضعف x" يعني 2 · x، أي 2x<br>2. "مزيدًا بـ 7" يعني زائد 7<br>3. النتيجة: <span style="white-space:nowrap">2x + 7</span>`,
+  basicsP2Simplify: `<strong>التبسيط:</strong> تُجمَع الحدود المتشابهة (بنفس المتغير ونفس الأس) بجمع أو طرح معاملاتها.`,
+  basicsExample2Label: `<strong>مثال خطوة بخطوة:</strong> <span style="white-space:nowrap">بسّط 4x + 3 − x + 5.</span>`,
+  basicsExample2Steps: `1. اجمع حدود x: <span style="white-space:nowrap">4x − x = 3x</span><br>2. اجمع الأعداد: <span style="white-space:nowrap">3 + 5 = 8</span><br>3. النتيجة: <span style="white-space:nowrap">3x + 8</span>`,
+  merkeTitle: `تذكّر`, merkeBody: `يتكون المقدار من أعداد ومتغيرات وإشارات عمليات (دون علامة يساوي).<br>عند التبسيط، تُجمَع فقط الحدود المتشابهة.<br>الأعداد بدون متغير (الثوابت) تُجمَع فقط مع ثوابت أخرى.`,
+  taskWord: `تمرين`,
+  task1Question: `بسّط 3x + 5x. ما هو معامل x في الناتج؟`, task2Question: `بسّط 7a − 2a + 4a. ما هو معامل a في الناتج؟`, task3Question: `بسّط 4x + 3 − x + 5. ما هو معامل x في الناتج؟`, task4Question: `بسّط 4x + 3 − x + 5. ما هو الحد الثابت (العدد بدون متغير) في الناتج؟`, task5Question: `اكتب مقدارًا لـ "ضعف عدد x، مزيدًا بـ 7". ما هو معامل x؟`, task6Question: `اكتب مقدارًا لـ "عدد x، منقوصًا منه 4، ثم مضاعفًا ثلاث مرات". ينتج ذلك 3(x − 4) = 3x − 12. ما هو الحد الثابت؟`,
+  task7Question: `احسب قيمة المقدار 3x − 4 عندما x = 6.`,
+  task8Question: `بسّط 5x + 3y − 2x + y. ما هو معامل y في الناتج؟`,
+  answerPlaceholder: `إجابتك`, checkButton: `تحقق`, solutionSummary: `عرض الحل`,
+  task1Result: `<span style="white-space:nowrap">النتيجة: 8</span>`, task2Result: `<span style="white-space:nowrap">النتيجة: 9</span>`, task3Result: `<span style="white-space:nowrap">النتيجة: 3</span>`, task4Result: `<span style="white-space:nowrap">النتيجة: 8</span>`, task5Result: `<span style="white-space:nowrap">النتيجة: 2</span>`, task6Result: `<span style="white-space:nowrap">النتيجة: −12</span>`, task7Result: `<span style="white-space:nowrap">النتيجة: 14</span>`, task8Result: `<span style="white-space:nowrap">النتيجة: 4</span>`,
+  task1Step1: `يحتوي الحدان على المتغير x، لذا يمكن جمعهما.`, task1Step2: `اجمع المعاملات: 3 + 5 = 8.`, task1Step3: `النتيجة: 8x، المعامل هو 8.`,
+  task1Hint: `تُجمَع المعاملات فقط (الأعداد أمام x) — يبقى المتغير x نفسه كما هو.`,
+  task2Step1: `تحتوي الحدود الثلاثة على المتغير a.`, task2Step2: `احسب المعاملات: 7 − 2 + 4 = 9.`, task2Step3: `النتيجة: 9a، المعامل هو 9.`,
+  task2Hint: `انتبه إلى الإشارة أمام كل حد: هنا توجد إشارة ناقص أمام 2a.`,
+  task3Step1: `اجمع حدود x: 4x − x = 3x.`, task3Step2: `اجمع الأعداد: 3 + 5 = 8.`, task3Step3: `النتيجة: 3x + 8، معامل x هو 3.`,
+  task3Hint: `"−x" تعني "−1x"، لذا في 4x − x يُطرَح 1 وليس 0.`,
+  task4Step1: `اجمع حدود x: 4x − x = 3x.`, task4Step2: `اجمع الأعداد: 3 + 5 = 8.`, task4Step3: `النتيجة: 3x + 8، الحد الثابت هو 8.`,
+  task4Hint: `يُجمَع الحد الثابت فقط مع ثوابت أخرى، وليس مع حدود x.`,
+  task5Step1: `"ضعف x" يعني 2 · x = 2x.`, task5Step2: `"مزيدًا بـ 7" يعني زائد 7: 2x + 7.`, task5Step3: `معامل x هو 2.`,
+  task5Hint: `"ضعف" تعني ضرب في 2، وليست زائد 2.`,
+  task6Step1: `"x منقوصًا منه 4" تعني x − 4.`, task6Step2: `"مضاعفًا ثلاث مرات" تعني ضرب في 3: 3 · (x − 4) = 3x − 12.`, task6Step3: `الحد الثابت هو −12.`,
+  task6Hint: `عند "التثليث" يجب ضرب القوس بأكمله في 3، بما في ذلك −4.`,
+  task7Step1: `عوّض x = 6 في المقدار: 3 · 6 − 4.`, task7Step2: `احسب: 3 · 6 = 18، ثم 18 − 4 = 14.`, task7Step3: `النتيجة: 14.`,
+  task7Hint: `راعِ ترتيب العمليات: احسب 3 · 6 أولًا، ثم اطرح 4.`,
+  task8Step1: `اجمع حدود x: 5x − 2x = 3x.`, task8Step2: `اجمع حدود y: 3y + y = 4y.`, task8Step3: `النتيجة: 3x + 4y، معامل y هو 4.`,
+  task8Hint: `حدود x وحدود y متغيرات مختلفة ويجب ألا تُخلَط ببعضها.`,
+  hintLabel: `خطأ شائع:`, footerMessage: `احسب بهدوء وراجع الحل إذا احتجت إليه. أنت قادر على ذلك!`,
+  fbEmpty: `الرجاء إدخال رقم قبل التحقق.`, fbCorrect: `صحيح! أحسنت!`, fbIncorrect: `ليست صحيحة تمامًا بعد. راجع الحل أدناه وحاول مرة أخرى.`
+},
+zh: {
+  eyebrow: `路易森文理中学 · 七年级`, titleLine1: `列代数式与`, titleAccent: `化简`, backLink: `← 所有主题`, h2Basics: `基础知识`,
+  basicsP1: `代数式（项）是由数字、变量（像 x 这样的字母）和运算符号组成的数学表达式——但没有等号。一个代数式有不同的组成部分。`,
+  termAria: `代数式 3x 减 4 的标注：3 是系数，x 是变量，减 4 是常数`,
+  termLabelCoeff: `系数`, termLabelVar: `变量`, termLabelConst: `常数`,
+  basicsExample1Label: `<strong>分步示例：</strong> <span style="white-space:nowrap">为"一个数 x 的两倍，再加 7"列一个代数式。</span>`,
+  basicsExample1Steps: `1. "x 的两倍"表示 2 · x，也就是 2x<br>2. "再加 7"表示加 7<br>3. 结果：<span style="white-space:nowrap">2x + 7</span>`,
+  basicsP2Simplify: `<strong>化简：</strong>同类项（有相同变量和相同指数）通过把它们的系数相加或相减来合并。`,
+  basicsExample2Label: `<strong>分步示例：</strong> <span style="white-space:nowrap">化简 4x + 3 − x + 5。</span>`,
+  basicsExample2Steps: `1. 合并 x 项：<span style="white-space:nowrap">4x − x = 3x</span><br>2. 合并数字：<span style="white-space:nowrap">3 + 5 = 8</span><br>3. 结果：<span style="white-space:nowrap">3x + 8</span>`,
+  merkeTitle: `记住`, merkeBody: `一个代数式由数字、变量和运算符号组成（没有等号）。<br>化简时只合并同类项。<br>没有变量的数字（常数）只能与其他常数合并。`,
+  taskWord: `练习`,
+  task1Question: `化简 3x + 5x。结果中 x 的系数是多少？`, task2Question: `化简 7a − 2a + 4a。结果中 a 的系数是多少？`, task3Question: `化简 4x + 3 − x + 5。结果中 x 的系数是多少？`, task4Question: `化简 4x + 3 − x + 5。结果中的常数（没有变量的数字）是多少？`, task5Question: `为"一个数 x 的两倍，再加 7"列一个代数式。x 的系数是多少？`, task6Question: `为"一个数 x 减 4，再乘以 3"列一个代数式。得到 3(x − 4) = 3x − 12。常数是多少？`,
+  task7Question: `当 x = 6 时，计算代数式 3x − 4 的值。`,
+  task8Question: `化简 5x + 3y − 2x + y。结果中 y 的系数是多少？`,
+  answerPlaceholder: `你的答案`, checkButton: `检查`, solutionSummary: `显示答案`,
+  task1Result: `<span style="white-space:nowrap">结果：8</span>`, task2Result: `<span style="white-space:nowrap">结果：9</span>`, task3Result: `<span style="white-space:nowrap">结果：3</span>`, task4Result: `<span style="white-space:nowrap">结果：8</span>`, task5Result: `<span style="white-space:nowrap">结果：2</span>`, task6Result: `<span style="white-space:nowrap">结果：−12</span>`, task7Result: `<span style="white-space:nowrap">结果：14</span>`, task8Result: `<span style="white-space:nowrap">结果：4</span>`,
+  task1Step1: `两项都含有变量 x，所以可以合并。`, task1Step2: `把系数相加：3 + 5 = 8。`, task1Step3: `结果：8x，系数是 8。`,
+  task1Hint: `只把系数（x 前面的数字）相加——变量 x 本身保持不变。`,
+  task2Step1: `三项都含有变量 a。`, task2Step2: `计算系数：7 − 2 + 4 = 9。`, task2Step3: `结果：9a，系数是 9。`,
+  task2Hint: `注意每一项前面的符号：这里 2a 前面是减号。`,
+  task3Step1: `合并 x 项：4x − x = 3x。`, task3Step2: `合并数字：3 + 5 = 8。`, task3Step3: `结果：3x + 8，x 的系数是 3。`,
+  task3Hint: `"−x" 表示 "−1x"，所以 4x − x 是减去 1，不是减去 0。`,
+  task4Step1: `合并 x 项：4x − x = 3x。`, task4Step2: `合并数字：3 + 5 = 8。`, task4Step3: `结果：3x + 8，常数是 8。`,
+  task4Hint: `常数只能与其他常数合并，不能和 x 项合并。`,
+  task5Step1: `"x 的两倍"表示 2 · x = 2x。`, task5Step2: `"再加 7"表示加 7：2x + 7。`, task5Step3: `x 的系数是 2。`,
+  task5Hint: `"两倍"表示乘以 2，不是加 2。`,
+  task6Step1: `"x 减 4"表示 x − 4。`, task6Step2: `"乘以 3"表示 3 · (x − 4) = 3x − 12。`, task6Step3: `常数是 −12。`,
+  task6Hint: `"乘以 3"时要把整个括号都乘以 3，包括 −4。`,
+  task7Step1: `把 x = 6 代入代数式：3 · 6 − 4。`, task7Step2: `计算：3 · 6 = 18，然后 18 − 4 = 14。`, task7Step3: `结果：14。`,
+  task7Hint: `注意运算顺序：先算 3 · 6，再减去 4。`,
+  task8Step1: `合并 x 项：5x − 2x = 3x。`, task8Step2: `合并 y 项：3y + y = 4y。`, task8Step3: `结果：3x + 4y，y 的系数是 4。`,
+  task8Hint: `x 项和 y 项是不同的变量，不能混在一起。`,
+  hintLabel: `常见错误：`, footerMessage: `慢慢算，需要的话看看答案。你能做到！`,
+  fbEmpty: `请先输入一个数字再检查。`, fbCorrect: `正确！做得好！`, fbIncorrect: `还不完全正确。看看下面的答案，再试一次。`
+}
+};
+
+var currentLang = 'de';
+
+function setLanguage(lang){
+  var dict = TRANSLATIONS[lang] || TRANSLATIONS.de;
+  currentLang = TRANSLATIONS[lang] ? lang : 'de';
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = (currentLang === 'ar') ? 'rtl' : 'ltr';
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var key = el.getAttribute('data-i18n');
+    if(dict[key] !== undefined){ el.innerHTML = dict[key]; }
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-placeholder');
+    if(dict[key] !== undefined){ el.setAttribute('placeholder', dict[key]); }
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-aria');
+    if(dict[key] !== undefined){ el.setAttribute('aria-label', dict[key]); }
+  });
+  try{ localStorage.setItem('mathecoach_lang', currentLang); }catch(e){}
+  var sel = document.getElementById('langSelect');
+  if(sel) sel.value = currentLang;
+}
+
+function check(id, correct){
+  var dict = TRANSLATIONS[currentLang] || TRANSLATIONS.de;
+  var input = document.getElementById('input' + id);
+  var feedback = document.getElementById('feedback' + id);
+  var raw = input.value.trim();
+  var match = raw.match(/-?\d+/);
+  feedback.classList.remove('show', 'correct', 'incorrect');
+  if(!match){
+    feedback.textContent = dict.fbEmpty;
+    feedback.classList.add('show', 'incorrect');
+    return;
+  }
+  var value = parseInt(match[0], 10);
+  if(value === correct){
+    feedback.textContent = dict.fbCorrect;
+    feedback.classList.add('show', 'correct');
+  } else {
+    feedback.textContent = dict.fbIncorrect;
+    feedback.classList.add('show', 'incorrect');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var saved = 'de';
+  try{ saved = localStorage.getItem('mathecoach_lang') || 'de'; }catch(e){}
+  setLanguage(saved);
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Termumformung: Ausmultiplizieren und Ausklammern</title>
+<style>
+  :root{
+    --bg:#FAFAF9; --card:#FFFFFF; --ink:#241C1C; --ink-soft:#5C4F4C;
+    --red:#C41230; --gold:#E0A526; --blue:#2478B5;
+    --merke-bg:#FBF1DC; --merke-border:#E0A526;
+    --success:#1E8E5A; --success-bg:#E5F5EC; --error:#B3401D; --error-bg:#FBEDE6;
+    --font-display: ui-rounded, "SF Pro Rounded", "Segoe UI Rounded", "Nunito", system-ui, sans-serif;
+    --font-body: system-ui, "Segoe UI", Roboto, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:18px; line-height:1.5; padding-bottom:60px; }
+  .wrap{ max-width:640px; margin:0 auto; padding:0 20px; }
+  header{ background:var(--card); padding:30px 20px 0; text-align:center; position:relative; }
+  .header-inner{ padding-bottom:26px; }
+  .lang-switch{ display:flex; justify-content:center; margin-bottom:14px; }
+  #langSelect{ font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--ink); background:var(--card); border:2px solid #E3DFDA; border-radius:999px; padding:6px 14px; cursor:pointer; }
+  #langSelect:focus-visible{ outline:3px solid var(--blue); }
+  .back-link{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--blue); text-decoration:none; margin-bottom:16px; }
+  .eyebrow{ font-family:var(--font-display); font-weight:700; font-size:14px; letter-spacing:0.08em; text-transform:uppercase; color:var(--blue); margin-bottom:8px; }
+  h1{ font-family:var(--font-display); font-size:28px; font-weight:800; margin:0; line-height:1.25; }
+  h1 .accent{ color:var(--red); }
+  .wave{ display:block; width:100%; height:30px; }
+  section{ margin-top:32px; }
+  .card{ background:var(--card); border-radius:22px; padding:24px 22px; box-shadow:0 2px 14px rgba(36,28,28,0.07); }
+  h2{ font-family:var(--font-display); font-size:21px; font-weight:800; margin:0 0 14px; }
+  h2 .num{ display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:var(--blue); color:white; font-size:16px; margin-inline-end:10px; vertical-align:middle; }
+  p{ margin:0 0 14px; color:var(--ink-soft); }
+  .merke{ background:var(--merke-bg); border:2px solid var(--merke-border); border-radius:16px; padding:16px 18px; margin-top:16px; }
+  .merke-title{ font-family:var(--font-display); font-weight:800; color:#8A5A0F; font-size:15px; letter-spacing:0.04em; text-transform:uppercase; margin-bottom:6px; }
+  .merke-body{ color:#6B4A12; font-weight:600; margin:0; }
+  .expand-diagram{ width:100%; height:auto; margin:18px 0 6px; }
+  .task-card{ margin-top:18px; }
+  .task-question{ font-family:var(--font-display); font-weight:700; font-size:19px; margin-bottom:16px; }
+  .answer-row{ display:flex; gap:10px; margin-bottom:6px; }
+  input[type="text"]{ flex:1; font-size:18px; font-family:var(--font-body); padding:12px 14px; border-radius:12px; border:2px solid #E3DFDA; background:#FBFAF9; color:var(--ink); }
+  input[type="text"]:focus{ outline:3px solid #C9DCEA; border-color:var(--blue); }
+  button.check{ font-family:var(--font-display); font-weight:700; font-size:16px; color:white; background:var(--blue); border:none; border-radius:12px; padding:0 20px; cursor:pointer; }
+  button.check:active{ transform:translateY(1px); }
+  button.check:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
+  .feedback{ margin-top:10px; padding:12px 14px; border-radius:12px; font-weight:700; display:none; }
+  .feedback.show{ display:block; }
+  .feedback.correct{ background:var(--success-bg); color:var(--success); }
+  .feedback.incorrect{ background:var(--error-bg); color:var(--error); }
+  details{ margin-top:14px; border-top:2px dashed #E3DFDA; padding-top:12px; }
+  summary{ font-family:var(--font-display); font-weight:700; color:var(--blue); cursor:pointer; font-size:15px; }
+  .solution{ margin-top:12px; }
+  .solution ol{ margin:0 0 12px; padding-inline-start:22px; color:var(--ink-soft); }
+  .solution li{ margin-bottom:6px; }
+  .solution-result{ font-family:var(--font-display); font-weight:800; color:var(--ink); margin-bottom:12px; }
+  .hint-box{ background:#F1EFEC; border-radius:12px; padding:12px 14px; font-size:16px; color:var(--ink-soft); }
+  .hint-box strong{ color:var(--ink); }
+  footer{ text-align:center; margin-top:36px; padding:0 20px; }
+  footer p{ font-family:var(--font-display); font-weight:700; color:var(--ink); }
+  .footer-wave{ display:block; width:100%; max-width:280px; height:16px; margin:0 auto 18px; opacity:0.6; }
+  [dir="rtl"] .back-link{ flex-direction:row-reverse; }
+  @media (prefers-reduced-motion: no-preference){ button.check{ transition:transform 0.1s ease; } }
+  @media (max-width: 480px){ .answer-row{ flex-direction:column; } button.check{ width:100%; padding:14px 20px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="lang-switch">
+      <select id="langSelect" onchange="setLanguage(this.value)">
+        <option value="de">Deutsch</option><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="tr">Türkçe</option><option value="ru">Русский</option><option value="ar">العربية</option><option value="zh">中文</option>
+      </select>
+    </div>
+    <a class="back-link" href="index.html" data-i18n="backLink">← Alle Themen</a>
+    <div class="eyebrow" data-i18n="eyebrow">Luisen-Gymnasium · Klasse 7</div>
+    <h1><span data-i18n="titleLine1">Ausmultiplizieren</span><br><span class="accent" data-i18n="titleAccent">und Ausklammern</span></h1>
+  </div>
+  <svg class="wave" viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+    <path d="M -10 22 C 190 4, 390 40, 590 22 S 990 4, 1210 22" fill="none" stroke="#C41230" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 32 C 190 50, 390 14, 590 32 S 990 50, 1210 32" fill="none" stroke="#E0A526" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 42 C 190 24, 390 58, 590 42 S 990 24, 1210 42" fill="none" stroke="#2478B5" stroke-width="5" stroke-linecap="round"/>
+  </svg>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <div class="card">
+      <h2 data-i18n="h2Basics">Grundlagen</h2>
+      <p data-i18n="basicsP1"><strong>Ausmultiplizieren:</strong> Steht eine Zahl vor einer Klammer, wird sie mit jedem einzelnen Glied in der Klammer multipliziert.</p>
+
+      <svg class="expand-diagram" viewBox="0 0 600 160" xmlns="http://www.w3.org/2000/svg" role="img" data-i18n-aria="expandAria" aria-label="3 mal die Klammer x plus 4 wird zu 3 mal x plus 3 mal 4">
+        <text x="180" y="50" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="28" font-weight="800" fill="#241C1C">3(x + 4)</text>
+        <path d="M180 65 C 100 100, 60 110, 60 130" fill="none" stroke="#C41230" stroke-width="2.5" marker-end="url(#arr1)"/>
+        <path d="M180 65 C 260 100, 300 110, 300 130" fill="none" stroke="#2478B5" stroke-width="2.5" marker-end="url(#arr2)"/>
+        <defs>
+          <marker id="arr1" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#C41230"/></marker>
+          <marker id="arr2" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#2478B5"/></marker>
+        </defs>
+        <text x="60" y="148" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="22" font-weight="800" fill="#C41230">3x</text>
+        <text x="220" y="145" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="20" font-weight="700" fill="#241C1C">+</text>
+        <text x="300" y="148" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="22" font-weight="800" fill="#2478B5">12</text>
+      </svg>
+
+      <p data-i18n="basicsExample1Label"><strong>Beispiel Schritt für Schritt:</strong> Multipliziere aus: 3(x + 4).</p>
+      <p data-i18n="basicsExample1Steps">1. 3 mit x multiplizieren: 3 · x = 3x<br>2. 3 mit 4 multiplizieren: 3 · 4 = 12<br>3. Ergebnis: 3x + 12</p>
+
+      <p data-i18n="basicsP2Factor"><strong>Ausklammern</strong> ist der umgekehrte Weg: Man sucht einen gemeinsamen Faktor in allen Gliedern und schreibt ihn vor eine Klammer.</p>
+
+      <p data-i18n="basicsExample2Label"><strong>Beispiel Schritt für Schritt:</strong> Klammere aus: 6x + 9.</p>
+      <p data-i18n="basicsExample2Steps">1. Gemeinsamen Faktor finden: ggT(6, 9) = 3<br>2. Beide Glieder durch 3 teilen: 6x : 3 = 2x, 9 : 3 = 3<br>3. Ergebnis: 3(2x + 3)</p>
+
+      <div class="merke">
+        <div class="merke-title" data-i18n="merkeTitle">Merke</div>
+        <p class="merke-body" data-i18n="merkeBody">Ausmultiplizieren: a(b + c) = ab + ac.<br>Ausklammern: den größten gemeinsamen Faktor vor die Klammer schreiben.<br>Ausmultiplizieren und Ausklammern sind Umkehrungen voneinander.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">1</span><span data-i18n="taskWord">Aufgabe</span> 1</h2>
+      <div class="task-question" data-i18n="task1Question">Multipliziere aus: 3(x + 4). Wie lautet der Koeffizient von x?</div>
+      <div class="answer-row">
+        <input type="text" id="input1" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(1, 3)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback1"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task1Result">Ergebnis: 3</div>
+          <ol>
+            <li data-i18n="task1Step1">3 mit x multiplizieren: 3 · x = 3x.</li>
+            <li data-i18n="task1Step2">3 mit 4 multiplizieren: 3 · 4 = 12.</li>
+            <li data-i18n="task1Step3">Ergebnis: 3x + 12, der Koeffizient von x ist 3.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task1Hint">Die 3 muss mit BEIDEN Gliedern in der Klammer multipliziert werden, nicht nur mit dem x.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">2</span><span data-i18n="taskWord">Aufgabe</span> 2</h2>
+      <div class="task-question" data-i18n="task2Question">Multipliziere aus: 3(x + 4). Wie lautet die Konstante?</div>
+      <div class="answer-row">
+        <input type="text" id="input2" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(2, 12)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback2"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task2Result">Ergebnis: 12</div>
+          <ol>
+            <li data-i18n="task2Step1">3 mit x multiplizieren: 3 · x = 3x.</li>
+            <li data-i18n="task2Step2">3 mit 4 multiplizieren: 3 · 4 = 12.</li>
+            <li data-i18n="task2Step3">Ergebnis: 3x + 12, die Konstante ist 12.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task2Hint">Manchmal wird die Multiplikation mit der zweiten Zahl in der Klammer vergessen.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">3</span><span data-i18n="taskWord">Aufgabe</span> 3</h2>
+      <div class="task-question" data-i18n="task3Question">Multipliziere aus: 5(2x − 3). Wie lautet der Koeffizient von x?</div>
+      <div class="answer-row">
+        <input type="text" id="input3" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(3, 10)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback3"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task3Result">Ergebnis: 10</div>
+          <ol>
+            <li data-i18n="task3Step1">5 mit 2x multiplizieren: 5 · 2x = 10x.</li>
+            <li data-i18n="task3Step2">5 mit −3 multiplizieren: 5 · (−3) = −15.</li>
+            <li data-i18n="task3Step3">Ergebnis: 10x − 15, der Koeffizient von x ist 10.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task3Hint">Bei 2x wird die 5 mit der gesamten Zahl 2 multipliziert, nicht nur addiert.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">4</span><span data-i18n="taskWord">Aufgabe</span> 4</h2>
+      <div class="task-question" data-i18n="task4Question">Multipliziere aus: 5(2x − 3). Wie lautet die Konstante?</div>
+      <div class="answer-row">
+        <input type="text" id="input4" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(4, -15)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback4"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task4Result">Ergebnis: −15</div>
+          <ol>
+            <li data-i18n="task4Step1">5 mit 2x multiplizieren: 5 · 2x = 10x.</li>
+            <li data-i18n="task4Step2">5 mit −3 multiplizieren: 5 · (−3) = −15.</li>
+            <li data-i18n="task4Step3">Ergebnis: 10x − 15, die Konstante ist −15.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task4Hint">Plus mal Minus ergibt Minus – das Vorzeichen der −3 bleibt beim Ausmultiplizieren erhalten.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">5</span><span data-i18n="taskWord">Aufgabe</span> 5</h2>
+      <div class="task-question" data-i18n="task5Question">Klammere aus: 6x + 9. Welcher Faktor steht vor der Klammer (der größte gemeinsame Teiler)?</div>
+      <div class="answer-row">
+        <input type="text" id="input5" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(5, 3)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback5"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task5Result">Ergebnis: 3</div>
+          <ol>
+            <li data-i18n="task5Step1">ggT von 6 und 9 finden: ggT(6, 9) = 3.</li>
+            <li data-i18n="task5Step2">Beide Glieder durch 3 teilen: 6x : 3 = 2x, 9 : 3 = 3.</li>
+            <li data-i18n="task5Step3">Ergebnis: 3(2x + 3), der Faktor ist 3.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task5Hint">Man sollte immer den größtmöglichen gemeinsamen Faktor herausziehen, nicht nur irgendeinen.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">6</span><span data-i18n="taskWord">Aufgabe</span> 6</h2>
+      <div class="task-question" data-i18n="task6Question">Klammere aus: 8x + 12. Welcher Faktor steht vor der Klammer?</div>
+      <div class="answer-row">
+        <input type="text" id="input6" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(6, 4)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback6"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task6Result">Ergebnis: 4</div>
+          <ol>
+            <li data-i18n="task6Step1">ggT von 8 und 12 finden: ggT(8, 12) = 4.</li>
+            <li data-i18n="task6Step2">Beide Glieder durch 4 teilen: 8x : 4 = 2x, 12 : 4 = 3.</li>
+            <li data-i18n="task6Step3">Ergebnis: 4(2x + 3), der Faktor ist 4.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task6Hint">2 ist auch ein gemeinsamer Teiler von 8 und 12, aber nicht der größte – man sollte immer den ggT verwenden.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">7</span><span data-i18n="taskWord">Aufgabe</span> 7</h2>
+      <div class="task-question" data-i18n="task7Question">Multipliziere aus: −2(x − 5). Wie lautet der Koeffizient von x?</div>
+      <div class="answer-row">
+        <input type="text" id="input7" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(7, -2)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback7"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task7Result">Ergebnis: −2</div>
+          <ol>
+            <li data-i18n="task7Step1">−2 mit x multiplizieren: −2 · x = −2x.</li>
+            <li data-i18n="task7Step2">−2 mit −5 multiplizieren: −2 · (−5) = 10.</li>
+            <li data-i18n="task7Step3">Ergebnis: −2x + 10, der Koeffizient von x ist −2.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task7Hint">Steht eine negative Zahl vor der Klammer, dreht sich das Vorzeichen jedes Glieds in der Klammer um.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">8</span><span data-i18n="taskWord">Aufgabe</span> 8</h2>
+      <div class="task-question" data-i18n="task8Question">Ein Rechteck hat die Breite 4 und die Länge (x + 3). Multipliziere den Flächenterm aus: 4(x + 3). Wie lautet die Konstante im ausmultiplizierten Term?</div>
+      <div class="answer-row">
+        <input type="text" id="input8" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(8, 12)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback8"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task8Result">Ergebnis: 12</div>
+          <ol>
+            <li data-i18n="task8Step1">4 mit x multiplizieren: 4 · x = 4x.</li>
+            <li data-i18n="task8Step2">4 mit 3 multiplizieren: 4 · 3 = 12.</li>
+            <li data-i18n="task8Step3">Ergebnis: 4x + 12, die Konstante ist 12.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task8Hint">Auch bei Sachaufgaben mit Flächen gilt dieselbe Regel: die Zahl vor der Klammer mit jedem Glied multiplizieren.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <footer>
+    <svg class="footer-wave" viewBox="0 0 280 16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+      <path d="M -5 8 C 40 1, 80 15, 140 8 S 240 1, 285 8" fill="none" stroke="#C41230" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M -5 8 C 40 15, 80 1, 140 8 S 240 15, 285 8" fill="none" stroke="#2478B5" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+    </svg>
+    <p id="footer-msg" data-i18n="footerMessage">Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!</p>
+  </footer>
+
+</div>
+
+<script>
+const TRANSLATIONS = {
+de: {
+  eyebrow: `Luisen-Gymnasium · Klasse 7`, titleLine1: `Ausmultiplizieren`, titleAccent: `und Ausklammern`, backLink: `← Alle Themen`, h2Basics: `Grundlagen`,
+  basicsP1: `<strong>Ausmultiplizieren:</strong> Steht eine Zahl vor einer Klammer, wird sie mit jedem einzelnen Glied in der Klammer multipliziert.`,
+  expandAria: `3 mal die Klammer x plus 4 wird zu 3 mal x plus 3 mal 4`,
+  basicsExample1Label: `<strong>Beispiel Schritt für Schritt:</strong> <span style="white-space:nowrap">Multipliziere aus: 3(x + 4).</span>`,
+  basicsExample1Steps: `1. 3 mit x multiplizieren: <span style="white-space:nowrap">3 · x = 3x</span><br>2. 3 mit 4 multiplizieren: <span style="white-space:nowrap">3 · 4 = 12</span><br>3. Ergebnis: <span style="white-space:nowrap">3x + 12</span>`,
+  basicsP2Factor: `<strong>Ausklammern</strong> ist der umgekehrte Weg: Man sucht einen gemeinsamen Faktor in allen Gliedern und schreibt ihn vor eine Klammer.`,
+  basicsExample2Label: `<strong>Beispiel Schritt für Schritt:</strong> <span style="white-space:nowrap">Klammere aus: 6x + 9.</span>`,
+  basicsExample2Steps: `1. Gemeinsamen Faktor finden: <span style="white-space:nowrap">ggT(6, 9) = 3</span><br>2. Beide Glieder durch 3 teilen: 6x : <span style="white-space:nowrap">3 = 2x, 9 : 3 = 3</span><br>3. Ergebnis: <span style="white-space:nowrap">3(2x + 3)</span>`,
+  merkeTitle: `Merke`, merkeBody: `Ausmultiplizieren: a(b + c) = ab + ac.<br>Ausklammern: den größten gemeinsamen Faktor vor die Klammer schreiben.<br>Ausmultiplizieren und Ausklammern sind Umkehrungen voneinander.`,
+  taskWord: `Aufgabe`,
+  task1Question: `Multipliziere aus: 3(x + 4). Wie lautet der Koeffizient von x?`, task2Question: `Multipliziere aus: 3(x + 4). Wie lautet die Konstante?`, task3Question: `Multipliziere aus: 5(2x − 3). Wie lautet der Koeffizient von x?`, task4Question: `Multipliziere aus: 5(2x − 3). Wie lautet die Konstante?`, task5Question: `Klammere aus: 6x + 9. Welcher Faktor steht vor der Klammer (der größte gemeinsame Teiler)?`, task6Question: `Klammere aus: 8x + 12. Welcher Faktor steht vor der Klammer?`,
+  task7Question: `Multipliziere aus: −2(x − 5). Wie lautet der Koeffizient von x?`,
+  task8Question: `Ein Rechteck hat die Breite 4 und die Länge (x + 3). Multipliziere den Flächenterm aus: 4(x + 3). Wie lautet die Konstante im ausmultiplizierten Term?`,
+  answerPlaceholder: `Deine Antwort`, checkButton: `Prüfen`, solutionSummary: `Lösung anzeigen`,
+  task1Result: `<span style="white-space:nowrap">Ergebnis: 3</span>`, task2Result: `<span style="white-space:nowrap">Ergebnis: 12</span>`, task3Result: `<span style="white-space:nowrap">Ergebnis: 10</span>`, task4Result: `<span style="white-space:nowrap">Ergebnis: −15</span>`, task5Result: `<span style="white-space:nowrap">Ergebnis: 3</span>`, task6Result: `<span style="white-space:nowrap">Ergebnis: 4</span>`, task7Result: `<span style="white-space:nowrap">Ergebnis: −2</span>`, task8Result: `<span style="white-space:nowrap">Ergebnis: 12</span>`,
+  task1Step1: `3 mit x multiplizieren: 3 · x = 3x.`, task1Step2: `3 mit 4 multiplizieren: 3 · 4 = 12.`, task1Step3: `Ergebnis: 3x + 12, der Koeffizient von x ist 3.`,
+  task1Hint: `Die 3 muss mit BEIDEN Gliedern in der Klammer multipliziert werden, nicht nur mit dem x.`,
+  task2Step1: `3 mit x multiplizieren: 3 · x = 3x.`, task2Step2: `3 mit 4 multiplizieren: 3 · 4 = 12.`, task2Step3: `Ergebnis: 3x + 12, die Konstante ist 12.`,
+  task2Hint: `Manchmal wird die Multiplikation mit der zweiten Zahl in der Klammer vergessen.`,
+  task3Step1: `5 mit 2x multiplizieren: 5 · 2x = 10x.`, task3Step2: `5 mit −3 multiplizieren: 5 · (−3) = −15.`, task3Step3: `Ergebnis: 10x − 15, der Koeffizient von x ist 10.`,
+  task3Hint: `Bei 2x wird die 5 mit der gesamten Zahl 2 multipliziert, nicht nur addiert.`,
+  task4Step1: `5 mit 2x multiplizieren: 5 · 2x = 10x.`, task4Step2: `5 mit −3 multiplizieren: 5 · (−3) = −15.`, task4Step3: `Ergebnis: 10x − 15, die Konstante ist −15.`,
+  task4Hint: `Plus mal Minus ergibt Minus – das Vorzeichen der −3 bleibt beim Ausmultiplizieren erhalten.`,
+  task5Step1: `ggT von 6 und 9 finden: ggT(6, 9) = 3.`, task5Step2: `Beide Glieder durch 3 teilen: 6x : 3 = 2x, 9 : 3 = 3.`, task5Step3: `Ergebnis: 3(2x + 3), der Faktor ist 3.`,
+  task5Hint: `Man sollte immer den größtmöglichen gemeinsamen Faktor herausziehen, nicht nur irgendeinen.`,
+  task6Step1: `ggT von 8 und 12 finden: ggT(8, 12) = 4.`, task6Step2: `Beide Glieder durch 4 teilen: 8x : 4 = 2x, 12 : 4 = 3.`, task6Step3: `Ergebnis: 4(2x + 3), der Faktor ist 4.`,
+  task6Hint: `2 ist auch ein gemeinsamer Teiler von 8 und 12, aber nicht der größte – man sollte immer den ggT verwenden.`,
+  task7Step1: `−2 mit x multiplizieren: −2 · x = −2x.`, task7Step2: `−2 mit −5 multiplizieren: −2 · (−5) = 10.`, task7Step3: `Ergebnis: −2x + 10, der Koeffizient von x ist −2.`,
+  task7Hint: `Steht eine negative Zahl vor der Klammer, dreht sich das Vorzeichen jedes Glieds in der Klammer um.`,
+  task8Step1: `4 mit x multiplizieren: 4 · x = 4x.`, task8Step2: `4 mit 3 multiplizieren: 4 · 3 = 12.`, task8Step3: `Ergebnis: 4x + 12, die Konstante ist 12.`,
+  task8Hint: `Auch bei Sachaufgaben mit Flächen gilt dieselbe Regel: die Zahl vor der Klammer mit jedem Glied multiplizieren.`,
+  hintLabel: `Typischer Fehler:`, footerMessage: `Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!`,
+  fbEmpty: `Trag bitte eine Zahl ein, bevor du prüfst.`, fbCorrect: `Richtig! Gut gemacht!`, fbIncorrect: `Noch nicht ganz richtig. Schau dir die Lösung weiter unten an und versuch es dann nochmal.`
+},
+en: {
+  eyebrow: `Luisen-Gymnasium · Grade 7`, titleLine1: `Expanding`, titleAccent: `and Factoring`, backLink: `← All Topics`, h2Basics: `Basics`,
+  basicsP1: `<strong>Expanding:</strong> if a number stands in front of brackets, it's multiplied by every single term inside the brackets.`,
+  expandAria: `3 times the bracket x plus 4 becomes 3 times x plus 3 times 4`,
+  basicsExample1Label: `<strong>Step-by-step example:</strong> <span style="white-space:nowrap">Expand: 3(x + 4).</span>`,
+  basicsExample1Steps: `1. Multiply 3 by x: <span style="white-space:nowrap">3 · x = 3x</span><br>2. Multiply 3 by 4: 3 · 4 = 12<br>3. Result: <span style="white-space:nowrap">3x + 12</span>`,
+  basicsP2Factor: `<strong>Factoring out</strong> is the reverse process: you look for a common factor in all terms and write it in front of a bracket.`,
+  basicsExample2Label: `<strong>Step-by-step example:</strong> <span style="white-space:nowrap">Factor out: 6x + 9.</span>`,
+  basicsExample2Steps: `1. Find the common factor: <span style="white-space:nowrap">GCD(6, 9) = 3</span><br>2. Divide both terms by 3: 6x : <span style="white-space:nowrap">3 = 2x, 9 : 3 = 3</span><br>3. Result: <span style="white-space:nowrap">3(2x + 3)</span>`,
+  merkeTitle: `Remember`, merkeBody: `Expanding: a(b + c) = ab + ac.<br>Factoring out: write the greatest common factor in front of a bracket.<br>Expanding and factoring are reverse operations of each other.`,
+  taskWord: `Exercise`,
+  task1Question: `Expand: 3(x + 4). What's the coefficient of x?`, task2Question: `Expand: 3(x + 4). What's the constant?`, task3Question: `Expand: 5(2x − 3). What's the coefficient of x?`, task4Question: `Expand: 5(2x − 3). What's the constant?`, task5Question: `Factor out: 6x + 9. What factor goes in front of the bracket (the greatest common factor)?`, task6Question: `Factor out: 8x + 12. What factor goes in front of the bracket?`,
+  task7Question: `Expand: −2(x − 5). What's the coefficient of x?`,
+  task8Question: `A rectangle has width 4 and length (x + 3). Expand the area term: 4(x + 3). What's the constant in the expanded term?`,
+  answerPlaceholder: `Your answer`, checkButton: `Check`, solutionSummary: `Show solution`,
+  task1Result: `<span style="white-space:nowrap">Result: 3</span>`, task2Result: `<span style="white-space:nowrap">Result: 12</span>`, task3Result: `<span style="white-space:nowrap">Result: 10</span>`, task4Result: `<span style="white-space:nowrap">Result: −15</span>`, task5Result: `<span style="white-space:nowrap">Result: 3</span>`, task6Result: `<span style="white-space:nowrap">Result: 4</span>`, task7Result: `<span style="white-space:nowrap">Result: −2</span>`, task8Result: `<span style="white-space:nowrap">Result: 12</span>`,
+  task1Step1: `Multiply 3 by x: 3 · x = 3x.`, task1Step2: `Multiply 3 by 4: 3 · 4 = 12.`, task1Step3: `Result: 3x + 12, the coefficient of x is 3.`,
+  task1Hint: `The 3 must be multiplied by BOTH terms in the bracket, not just the x.`,
+  task2Step1: `Multiply 3 by x: 3 · x = 3x.`, task2Step2: `Multiply 3 by 4: 3 · 4 = 12.`, task2Step3: `Result: 3x + 12, the constant is 12.`,
+  task2Hint: `Sometimes the multiplication with the second number in the bracket gets forgotten.`,
+  task3Step1: `Multiply 5 by 2x: 5 · 2x = 10x.`, task3Step2: `Multiply 5 by −3: 5 · (−3) = −15.`, task3Step3: `Result: 10x − 15, the coefficient of x is 10.`,
+  task3Hint: `With 2x, the 5 is multiplied by the whole number 2, not just added.`,
+  task4Step1: `Multiply 5 by 2x: 5 · 2x = 10x.`, task4Step2: `Multiply 5 by −3: 5 · (−3) = −15.`, task4Step3: `Result: 10x − 15, the constant is −15.`,
+  task4Hint: `Plus times minus gives minus — the sign of the −3 is preserved when expanding.`,
+  task5Step1: `Find the GCD of 6 and 9: GCD(6, 9) = 3.`, task5Step2: `Divide both terms by 3: 6x : 3 = 2x, 9 : 3 = 3.`, task5Step3: `Result: 3(2x + 3), the factor is 3.`,
+  task5Hint: `You should always pull out the greatest possible common factor, not just any one.`,
+  task6Step1: `Find the GCD of 8 and 12: GCD(8, 12) = 4.`, task6Step2: `Divide both terms by 4: 8x : 4 = 2x, 12 : 4 = 3.`, task6Step3: `Result: 4(2x + 3), the factor is 4.`,
+  task6Hint: `2 is also a common factor of 8 and 12, but not the largest one — always use the GCD.`,
+  task7Step1: `Multiply −2 by x: −2 · x = −2x.`, task7Step2: `Multiply −2 by −5: −2 · (−5) = 10.`, task7Step3: `Result: −2x + 10, the coefficient of x is −2.`,
+  task7Hint: `If a negative number stands in front of the bracket, the sign of every term inside flips.`,
+  task8Step1: `Multiply 4 by x: 4 · x = 4x.`, task8Step2: `Multiply 4 by 3: 4 · 3 = 12.`, task8Step3: `Result: 4x + 12, the constant is 12.`,
+  task8Hint: `The same rule applies in word problems with areas: multiply the number in front of the bracket by every term.`,
+  hintLabel: `Common mistake:`, footerMessage: `Take your time and check the solution if you need to. You can do this!`,
+  fbEmpty: `Please enter a number before checking.`, fbCorrect: `Correct! Well done!`, fbIncorrect: `Not quite right yet. Check the solution below and try again.`
+},
+es: {
+  eyebrow: `Luisen-Gymnasium · 7.º curso`, titleLine1: `Multiplicar`, titleAccent: `y factorizar`, backLink: `← Todos los temas`, h2Basics: `Fundamentos`,
+  basicsP1: `<strong>Multiplicar (desarrollar):</strong> si hay un número delante de un paréntesis, se multiplica por cada término dentro del paréntesis.`,
+  expandAria: `3 por el paréntesis x más 4 se convierte en 3 por x más 3 por 4`,
+  basicsExample1Label: `<strong>Ejemplo paso a paso:</strong> <span style="white-space:nowrap">Desarrolla: 3(x + 4).</span>`,
+  basicsExample1Steps: `1. Multiplica 3 por x: <span style="white-space:nowrap">3 · x = 3x</span><br>2. Multiplica 3 por 4: 3 · 4 = 12<br>3. Resultado: <span style="white-space:nowrap">3x + 12</span>`,
+  basicsP2Factor: `<strong>Factorizar</strong> es el proceso inverso: buscas un factor común en todos los términos y lo escribes delante de un paréntesis.`,
+  basicsExample2Label: `<strong>Ejemplo paso a paso:</strong> <span style="white-space:nowrap">Factoriza: 6x + 9.</span>`,
+  basicsExample2Steps: `1. Halla el factor común: <span style="white-space:nowrap">MCD(6, 9) = 3</span><br>2. Divide ambos términos entre 3: 6x : <span style="white-space:nowrap">3 = 2x, 9 : 3 = 3</span><br>3. Resultado: <span style="white-space:nowrap">3(2x + 3)</span>`,
+  merkeTitle: `Recuerda`, merkeBody: `Desarrollar: a(b + c) = ab + ac.<br>Factorizar: escribir el máximo factor común delante de un paréntesis.<br>Desarrollar y factorizar son procesos inversos entre sí.`,
+  taskWord: `Ejercicio`,
+  task1Question: `Desarrolla: 3(x + 4). ¿Cuál es el coeficiente de x?`, task2Question: `Desarrolla: 3(x + 4). ¿Cuál es la constante?`, task3Question: `Desarrolla: 5(2x − 3). ¿Cuál es el coeficiente de x?`, task4Question: `Desarrolla: 5(2x − 3). ¿Cuál es la constante?`, task5Question: `Factoriza: 6x + 9. ¿Qué factor va delante del paréntesis (el máximo común divisor)?`, task6Question: `Factoriza: 8x + 12. ¿Qué factor va delante del paréntesis?`,
+  task7Question: `Desarrolla: −2(x − 5). ¿Cuál es el coeficiente de x?`,
+  task8Question: `Un rectángulo tiene ancho 4 y largo (x + 3). Desarrolla el término del área: 4(x + 3). ¿Cuál es la constante en el término desarrollado?`,
+  answerPlaceholder: `Tu respuesta`, checkButton: `Comprobar`, solutionSummary: `Ver solución`,
+  task1Result: `<span style="white-space:nowrap">Resultado: 3</span>`, task2Result: `<span style="white-space:nowrap">Resultado: 12</span>`, task3Result: `<span style="white-space:nowrap">Resultado: 10</span>`, task4Result: `<span style="white-space:nowrap">Resultado: −15</span>`, task5Result: `<span style="white-space:nowrap">Resultado: 3</span>`, task6Result: `<span style="white-space:nowrap">Resultado: 4</span>`, task7Result: `<span style="white-space:nowrap">Resultado: −2</span>`, task8Result: `<span style="white-space:nowrap">Resultado: 12</span>`,
+  task1Step1: `Multiplica 3 por x: 3 · x = 3x.`, task1Step2: `Multiplica 3 por 4: 3 · 4 = 12.`, task1Step3: `Resultado: 3x + 12, el coeficiente de x es 3.`,
+  task1Hint: `El 3 debe multiplicarse por AMBOS términos del paréntesis, no solo por la x.`,
+  task2Step1: `Multiplica 3 por x: 3 · x = 3x.`, task2Step2: `Multiplica 3 por 4: 3 · 4 = 12.`, task2Step3: `Resultado: 3x + 12, la constante es 12.`,
+  task2Hint: `A veces se olvida multiplicar por el segundo número del paréntesis.`,
+  task3Step1: `Multiplica 5 por 2x: 5 · 2x = 10x.`, task3Step2: `Multiplica 5 por −3: 5 · (−3) = −15.`, task3Step3: `Resultado: 10x − 15, el coeficiente de x es 10.`,
+  task3Hint: `Con 2x, el 5 se multiplica por el número completo 2, no se suma.`,
+  task4Step1: `Multiplica 5 por 2x: 5 · 2x = 10x.`, task4Step2: `Multiplica 5 por −3: 5 · (−3) = −15.`, task4Step3: `Resultado: 10x − 15, la constante es −15.`,
+  task4Hint: `Más por menos da menos — el signo del −3 se mantiene al desarrollar.`,
+  task5Step1: `Halla el MCD de 6 y 9: MCD(6, 9) = 3.`, task5Step2: `Divide ambos términos entre 3: 6x : 3 = 2x, 9 : 3 = 3.`, task5Step3: `Resultado: 3(2x + 3), el factor es 3.`,
+  task5Hint: `Siempre debes sacar el máximo factor común posible, no cualquiera.`,
+  task6Step1: `Halla el MCD de 8 y 12: MCD(8, 12) = 4.`, task6Step2: `Divide ambos términos entre 4: 8x : 4 = 2x, 12 : 4 = 3.`, task6Step3: `Resultado: 4(2x + 3), el factor es 4.`,
+  task6Hint: `2 también es un factor común de 8 y 12, pero no el mayor — usa siempre el MCD.`,
+  task7Step1: `Multiplica −2 por x: −2 · x = −2x.`, task7Step2: `Multiplica −2 por −5: −2 · (−5) = 10.`, task7Step3: `Resultado: −2x + 10, el coeficiente de x es −2.`,
+  task7Hint: `Si hay un número negativo delante del paréntesis, el signo de cada término dentro cambia.`,
+  task8Step1: `Multiplica 4 por x: 4 · x = 4x.`, task8Step2: `Multiplica 4 por 3: 4 · 3 = 12.`, task8Step3: `Resultado: 4x + 12, la constante es 12.`,
+  task8Hint: `La misma regla se aplica en problemas con áreas: multiplica el número delante del paréntesis por cada término.`,
+  hintLabel: `Error típico:`, footerMessage: `Tómate tu tiempo y revisa la solución si la necesitas. ¡Tú puedes!`,
+  fbEmpty: `Introduce un número antes de comprobar.`, fbCorrect: `¡Correcto! ¡Muy bien!`, fbIncorrect: `Todavía no es correcto. Revisa la solución de abajo e inténtalo de nuevo.`
+},
+fr: {
+  eyebrow: `Luisen-Gymnasium · 5e (7e cl. all.)`, titleLine1: `Développer`, titleAccent: `et factoriser`, backLink: `← Tous les thèmes`, h2Basics: `Les bases`,
+  basicsP1: `<strong>Développer :</strong> si un nombre est devant une parenthèse, il est multiplié par chaque terme à l'intérieur de la parenthèse.`,
+  expandAria: `3 fois la parenthèse x plus 4 devient 3 fois x plus 3 fois 4`,
+  basicsExample1Label: `<strong>Exemple étape par étape :</strong> <span style="white-space:nowrap">Développe : 3(x + 4).</span>`,
+  basicsExample1Steps: `1. Multiplie 3 par x : <span style="white-space:nowrap">3 · x = 3x</span><br>2. Multiplie 3 par 4 : 3 · 4 = 12<br>3. Résultat : <span style="white-space:nowrap">3x + 12</span>`,
+  basicsP2Factor: `<strong>Factoriser</strong> est le chemin inverse : on cherche un facteur commun dans tous les termes et on l'écrit devant une parenthèse.`,
+  basicsExample2Label: `<strong>Exemple étape par étape :</strong> <span style="white-space:nowrap">Factorise : 6x + 9.</span>`,
+  basicsExample2Steps: `1. Trouve le facteur commun : <span style="white-space:nowrap">PGCD(6, 9) = 3</span><br>2. Divise les deux termes par 3 : 6x : <span style="white-space:nowrap">3 = 2x, 9 : 3 = 3</span><br>3. Résultat : <span style="white-space:nowrap">3(2x + 3)</span>`,
+  merkeTitle: `À retenir`, merkeBody: `Développer : a(b + c) = ab + ac.<br>Factoriser : écrire le plus grand facteur commun devant une parenthèse.<br>Développer et factoriser sont des opérations inverses l'une de l'autre.`,
+  taskWord: `Exercice`,
+  task1Question: `Développe : 3(x + 4). Quel est le coefficient de x ?`, task2Question: `Développe : 3(x + 4). Quelle est la constante ?`, task3Question: `Développe : 5(2x − 3). Quel est le coefficient de x ?`, task4Question: `Développe : 5(2x − 3). Quelle est la constante ?`, task5Question: `Factorise : 6x + 9. Quel facteur vient devant la parenthèse (le plus grand diviseur commun) ?`, task6Question: `Factorise : 8x + 12. Quel facteur vient devant la parenthèse ?`,
+  task7Question: `Développe : −2(x − 5). Quel est le coefficient de x ?`,
+  task8Question: `Un rectangle a une largeur de 4 et une longueur de (x + 3). Développe le terme d'aire : 4(x + 3). Quelle est la constante dans le terme développé ?`,
+  answerPlaceholder: `Ta réponse`, checkButton: `Vérifier`, solutionSummary: `Voir la solution`,
+  task1Result: `<span style="white-space:nowrap">Résultat : 3</span>`, task2Result: `<span style="white-space:nowrap">Résultat : 12</span>`, task3Result: `<span style="white-space:nowrap">Résultat : 10</span>`, task4Result: `<span style="white-space:nowrap">Résultat : −15</span>`, task5Result: `<span style="white-space:nowrap">Résultat : 3</span>`, task6Result: `<span style="white-space:nowrap">Résultat : 4</span>`, task7Result: `<span style="white-space:nowrap">Résultat : −2</span>`, task8Result: `<span style="white-space:nowrap">Résultat : 12</span>`,
+  task1Step1: `Multiplie 3 par x : 3 · x = 3x.`, task1Step2: `Multiplie 3 par 4 : 3 · 4 = 12.`, task1Step3: `Résultat : 3x + 12, le coefficient de x est 3.`,
+  task1Hint: `Le 3 doit être multiplié par LES DEUX termes de la parenthèse, pas seulement par le x.`,
+  task2Step1: `Multiplie 3 par x : 3 · x = 3x.`, task2Step2: `Multiplie 3 par 4 : 3 · 4 = 12.`, task2Step3: `Résultat : 3x + 12, la constante est 12.`,
+  task2Hint: `On oublie parfois de multiplier le deuxième nombre de la parenthèse.`,
+  task3Step1: `Multiplie 5 par 2x : 5 · 2x = 10x.`, task3Step2: `Multiplie 5 par −3 : 5 · (−3) = −15.`, task3Step3: `Résultat : 10x − 15, le coefficient de x est 10.`,
+  task3Hint: `Avec 2x, le 5 est multiplié par le nombre entier 2, pas seulement additionné.`,
+  task4Step1: `Multiplie 5 par 2x : 5 · 2x = 10x.`, task4Step2: `Multiplie 5 par −3 : 5 · (−3) = −15.`, task4Step3: `Résultat : 10x − 15, la constante est −15.`,
+  task4Hint: `Plus fois moins donne moins — le signe du −3 est conservé lors du développement.`,
+  task5Step1: `Trouve le PGCD de 6 et 9 : PGCD(6, 9) = 3.`, task5Step2: `Divise les deux termes par 3 : 6x : 3 = 2x, 9 : 3 = 3.`, task5Step3: `Résultat : 3(2x + 3), le facteur est 3.`,
+  task5Hint: `Il faut toujours sortir le plus grand facteur commun possible, pas n'importe lequel.`,
+  task6Step1: `Trouve le PGCD de 8 et 12 : PGCD(8, 12) = 4.`, task6Step2: `Divise les deux termes par 4 : 8x : 4 = 2x, 12 : 4 = 3.`, task6Step3: `Résultat : 4(2x + 3), le facteur est 4.`,
+  task6Hint: `2 est aussi un diviseur commun de 8 et 12, mais pas le plus grand — utilise toujours le PGCD.`,
+  task7Step1: `Multiplie −2 par x : −2 · x = −2x.`, task7Step2: `Multiplie −2 par −5 : −2 · (−5) = 10.`, task7Step3: `Résultat : −2x + 10, le coefficient de x est −2.`,
+  task7Hint: `Si un nombre négatif est devant la parenthèse, le signe de chaque terme à l'intérieur s'inverse.`,
+  task8Step1: `Multiplie 4 par x : 4 · x = 4x.`, task8Step2: `Multiplie 4 par 3 : 4 · 3 = 12.`, task8Step3: `Résultat : 4x + 12, la constante est 12.`,
+  task8Hint: `La même règle s'applique dans les problèmes avec des aires : multiplie le nombre devant la parenthèse par chaque terme.`,
+  hintLabel: `Erreur fréquente :`, footerMessage: `Prends ton temps et regarde la solution si besoin. Tu vas y arriver !`,
+  fbEmpty: `Merci d'indiquer un nombre avant de vérifier.`, fbCorrect: `Correct ! Bien joué !`, fbIncorrect: `Pas encore tout à fait juste. Regarde la solution ci-dessous et réessaie.`
+},
+tr: {
+  eyebrow: `Luisen-Gymnasium · 7. Sınıf`, titleLine1: `Parantez Açma`, titleAccent: `ve Parantezine Alma`, backLink: `← Tüm Konular`, h2Basics: `Temel Bilgiler`,
+  basicsP1: `<strong>Parantez açma:</strong> bir parantezin önünde bir sayı varsa, bu sayı parantez içindeki her bir terimle çarpılır.`,
+  expandAria: `3 çarpı parantez x artı 4, 3 çarpı x artı 3 çarpı 4 olur`,
+  basicsExample1Label: `<strong>Adım adım örnek:</strong> <span style="white-space:nowrap">Parantezi aç: 3(x + 4).</span>`,
+  basicsExample1Steps: `1. 3'ü x ile çarp: <span style="white-space:nowrap">3 · x = 3x</span><br>2. 3'ü 4 ile çarp: <span style="white-space:nowrap">3 · 4 = 12</span><br>3. Sonuç: <span style="white-space:nowrap">3x + 12</span>`,
+  basicsP2Factor: `<strong>Parantezine alma</strong> ters yönde işlemdir: tüm terimlerde ortak bir çarpan aranır ve bu çarpan bir parantezin önüne yazılır.`,
+  basicsExample2Label: `<strong>Adım adım örnek:</strong> <span style="white-space:nowrap">Parantezine al: 6x + 9.</span>`,
+  basicsExample2Steps: `1. Ortak çarpanı bul: <span style="white-space:nowrap">EBOB(6, 9) = 3</span><br>2. Her iki terimi 3'e böl: 6x : <span style="white-space:nowrap">3 = 2x, 9 : 3 = 3</span><br>3. Sonuç: <span style="white-space:nowrap">3(2x + 3)</span>`,
+  merkeTitle: `Unutma`, merkeBody: `Parantez açma: a(b + c) = ab + ac.<br>Parantezine alma: en büyük ortak çarpanı parantezin önüne yaz.<br>Parantez açma ve parantezine alma birbirinin tersidir.`,
+  taskWord: `Alıştırma`,
+  task1Question: `Parantezi aç: 3(x + 4). x'in katsayısı nedir?`, task2Question: `Parantezi aç: 3(x + 4). Sabit nedir?`, task3Question: `Parantezi aç: 5(2x − 3). x'in katsayısı nedir?`, task4Question: `Parantezi aç: 5(2x − 3). Sabit nedir?`, task5Question: `Parantezine al: 6x + 9. Parantezin önüne hangi çarpan gelir (en büyük ortak bölen)?`, task6Question: `Parantezine al: 8x + 12. Parantezin önüne hangi çarpan gelir?`,
+  task7Question: `Parantezi aç: −2(x − 5). x'in katsayısı nedir?`,
+  task8Question: `Bir dikdörtgenin genişliği 4, uzunluğu (x + 3)'tür. Alan ifadesinin parantezini aç: 4(x + 3). Açılmış ifadedeki sabit nedir?`,
+  answerPlaceholder: `Cevabın`, checkButton: `Kontrol et`, solutionSummary: `Çözümü göster`,
+  task1Result: `<span style="white-space:nowrap">Sonuç: 3</span>`, task2Result: `<span style="white-space:nowrap">Sonuç: 12</span>`, task3Result: `<span style="white-space:nowrap">Sonuç: 10</span>`, task4Result: `<span style="white-space:nowrap">Sonuç: −15</span>`, task5Result: `<span style="white-space:nowrap">Sonuç: 3</span>`, task6Result: `<span style="white-space:nowrap">Sonuç: 4</span>`, task7Result: `<span style="white-space:nowrap">Sonuç: −2</span>`, task8Result: `<span style="white-space:nowrap">Sonuç: 12</span>`,
+  task1Step1: `3'ü x ile çarp: 3 · x = 3x.`, task1Step2: `3'ü 4 ile çarp: 3 · 4 = 12.`, task1Step3: `Sonuç: 3x + 12, x'in katsayısı 3'tür.`,
+  task1Hint: `3, parantezdeki HER İKİ terimle de çarpılmalıdır, sadece x ile değil.`,
+  task2Step1: `3'ü x ile çarp: 3 · x = 3x.`, task2Step2: `3'ü 4 ile çarp: 3 · 4 = 12.`, task2Step3: `Sonuç: 3x + 12, sabit 12'dir.`,
+  task2Hint: `Bazen parantezdeki ikinci sayı ile çarpma unutulur.`,
+  task3Step1: `5'i 2x ile çarp: 5 · 2x = 10x.`, task3Step2: `5'i −3 ile çarp: 5 · (−3) = −15.`, task3Step3: `Sonuç: 10x − 15, x'in katsayısı 10'dur.`,
+  task3Hint: `2x'te 5, 2 sayısının tamamıyla çarpılır, sadece eklenmez.`,
+  task4Step1: `5'i 2x ile çarp: 5 · 2x = 10x.`, task4Step2: `5'i −3 ile çarp: 5 · (−3) = −15.`, task4Step3: `Sonuç: 10x − 15, sabit −15'tir.`,
+  task4Hint: `Artı çarpı eksi eksi verir — parantez açılırken −3'ün işareti korunur.`,
+  task5Step1: `6 ve 9'un EBOB'unu bul: EBOB(6, 9) = 3.`, task5Step2: `Her iki terimi 3'e böl: 6x : 3 = 2x, 9 : 3 = 3.`, task5Step3: `Sonuç: 3(2x + 3), çarpan 3'tür.`,
+  task5Hint: `Her zaman mümkün olan en büyük ortak çarpanı çıkarmalısın, herhangi birini değil.`,
+  task6Step1: `8 ve 12'nin EBOB'unu bul: EBOB(8, 12) = 4.`, task6Step2: `Her iki terimi 4'e böl: 8x : 4 = 2x, 12 : 4 = 3.`, task6Step3: `Sonuç: 4(2x + 3), çarpan 4'tür.`,
+  task6Hint: `2 de 8 ve 12'nin ortak bir böleni ama en büyüğü değil — her zaman EBOB'u kullan.`,
+  task7Step1: `−2'yi x ile çarp: −2 · x = −2x.`, task7Step2: `−2'yi −5 ile çarp: −2 · (−5) = 10.`, task7Step3: `Sonuç: −2x + 10, x'in katsayısı −2'dir.`,
+  task7Hint: `Parantezin önünde negatif bir sayı varsa, içindeki her terimin işareti değişir.`,
+  task8Step1: `4'ü x ile çarp: 4 · x = 4x.`, task8Step2: `4'ü 3 ile çarp: 4 · 3 = 12.`, task8Step3: `Sonuç: 4x + 12, sabit 12'dir.`,
+  task8Hint: `Alan problemlerinde de aynı kural geçerlidir: parantezin önündeki sayı her terimle çarpılır.`,
+  hintLabel: `Sık yapılan hata:`, footerMessage: `Sakin sakin hesapla, gerekirse çözüme bak. Bunu başarabilirsin!`,
+  fbEmpty: `Kontrol etmeden önce lütfen bir sayı gir.`, fbCorrect: `Doğru! Aferin!`, fbIncorrect: `Henüz tam doğru değil. Aşağıdaki çözüme bak ve tekrar dene.`
+},
+ru: {
+  eyebrow: `Luisen-Gymnasium · 7 класс`, titleLine1: `Раскрытие скобок`, titleAccent: `и вынесение за скобки`, backLink: `← Все темы`, h2Basics: `Основы`,
+  basicsP1: `<strong>Раскрытие скобок:</strong> если перед скобками стоит число, оно умножается на каждое слагаемое внутри скобок.`,
+  expandAria: `3 умножить на скобку x плюс 4 становится 3 умножить на x плюс 3 умножить на 4`,
+  basicsExample1Label: `<strong>Пример по шагам:</strong> <span style="white-space:nowrap">Раскрой скобки: 3(x + 4).</span>`,
+  basicsExample1Steps: `1. Умножь 3 на x: <span style="white-space:nowrap">3 · x = 3x</span><br>2. Умножь 3 на 4: 3 · 4 = 12<br>3. Результат: <span style="white-space:nowrap">3x + 12</span>`,
+  basicsP2Factor: `<strong>Вынесение за скобки</strong> — обратный процесс: ищут общий множитель во всех слагаемых и пишут его перед скобкой.`,
+  basicsExample2Label: `<strong>Пример по шагам:</strong> <span style="white-space:nowrap">Вынеси за скобки: 6x + 9.</span>`,
+  basicsExample2Steps: `1. Найди общий множитель: <span style="white-space:nowrap">НОД(6, 9) = 3</span><br>2. Раздели оба слагаемых на 3: 6x : <span style="white-space:nowrap">3 = 2x, 9 : 3 = 3</span><br>3. Результат: <span style="white-space:nowrap">3(2x + 3)</span>`,
+  merkeTitle: `Запомни`, merkeBody: `Раскрытие скобок: a(b + c) = ab + ac.<br>Вынесение за скобки: пишем наибольший общий множитель перед скобкой.<br>Раскрытие скобок и вынесение за скобки — обратные друг другу операции.`,
+  taskWord: `Задание`,
+  task1Question: `Раскрой скобки: 3(x + 4). Чему равен коэффициент x?`, task2Question: `Раскрой скобки: 3(x + 4). Чему равна константа?`, task3Question: `Раскрой скобки: 5(2x − 3). Чему равен коэффициент x?`, task4Question: `Раскрой скобки: 5(2x − 3). Чему равна константа?`, task5Question: `Вынеси за скобки: 6x + 9. Какой множитель стоит перед скобкой (наибольший общий делитель)?`, task6Question: `Вынеси за скобки: 8x + 12. Какой множитель стоит перед скобкой?`,
+  task7Question: `Раскрой скобки: −2(x − 5). Чему равен коэффициент x?`,
+  task8Question: `У прямоугольника ширина 4 и длина (x + 3). Раскрой выражение площади: 4(x + 3). Чему равна константа в раскрытом выражении?`,
+  answerPlaceholder: `Твой ответ`, checkButton: `Проверить`, solutionSummary: `Показать решение`,
+  task1Result: `<span style="white-space:nowrap">Результат: 3</span>`, task2Result: `<span style="white-space:nowrap">Результат: 12</span>`, task3Result: `<span style="white-space:nowrap">Результат: 10</span>`, task4Result: `<span style="white-space:nowrap">Результат: −15</span>`, task5Result: `<span style="white-space:nowrap">Результат: 3</span>`, task6Result: `<span style="white-space:nowrap">Результат: 4</span>`, task7Result: `<span style="white-space:nowrap">Результат: −2</span>`, task8Result: `<span style="white-space:nowrap">Результат: 12</span>`,
+  task1Step1: `Умножь 3 на x: 3 · x = 3x.`, task1Step2: `Умножь 3 на 4: 3 · 4 = 12.`, task1Step3: `Результат: 3x + 12, коэффициент x равен 3.`,
+  task1Hint: `3 нужно умножить на ОБА слагаемых в скобках, а не только на x.`,
+  task2Step1: `Умножь 3 на x: 3 · x = 3x.`, task2Step2: `Умножь 3 на 4: 3 · 4 = 12.`, task2Step3: `Результат: 3x + 12, константа равна 12.`,
+  task2Hint: `Иногда забывают умножить на второе число в скобках.`,
+  task3Step1: `Умножь 5 на 2x: 5 · 2x = 10x.`, task3Step2: `Умножь 5 на −3: 5 · (−3) = −15.`, task3Step3: `Результат: 10x − 15, коэффициент x равен 10.`,
+  task3Hint: `При 2x число 5 умножается на всё число 2, а не просто прибавляется.`,
+  task4Step1: `Умножь 5 на 2x: 5 · 2x = 10x.`, task4Step2: `Умножь 5 на −3: 5 · (−3) = −15.`, task4Step3: `Результат: 10x − 15, константа равна −15.`,
+  task4Hint: `Плюс умножить на минус даёт минус — знак −3 сохраняется при раскрытии скобок.`,
+  task5Step1: `Найди НОД чисел 6 и 9: НОД(6, 9) = 3.`, task5Step2: `Раздели оба слагаемых на 3: 6x : 3 = 2x, 9 : 3 = 3.`, task5Step3: `Результат: 3(2x + 3), множитель равен 3.`,
+  task5Hint: `Всегда нужно выносить наибольший возможный общий множитель, а не любой.`,
+  task6Step1: `Найди НОД чисел 8 и 12: НОД(8, 12) = 4.`, task6Step2: `Раздели оба слагаемых на 4: 8x : 4 = 2x, 12 : 4 = 3.`, task6Step3: `Результат: 4(2x + 3), множитель равен 4.`,
+  task6Hint: `2 тоже общий делитель чисел 8 и 12, но не наибольший — всегда используй НОД.`,
+  task7Step1: `Умножь −2 на x: −2 · x = −2x.`, task7Step2: `Умножь −2 на −5: −2 · (−5) = 10.`, task7Step3: `Результат: −2x + 10, коэффициент x равен −2.`,
+  task7Hint: `Если перед скобкой стоит отрицательное число, знак каждого слагаемого внутри меняется на противоположный.`,
+  task8Step1: `Умножь 4 на x: 4 · x = 4x.`, task8Step2: `Умножь 4 на 3: 4 · 3 = 12.`, task8Step3: `Результат: 4x + 12, константа равна 12.`,
+  task8Hint: `То же правило действует и в задачах с площадями: число перед скобкой умножается на каждое слагаемое.`,
+  hintLabel: `Типичная ошибка:`, footerMessage: `Считай спокойно и при необходимости смотри решение. У тебя получится!`,
+  fbEmpty: `Пожалуйста, введи число перед проверкой.`, fbCorrect: `Правильно! Отлично!`, fbIncorrect: `Пока не совсем верно. Посмотри решение ниже и попробуй ещё раз.`
+},
+ar: {
+  eyebrow: `مدرسة لويزن الثانوية · الصف السابع`, titleLine1: `فك الأقواس`, titleAccent: `والعوملة`, backLink: `← جميع المواضيع`, h2Basics: `الأساسيات`,
+  basicsP1: `<strong>فك الأقواس:</strong> إذا كان هناك عدد أمام قوس، فإنه يُضرَب في كل حد داخل القوس.`,
+  expandAria: `3 مضروبة في القوس x زائد 4 تصبح 3 مضروبة في x زائد 3 مضروبة في 4`,
+  basicsExample1Label: `<strong>مثال خطوة بخطوة:</strong> <span style="white-space:nowrap">افكّ القوس: 3(x + 4).</span>`,
+  basicsExample1Steps: `1. اضرب 3 في x: <span style="white-space:nowrap">3 · x = 3x</span><br>2. اضرب 3 في 4: 3 · 4 = 12<br>3. النتيجة: <span style="white-space:nowrap">3x + 12</span>`,
+  basicsP2Factor: `<strong>العوملة (وضع عامل مشترك)</strong> هي العملية العكسية: تبحث عن عامل مشترك بين كل الحدود وتكتبه أمام قوس.`,
+  basicsExample2Label: `<strong>مثال خطوة بخطوة:</strong> <span style="white-space:nowrap">اعزل العامل المشترك في: 6x + 9.</span>`,
+  basicsExample2Steps: `1. أوجد العامل المشترك: <span style="white-space:nowrap">القاسم المشترك الأكبر(6، 9) = 3</span><br>2. اقسم كلا الحدين على 3: 6x : <span style="white-space:nowrap">3 = 2x، 9 : 3 = 3</span><br>3. النتيجة: <span style="white-space:nowrap">3(2x + 3)</span>`,
+  merkeTitle: `تذكّر`, merkeBody: `فك الأقواس: a(b + c) = ab + ac.<br>العوملة: اكتب القاسم المشترك الأكبر أمام قوس.<br>فك الأقواس والعوملة عمليتان عكسيتان لبعضهما.`,
+  taskWord: `تمرين`,
+  task1Question: `افكّ القوس: 3(x + 4). ما هو معامل x؟`, task2Question: `افكّ القوس: 3(x + 4). ما هو الحد الثابت؟`, task3Question: `افكّ القوس: 5(2x − 3). ما هو معامل x؟`, task4Question: `افكّ القوس: 5(2x − 3). ما هو الحد الثابت؟`, task5Question: `اعزل العامل المشترك في: 6x + 9. ما هو العامل الذي يوضع أمام القوس (القاسم المشترك الأكبر)؟`, task6Question: `اعزل العامل المشترك في: 8x + 12. ما هو العامل الذي يوضع أمام القوس؟`,
+  task7Question: `افكّ القوس: −2(x − 5). ما هو معامل x؟`,
+  task8Question: `مستطيل عرضه 4 وطوله (x + 3). افكّ مقدار المساحة: 4(x + 3). ما هو الحد الثابت في المقدار بعد فك القوس؟`,
+  answerPlaceholder: `إجابتك`, checkButton: `تحقق`, solutionSummary: `عرض الحل`,
+  task1Result: `<span style="white-space:nowrap">النتيجة: 3</span>`, task2Result: `<span style="white-space:nowrap">النتيجة: 12</span>`, task3Result: `<span style="white-space:nowrap">النتيجة: 10</span>`, task4Result: `<span style="white-space:nowrap">النتيجة: −15</span>`, task5Result: `<span style="white-space:nowrap">النتيجة: 3</span>`, task6Result: `<span style="white-space:nowrap">النتيجة: 4</span>`, task7Result: `<span style="white-space:nowrap">النتيجة: −2</span>`, task8Result: `<span style="white-space:nowrap">النتيجة: 12</span>`,
+  task1Step1: `اضرب 3 في x: 3 · x = 3x.`, task1Step2: `اضرب 3 في 4: 3 · 4 = 12.`, task1Step3: `النتيجة: 3x + 12، معامل x هو 3.`,
+  task1Hint: `يجب ضرب 3 في كلا الحدين داخل القوس، وليس فقط في x.`,
+  task2Step1: `اضرب 3 في x: 3 · x = 3x.`, task2Step2: `اضرب 3 في 4: 3 · 4 = 12.`, task2Step3: `النتيجة: 3x + 12، الحد الثابت هو 12.`,
+  task2Hint: `أحيانًا يُنسى الضرب في الرقم الثاني داخل القوس.`,
+  task3Step1: `اضرب 5 في 2x: 5 · 2x = 10x.`, task3Step2: `اضرب 5 في −3: 5 · (−3) = −15.`, task3Step3: `النتيجة: 10x − 15، معامل x هو 10.`,
+  task3Hint: `في 2x، يُضرَب 5 في العدد 2 بالكامل، وليس بجمعه فقط.`,
+  task4Step1: `اضرب 5 في 2x: 5 · 2x = 10x.`, task4Step2: `اضرب 5 في −3: 5 · (−3) = −15.`, task4Step3: `النتيجة: 10x − 15، الحد الثابت هو −15.`,
+  task4Hint: `زائد × ناقص تعطي ناقص — تبقى إشارة −3 كما هي عند فك القوس.`,
+  task5Step1: `أوجد القاسم المشترك الأكبر لـ 6 و9: القاسم المشترك الأكبر(6، 9) = 3.`, task5Step2: `اقسم كلا الحدين على 3: 6x : 3 = 2x، 9 : 3 = 3.`, task5Step3: `النتيجة: 3(2x + 3)، العامل هو 3.`,
+  task5Hint: `يجب دائمًا استخراج أكبر عامل مشترك ممكن، وليس أي عامل.`,
+  task6Step1: `أوجد القاسم المشترك الأكبر لـ 8 و12: القاسم المشترك الأكبر(8، 12) = 4.`, task6Step2: `اقسم كلا الحدين على 4: 8x : 4 = 2x، 12 : 4 = 3.`, task6Step3: `النتيجة: 4(2x + 3)، العامل هو 4.`,
+  task6Hint: `2 أيضًا قاسم مشترك لـ 8 و12، لكنه ليس الأكبر — استخدم دائمًا القاسم المشترك الأكبر.`,
+  task7Step1: `اضرب −2 في x: −2 · x = −2x.`, task7Step2: `اضرب −2 في −5: −2 · (−5) = 10.`, task7Step3: `النتيجة: −2x + 10، معامل x هو −2.`,
+  task7Hint: `إذا كان هناك عدد سالب أمام القوس، تنقلب إشارة كل حد بداخله.`,
+  task8Step1: `اضرب 4 في x: 4 · x = 4x.`, task8Step2: `اضرب 4 في 3: 4 · 3 = 12.`, task8Step3: `النتيجة: 4x + 12، الحد الثابت هو 12.`,
+  task8Hint: `تنطبق نفس القاعدة في مسائل المساحات: يُضرَب العدد أمام القوس في كل حد.`,
+  hintLabel: `خطأ شائع:`, footerMessage: `احسب بهدوء وراجع الحل إذا احتجت إليه. أنت قادر على ذلك!`,
+  fbEmpty: `الرجاء إدخال رقم قبل التحقق.`, fbCorrect: `صحيح! أحسنت!`, fbIncorrect: `ليست صحيحة تمامًا بعد. راجع الحل أدناه وحاول مرة أخرى.`
+},
+zh: {
+  eyebrow: `路易森文理中学 · 七年级`, titleLine1: `展开括号`, titleAccent: `与提取公因式`, backLink: `← 所有主题`, h2Basics: `基础知识`,
+  basicsP1: `<strong>展开括号：</strong>如果括号前面有一个数，它会与括号里的每一项相乘。`,
+  expandAria: `3乘以括号x加4等于3乘以x加3乘以4`,
+  basicsExample1Label: `<strong>分步示例：</strong> <span style="white-space:nowrap">展开：3(x + 4)。</span>`,
+  basicsExample1Steps: `1. 用 3 乘以 x：<span style="white-space:nowrap">3 · x = 3x</span><br>2. 用 3 乘以 4：3 · 4 = 12<br>3. 结果：<span style="white-space:nowrap">3x + 12</span>`,
+  basicsP2Factor: `<strong>提取公因式</strong>是相反的过程：在所有项中找一个公因数，把它写在括号前面。`,
+  basicsExample2Label: `<strong>分步示例：</strong> <span style="white-space:nowrap">提取公因式：6x + 9。</span>`,
+  basicsExample2Steps: `1. 找公因数：<span style="white-space:nowrap">最大公约数(6, 9) = 3</span><br>2. 两项都除以 3：6x : <span style="white-space:nowrap">3 = 2x，9 : 3 = 3</span><br>3. 结果：<span style="white-space:nowrap">3(2x + 3)</span>`,
+  merkeTitle: `记住`, merkeBody: `展开括号：a(b + c) = ab + ac。<br>提取公因式：把最大公因数写在括号前面。<br>展开括号和提取公因式互为逆运算。`,
+  taskWord: `练习`,
+  task1Question: `展开：3(x + 4)。x 的系数是多少？`, task2Question: `展开：3(x + 4)。常数是多少？`, task3Question: `展开：5(2x − 3)。x 的系数是多少？`, task4Question: `展开：5(2x − 3)。常数是多少？`, task5Question: `提取公因式：6x + 9。括号前面的因数（最大公约数）是多少？`, task6Question: `提取公因式：8x + 12。括号前面的因数是多少？`,
+  task7Question: `展开：−2(x − 5)。x 的系数是多少？`,
+  task8Question: `一个矩形宽为 4，长为 (x + 3)。展开面积表达式：4(x + 3)。展开后表达式中的常数是多少？`,
+  answerPlaceholder: `你的答案`, checkButton: `检查`, solutionSummary: `显示答案`,
+  task1Result: `<span style="white-space:nowrap">结果：3</span>`, task2Result: `<span style="white-space:nowrap">结果：12</span>`, task3Result: `<span style="white-space:nowrap">结果：10</span>`, task4Result: `<span style="white-space:nowrap">结果：−15</span>`, task5Result: `<span style="white-space:nowrap">结果：3</span>`, task6Result: `<span style="white-space:nowrap">结果：4</span>`, task7Result: `<span style="white-space:nowrap">结果：−2</span>`, task8Result: `<span style="white-space:nowrap">结果：12</span>`,
+  task1Step1: `用 3 乘以 x：3 · x = 3x。`, task1Step2: `用 3 乘以 4：3 · 4 = 12。`, task1Step3: `结果：3x + 12，x 的系数是 3。`,
+  task1Hint: `3 必须与括号里的两项都相乘，而不只是 x。`,
+  task2Step1: `用 3 乘以 x：3 · x = 3x。`, task2Step2: `用 3 乘以 4：3 · 4 = 12。`, task2Step3: `结果：3x + 12，常数是 12。`,
+  task2Hint: `有时会忘记和括号里第二个数相乘。`,
+  task3Step1: `用 5 乘以 2x：5 · 2x = 10x。`, task3Step2: `用 5 乘以 −3：5 · (−3) = −15。`, task3Step3: `结果：10x − 15，x 的系数是 10。`,
+  task3Hint: `对于 2x，5 要和整个数字 2 相乘，而不只是相加。`,
+  task4Step1: `用 5 乘以 2x：5 · 2x = 10x。`, task4Step2: `用 5 乘以 −3：5 · (−3) = −15。`, task4Step3: `结果：10x − 15，常数是 −15。`,
+  task4Hint: `正乘以负得负——展开时 −3 的符号保持不变。`,
+  task5Step1: `求 6 和 9 的最大公约数：最大公约数(6, 9) = 3。`, task5Step2: `两项都除以 3：6x : 3 = 2x，9 : 3 = 3。`, task5Step3: `结果：3(2x + 3)，因数是 3。`,
+  task5Hint: `应该总是提取尽可能大的公因数，而不是随便一个。`,
+  task6Step1: `求 8 和 12 的最大公约数：最大公约数(8, 12) = 4。`, task6Step2: `两项都除以 4：8x : 4 = 2x，12 : 4 = 3。`, task6Step3: `结果：4(2x + 3)，因数是 4。`,
+  task6Hint: `2 也是 8 和 12 的公因数，但不是最大的——要始终使用最大公约数。`,
+  task7Step1: `用 −2 乘以 x：−2 · x = −2x。`, task7Step2: `用 −2 乘以 −5：−2 · (−5) = 10。`, task7Step3: `结果：−2x + 10，x 的系数是 −2。`,
+  task7Hint: `如果括号前面是负数，括号内每一项的符号都会翻转。`,
+  task8Step1: `用 4 乘以 x：4 · x = 4x。`, task8Step2: `用 4 乘以 3：4 · 3 = 12。`, task8Step3: `结果：4x + 12，常数是 12。`,
+  task8Hint: `在面积应用题中同样适用这个规则：把括号前面的数与每一项相乘。`,
+  hintLabel: `常见错误：`, footerMessage: `慢慢算，需要的话看看答案。你能做到！`,
+  fbEmpty: `请先输入一个数字再检查。`, fbCorrect: `正确！做得好！`, fbIncorrect: `还不完全正确。看看下面的答案，再试一次。`
+}
+};
+
+var currentLang = 'de';
+
+function setLanguage(lang){
+  var dict = TRANSLATIONS[lang] || TRANSLATIONS.de;
+  currentLang = TRANSLATIONS[lang] ? lang : 'de';
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = (currentLang === 'ar') ? 'rtl' : 'ltr';
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var key = el.getAttribute('data-i18n');
+    if(dict[key] !== undefined){ el.innerHTML = dict[key]; }
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-placeholder');
+    if(dict[key] !== undefined){ el.setAttribute('placeholder', dict[key]); }
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-aria');
+    if(dict[key] !== undefined){ el.setAttribute('aria-label', dict[key]); }
+  });
+  try{ localStorage.setItem('mathecoach_lang', currentLang); }catch(e){}
+  var sel = document.getElementById('langSelect');
+  if(sel) sel.value = currentLang;
+}
+
+function check(id, correct){
+  var dict = TRANSLATIONS[currentLang] || TRANSLATIONS.de;
+  var input = document.getElementById('input' + id);
+  var feedback = document.getElementById('feedback' + id);
+  var raw = input.value.trim();
+  var match = raw.match(/-?\d+/);
+  feedback.classList.remove('show', 'correct', 'incorrect');
+  if(!match){
+    feedback.textContent = dict.fbEmpty;
+    feedback.classList.add('show', 'incorrect');
+    return;
+  }
+  var value = parseInt(match[0], 10);
+  if(value === correct){
+    feedback.textContent = dict.fbCorrect;
+    feedback.classList.add('show', 'correct');
+  } else {
+    feedback.textContent = dict.fbIncorrect;
+    feedback.classList.add('show', 'incorrect');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var saved = 'de';
+  try{ saved = localStorage.getItem('mathecoach_lang') || 'de'; }catch(e){}
+  setLanguage(saved);
+});
+</script>
+
+</body>
+</html>
