@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mathe-Coach — Alle Themen</title>
+<style>
+  :root{
+    --bg:#FAFAF9;
+    --card:#FFFFFF;
+    --ink:#241C1C;
+    --ink-soft:#5C4F4C;
+    --red:#C41230;
+    --gold:#E0A526;
+    --blue:#2478B5;
+    --done-bg:#E5F5EC;
+    --done-border:#1E8E5A;
+    --soon-bg:#F1EFEC;
+    --soon-border:#E3DFDA;
+    --font-display: ui-rounded, "SF Pro Rounded", "Segoe UI Rounded", "Nunito", system-ui, sans-serif;
+    --font-body: system-ui, "Segoe UI", Roboto, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:18px;
+    line-height:1.5;
+    padding-bottom:60px;
+  }
+  header{
+    background:var(--card);
+    padding:36px 20px 0;
+    text-align:center;
+  }
+  .header-inner{
+    padding-bottom:26px;
+  }
+  .lang-switch{
+    display:flex;
+    justify-content:center;
+    margin-bottom:14px;
+  }
+  #langSelect{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:14px;
+    color:var(--ink);
+    background:var(--card);
+    border:2px solid #E3DFDA;
+    border-radius:999px;
+    padding:6px 14px;
+    cursor:pointer;
+  }
+  #langSelect:focus-visible{ outline:3px solid var(--blue); }
+  .eyebrow{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:14px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--blue);
+    margin-bottom:8px;
+  }
+  h1{
+    font-family:var(--font-display);
+    font-size:30px;
+    font-weight:800;
+    margin:0 0 10px;
+  }
+  h1 .accent{ color:var(--red); }
+  .mascot-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    max-width:480px;
+    margin:2px auto 6px;
+  }
+  .mascot-img{
+    width:78px;
+    height:auto;
+    flex-shrink:0;
+  }
+  .hand-subtitle{
+    font-family:'Caveat', cursive;
+    font-size:32px;
+    font-weight:700;
+    color:var(--red);
+    margin:0;
+    line-height:1.15;
+    text-align:left;
+  }
+  header p{
+    color:var(--ink-soft);
+    max-width:480px;
+    margin:0 auto;
+  }
+  .wave{
+    display:block;
+    width:100%;
+    height:34px;
+  }
+  .wrap{
+    max-width:640px;
+    margin:0 auto;
+    padding:0 20px;
+  }
+  .group{ margin-top:34px; }
+  .group-title{
+    font-family:var(--font-display);
+    font-size:14px;
+    font-weight:800;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-bottom:12px;
+    padding-left:4px;
+  }
+  .topic-list{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .topic{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    background:var(--card);
+    border-radius:16px;
+    padding:16px 18px;
+    box-shadow:0 2px 10px rgba(36,28,28,0.06);
+    text-decoration:none;
+    color:var(--ink);
+    border:2px solid transparent;
+  }
+  .topic.available{
+    border-color:var(--done-border);
+  }
+  .topic.soon{
+    opacity:0.65;
+    cursor:default;
+  }
+  .topic-name{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:16px;
+  }
+  .badge{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:12px;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    padding:5px 10px;
+    border-radius:999px;
+    white-space:nowrap;
+  }
+  .badge.available{
+    background:var(--done-bg);
+    color:var(--done-border);
+  }
+  .badge.soon{
+    background:var(--soon-bg);
+    color:var(--ink-soft);
+  }
+  footer{
+    text-align:center;
+    margin-top:44px;
+    padding:0 20px;
+    color:var(--ink-soft);
+    font-size:15px;
+  }
+  .footer-wave{
+    display:block;
+    width:100%;
+    max-width:280px;
+    height:16px;
+    margin:0 auto 18px;
+    opacity:0.6;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="lang-switch">
+      <select id="langSelect" onchange="setLanguage(this.value)">
+        <option value="de">Deutsch</option>
+        <option value="en">English</option>
+        <option value="es">Español</option>
+        <option value="fr">Français</option>
+        <option value="tr">Türkçe</option>
+        <option value="ru">Русский</option>
+        <option value="ar">العربية</option>
+        <option value="zh">中文</option>
+      </select>
+    </div>
+    <div class="eyebrow" data-i18n="eyebrow">Luisen-Gymnasium · Mathe-Coach</div>
+    <h1><span data-i18n="titleLine1">Alle</span> <span class="accent" data-i18n="titleAccent">Wiederholungsthemen</span></h1>
+    <div class="mascot-row">
+      <p class="hand-subtitle" data-i18n="handSubtitle">Komm, ich fang dich auf!<br>Du bist nicht allein.</p>
+      <img class="mascot-img" src="eichhoernchen.png" alt="Maskottchen Eichhörnchen">
+    </div>
+    <p data-i18n="introText">Wähl ein Thema aus. Du bekommst eine kurze Erklärung, drei Übungsaufgaben und direkt Feedback.</p>
+  </div>
+  <svg class="wave" viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+    <path d="M -10 22 C 190 4, 390 40, 590 22 S 990 4, 1210 22" fill="none" stroke="#C41230" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 32 C 190 50, 390 14, 590 32 S 990 50, 1210 32" fill="none" stroke="#E0A526" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 42 C 190 24, 390 58, 590 42 S 990 24, 1210 42" fill="none" stroke="#2478B5" stroke-width="5" stroke-linecap="round"/>
+  </svg>
+</header>
+
+<div class="wrap">
+
+  <div class="group">
+    <div class="group-title" data-i18n="groupBasics">Grundlagen · Klasse 5–7</div>
+    <div class="topic-list">
+      <a class="topic available" href="negative-zahlen.html">
+        <span class="topic-name">Grundrechenarten mit negativen Zahlen</span>
+        <span class="badge available" data-i18n="badgeAvailable">Verfügbar</span>
+      </a>
+      <a class="topic available" href="rechenreihenfolge.html">
+        <span class="topic-name">Rechenreihenfolge (Punkt vor Strich)</span>
+        <span class="badge available" data-i18n="badgeAvailable">Verfügbar</span>
+      </a>
+      <a class="topic available" href="teilbarkeit-ggt-kgv.html">
+        <span class="topic-name">Teilbarkeit, ggT und kgV</span>
+        <span class="badge available" data-i18n="badgeAvailable">Verfügbar</span>
+      </a>
+      <a class="topic available" href="bruchrechnung-erweitern-kuerzen.html">
+        <span class="topic-name">Bruchrechnung: Erweitern und Kürzen</span>
+        <span class="badge available" data-i18n="badgeAvailable">Verfügbar</span>
+      </a>
+      <a class="topic available" href="bruchrechnung-mult-div.html">
+        <span class="topic-name">Bruchrechnung: Multiplizieren und Dividieren</span>
+        <span class="badge available" data-i18n="badgeAvailable">Verfügbar</span>
+      </a>
+      <a class="topic available" href="dezimalzahlen-runden.html">
+        <span class="topic-name">Dezimalzahlen runden und umwandeln</span>
+        <span class="badge available" data-i18n="badgeAvailable">Verfügbar</span>
+      </a>
+      <a class="topic available" href="einheiten-umrechnen.html">
+        <span class="topic-name">Einheiten umrechnen</span>
+        <span class="badge available" data-i18n="badgeAvailable">Verfügbar</span>
+      </a>
+      <a class="topic available" href="massstab-verhaeltnisse.html">
+        <span class="topic-name">Maßstab und Verhältnisse</span>
+        <span class="badge available" data-i18n="badgeAvailable">Verfügbar</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-title" data-i18n="groupMiddle">Mittelstufe · Klasse 6–8</div>
+    <div class="topic-list">
+      <a class="topic available" href="prozentrechnung.html">
+        <span class="topic-name">Prozentrechnung</span>
+        <span class="badge available" data-i18n="badgeAvailable">Verfügbar</span>
+      </a>
+      <a class="topic available" href="dreisatz.html">
+        <span class="topic-name">Dreisatz</span>
+        <span class="badge available" data-i18n="badgeAvailable">Verfügbar</span>
+      </a>
+      <a class="topic available" href="zinsrechnung.html">
+        <span class="topic-name">Zinsrechnung</span>
+        <span class="badge available" data-i18n="badgeAvailable">Verfügbar</span>
+      </a>
+      <div class="topic soon">
+        <span class="topic-name">Terme aufstellen und vereinfachen</span>
+        <span class="badge soon" data-i18n="badgeSoon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Termumformung, Ausmultiplizieren, Ausklammern</span>
+        <span class="badge soon" data-i18n="badgeSoon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Lineare Gleichungen lösen</span>
+        <span class="badge soon" data-i18n="badgeSoon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Textaufgaben in Gleichungen übersetzen</span>
+        <span class="badge soon" data-i18n="badgeSoon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Koordinatensystem</span>
+        <span class="badge soon" data-i18n="badgeSoon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Flächenberechnung (Rechteck, Dreieck, Trapez)</span>
+        <span class="badge soon" data-i18n="badgeSoon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Umfang und Fläche des Kreises</span>
+        <span class="badge soon" data-i18n="badgeSoon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Volumen und Oberfläche von Körpern</span>
+        <span class="badge soon" data-i18n="badgeSoon">Bald</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-title" data-i18n="groupUpper">Sek. I · Klasse 8–10</div>
+    <div class="topic-list">
+      <div class="topic soon">
+        <span class="topic-name">Lineare Funktionen</span>
+        <span class="badge soon" data-i18n="badgeSoon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Lineare Gleichungssysteme</span>
+        <span class="badge soon" data-i18n="badgeSoon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Binomische Formeln</span>
+        <span class="badge soon" data-i18n="badgeSoon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Quadratische Gleichungen</span>
+        <span class="badge soon" data-i18n="badgeSoon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Satz des Pythagoras</span>
+        <span class="badge soon" data-i18n="badgeSoon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Strahlensätze</span>
+        <span class="badge soon" data-i18n="badgeSoon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Ähnlichkeit und Kongruenz</span>
+        <span class="badge soon" data-i18n="badgeSoon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Wahrscheinlichkeitsrechnung</span>
+        <span class="badge soon" data-i18n="badgeSoon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Kombinatorik</span>
+        <span class="badge soon" data-i18n="badgeSoon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Statistik: Mittelwert, Median, Diagramme</span>
+        <span class="badge soon" data-i18n="badgeSoon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Potenzen, Wurzeln, Potenzgesetze</span>
+        <span class="badge soon" data-i18n="badgeSoon">Bald</span>
+      </div>
+      <div class="topic soon">
+        <span class="topic-name">Trigonometrie im rechtwinkligen Dreieck</span>
+        <span class="badge soon" data-i18n="badgeSoon">Bald</span>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <svg class="footer-wave" viewBox="0 0 280 16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+      <path d="M -5 8 C 40 1, 80 15, 140 8 S 240 1, 285 8" fill="none" stroke="#C41230" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M -5 8 C 40 15, 80 1, 140 8 S 240 15, 285 8" fill="none" stroke="#2478B5" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+    </svg>
+    <span data-i18n="footerText">Weitere Themen werden nach und nach ergänzt.</span>
+  </footer>
+
+</div>
+
+<script>
+const TRANSLATIONS = {
+  de: {
+    eyebrow: `Luisen-Gymnasium · Mathe-Coach`,
+    titleLine1: `Alle`,
+    titleAccent: `Wiederholungsthemen`,
+    handSubtitle: `Komm, ich fang dich auf!<br>Du bist nicht allein.`,
+    introText: `Wähl ein Thema aus. Du bekommst eine kurze Erklärung, drei Übungsaufgaben und direkt Feedback.`,
+    groupBasics: `Grundlagen · Klasse 5–7`,
+    groupMiddle: `Mittelstufe · Klasse 6–8`,
+    groupUpper: `Sek. I · Klasse 8–10`,
+    badgeAvailable: `Verfügbar`,
+    badgeSoon: `Bald`,
+    footerText: `Weitere Themen werden nach und nach ergänzt.`
+  },
+  en: {
+    eyebrow: `Luisen-Gymnasium · Math Coach`,
+    titleLine1: `All`,
+    titleAccent: `Review Topics`,
+    handSubtitle: `Come on, I've got you!<br>You're not alone.`,
+    introText: `Choose a topic. You'll get a short explanation, three practice exercises and instant feedback.`,
+    groupBasics: `Basics · Grades 5–7`,
+    groupMiddle: `Middle school · Grades 6–8`,
+    groupUpper: `Upper secondary · Grades 8–10`,
+    badgeAvailable: `Available`,
+    badgeSoon: `Coming soon`,
+    footerText: `More topics will be added gradually.`
+  },
+  es: {
+    eyebrow: `Luisen-Gymnasium · Coach de Matemáticas`,
+    titleLine1: `Todos los`,
+    titleAccent: `temas de repaso`,
+    handSubtitle: `Ven, yo te sostengo.<br>No estás solo.`,
+    introText: `Elige un tema. Obtendrás una breve explicación, tres ejercicios y comprobación al instante.`,
+    groupBasics: `Fundamentos · 5.º–7.º curso`,
+    groupMiddle: `Secundaria media · 6.º–8.º curso`,
+    groupUpper: `Secundaria superior · 8.º–10.º curso`,
+    badgeAvailable: `Disponible`,
+    badgeSoon: `Próximamente`,
+    footerText: `Se irán añadiendo más temas poco a poco.`
+  },
+  fr: {
+    eyebrow: `Luisen-Gymnasium · Coach de Maths`,
+    titleLine1: `Tous les`,
+    titleAccent: `thèmes de révision`,
+    handSubtitle: `Viens, je te rattrape !<br>Tu n'es pas seul.`,
+    introText: `Choisis un thème. Tu obtiens une courte explication, trois exercices et un retour immédiat.`,
+    groupBasics: `Les bases · 5e–7e`,
+    groupMiddle: `Collège · 6e–8e`,
+    groupUpper: `Lycée · 8e–10e`,
+    badgeAvailable: `Disponible`,
+    badgeSoon: `Bientôt`,
+    footerText: `D'autres thèmes seront ajoutés petit à petit.`
+  },
+  tr: {
+    eyebrow: `Luisen-Gymnasium · Matematik Koçu`,
+    titleLine1: `Tüm`,
+    titleAccent: `Tekrar Konuları`,
+    handSubtitle: `Gel, seni yakalarım!<br>Yalnız değilsin.`,
+    introText: `Bir konu seç. Kısa bir açıklama, üç alıştırma ve anında geri bildirim alacaksın.`,
+    groupBasics: `Temel Bilgiler · 5–7. Sınıf`,
+    groupMiddle: `Orta Kademe · 6–8. Sınıf`,
+    groupUpper: `Üst Kademe · 8–10. Sınıf`,
+    badgeAvailable: `Kullanılabilir`,
+    badgeSoon: `Yakında`,
+    footerText: `Zamanla daha fazla konu eklenecek.`
+  },
+  ru: {
+    eyebrow: `Luisen-Gymnasium · Мате-Коуч`,
+    titleLine1: `Все`,
+    titleAccent: `темы для повторения`,
+    handSubtitle: `Иди сюда, я тебя подхвачу!<br>Ты не один.`,
+    introText: `Выбери тему. Тебя ждут краткое объяснение, три упражнения и мгновенная проверка.`,
+    groupBasics: `Основы · 5–7 класс`,
+    groupMiddle: `Средняя школа · 6–8 класс`,
+    groupUpper: `Старшая школа · 8–10 класс`,
+    badgeAvailable: `Доступно`,
+    badgeSoon: `Скоро`,
+    footerText: `Постепенно будут добавляться новые темы.`
+  },
+  ar: {
+    eyebrow: `مدرسة لويزن الثانوية · مدرّب الرياضيات`,
+    titleLine1: `جميع`,
+    titleAccent: `مواضيع المراجعة`,
+    handSubtitle: `تعالَ، سأحميك!<br>أنت لست وحدك.`,
+    introText: `اختر موضوعًا. ستحصل على شرح قصير، وثلاثة تمارين، وتحقق فوري.`,
+    groupBasics: `الأساسيات · الصف 5–7`,
+    groupMiddle: `المرحلة المتوسطة · الصف 6–8`,
+    groupUpper: `المرحلة الثانوية · الصف 8–10`,
+    badgeAvailable: `متاح`,
+    badgeSoon: `قريبًا`,
+    footerText: `سيتم إضافة المزيد من المواضيع تدريجيًا.`
+  },
+  zh: {
+    eyebrow: `路易森文理中学 · 数学教练`,
+    titleLine1: `所有`,
+    titleAccent: `复习主题`,
+    handSubtitle: `来吧，我会接住你！<br>你并不孤单。`,
+    introText: `选择一个主题。你会得到简短讲解、三道练习题和即时反馈。`,
+    groupBasics: `基础知识 · 5–7年级`,
+    groupMiddle: `中学阶段 · 6–8年级`,
+    groupUpper: `高中阶段 · 8–10年级`,
+    badgeAvailable: `可用`,
+    badgeSoon: `即将推出`,
+    footerText: `更多主题将陆续添加。`
+  }
+};
+
+function setLanguage(lang){
+  var dict = TRANSLATIONS[lang] || TRANSLATIONS.de;
+  var useLang = TRANSLATIONS[lang] ? lang : 'de';
+  document.documentElement.lang = useLang;
+  document.documentElement.dir = (useLang === 'ar') ? 'rtl' : 'ltr';
+
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var key = el.getAttribute('data-i18n');
+    if(dict[key] !== undefined){ el.innerHTML = dict[key]; }
+  });
+
+  try{ localStorage.setItem('mathecoach_lang', useLang); }catch(e){}
+  var sel = document.getElementById('langSelect');
+  if(sel) sel.value = useLang;
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var saved = 'de';
+  try{ saved = localStorage.getItem('mathecoach_lang') || 'de'; }catch(e){}
+  setLanguage(saved);
+});
+</script>
+
+</body>
+</html>
