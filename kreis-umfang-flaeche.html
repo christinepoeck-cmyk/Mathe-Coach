@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Umfang und Fläche des Kreises</title>
+<style>
+  :root{
+    --bg:#FAFAF9; --card:#FFFFFF; --ink:#241C1C; --ink-soft:#5C4F4C;
+    --red:#C41230; --gold:#E0A526; --blue:#2478B5;
+    --merke-bg:#FBF1DC; --merke-border:#E0A526;
+    --success:#1E8E5A; --success-bg:#E5F5EC; --error:#B3401D; --error-bg:#FBEDE6;
+    --font-display: ui-rounded, "SF Pro Rounded", "Segoe UI Rounded", "Nunito", system-ui, sans-serif;
+    --font-body: system-ui, "Segoe UI", Roboto, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:18px; line-height:1.5; padding-bottom:60px; }
+  .wrap{ max-width:640px; margin:0 auto; padding:0 20px; }
+  header{ background:var(--card); padding:30px 20px 0; text-align:center; position:relative; }
+  .header-inner{ padding-bottom:26px; }
+  .lang-switch{ display:flex; justify-content:center; margin-bottom:14px; }
+  #langSelect{ font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--ink); background:var(--card); border:2px solid #E3DFDA; border-radius:999px; padding:6px 14px; cursor:pointer; }
+  #langSelect:focus-visible{ outline:3px solid var(--blue); }
+  .back-link{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--blue); text-decoration:none; margin-bottom:16px; }
+  .eyebrow{ font-family:var(--font-display); font-weight:700; font-size:14px; letter-spacing:0.08em; text-transform:uppercase; color:var(--blue); margin-bottom:8px; }
+  h1{ font-family:var(--font-display); font-size:28px; font-weight:800; margin:0; line-height:1.25; }
+  h1 .accent{ color:var(--red); }
+  .wave{ display:block; width:100%; height:30px; }
+  section{ margin-top:32px; }
+  .card{ background:var(--card); border-radius:22px; padding:24px 22px; box-shadow:0 2px 14px rgba(36,28,28,0.07); }
+  h2{ font-family:var(--font-display); font-size:21px; font-weight:800; margin:0 0 14px; }
+  h2 .num{ display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:var(--blue); color:white; font-size:16px; margin-inline-end:10px; vertical-align:middle; }
+  p{ margin:0 0 14px; color:var(--ink-soft); }
+  .merke{ background:var(--merke-bg); border:2px solid var(--merke-border); border-radius:16px; padding:16px 18px; margin-top:16px; }
+  .merke-title{ font-family:var(--font-display); font-weight:800; color:#8A5A0F; font-size:15px; letter-spacing:0.04em; text-transform:uppercase; margin-bottom:6px; }
+  .merke-body{ color:#6B4A12; font-weight:600; margin:0; }
+  .circle-diagram{ width:100%; height:auto; margin:18px 0 6px; }
+  .task-card{ margin-top:18px; }
+  .task-question{ font-family:var(--font-display); font-weight:700; font-size:19px; margin-bottom:16px; }
+  .answer-row{ display:flex; gap:10px; margin-bottom:6px; }
+  input[type="text"]{ flex:1; font-size:18px; font-family:var(--font-body); padding:12px 14px; border-radius:12px; border:2px solid #E3DFDA; background:#FBFAF9; color:var(--ink); }
+  input[type="text"]:focus{ outline:3px solid #C9DCEA; border-color:var(--blue); }
+  button.check{ font-family:var(--font-display); font-weight:700; font-size:16px; color:white; background:var(--blue); border:none; border-radius:12px; padding:0 20px; cursor:pointer; }
+  button.check:active{ transform:translateY(1px); }
+  button.check:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
+  .feedback{ margin-top:10px; padding:12px 14px; border-radius:12px; font-weight:700; display:none; }
+  .feedback.show{ display:block; }
+  .feedback.correct{ background:var(--success-bg); color:var(--success); }
+  .feedback.incorrect{ background:var(--error-bg); color:var(--error); }
+  details{ margin-top:14px; border-top:2px dashed #E3DFDA; padding-top:12px; }
+  summary{ font-family:var(--font-display); font-weight:700; color:var(--blue); cursor:pointer; font-size:15px; }
+  .solution{ margin-top:12px; }
+  .solution ol{ margin:0 0 12px; padding-inline-start:22px; color:var(--ink-soft); }
+  .solution li{ margin-bottom:6px; }
+  .solution-result{ font-family:var(--font-display); font-weight:800; color:var(--ink); margin-bottom:12px; }
+  .hint-box{ background:#F1EFEC; border-radius:12px; padding:12px 14px; font-size:16px; color:var(--ink-soft); }
+  .hint-box strong{ color:var(--ink); }
+  footer{ text-align:center; margin-top:36px; padding:0 20px; }
+  footer p{ font-family:var(--font-display); font-weight:700; color:var(--ink); }
+  .footer-wave{ display:block; width:100%; max-width:280px; height:16px; margin:0 auto 18px; opacity:0.6; }
+  [dir="rtl"] .back-link{ flex-direction:row-reverse; }
+  @media (prefers-reduced-motion: no-preference){ button.check{ transition:transform 0.1s ease; } }
+  @media (max-width: 480px){ .answer-row{ flex-direction:column; } button.check{ width:100%; padding:14px 20px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="lang-switch">
+      <select id="langSelect" onchange="setLanguage(this.value)">
+        <option value="de">Deutsch</option><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="tr">Türkçe</option><option value="ru">Русский</option><option value="ar">العربية</option><option value="zh">中文</option>
+      </select>
+    </div>
+    <a class="back-link" href="index.html" data-i18n="backLink">← Alle Themen</a>
+    <div class="eyebrow" data-i18n="eyebrow">Luisen-Gymnasium · Klasse 7</div>
+    <h1><span data-i18n="titleLine1">Umfang und Fläche</span><br><span class="accent" data-i18n="titleAccent">des Kreises</span></h1>
+  </div>
+  <svg class="wave" viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+    <path d="M -10 22 C 190 4, 390 40, 590 22 S 990 4, 1210 22" fill="none" stroke="#C41230" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 32 C 190 50, 390 14, 590 32 S 990 50, 1210 32" fill="none" stroke="#E0A526" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 42 C 190 24, 390 58, 590 42 S 990 24, 1210 42" fill="none" stroke="#2478B5" stroke-width="5" stroke-linecap="round"/>
+  </svg>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <div class="card">
+      <h2 data-i18n="h2Basics">Grundlagen</h2>
+      <p data-i18n="basicsP1">Ein Kreis hat einen Radius r (Abstand vom Mittelpunkt zum Rand) und einen Durchmesser d (Abstand von Rand zu Rand durch den Mittelpunkt). Es gilt: d = 2 · r. Die Zahl π (Pi) ist etwa 3,14 und beschreibt das Verhältnis von Umfang zu Durchmesser bei jedem Kreis.</p>
+
+      <svg class="circle-diagram" viewBox="0 0 600 220" xmlns="http://www.w3.org/2000/svg" role="img" data-i18n-aria="circleAria" aria-label="Kreis mit eingezeichnetem Radius r vom Mittelpunkt zum Rand, Formeln Umfang gleich 2 mal Pi mal r und Fläche gleich Pi mal r Quadrat">
+        <circle cx="180" cy="110" r="90" fill="#2478B5" fill-opacity="0.08" stroke="#2478B5" stroke-width="2.5"/>
+        <circle cx="180" cy="110" r="3" fill="#241C1C"/>
+        <line x1="180" y1="110" x2="270" y2="110" stroke="#C41230" stroke-width="2.5"/>
+        <text x="225" y="102" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="16" font-weight="800" fill="#C41230">r</text>
+        <text x="420" y="70" text-anchor="start" font-family="ui-rounded, system-ui, sans-serif" font-size="18" font-weight="800" fill="#241C1C">U = 2 · π · r</text>
+        <text x="420" y="110" text-anchor="start" font-family="ui-rounded, system-ui, sans-serif" font-size="18" font-weight="800" fill="#241C1C">A = π · r²</text>
+        <text x="420" y="150" text-anchor="start" font-family="ui-rounded, system-ui, sans-serif" font-size="15" font-weight="700" fill="#8A5A0F">π ≈ 3,14</text>
+      </svg>
+
+      <p data-i18n="basicsExample1Label"><strong>Beispiel Schritt für Schritt:</strong> Kreis mit r = 5 cm. Berechne den Umfang.</p>
+      <p data-i18n="basicsExample1Steps">1. Formel: U = 2 · π · r<br>2. Einsetzen: U = 2 · 3,14 · 5<br>3. Rechnen: 2 · 3,14 = 6,28, dann 6,28 · 5 = 31,4<br>4. Ergebnis: U = 31,4 cm</p>
+
+      <p data-i18n="basicsP2Area"><strong>Für die Fläche</strong> wird der Radius mit sich selbst multipliziert (Quadrat) und dann mit π multipliziert.</p>
+
+      <p data-i18n="basicsExample2Label"><strong>Beispiel Schritt für Schritt:</strong> Kreis mit r = 4 cm. Berechne die Fläche.</p>
+      <p data-i18n="basicsExample2Steps">1. Formel: A = π · r²<br>2. Einsetzen: A = 3,14 · 4²<br>3. Rechnen: 4² = 16, dann 3,14 · 16 = 50,24<br>4. Ergebnis: A = 50,24 cm²</p>
+
+      <div class="merke">
+        <div class="merke-title" data-i18n="merkeTitle">Merke</div>
+        <p class="merke-body" data-i18n="merkeBody">Umfang: U = 2 · π · r (oder U = π · d).<br>Fläche: A = π · r².<br>Verwende π ≈ 3,14 für die Rechnung.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">1</span><span data-i18n="taskWord">Aufgabe</span> 1</h2>
+      <div class="task-question" data-i18n="task1Question">Ein Kreis hat r = 5 cm. Wie groß ist der Umfang (in cm, mit π ≈ 3,14)?</div>
+      <div class="answer-row">
+        <input type="text" id="input1" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="decimal">
+        <button class="check" data-i18n="checkButton" onclick="check(1, 31.4)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback1"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task1Result">Ergebnis: 31,4 cm</div>
+          <ol>
+            <li data-i18n="task1Step1">Formel: U = 2 · π · r.</li>
+            <li data-i18n="task1Step2">Einsetzen: 2 · 3,14 · 5.</li>
+            <li data-i18n="task1Step3">Rechnen: 2 · 3,14 = 6,28, dann 6,28 · 5 = 31,4.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task1Hint">Die 2 nicht vergessen – die Formel lautet 2 · π · r, nicht nur π · r.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">2</span><span data-i18n="taskWord">Aufgabe</span> 2</h2>
+      <div class="task-question" data-i18n="task2Question">Ein Kreis hat r = 3 cm. Wie groß ist der Umfang (in cm, mit π ≈ 3,14)?</div>
+      <div class="answer-row">
+        <input type="text" id="input2" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="decimal">
+        <button class="check" data-i18n="checkButton" onclick="check(2, 18.84)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback2"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task2Result">Ergebnis: 18,84 cm</div>
+          <ol>
+            <li data-i18n="task2Step1">Formel: U = 2 · π · r.</li>
+            <li data-i18n="task2Step2">Einsetzen: 2 · 3,14 · 3.</li>
+            <li data-i18n="task2Step3">Rechnen: 2 · 3,14 = 6,28, dann 6,28 · 3 = 18,84.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task2Hint">Bei der Multiplikation mit Kommazahlen sorgfältig rechnen oder einen Taschenrechner nutzen.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">3</span><span data-i18n="taskWord">Aufgabe</span> 3</h2>
+      <div class="task-question" data-i18n="task3Question">Ein Kreis hat d = 8 cm. Wie groß ist der Umfang (in cm, mit π ≈ 3,14)?</div>
+      <div class="answer-row">
+        <input type="text" id="input3" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="decimal">
+        <button class="check" data-i18n="checkButton" onclick="check(3, 25.12)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback3"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task3Result">Ergebnis: 25,12 cm</div>
+          <ol>
+            <li data-i18n="task3Step1">Formel mit Durchmesser: U = π · d.</li>
+            <li data-i18n="task3Step2">Einsetzen: 3,14 · 8.</li>
+            <li data-i18n="task3Step3">Rechnen: 3,14 · 8 = 25,12.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task3Hint">Ist der Durchmesser gegeben, braucht man die 2 nicht mehr extra – die Formel U = π · d reicht direkt.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">4</span><span data-i18n="taskWord">Aufgabe</span> 4</h2>
+      <div class="task-question" data-i18n="task4Question">Ein Kreis hat r = 4 cm. Wie groß ist die Fläche (in cm², mit π ≈ 3,14)?</div>
+      <div class="answer-row">
+        <input type="text" id="input4" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="decimal">
+        <button class="check" data-i18n="checkButton" onclick="check(4, 50.24)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback4"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task4Result">Ergebnis: 50,24 cm²</div>
+          <ol>
+            <li data-i18n="task4Step1">Formel: A = π · r².</li>
+            <li data-i18n="task4Step2">Einsetzen: 3,14 · 4².</li>
+            <li data-i18n="task4Step3">Rechnen: 4² = 16, dann 3,14 · 16 = 50,24.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task4Hint">Zuerst r² berechnen (r mal r), erst danach mit π multiplizieren.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">5</span><span data-i18n="taskWord">Aufgabe</span> 5</h2>
+      <div class="task-question" data-i18n="task5Question">Ein Kreis hat r = 6 cm. Wie groß ist die Fläche (in cm², mit π ≈ 3,14)?</div>
+      <div class="answer-row">
+        <input type="text" id="input5" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="decimal">
+        <button class="check" data-i18n="checkButton" onclick="check(5, 113.04)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback5"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task5Result">Ergebnis: 113,04 cm²</div>
+          <ol>
+            <li data-i18n="task5Step1">Formel: A = π · r².</li>
+            <li data-i18n="task5Step2">Einsetzen: 3,14 · 6².</li>
+            <li data-i18n="task5Step3">Rechnen: 6² = 36, dann 3,14 · 36 = 113,04.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task5Hint">r² bedeutet r mal r, nicht r mal 2.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">6</span><span data-i18n="taskWord">Aufgabe</span> 6</h2>
+      <div class="task-question" data-i18n="task6Question">Ein Kreis hat r = 2 cm. Wie groß ist die Fläche (in cm², mit π ≈ 3,14)?</div>
+      <div class="answer-row">
+        <input type="text" id="input6" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="decimal">
+        <button class="check" data-i18n="checkButton" onclick="check(6, 12.56)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback6"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task6Result">Ergebnis: 12,56 cm²</div>
+          <ol>
+            <li data-i18n="task6Step1">Formel: A = π · r².</li>
+            <li data-i18n="task6Step2">Einsetzen: 3,14 · 2².</li>
+            <li data-i18n="task6Step3">Rechnen: 2² = 4, dann 3,14 · 4 = 12,56.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task6Hint">Auch bei kleinen Radien immer zuerst quadrieren, dann mit π multiplizieren.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">7</span><span data-i18n="taskWord">Aufgabe</span> 7</h2>
+      <div class="task-question" data-i18n="task7Question">Ein rundes Gartenbeet hat einen Durchmesser von 6 m. Wie viele Meter Zaun werden für den Umfang benötigt (mit π ≈ 3,14)?</div>
+      <div class="answer-row">
+        <input type="text" id="input7" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="decimal">
+        <button class="check" data-i18n="checkButton" onclick="check(7, 18.84)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback7"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task7Result">Ergebnis: 18,84 m</div>
+          <ol>
+            <li data-i18n="task7Step1">Formel: U = π · d.</li>
+            <li data-i18n="task7Step2">Einsetzen: 3,14 · 6.</li>
+            <li data-i18n="task7Step3">Rechnen: 3,14 · 6 = 18,84.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task7Hint">Bei Sachaufgaben genau prüfen, ob Radius oder Durchmesser angegeben ist.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">8</span><span data-i18n="taskWord">Aufgabe</span> 8</h2>
+      <div class="task-question" data-i18n="task8Question">Ein runder Pool hat einen Radius von 3 m. Wie groß ist die Wasserfläche (in m², mit π ≈ 3,14)?</div>
+      <div class="answer-row">
+        <input type="text" id="input8" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="decimal">
+        <button class="check" data-i18n="checkButton" onclick="check(8, 28.26)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback8"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task8Result">Ergebnis: 28,26 m²</div>
+          <ol>
+            <li data-i18n="task8Step1">Formel: A = π · r².</li>
+            <li data-i18n="task8Step2">Einsetzen: 3,14 · 3².</li>
+            <li data-i18n="task8Step3">Rechnen: 3² = 9, dann 3,14 · 9 = 28,26.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task8Hint">Nach dem Quadrieren des Radius nicht die Multiplikation mit π vergessen.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <footer>
+    <svg class="footer-wave" viewBox="0 0 280 16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+      <path d="M -5 8 C 40 1, 80 15, 140 8 S 240 1, 285 8" fill="none" stroke="#C41230" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M -5 8 C 40 15, 80 1, 140 8 S 240 15, 285 8" fill="none" stroke="#2478B5" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+    </svg>
+    <p id="footer-msg" data-i18n="footerMessage">Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!</p>
+  </footer>
+
+</div>
+
+<script>
+const TRANSLATIONS = {
+de: {
+  eyebrow: `Luisen-Gymnasium · Klasse 7`, titleLine1: `Umfang und Fläche`, titleAccent: `des Kreises`, backLink: `← Alle Themen`, h2Basics: `Grundlagen`,
+  basicsP1: `Ein Kreis hat einen Radius r (Abstand vom Mittelpunkt zum Rand) und einen Durchmesser d (Abstand von Rand zu Rand durch den Mittelpunkt). Es gilt: d = 2 · r. Die Zahl π (Pi) ist etwa 3,14 und beschreibt das Verhältnis von Umfang zu Durchmesser bei jedem Kreis.`,
+  circleAria: `Kreis mit eingezeichnetem Radius r vom Mittelpunkt zum Rand, Formeln Umfang gleich 2 mal Pi mal r und Fläche gleich Pi mal r Quadrat`,
+  basicsExample1Label: `<strong>Beispiel Schritt für Schritt:</strong> Kreis mit r = 5 cm. Berechne den Umfang.`,
+  basicsExample1Steps: `1. Formel: U = 2 · π · r<br>2. Einsetzen: U = 2 · 3,14 · 5<br>3. Rechnen: 2 · 3,14 = 6,28, dann 6,28 · 5 = 31,4<br>4. Ergebnis: U = 31,4 cm`,
+  basicsP2Area: `<strong>Für die Fläche</strong> wird der Radius mit sich selbst multipliziert (Quadrat) und dann mit π multipliziert.`,
+  basicsExample2Label: `<strong>Beispiel Schritt für Schritt:</strong> Kreis mit r = 4 cm. Berechne die Fläche.`,
+  basicsExample2Steps: `1. Formel: A = π · r²<br>2. Einsetzen: A = 3,14 · 4²<br>3. Rechnen: 4² = 16, dann 3,14 · 16 = 50,24<br>4. Ergebnis: A = 50,24 cm²`,
+  merkeTitle: `Merke`, merkeBody: `Umfang: U = 2 · π · r (oder U = π · d).<br>Fläche: A = π · r².<br>Verwende π ≈ 3,14 für die Rechnung.`,
+  taskWord: `Aufgabe`,
+  task1Question: `Ein Kreis hat r = 5 cm. Wie groß ist der Umfang (in cm, mit π ≈ 3,14)?`, task2Question: `Ein Kreis hat r = 3 cm. Wie groß ist der Umfang (in cm, mit π ≈ 3,14)?`, task3Question: `Ein Kreis hat d = 8 cm. Wie groß ist der Umfang (in cm, mit π ≈ 3,14)?`, task4Question: `Ein Kreis hat r = 4 cm. Wie groß ist die Fläche (in cm², mit π ≈ 3,14)?`, task5Question: `Ein Kreis hat r = 6 cm. Wie groß ist die Fläche (in cm², mit π ≈ 3,14)?`, task6Question: `Ein Kreis hat r = 2 cm. Wie groß ist die Fläche (in cm², mit π ≈ 3,14)?`,
+  task7Question: `Ein rundes Gartenbeet hat einen Durchmesser von 6 m. Wie viele Meter Zaun werden für den Umfang benötigt (mit π ≈ 3,14)?`,
+  task8Question: `Ein runder Pool hat einen Radius von 3 m. Wie groß ist die Wasserfläche (in m², mit π ≈ 3,14)?`,
+  answerPlaceholder: `Deine Antwort`, checkButton: `Prüfen`, solutionSummary: `Lösung anzeigen`,
+  task1Result: `Ergebnis: 31,4 cm`, task2Result: `Ergebnis: 18,84 cm`, task3Result: `Ergebnis: 25,12 cm`, task4Result: `Ergebnis: 50,24 cm²`, task5Result: `Ergebnis: 113,04 cm²`, task6Result: `Ergebnis: 12,56 cm²`, task7Result: `Ergebnis: 18,84 m`, task8Result: `Ergebnis: 28,26 m²`,
+  task1Step1: `Formel: U = 2 · π · r.`, task1Step2: `Einsetzen: 2 · 3,14 · 5.`, task1Step3: `Rechnen: 2 · 3,14 = 6,28, dann 6,28 · 5 = 31,4.`,
+  task1Hint: `Die 2 nicht vergessen – die Formel lautet 2 · π · r, nicht nur π · r.`,
+  task2Step1: `Formel: U = 2 · π · r.`, task2Step2: `Einsetzen: 2 · 3,14 · 3.`, task2Step3: `Rechnen: 2 · 3,14 = 6,28, dann 6,28 · 3 = 18,84.`,
+  task2Hint: `Bei der Multiplikation mit Kommazahlen sorgfältig rechnen oder einen Taschenrechner nutzen.`,
+  task3Step1: `Formel mit Durchmesser: U = π · d.`, task3Step2: `Einsetzen: 3,14 · 8.`, task3Step3: `Rechnen: 3,14 · 8 = 25,12.`,
+  task3Hint: `Ist der Durchmesser gegeben, braucht man die 2 nicht mehr extra – die Formel U = π · d reicht direkt.`,
+  task4Step1: `Formel: A = π · r².`, task4Step2: `Einsetzen: 3,14 · 4².`, task4Step3: `Rechnen: 4² = 16, dann 3,14 · 16 = 50,24.`,
+  task4Hint: `Zuerst r² berechnen (r mal r), erst danach mit π multiplizieren.`,
+  task5Step1: `Formel: A = π · r².`, task5Step2: `Einsetzen: 3,14 · 6².`, task5Step3: `Rechnen: 6² = 36, dann 3,14 · 36 = 113,04.`,
+  task5Hint: `r² bedeutet r mal r, nicht r mal 2.`,
+  task6Step1: `Formel: A = π · r².`, task6Step2: `Einsetzen: 3,14 · 2².`, task6Step3: `Rechnen: 2² = 4, dann 3,14 · 4 = 12,56.`,
+  task6Hint: `Auch bei kleinen Radien immer zuerst quadrieren, dann mit π multiplizieren.`,
+  task7Step1: `Formel: U = π · d.`, task7Step2: `Einsetzen: 3,14 · 6.`, task7Step3: `Rechnen: 3,14 · 6 = 18,84.`,
+  task7Hint: `Bei Sachaufgaben genau prüfen, ob Radius oder Durchmesser angegeben ist.`,
+  task8Step1: `Formel: A = π · r².`, task8Step2: `Einsetzen: 3,14 · 3².`, task8Step3: `Rechnen: 3² = 9, dann 3,14 · 9 = 28,26.`,
+  task8Hint: `Nach dem Quadrieren des Radius nicht die Multiplikation mit π vergessen.`,
+  hintLabel: `Typischer Fehler:`, footerMessage: `Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!`,
+  fbEmpty: `Trag bitte eine Zahl ein, bevor du prüfst.`, fbCorrect: `Richtig! Gut gemacht!`, fbIncorrect: `Noch nicht ganz richtig. Schau dir die Lösung weiter unten an und versuch es dann nochmal.`
+},
+en: {
+  eyebrow: `Luisen-Gymnasium · Grade 7`, titleLine1: `Circumference and Area`, titleAccent: `of a Circle`, backLink: `← All Topics`, h2Basics: `Basics`,
+  basicsP1: `A circle has a radius r (distance from the center to the edge) and a diameter d (distance from edge to edge through the center). d = 2 · r. The number π (pi) is about 3.14 and describes the ratio of circumference to diameter for every circle.`,
+  circleAria: `Circle with the radius r drawn from the center to the edge, formulas circumference equals 2 times pi times r and area equals pi times r squared`,
+  basicsExample1Label: `<strong>Step-by-step example:</strong> Circle with r = 5 cm. Calculate the circumference.`,
+  basicsExample1Steps: `1. Formula: C = 2 · π · r<br>2. Substitute: C = 2 · 3.14 · 5<br>3. Calculate: 2 · 3.14 = 6.28, then 6.28 · 5 = 31.4<br>4. Result: C = 31.4 cm`,
+  basicsP2Area: `<strong>For the area,</strong> the radius is multiplied by itself (squared) and then multiplied by π.`,
+  basicsExample2Label: `<strong>Step-by-step example:</strong> Circle with r = 4 cm. Calculate the area.`,
+  basicsExample2Steps: `1. Formula: A = π · r²<br>2. Substitute: A = 3.14 · 4²<br>3. Calculate: 4² = 16, then 3.14 · 16 = 50.24<br>4. Result: A = 50.24 cm²`,
+  merkeTitle: `Remember`, merkeBody: `Circumference: C = 2 · π · r (or C = π · d).<br>Area: A = π · r².<br>Use π ≈ 3.14 for the calculation.`,
+  taskWord: `Exercise`,
+  task1Question: `A circle has r = 5 cm. What's the circumference (in cm, with π ≈ 3.14)?`, task2Question: `A circle has r = 3 cm. What's the circumference (in cm, with π ≈ 3.14)?`, task3Question: `A circle has d = 8 cm. What's the circumference (in cm, with π ≈ 3.14)?`, task4Question: `A circle has r = 4 cm. What's the area (in cm², with π ≈ 3.14)?`, task5Question: `A circle has r = 6 cm. What's the area (in cm², with π ≈ 3.14)?`, task6Question: `A circle has r = 2 cm. What's the area (in cm², with π ≈ 3.14)?`,
+  task7Question: `A round garden bed has a diameter of 6 m. How many meters of fence are needed for the circumference (with π ≈ 3.14)?`,
+  task8Question: `A round pool has a radius of 3 m. What's the surface area of the water (in m², with π ≈ 3.14)?`,
+  answerPlaceholder: `Your answer`, checkButton: `Check`, solutionSummary: `Show solution`,
+  task1Result: `Result: 31.4 cm`, task2Result: `Result: 18.84 cm`, task3Result: `Result: 25.12 cm`, task4Result: `Result: 50.24 cm²`, task5Result: `Result: 113.04 cm²`, task6Result: `Result: 12.56 cm²`, task7Result: `Result: 18.84 m`, task8Result: `Result: 28.26 m²`,
+  task1Step1: `Formula: C = 2 · π · r.`, task1Step2: `Substitute: 2 · 3.14 · 5.`, task1Step3: `Calculate: 2 · 3.14 = 6.28, then 6.28 · 5 = 31.4.`,
+  task1Hint: `Don't forget the 2 — the formula is 2 · π · r, not just π · r.`,
+  task2Step1: `Formula: C = 2 · π · r.`, task2Step2: `Substitute: 2 · 3.14 · 3.`, task2Step3: `Calculate: 2 · 3.14 = 6.28, then 6.28 · 3 = 18.84.`,
+  task2Hint: `Multiply decimal numbers carefully or use a calculator.`,
+  task3Step1: `Formula with diameter: C = π · d.`, task3Step2: `Substitute: 3.14 · 8.`, task3Step3: `Calculate: 3.14 · 8 = 25.12.`,
+  task3Hint: `If the diameter is given, you don't need the extra 2 — the formula C = π · d works directly.`,
+  task4Step1: `Formula: A = π · r².`, task4Step2: `Substitute: 3.14 · 4².`, task4Step3: `Calculate: 4² = 16, then 3.14 · 16 = 50.24.`,
+  task4Hint: `First calculate r² (r times r), only then multiply by π.`,
+  task5Step1: `Formula: A = π · r².`, task5Step2: `Substitute: 3.14 · 6².`, task5Step3: `Calculate: 6² = 36, then 3.14 · 36 = 113.04.`,
+  task5Hint: `r² means r times r, not r times 2.`,
+  task6Step1: `Formula: A = π · r².`, task6Step2: `Substitute: 3.14 · 2².`, task6Step3: `Calculate: 2² = 4, then 3.14 · 4 = 12.56.`,
+  task6Hint: `Even with small radii, always square first, then multiply by π.`,
+  task7Step1: `Formula: C = π · d.`, task7Step2: `Substitute: 3.14 · 6.`, task7Step3: `Calculate: 3.14 · 6 = 18.84.`,
+  task7Hint: `In word problems, check carefully whether the radius or the diameter is given.`,
+  task8Step1: `Formula: A = π · r².`, task8Step2: `Substitute: 3.14 · 3².`, task8Step3: `Calculate: 3² = 9, then 3.14 · 9 = 28.26.`,
+  task8Hint: `After squaring the radius, don't forget to multiply by π.`,
+  hintLabel: `Common mistake:`, footerMessage: `Take your time and check the solution if you need to. You can do this!`,
+  fbEmpty: `Please enter a number before checking.`, fbCorrect: `Correct! Well done!`, fbIncorrect: `Not quite right yet. Check the solution below and try again.`
+},
+es: {
+  eyebrow: `Luisen-Gymnasium · 7.º curso`, titleLine1: `Perímetro y área`, titleAccent: `del círculo`, backLink: `← Todos los temas`, h2Basics: `Fundamentos`,
+  basicsP1: `Un círculo tiene un radio r (distancia del centro al borde) y un diámetro d (distancia de borde a borde pasando por el centro). Se cumple: d = 2 · r. El número π (pi) es aproximadamente 3,14 y describe la relación entre el perímetro y el diámetro de cualquier círculo.`,
+  circleAria: `Círculo con el radio r dibujado desde el centro hasta el borde, fórmulas perímetro igual a 2 por pi por r y área igual a pi por r al cuadrado`,
+  basicsExample1Label: `<strong>Ejemplo paso a paso:</strong> Círculo con r = 5 cm. Calcula el perímetro.`,
+  basicsExample1Steps: `1. Fórmula: P = 2 · π · r<br>2. Sustituye: P = 2 · 3,14 · 5<br>3. Calcula: 2 · 3,14 = 6,28, luego 6,28 · 5 = 31,4<br>4. Resultado: P = 31,4 cm`,
+  basicsP2Area: `<strong>Para el área,</strong> el radio se multiplica por sí mismo (al cuadrado) y luego se multiplica por π.`,
+  basicsExample2Label: `<strong>Ejemplo paso a paso:</strong> Círculo con r = 4 cm. Calcula el área.`,
+  basicsExample2Steps: `1. Fórmula: A = π · r²<br>2. Sustituye: A = 3,14 · 4²<br>3. Calcula: 4² = 16, luego 3,14 · 16 = 50,24<br>4. Resultado: A = 50,24 cm²`,
+  merkeTitle: `Recuerda`, merkeBody: `Perímetro: P = 2 · π · r (o P = π · d).<br>Área: A = π · r².<br>Usa π ≈ 3,14 para el cálculo.`,
+  taskWord: `Ejercicio`,
+  task1Question: `Un círculo tiene r = 5 cm. ¿Cuál es el perímetro (en cm, con π ≈ 3,14)?`, task2Question: `Un círculo tiene r = 3 cm. ¿Cuál es el perímetro (en cm, con π ≈ 3,14)?`, task3Question: `Un círculo tiene d = 8 cm. ¿Cuál es el perímetro (en cm, con π ≈ 3,14)?`, task4Question: `Un círculo tiene r = 4 cm. ¿Cuál es el área (en cm², con π ≈ 3,14)?`, task5Question: `Un círculo tiene r = 6 cm. ¿Cuál es el área (en cm², con π ≈ 3,14)?`, task6Question: `Un círculo tiene r = 2 cm. ¿Cuál es el área (en cm², con π ≈ 3,14)?`,
+  task7Question: `Un macizo de flores redondo tiene un diámetro de 6 m. ¿Cuántos metros de valla se necesitan para el perímetro (con π ≈ 3,14)?`,
+  task8Question: `Una piscina redonda tiene un radio de 3 m. ¿Cuál es la superficie del agua (en m², con π ≈ 3,14)?`,
+  answerPlaceholder: `Tu respuesta`, checkButton: `Comprobar`, solutionSummary: `Ver solución`,
+  task1Result: `Resultado: 31,4 cm`, task2Result: `Resultado: 18,84 cm`, task3Result: `Resultado: 25,12 cm`, task4Result: `Resultado: 50,24 cm²`, task5Result: `Resultado: 113,04 cm²`, task6Result: `Resultado: 12,56 cm²`, task7Result: `Resultado: 18,84 m`, task8Result: `Resultado: 28,26 m²`,
+  task1Step1: `Fórmula: P = 2 · π · r.`, task1Step2: `Sustituye: 2 · 3,14 · 5.`, task1Step3: `Calcula: 2 · 3,14 = 6,28, luego 6,28 · 5 = 31,4.`,
+  task1Hint: `No olvides el 2 — la fórmula es 2 · π · r, no solo π · r.`,
+  task2Step1: `Fórmula: P = 2 · π · r.`, task2Step2: `Sustituye: 2 · 3,14 · 3.`, task2Step3: `Calcula: 2 · 3,14 = 6,28, luego 6,28 · 3 = 18,84.`,
+  task2Hint: `Multiplica los decimales con cuidado o usa una calculadora.`,
+  task3Step1: `Fórmula con el diámetro: P = π · d.`, task3Step2: `Sustituye: 3,14 · 8.`, task3Step3: `Calcula: 3,14 · 8 = 25,12.`,
+  task3Hint: `Si se da el diámetro, no necesitas el 2 extra — la fórmula P = π · d funciona directamente.`,
+  task4Step1: `Fórmula: A = π · r².`, task4Step2: `Sustituye: 3,14 · 4².`, task4Step3: `Calcula: 4² = 16, luego 3,14 · 16 = 50,24.`,
+  task4Hint: `Primero calcula r² (r por r), y solo después multiplica por π.`,
+  task5Step1: `Fórmula: A = π · r².`, task5Step2: `Sustituye: 3,14 · 6².`, task5Step3: `Calcula: 6² = 36, luego 3,14 · 36 = 113,04.`,
+  task5Hint: `r² significa r por r, no r por 2.`,
+  task6Step1: `Fórmula: A = π · r².`, task6Step2: `Sustituye: 3,14 · 2².`, task6Step3: `Calcula: 2² = 4, luego 3,14 · 4 = 12,56.`,
+  task6Hint: `Incluso con radios pequeños, siempre eleva al cuadrado primero, luego multiplica por π.`,
+  task7Step1: `Fórmula: P = π · d.`, task7Step2: `Sustituye: 3,14 · 6.`, task7Step3: `Calcula: 3,14 · 6 = 18,84.`,
+  task7Hint: `En los problemas de texto, comprueba con cuidado si se da el radio o el diámetro.`,
+  task8Step1: `Fórmula: A = π · r².`, task8Step2: `Sustituye: 3,14 · 3².`, task8Step3: `Calcula: 3² = 9, luego 3,14 · 9 = 28,26.`,
+  task8Hint: `Después de elevar el radio al cuadrado, no olvides multiplicar por π.`,
+  hintLabel: `Error típico:`, footerMessage: `Tómate tu tiempo y revisa la solución si la necesitas. ¡Tú puedes!`,
+  fbEmpty: `Introduce un número antes de comprobar.`, fbCorrect: `¡Correcto! ¡Muy bien!`, fbIncorrect: `Todavía no es correcto. Revisa la solución de abajo e inténtalo de nuevo.`
+},
+fr: {
+  eyebrow: `Luisen-Gymnasium · 5e`, titleLine1: `Périmètre et aire`, titleAccent: `du cercle`, backLink: `← Tous les thèmes`, h2Basics: `Les bases`,
+  basicsP1: `Un cercle a un rayon r (distance du centre au bord) et un diamètre d (distance de bord à bord en passant par le centre). On a : d = 2 · r. Le nombre π (pi) vaut environ 3,14 et décrit le rapport entre le périmètre et le diamètre de tout cercle.`,
+  circleAria: `Cercle avec le rayon r tracé du centre au bord, formules périmètre égal 2 fois pi fois r et aire égale pi fois r au carré`,
+  basicsExample1Label: `<strong>Exemple étape par étape :</strong> Cercle avec r = 5 cm. Calcule le périmètre.`,
+  basicsExample1Steps: `1. Formule : P = 2 · π · r<br>2. Substitue : P = 2 · 3,14 · 5<br>3. Calcule : 2 · 3,14 = 6,28, puis 6,28 · 5 = 31,4<br>4. Résultat : P = 31,4 cm`,
+  basicsP2Area: `<strong>Pour l'aire,</strong> le rayon est multiplié par lui-même (au carré), puis multiplié par π.`,
+  basicsExample2Label: `<strong>Exemple étape par étape :</strong> Cercle avec r = 4 cm. Calcule l'aire.`,
+  basicsExample2Steps: `1. Formule : A = π · r²<br>2. Substitue : A = 3,14 · 4²<br>3. Calcule : 4² = 16, puis 3,14 · 16 = 50,24<br>4. Résultat : A = 50,24 cm²`,
+  merkeTitle: `À retenir`, merkeBody: `Périmètre : P = 2 · π · r (ou P = π · d).<br>Aire : A = π · r².<br>Utilise π ≈ 3,14 pour le calcul.`,
+  taskWord: `Exercice`,
+  task1Question: `Un cercle a r = 5 cm. Quel est le périmètre (en cm, avec π ≈ 3,14) ?`, task2Question: `Un cercle a r = 3 cm. Quel est le périmètre (en cm, avec π ≈ 3,14) ?`, task3Question: `Un cercle a d = 8 cm. Quel est le périmètre (en cm, avec π ≈ 3,14) ?`, task4Question: `Un cercle a r = 4 cm. Quelle est l'aire (en cm², avec π ≈ 3,14) ?`, task5Question: `Un cercle a r = 6 cm. Quelle est l'aire (en cm², avec π ≈ 3,14) ?`, task6Question: `Un cercle a r = 2 cm. Quelle est l'aire (en cm², avec π ≈ 3,14) ?`,
+  task7Question: `Un parterre de fleurs rond a un diamètre de 6 m. Combien de mètres de clôture faut-il pour le périmètre (avec π ≈ 3,14) ?`,
+  task8Question: `Une piscine ronde a un rayon de 3 m. Quelle est la surface d'eau (en m², avec π ≈ 3,14) ?`,
+  answerPlaceholder: `Ta réponse`, checkButton: `Vérifier`, solutionSummary: `Voir la solution`,
+  task1Result: `Résultat : 31,4 cm`, task2Result: `Résultat : 18,84 cm`, task3Result: `Résultat : 25,12 cm`, task4Result: `Résultat : 50,24 cm²`, task5Result: `Résultat : 113,04 cm²`, task6Result: `Résultat : 12,56 cm²`, task7Result: `Résultat : 18,84 m`, task8Result: `Résultat : 28,26 m²`,
+  task1Step1: `Formule : P = 2 · π · r.`, task1Step2: `Substitue : 2 · 3,14 · 5.`, task1Step3: `Calcule : 2 · 3,14 = 6,28, puis 6,28 · 5 = 31,4.`,
+  task1Hint: `N'oublie pas le 2 — la formule est 2 · π · r, pas seulement π · r.`,
+  task2Step1: `Formule : P = 2 · π · r.`, task2Step2: `Substitue : 2 · 3,14 · 3.`, task2Step3: `Calcule : 2 · 3,14 = 6,28, puis 6,28 · 3 = 18,84.`,
+  task2Hint: `Multiplie les nombres décimaux avec soin ou utilise une calculatrice.`,
+  task3Step1: `Formule avec le diamètre : P = π · d.`, task3Step2: `Substitue : 3,14 · 8.`, task3Step3: `Calcule : 3,14 · 8 = 25,12.`,
+  task3Hint: `Si le diamètre est donné, tu n'as pas besoin du 2 en plus — la formule P = π · d fonctionne directement.`,
+  task4Step1: `Formule : A = π · r².`, task4Step2: `Substitue : 3,14 · 4².`, task4Step3: `Calcule : 4² = 16, puis 3,14 · 16 = 50,24.`,
+  task4Hint: `Calcule d'abord r² (r fois r), seulement après multiplie par π.`,
+  task5Step1: `Formule : A = π · r².`, task5Step2: `Substitue : 3,14 · 6².`, task5Step3: `Calcule : 6² = 36, puis 3,14 · 36 = 113,04.`,
+  task5Hint: `r² signifie r fois r, pas r fois 2.`,
+  task6Step1: `Formule : A = π · r².`, task6Step2: `Substitue : 3,14 · 2².`, task6Step3: `Calcule : 2² = 4, puis 3,14 · 4 = 12,56.`,
+  task6Hint: `Même avec de petits rayons, mets toujours au carré d'abord, puis multiplie par π.`,
+  task7Step1: `Formule : P = π · d.`, task7Step2: `Substitue : 3,14 · 6.`, task7Step3: `Calcule : 3,14 · 6 = 18,84.`,
+  task7Hint: `Dans les problèmes, vérifie bien si le rayon ou le diamètre est donné.`,
+  task8Step1: `Formule : A = π · r².`, task8Step2: `Substitue : 3,14 · 3².`, task8Step3: `Calcule : 3² = 9, puis 3,14 · 9 = 28,26.`,
+  task8Hint: `Après avoir mis le rayon au carré, n'oublie pas de multiplier par π.`,
+  hintLabel: `Erreur fréquente :`, footerMessage: `Prends ton temps et regarde la solution si besoin. Tu vas y arriver !`,
+  fbEmpty: `Merci d'indiquer un nombre avant de vérifier.`, fbCorrect: `Correct ! Bien joué !`, fbIncorrect: `Pas encore tout à fait juste. Regarde la solution ci-dessous et réessaie.`
+},
+tr: {
+  eyebrow: `Luisen-Gymnasium · 7. Sınıf`, titleLine1: `Çemberin Çevresi`, titleAccent: `ve Dairenin Alanı`, backLink: `← Tüm Konular`, h2Basics: `Temel Bilgiler`,
+  basicsP1: `Bir dairenin bir yarıçapı r (merkezden kenara olan mesafe) ve bir çapı d (merkezden geçerek kenardan kenara olan mesafe) vardır. d = 2 · r geçerlidir. π (pi) sayısı yaklaşık 3,14'tür ve her dairede çevrenin çapa oranını tanımlar.`,
+  circleAria: `Merkezden kenara çizilmiş r yarıçaplı daire, çevre eşittir 2 çarpı pi çarpı r ve alan eşittir pi çarpı r kare formülleri`,
+  basicsExample1Label: `<strong>Adım adım örnek:</strong> r = 5 cm olan bir daire. Çevreyi hesapla.`,
+  basicsExample1Steps: `1. Formül: Ç = 2 · π · r<br>2. Yerine koy: Ç = 2 · 3,14 · 5<br>3. Hesapla: 2 · 3,14 = 6,28, sonra 6,28 · 5 = 31,4<br>4. Sonuç: Ç = 31,4 cm`,
+  basicsP2Area: `<strong>Alan için</strong> yarıçap kendisiyle çarpılır (kare) ve sonra π ile çarpılır.`,
+  basicsExample2Label: `<strong>Adım adım örnek:</strong> r = 4 cm olan bir daire. Alanı hesapla.`,
+  basicsExample2Steps: `1. Formül: A = π · r²<br>2. Yerine koy: A = 3,14 · 4²<br>3. Hesapla: 4² = 16, sonra 3,14 · 16 = 50,24<br>4. Sonuç: A = 50,24 cm²`,
+  merkeTitle: `Unutma`, merkeBody: `Çevre: Ç = 2 · π · r (ya da Ç = π · d).<br>Alan: A = π · r².<br>Hesaplama için π ≈ 3,14 kullan.`,
+  taskWord: `Alıştırma`,
+  task1Question: `Bir dairenin r = 5 cm'dir. Çevre kaç cm'dir (π ≈ 3,14 ile)?`, task2Question: `Bir dairenin r = 3 cm'dir. Çevre kaç cm'dir (π ≈ 3,14 ile)?`, task3Question: `Bir dairenin d = 8 cm'dir. Çevre kaç cm'dir (π ≈ 3,14 ile)?`, task4Question: `Bir dairenin r = 4 cm'dir. Alan kaç cm²'dir (π ≈ 3,14 ile)?`, task5Question: `Bir dairenin r = 6 cm'dir. Alan kaç cm²'dir (π ≈ 3,14 ile)?`, task6Question: `Bir dairenin r = 2 cm'dir. Alan kaç cm²'dir (π ≈ 3,14 ile)?`,
+  task7Question: `Yuvarlak bir çiçek tarhının çapı 6 m'dir. Çevresi için kaç metre çit gerekir (π ≈ 3,14 ile)?`,
+  task8Question: `Yuvarlak bir havuzun yarıçapı 3 m'dir. Su yüzeyi kaç m²'dir (π ≈ 3,14 ile)?`,
+  answerPlaceholder: `Cevabın`, checkButton: `Kontrol et`, solutionSummary: `Çözümü göster`,
+  task1Result: `Sonuç: 31,4 cm`, task2Result: `Sonuç: 18,84 cm`, task3Result: `Sonuç: 25,12 cm`, task4Result: `Sonuç: 50,24 cm²`, task5Result: `Sonuç: 113,04 cm²`, task6Result: `Sonuç: 12,56 cm²`, task7Result: `Sonuç: 18,84 m`, task8Result: `Sonuç: 28,26 m²`,
+  task1Step1: `Formül: Ç = 2 · π · r.`, task1Step2: `Yerine koy: 2 · 3,14 · 5.`, task1Step3: `Hesapla: 2 · 3,14 = 6,28, sonra 6,28 · 5 = 31,4.`,
+  task1Hint: `2'yi unutma — formül 2 · π · r'dir, sadece π · r değil.`,
+  task2Step1: `Formül: Ç = 2 · π · r.`, task2Step2: `Yerine koy: 2 · 3,14 · 3.`, task2Step3: `Hesapla: 2 · 3,14 = 6,28, sonra 6,28 · 3 = 18,84.`,
+  task2Hint: `Ondalık sayılarla çarpımı dikkatli yap veya hesap makinesi kullan.`,
+  task3Step1: `Çapla formül: Ç = π · d.`, task3Step2: `Yerine koy: 3,14 · 8.`, task3Step3: `Hesapla: 3,14 · 8 = 25,12.`,
+  task3Hint: `Çap verilmişse fazladan 2'ye gerek yok — Ç = π · d formülü doğrudan işe yarar.`,
+  task4Step1: `Formül: A = π · r².`, task4Step2: `Yerine koy: 3,14 · 4².`, task4Step3: `Hesapla: 4² = 16, sonra 3,14 · 16 = 50,24.`,
+  task4Hint: `Önce r²'yi hesapla (r çarpı r), ancak sonra π ile çarp.`,
+  task5Step1: `Formül: A = π · r².`, task5Step2: `Yerine koy: 3,14 · 6².`, task5Step3: `Hesapla: 6² = 36, sonra 3,14 · 36 = 113,04.`,
+  task5Hint: `r², r çarpı r demektir, r çarpı 2 değil.`,
+  task6Step1: `Formül: A = π · r².`, task6Step2: `Yerine koy: 3,14 · 2².`, task6Step3: `Hesapla: 2² = 4, sonra 3,14 · 4 = 12,56.`,
+  task6Hint: `Küçük yarıçaplarda bile önce kareyi al, sonra π ile çarp.`,
+  task7Step1: `Formül: Ç = π · d.`, task7Step2: `Yerine koy: 3,14 · 6.`, task7Step3: `Hesapla: 3,14 · 6 = 18,84.`,
+  task7Hint: `Metin problemlerinde yarıçap mı çap mı verildiğini dikkatle kontrol et.`,
+  task8Step1: `Formül: A = π · r².`, task8Step2: `Yerine koy: 3,14 · 3².`, task8Step3: `Hesapla: 3² = 9, sonra 3,14 · 9 = 28,26.`,
+  task8Hint: `Yarıçapın karesini aldıktan sonra π ile çarpmayı unutma.`,
+  hintLabel: `Sık yapılan hata:`, footerMessage: `Sakin sakin hesapla, gerekirse çözüme bak. Bunu başarabilirsin!`,
+  fbEmpty: `Kontrol etmeden önce lütfen bir sayı gir.`, fbCorrect: `Doğru! Aferin!`, fbIncorrect: `Henüz tam doğru değil. Aşağıdaki çözüme bak ve tekrar dene.`
+},
+ru: {
+  eyebrow: `Luisen-Gymnasium · 7 класс`, titleLine1: `Длина окружности и`, titleAccent: `площадь круга`, backLink: `← Все темы`, h2Basics: `Основы`,
+  basicsP1: `У круга есть радиус r (расстояние от центра до края) и диаметр d (расстояние от края до края через центр). Верно: d = 2 · r. Число π (пи) примерно равно 3,14 и описывает отношение длины окружности к диаметру для любого круга.`,
+  circleAria: `Круг с изображённым радиусом r от центра до края, формулы длина окружности равна 2 умножить на пи умножить на r и площадь равна пи умножить на r в квадрате`,
+  basicsExample1Label: `<strong>Пример по шагам:</strong> Круг с r = 5 см. Вычисли длину окружности.`,
+  basicsExample1Steps: `1. Формула: C = 2 · π · r<br>2. Подставить: C = 2 · 3,14 · 5<br>3. Вычислить: 2 · 3,14 = 6,28, затем 6,28 · 5 = 31,4<br>4. Результат: C = 31,4 см`,
+  basicsP2Area: `<strong>Для площади</strong> радиус умножают сам на себя (в квадрат), а затем умножают на π.`,
+  basicsExample2Label: `<strong>Пример по шагам:</strong> Круг с r = 4 см. Вычисли площадь.`,
+  basicsExample2Steps: `1. Формула: S = π · r²<br>2. Подставить: S = 3,14 · 4²<br>3. Вычислить: 4² = 16, затем 3,14 · 16 = 50,24<br>4. Результат: S = 50,24 см²`,
+  merkeTitle: `Запомни`, merkeBody: `Длина окружности: C = 2 · π · r (или C = π · d).<br>Площадь: S = π · r².<br>Используй π ≈ 3,14 для вычислений.`,
+  taskWord: `Задание`,
+  task1Question: `У круга r = 5 см. Чему равна длина окружности (в см, при π ≈ 3,14)?`, task2Question: `У круга r = 3 см. Чему равна длина окружности (в см, при π ≈ 3,14)?`, task3Question: `У круга d = 8 см. Чему равна длина окружности (в см, при π ≈ 3,14)?`, task4Question: `У круга r = 4 см. Чему равна площадь (в см², при π ≈ 3,14)?`, task5Question: `У круга r = 6 см. Чему равна площадь (в см², при π ≈ 3,14)?`, task6Question: `У круга r = 2 см. Чему равна площадь (в см², при π ≈ 3,14)?`,
+  task7Question: `Круглая клумба имеет диаметр 6 м. Сколько метров забора нужно для окружности (при π ≈ 3,14)?`,
+  task8Question: `Круглый бассейн имеет радиус 3 м. Чему равна площадь воды (в м², при π ≈ 3,14)?`,
+  answerPlaceholder: `Твой ответ`, checkButton: `Проверить`, solutionSummary: `Показать решение`,
+  task1Result: `Результат: 31,4 см`, task2Result: `Результат: 18,84 см`, task3Result: `Результат: 25,12 см`, task4Result: `Результат: 50,24 см²`, task5Result: `Результат: 113,04 см²`, task6Result: `Результат: 12,56 см²`, task7Result: `Результат: 18,84 м`, task8Result: `Результат: 28,26 м²`,
+  task1Step1: `Формула: C = 2 · π · r.`, task1Step2: `Подставить: 2 · 3,14 · 5.`, task1Step3: `Вычислить: 2 · 3,14 = 6,28, затем 6,28 · 5 = 31,4.`,
+  task1Hint: `Не забудь 2 — формула 2 · π · r, а не просто π · r.`,
+  task2Step1: `Формула: C = 2 · π · r.`, task2Step2: `Подставить: 2 · 3,14 · 3.`, task2Step3: `Вычислить: 2 · 3,14 = 6,28, затем 6,28 · 3 = 18,84.`,
+  task2Hint: `Умножай десятичные числа внимательно или используй калькулятор.`,
+  task3Step1: `Формула с диаметром: C = π · d.`, task3Step2: `Подставить: 3,14 · 8.`, task3Step3: `Вычислить: 3,14 · 8 = 25,12.`,
+  task3Hint: `Если дан диаметр, дополнительная 2 не нужна — формула C = π · d работает напрямую.`,
+  task4Step1: `Формула: S = π · r².`, task4Step2: `Подставить: 3,14 · 4².`, task4Step3: `Вычислить: 4² = 16, затем 3,14 · 16 = 50,24.`,
+  task4Hint: `Сначала вычисли r² (r умножить на r), только потом умножай на π.`,
+  task5Step1: `Формула: S = π · r².`, task5Step2: `Подставить: 3,14 · 6².`, task5Step3: `Вычислить: 6² = 36, затем 3,14 · 36 = 113,04.`,
+  task5Hint: `r² означает r умножить на r, а не r умножить на 2.`,
+  task6Step1: `Формула: S = π · r².`, task6Step2: `Подставить: 3,14 · 2².`, task6Step3: `Вычислить: 2² = 4, затем 3,14 · 4 = 12,56.`,
+  task6Hint: `Даже с маленьким радиусом сначала возводи в квадрат, потом умножай на π.`,
+  task7Step1: `Формула: C = π · d.`, task7Step2: `Подставить: 3,14 · 6.`, task7Step3: `Вычислить: 3,14 · 6 = 18,84.`,
+  task7Hint: `В текстовых задачах внимательно проверяй, дан радиус или диаметр.`,
+  task8Step1: `Формула: S = π · r².`, task8Step2: `Подставить: 3,14 · 3².`, task8Step3: `Вычислить: 3² = 9, затем 3,14 · 9 = 28,26.`,
+  task8Hint: `После возведения радиуса в квадрат не забудь умножить на π.`,
+  hintLabel: `Типичная ошибка:`, footerMessage: `Считай спокойно и при необходимости смотри решение. У тебя получится!`,
+  fbEmpty: `Пожалуйста, введи число перед проверкой.`, fbCorrect: `Правильно! Отлично!`, fbIncorrect: `Пока не совсем верно. Посмотри решение ниже и попробуй ещё раз.`
+},
+ar: {
+  eyebrow: `مدرسة لويزن الثانوية · الصف السابع`, titleLine1: `محيط ومساحة`, titleAccent: `الدائرة`, backLink: `← جميع المواضيع`, h2Basics: `الأساسيات`,
+  basicsP1: `للدائرة نصف قطر r (المسافة من المركز إلى الحافة) وقطر d (المسافة من حافة إلى حافة عبر المركز). ينطبق: d = 2 · r. العدد π (باي) يساوي تقريبًا 3.14 ويصف النسبة بين المحيط والقطر لأي دائرة.`,
+  circleAria: `دائرة برسم نصف القطر r من المركز إلى الحافة، المعادلتان المحيط يساوي 2 في باي في r والمساحة تساوي باي في r تربيع`,
+  basicsExample1Label: `<strong>مثال خطوة بخطوة:</strong> دائرة نصف قطرها r = 5 سم. احسب المحيط.`,
+  basicsExample1Steps: `1. المعادلة: M = 2 · π · r<br>2. عوّض: M = 2 · 3.14 · 5<br>3. احسب: 2 · 3.14 = 6.28، ثم 6.28 · 5 = 31.4<br>4. النتيجة: M = 31.4 سم`,
+  basicsP2Area: `<strong>لحساب المساحة،</strong> يُضرَب نصف القطر في نفسه (تربيع)، ثم يُضرَب الناتج في π.`,
+  basicsExample2Label: `<strong>مثال خطوة بخطوة:</strong> دائرة نصف قطرها r = 4 سم. احسب المساحة.`,
+  basicsExample2Steps: `1. المعادلة: A = π · r²<br>2. عوّض: A = 3.14 · 4²<br>3. احسب: 4² = 16، ثم 3.14 · 16 = 50.24<br>4. النتيجة: A = 50.24 سم²`,
+  merkeTitle: `تذكّر`, merkeBody: `المحيط: M = 2 · π · r (أو M = π · d).<br>المساحة: A = π · r².<br>استخدم π ≈ 3.14 في الحساب.`,
+  taskWord: `تمرين`,
+  task1Question: `دائرة نصف قطرها r = 5 سم. كم يبلغ المحيط (بالسم، وπ ≈ 3.14)؟`, task2Question: `دائرة نصف قطرها r = 3 سم. كم يبلغ المحيط (بالسم، وπ ≈ 3.14)؟`, task3Question: `دائرة قطرها d = 8 سم. كم يبلغ المحيط (بالسم، وπ ≈ 3.14)؟`, task4Question: `دائرة نصف قطرها r = 4 سم. كم تبلغ المساحة (بالسم²، وπ ≈ 3.14)؟`, task5Question: `دائرة نصف قطرها r = 6 سم. كم تبلغ المساحة (بالسم²، وπ ≈ 3.14)؟`, task6Question: `دائرة نصف قطرها r = 2 سم. كم تبلغ المساحة (بالسم²، وπ ≈ 3.14)؟`,
+  task7Question: `حوض زهور دائري قطره 6 م. كم مترًا من السياج مطلوب للمحيط (وπ ≈ 3.14)؟`,
+  task8Question: `مسبح دائري نصف قطره 3 م. كم تبلغ مساحة سطح الماء (بالم²، وπ ≈ 3.14)؟`,
+  answerPlaceholder: `إجابتك`, checkButton: `تحقق`, solutionSummary: `عرض الحل`,
+  task1Result: `النتيجة: 31.4 سم`, task2Result: `النتيجة: 18.84 سم`, task3Result: `النتيجة: 25.12 سم`, task4Result: `النتيجة: 50.24 سم²`, task5Result: `النتيجة: 113.04 سم²`, task6Result: `النتيجة: 12.56 سم²`, task7Result: `النتيجة: 18.84 م`, task8Result: `النتيجة: 28.26 م²`,
+  task1Step1: `المعادلة: M = 2 · π · r.`, task1Step2: `عوّض: 2 · 3.14 · 5.`, task1Step3: `احسب: 2 · 3.14 = 6.28، ثم 6.28 · 5 = 31.4.`,
+  task1Hint: `لا تنسَ الـ2 — المعادلة هي 2 · π · r، وليست π · r فقط.`,
+  task2Step1: `المعادلة: M = 2 · π · r.`, task2Step2: `عوّض: 2 · 3.14 · 3.`, task2Step3: `احسب: 2 · 3.14 = 6.28، ثم 6.28 · 3 = 18.84.`,
+  task2Hint: `اضرب الأعداد العشرية بعناية أو استخدم آلة حاسبة.`,
+  task3Step1: `المعادلة باستخدام القطر: M = π · d.`, task3Step2: `عوّض: 3.14 · 8.`, task3Step3: `احسب: 3.14 · 8 = 25.12.`,
+  task3Hint: `إذا كان القطر معطى، لا تحتاج إلى الـ2 الإضافية — المعادلة M = π · d تعمل مباشرة.`,
+  task4Step1: `المعادلة: A = π · r².`, task4Step2: `عوّض: 3.14 · 4².`, task4Step3: `احسب: 4² = 16، ثم 3.14 · 16 = 50.24.`,
+  task4Hint: `احسب r² أولًا (r في r)، ثم اضرب في π فقط بعد ذلك.`,
+  task5Step1: `المعادلة: A = π · r².`, task5Step2: `عوّض: 3.14 · 6².`, task5Step3: `احسب: 6² = 36، ثم 3.14 · 36 = 113.04.`,
+  task5Hint: `r² تعني r في r، وليس r في 2.`,
+  task6Step1: `المعادلة: A = π · r².`, task6Step2: `عوّض: 3.14 · 2².`, task6Step3: `احسب: 2² = 4، ثم 3.14 · 4 = 12.56.`,
+  task6Hint: `حتى مع نصف قطر صغير، ربّع أولًا دائمًا، ثم اضرب في π.`,
+  task7Step1: `المعادلة: M = π · d.`, task7Step2: `عوّض: 3.14 · 6.`, task7Step3: `احسب: 3.14 · 6 = 18.84.`,
+  task7Hint: `في المسائل اللفظية، تحقق بدقة مما إذا كان المُعطى نصف القطر أو القطر.`,
+  task8Step1: `المعادلة: A = π · r².`, task8Step2: `عوّض: 3.14 · 3².`, task8Step3: `احسب: 3² = 9، ثم 3.14 · 9 = 28.26.`,
+  task8Hint: `بعد تربيع نصف القطر، لا تنسَ الضرب في π.`,
+  hintLabel: `خطأ شائع:`, footerMessage: `احسب بهدوء وراجع الحل إذا احتجت إليه. أنت قادر على ذلك!`,
+  fbEmpty: `الرجاء إدخال رقم قبل التحقق.`, fbCorrect: `صحيح! أحسنت!`, fbIncorrect: `ليست صحيحة تمامًا بعد. راجع الحل أدناه وحاول مرة أخرى.`
+},
+zh: {
+  eyebrow: `路易森文理中学 · 七年级`, titleLine1: `圆的周长`, titleAccent: `与面积`, backLink: `← 所有主题`, h2Basics: `基础知识`,
+  basicsP1: `一个圆有半径 r（从圆心到边缘的距离）和直径 d（经过圆心从边缘到边缘的距离）。有：d = 2 · r。π（圆周率）约等于 3.14，表示任何圆的周长与直径之比。`,
+  circleAria: `圆，从圆心到边缘画出半径r，公式：周长等于2乘以圆周率乘以r，面积等于圆周率乘以r的平方`,
+  basicsExample1Label: `<strong>分步示例：</strong> 半径 r = 5 厘米的圆。计算周长。`,
+  basicsExample1Steps: `1. 公式：C = 2 · π · r<br>2. 代入：C = 2 · 3.14 · 5<br>3. 计算：2 · 3.14 = 6.28，然后 6.28 · 5 = 31.4<br>4. 结果：C = 31.4 厘米`,
+  basicsP2Area: `<strong>计算面积时，</strong>把半径自乘（平方），再乘以 π。`,
+  basicsExample2Label: `<strong>分步示例：</strong> 半径 r = 4 厘米的圆。计算面积。`,
+  basicsExample2Steps: `1. 公式：A = π · r²<br>2. 代入：A = 3.14 · 4²<br>3. 计算：4² = 16，然后 3.14 · 16 = 50.24<br>4. 结果：A = 50.24 平方厘米`,
+  merkeTitle: `记住`, merkeBody: `周长：C = 2 · π · r（或 C = π · d）。<br>面积：A = π · r²。<br>计算时用 π ≈ 3.14。`,
+  taskWord: `练习`,
+  task1Question: `一个圆 r = 5 厘米。周长是多少厘米（π ≈ 3.14）？`, task2Question: `一个圆 r = 3 厘米。周长是多少厘米（π ≈ 3.14）？`, task3Question: `一个圆 d = 8 厘米。周长是多少厘米（π ≈ 3.14）？`, task4Question: `一个圆 r = 4 厘米。面积是多少平方厘米（π ≈ 3.14）？`, task5Question: `一个圆 r = 6 厘米。面积是多少平方厘米（π ≈ 3.14）？`, task6Question: `一个圆 r = 2 厘米。面积是多少平方厘米（π ≈ 3.14）？`,
+  task7Question: `一个圆形花坛直径为 6 米。围栏需要多少米长的周长（π ≈ 3.14）？`,
+  task8Question: `一个圆形游泳池半径为 3 米。水面面积是多少平方米（π ≈ 3.14）？`,
+  answerPlaceholder: `你的答案`, checkButton: `检查`, solutionSummary: `显示答案`,
+  task1Result: `结果：31.4 厘米`, task2Result: `结果：18.84 厘米`, task3Result: `结果：25.12 厘米`, task4Result: `结果：50.24 平方厘米`, task5Result: `结果：113.04 平方厘米`, task6Result: `结果：12.56 平方厘米`, task7Result: `结果：18.84 米`, task8Result: `结果：28.26 平方米`,
+  task1Step1: `公式：C = 2 · π · r。`, task1Step2: `代入：2 · 3.14 · 5。`, task1Step3: `计算：2 · 3.14 = 6.28，然后 6.28 · 5 = 31.4。`,
+  task1Hint: `别忘了那个 2——公式是 2 · π · r，不只是 π · r。`,
+  task2Step1: `公式：C = 2 · π · r。`, task2Step2: `代入：2 · 3.14 · 3。`, task2Step3: `计算：2 · 3.14 = 6.28，然后 6.28 · 3 = 18.84。`,
+  task2Hint: `仔细计算小数乘法，或使用计算器。`,
+  task3Step1: `用直径的公式：C = π · d。`, task3Step2: `代入：3.14 · 8。`, task3Step3: `计算：3.14 · 8 = 25.12。`,
+  task3Hint: `如果给出的是直径，就不需要额外乘 2——公式 C = π · d 可以直接用。`,
+  task4Step1: `公式：A = π · r²。`, task4Step2: `代入：3.14 · 4²。`, task4Step3: `计算：4² = 16，然后 3.14 · 16 = 50.24。`,
+  task4Hint: `先算 r²（r 乘 r），然后才乘以 π。`,
+  task5Step1: `公式：A = π · r²。`, task5Step2: `代入：3.14 · 6²。`, task5Step3: `计算：6² = 36，然后 3.14 · 36 = 113.04。`,
+  task5Hint: `r² 表示 r 乘 r，不是 r 乘 2。`,
+  task6Step1: `公式：A = π · r²。`, task6Step2: `代入：3.14 · 2²。`, task6Step3: `计算：2² = 4，然后 3.14 · 4 = 12.56。`,
+  task6Hint: `即使半径很小，也要先平方，再乘以 π。`,
+  task7Step1: `公式：C = π · d。`, task7Step2: `代入：3.14 · 6。`, task7Step3: `计算：3.14 · 6 = 18.84。`,
+  task7Hint: `在应用题中要仔细检查给出的是半径还是直径。`,
+  task8Step1: `公式：A = π · r²。`, task8Step2: `代入：3.14 · 3²。`, task8Step3: `计算：3² = 9，然后 3.14 · 9 = 28.26。`,
+  task8Hint: `半径平方之后，别忘了乘以 π。`,
+  hintLabel: `常见错误：`, footerMessage: `慢慢算，需要的话看看答案。你能做到！`,
+  fbEmpty: `请先输入一个数字再检查。`, fbCorrect: `正确！做得好！`, fbIncorrect: `还不完全正确。看看下面的答案，再试一次。`
+}
+};
+
+var currentLang = 'de';
+
+function setLanguage(lang){
+  var dict = TRANSLATIONS[lang] || TRANSLATIONS.de;
+  currentLang = TRANSLATIONS[lang] ? lang : 'de';
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = (currentLang === 'ar') ? 'rtl' : 'ltr';
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var key = el.getAttribute('data-i18n');
+    if(dict[key] !== undefined){ el.innerHTML = dict[key]; }
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-placeholder');
+    if(dict[key] !== undefined){ el.setAttribute('placeholder', dict[key]); }
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-aria');
+    if(dict[key] !== undefined){ el.setAttribute('aria-label', dict[key]); }
+  });
+  try{ localStorage.setItem('mathecoach_lang', currentLang); }catch(e){}
+  var sel = document.getElementById('langSelect');
+  if(sel) sel.value = currentLang;
+}
+
+function check(id, correct){
+  var dict = TRANSLATIONS[currentLang] || TRANSLATIONS.de;
+  var input = document.getElementById('input' + id);
+  var feedback = document.getElementById('feedback' + id);
+  var raw = input.value.trim().replace(',', '.');
+  var match = raw.match(/-?\d+(\.\d+)?/);
+  feedback.classList.remove('show', 'correct', 'incorrect');
+  if(!match){
+    feedback.textContent = dict.fbEmpty;
+    feedback.classList.add('show', 'incorrect');
+    return;
+  }
+  var value = parseFloat(match[0]);
+  if(Math.abs(value - correct) < 0.05){
+    feedback.textContent = dict.fbCorrect;
+    feedback.classList.add('show', 'correct');
+  } else {
+    feedback.textContent = dict.fbIncorrect;
+    feedback.classList.add('show', 'incorrect');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var saved = 'de';
+  try{ saved = localStorage.getItem('mathecoach_lang') || 'de'; }catch(e){}
+  setLanguage(saved);
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lineare Gleichungen lösen</title>
+<style>
+  :root{
+    --bg:#FAFAF9; --card:#FFFFFF; --ink:#241C1C; --ink-soft:#5C4F4C;
+    --red:#C41230; --gold:#E0A526; --blue:#2478B5;
+    --merke-bg:#FBF1DC; --merke-border:#E0A526;
+    --success:#1E8E5A; --success-bg:#E5F5EC; --error:#B3401D; --error-bg:#FBEDE6;
+    --font-display: ui-rounded, "SF Pro Rounded", "Segoe UI Rounded", "Nunito", system-ui, sans-serif;
+    --font-body: system-ui, "Segoe UI", Roboto, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:18px; line-height:1.5; padding-bottom:60px; }
+  .wrap{ max-width:640px; margin:0 auto; padding:0 20px; }
+  header{ background:var(--card); padding:30px 20px 0; text-align:center; position:relative; }
+  .header-inner{ padding-bottom:26px; }
+  .lang-switch{ display:flex; justify-content:center; margin-bottom:14px; }
+  #langSelect{ font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--ink); background:var(--card); border:2px solid #E3DFDA; border-radius:999px; padding:6px 14px; cursor:pointer; }
+  #langSelect:focus-visible{ outline:3px solid var(--blue); }
+  .back-link{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--blue); text-decoration:none; margin-bottom:16px; }
+  .eyebrow{ font-family:var(--font-display); font-weight:700; font-size:14px; letter-spacing:0.08em; text-transform:uppercase; color:var(--blue); margin-bottom:8px; }
+  h1{ font-family:var(--font-display); font-size:28px; font-weight:800; margin:0; line-height:1.25; }
+  h1 .accent{ color:var(--red); }
+  .wave{ display:block; width:100%; height:30px; }
+  section{ margin-top:32px; }
+  .card{ background:var(--card); border-radius:22px; padding:24px 22px; box-shadow:0 2px 14px rgba(36,28,28,0.07); }
+  h2{ font-family:var(--font-display); font-size:21px; font-weight:800; margin:0 0 14px; }
+  h2 .num{ display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:var(--blue); color:white; font-size:16px; margin-inline-end:10px; vertical-align:middle; }
+  p{ margin:0 0 14px; color:var(--ink-soft); }
+  .merke{ background:var(--merke-bg); border:2px solid var(--merke-border); border-radius:16px; padding:16px 18px; margin-top:16px; }
+  .merke-title{ font-family:var(--font-display); font-weight:800; color:#8A5A0F; font-size:15px; letter-spacing:0.04em; text-transform:uppercase; margin-bottom:6px; }
+  .merke-body{ color:#6B4A12; font-weight:600; margin:0; }
+  .scale-diagram{ width:100%; height:auto; margin:18px 0 6px; }
+  .task-card{ margin-top:18px; }
+  .task-question{ font-family:var(--font-display); font-weight:700; font-size:19px; margin-bottom:16px; }
+  .answer-row{ display:flex; gap:10px; margin-bottom:6px; }
+  input[type="text"]{ flex:1; font-size:18px; font-family:var(--font-body); padding:12px 14px; border-radius:12px; border:2px solid #E3DFDA; background:#FBFAF9; color:var(--ink); }
+  input[type="text"]:focus{ outline:3px solid #C9DCEA; border-color:var(--blue); }
+  button.check{ font-family:var(--font-display); font-weight:700; font-size:16px; color:white; background:var(--blue); border:none; border-radius:12px; padding:0 20px; cursor:pointer; }
+  button.check:active{ transform:translateY(1px); }
+  button.check:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
+  .feedback{ margin-top:10px; padding:12px 14px; border-radius:12px; font-weight:700; display:none; }
+  .feedback.show{ display:block; }
+  .feedback.correct{ background:var(--success-bg); color:var(--success); }
+  .feedback.incorrect{ background:var(--error-bg); color:var(--error); }
+  details{ margin-top:14px; border-top:2px dashed #E3DFDA; padding-top:12px; }
+  summary{ font-family:var(--font-display); font-weight:700; color:var(--blue); cursor:pointer; font-size:15px; }
+  .solution{ margin-top:12px; }
+  .solution ol{ margin:0 0 12px; padding-inline-start:22px; color:var(--ink-soft); }
+  .solution li{ margin-bottom:6px; }
+  .solution-result{ font-family:var(--font-display); font-weight:800; color:var(--ink); margin-bottom:12px; }
+  .hint-box{ background:#F1EFEC; border-radius:12px; padding:12px 14px; font-size:16px; color:var(--ink-soft); }
+  .hint-box strong{ color:var(--ink); }
+  footer{ text-align:center; margin-top:36px; padding:0 20px; }
+  footer p{ font-family:var(--font-display); font-weight:700; color:var(--ink); }
+  .footer-wave{ display:block; width:100%; max-width:280px; height:16px; margin:0 auto 18px; opacity:0.6; }
+  [dir="rtl"] .back-link{ flex-direction:row-reverse; }
+  @media (prefers-reduced-motion: no-preference){ button.check{ transition:transform 0.1s ease; } }
+  @media (max-width: 480px){ .answer-row{ flex-direction:column; } button.check{ width:100%; padding:14px 20px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="lang-switch">
+      <select id="langSelect" onchange="setLanguage(this.value)">
+        <option value="de">Deutsch</option><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="tr">Türkçe</option><option value="ru">Русский</option><option value="ar">العربية</option><option value="zh">中文</option>
+      </select>
+    </div>
+    <a class="back-link" href="index.html" data-i18n="backLink">← Alle Themen</a>
+    <div class="eyebrow" data-i18n="eyebrow">Luisen-Gymnasium · Klasse 7</div>
+    <h1><span data-i18n="titleLine1">Lineare Gleichungen</span><br><span class="accent" data-i18n="titleAccent">lösen</span></h1>
+  </div>
+  <svg class="wave" viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+    <path d="M -10 22 C 190 4, 390 40, 590 22 S 990 4, 1210 22" fill="none" stroke="#C41230" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 32 C 190 50, 390 14, 590 32 S 990 50, 1210 32" fill="none" stroke="#E0A526" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 42 C 190 24, 390 58, 590 42 S 990 24, 1210 42" fill="none" stroke="#2478B5" stroke-width="5" stroke-linecap="round"/>
+  </svg>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <div class="card">
+      <h2 data-i18n="h2Basics">Grundlagen</h2>
+      <p data-i18n="basicsP1">Eine Gleichung ist wie eine Waage im Gleichgewicht: Beide Seiten müssen immer gleich groß bleiben. Um x herauszufinden, darfst du auf beiden Seiten der Gleichung dieselbe Rechnung durchführen – dann bleibt die Waage im Gleichgewicht.</p>
+
+      <svg class="scale-diagram" viewBox="0 0 600 190" xmlns="http://www.w3.org/2000/svg" role="img" data-i18n-aria="scaleAria" aria-label="Eine Waage im Gleichgewicht: links 3x plus 5, rechts 20">
+        <line x1="300" y1="30" x2="300" y2="160" stroke="#241C1C" stroke-width="4"/>
+        <polygon points="270,160 330,160 300,180" fill="#241C1C"/>
+        <line x1="120" y1="70" x2="480" y2="70" stroke="#241C1C" stroke-width="4"/>
+        <line x1="140" y1="70" x2="140" y2="110" stroke="#241C1C" stroke-width="2"/>
+        <line x1="460" y1="70" x2="460" y2="110" stroke="#241C1C" stroke-width="2"/>
+        <path d="M100,110 Q140,140 180,110 Z" fill="#C41230" fill-opacity="0.7"/>
+        <path d="M420,110 Q460,140 500,110 Z" fill="#2478B5" fill-opacity="0.7"/>
+        <text x="140" y="105" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="20" font-weight="800" fill="#241C1C">3x + 5</text>
+        <text x="460" y="105" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="20" font-weight="800" fill="#241C1C">20</text>
+        <text x="300" y="20" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="22" font-weight="800" fill="#241C1C">=</text>
+      </svg>
+
+      <p data-i18n="basicsExample1Label"><strong>Beispiel Schritt für Schritt:</strong> Löse die Gleichung 3x + 5 = 20.</p>
+      <p data-i18n="basicsExample1Steps">1. Auf beiden Seiten 5 abziehen: 3x + 5 − 5 = 20 − 5<br>2. Ergibt: 3x = 15<br>3. Auf beiden Seiten durch 3 teilen: x = 5</p>
+
+      <p data-i18n="basicsP2Both"><strong>Wichtige Regel:</strong> Jede Rechnung, die du auf einer Seite machst (addieren, subtrahieren, multiplizieren, dividieren), musst du genauso auf der anderen Seite machen.</p>
+
+      <p data-i18n="basicsExample2Label"><strong>Beispiel Schritt für Schritt:</strong> Löse die Gleichung 4(x − 2) = 20.</p>
+      <p data-i18n="basicsExample2Steps">1. Klammer ausmultiplizieren: 4x − 8 = 20<br>2. Auf beiden Seiten 8 addieren: 4x = 28<br>3. Auf beiden Seiten durch 4 teilen: x = 7</p>
+
+      <div class="merke">
+        <div class="merke-title" data-i18n="merkeTitle">Merke</div>
+        <p class="merke-body" data-i18n="merkeBody">Was du auf einer Seite der Gleichung machst, musst du auch auf der anderen Seite machen.<br>Ziel ist es, x am Ende allein auf einer Seite stehen zu haben.<br>Am besten löst man zuerst Klammern auf, dann Zahlen wegrechnen, dann durch den Koeffizienten von x teilen.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">1</span><span data-i18n="taskWord">Aufgabe</span> 1</h2>
+      <div class="task-question" data-i18n="task1Question">Löse die Gleichung 2x + 3 = 11. Wie groß ist x?</div>
+      <div class="answer-row">
+        <input type="text" id="input1" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(1, 4)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback1"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task1Result">Ergebnis: x = 4</div>
+          <ol>
+            <li data-i18n="task1Step1">Auf beiden Seiten 3 abziehen: 2x = 8.</li>
+            <li data-i18n="task1Step2">Auf beiden Seiten durch 2 teilen: x = 4.</li>
+            <li data-i18n="task1Step3">Probe: 2 · 4 + 3 = 11. Stimmt!</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task1Hint">Die 3 muss auf beiden Seiten abgezogen werden, nicht nur auf der linken Seite.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">2</span><span data-i18n="taskWord">Aufgabe</span> 2</h2>
+      <div class="task-question" data-i18n="task2Question">Löse die Gleichung 5x − 4 = 21. Wie groß ist x?</div>
+      <div class="answer-row">
+        <input type="text" id="input2" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(2, 5)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback2"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task2Result">Ergebnis: x = 5</div>
+          <ol>
+            <li data-i18n="task2Step1">Auf beiden Seiten 4 addieren: 5x = 25.</li>
+            <li data-i18n="task2Step2">Auf beiden Seiten durch 5 teilen: x = 5.</li>
+            <li data-i18n="task2Step3">Probe: 5 · 5 − 4 = 21. Stimmt!</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task2Hint">Steht −4 auf der linken Seite, addiert man 4 auf beiden Seiten, um es zu entfernen.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">3</span><span data-i18n="taskWord">Aufgabe</span> 3</h2>
+      <div class="task-question" data-i18n="task3Question">Löse die Gleichung 3x + 7 = 4x − 2. Wie groß ist x?</div>
+      <div class="answer-row">
+        <input type="text" id="input3" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(3, 9)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback3"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task3Result">Ergebnis: x = 9</div>
+          <ol>
+            <li data-i18n="task3Step1">Auf beiden Seiten 3x abziehen: 7 = x − 2.</li>
+            <li data-i18n="task3Step2">Auf beiden Seiten 2 addieren: x = 9.</li>
+            <li data-i18n="task3Step3">Probe: 3 · 9 + 7 = 34 und 4 · 9 − 2 = 34. Stimmt!</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task3Hint">Wenn x auf beiden Seiten vorkommt, zieht man den kleineren x-Term auf beiden Seiten ab, damit x nur noch einmal übrig bleibt.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">4</span><span data-i18n="taskWord">Aufgabe</span> 4</h2>
+      <div class="task-question" data-i18n="task4Question">Löse die Gleichung 4(x − 2) = 20. Wie groß ist x?</div>
+      <div class="answer-row">
+        <input type="text" id="input4" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(4, 7)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback4"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task4Result">Ergebnis: x = 7</div>
+          <ol>
+            <li data-i18n="task4Step1">Klammer ausmultiplizieren: 4x − 8 = 20.</li>
+            <li data-i18n="task4Step2">Auf beiden Seiten 8 addieren: 4x = 28.</li>
+            <li data-i18n="task4Step3">Auf beiden Seiten durch 4 teilen: x = 7.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task4Hint">Zuerst die Klammer auflösen, bevor man mit der Gleichung weiterrechnet.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">5</span><span data-i18n="taskWord">Aufgabe</span> 5</h2>
+      <div class="task-question" data-i18n="task5Question">Löse die Gleichung x/3 + 2 = 6. Wie groß ist x?</div>
+      <div class="answer-row">
+        <input type="text" id="input5" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(5, 12)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback5"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task5Result">Ergebnis: x = 12</div>
+          <ol>
+            <li data-i18n="task5Step1">Auf beiden Seiten 2 abziehen: x/3 = 4.</li>
+            <li data-i18n="task5Step2">Auf beiden Seiten mit 3 multiplizieren: x = 12.</li>
+            <li data-i18n="task5Step3">Probe: 12/3 + 2 = 6. Stimmt!</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task5Hint">Um x/3 loszuwerden, multipliziert man beide Seiten mit 3, man dividiert nicht.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">6</span><span data-i18n="taskWord">Aufgabe</span> 6</h2>
+      <div class="task-question" data-i18n="task6Question">Löse die Gleichung 2x + 5 = 3x − 1. Wie groß ist x?</div>
+      <div class="answer-row">
+        <input type="text" id="input6" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(6, 6)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback6"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task6Result">Ergebnis: x = 6</div>
+          <ol>
+            <li data-i18n="task6Step1">Auf beiden Seiten 2x abziehen: 5 = x − 1.</li>
+            <li data-i18n="task6Step2">Auf beiden Seiten 1 addieren: x = 6.</li>
+            <li data-i18n="task6Step3">Probe: 2 · 6 + 5 = 17 und 3 · 6 − 1 = 17. Stimmt!</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task6Hint">Man kann auch den größeren x-Term abziehen, dann muss man mit einer negativen Zahl weiterrechnen – meist ist es einfacher, den kleineren Term abzuziehen.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">7</span><span data-i18n="taskWord">Aufgabe</span> 7</h2>
+      <div class="task-question" data-i18n="task7Question">Ein Rechteck hat den Umfang 26 cm. Die Länge ist x, die Breite ist 3 cm kürzer als die Länge. Die Gleichung dafür lautet 2x + 2(x − 3) = 26. Wie groß ist x?</div>
+      <div class="answer-row">
+        <input type="text" id="input7" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(7, 8)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback7"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task7Result">Ergebnis: x = 8</div>
+          <ol>
+            <li data-i18n="task7Step1">Klammer ausmultiplizieren: 2x + 2x − 6 = 26.</li>
+            <li data-i18n="task7Step2">Zusammenfassen: 4x − 6 = 26. Auf beiden Seiten 6 addieren: 4x = 32.</li>
+            <li data-i18n="task7Step3">Auf beiden Seiten durch 4 teilen: x = 8.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task7Hint">In Sachaufgaben zuerst die Gleichung sauber aufstellen, dann erst wie gewohnt lösen.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">8</span><span data-i18n="taskWord">Aufgabe</span> 8</h2>
+      <div class="task-question" data-i18n="task8Question">Drei aufeinanderfolgende Zahlen ergeben zusammen 54. Die kleinste Zahl ist x. Die Gleichung dafür lautet x + (x + 1) + (x + 2) = 54. Wie groß ist x?</div>
+      <div class="answer-row">
+        <input type="text" id="input8" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(8, 17)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback8"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task8Result">Ergebnis: x = 17</div>
+          <ol>
+            <li data-i18n="task8Step1">Zusammenfassen: 3x + 3 = 54.</li>
+            <li data-i18n="task8Step2">Auf beiden Seiten 3 abziehen: 3x = 51.</li>
+            <li data-i18n="task8Step3">Auf beiden Seiten durch 3 teilen: x = 17.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task8Hint">Die drei Zahlen zuerst als x, x+1 und x+2 aufschreiben, dann alle x-Glieder und alle Zahlen getrennt zusammenfassen.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <footer>
+    <svg class="footer-wave" viewBox="0 0 280 16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+      <path d="M -5 8 C 40 1, 80 15, 140 8 S 240 1, 285 8" fill="none" stroke="#C41230" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M -5 8 C 40 15, 80 1, 140 8 S 240 15, 285 8" fill="none" stroke="#2478B5" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+    </svg>
+    <p id="footer-msg" data-i18n="footerMessage">Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!</p>
+  </footer>
+
+</div>
+
+<script>
+const TRANSLATIONS = {
+de: {
+  eyebrow: `Luisen-Gymnasium · Klasse 7`, titleLine1: `Lineare Gleichungen`, titleAccent: `lösen`, backLink: `← Alle Themen`, h2Basics: `Grundlagen`,
+  basicsP1: `Eine Gleichung ist wie eine Waage im Gleichgewicht: Beide Seiten müssen immer gleich groß bleiben. Um x herauszufinden, darfst du auf beiden Seiten der Gleichung dieselbe Rechnung durchführen – dann bleibt die Waage im Gleichgewicht.`,
+  scaleAria: `Eine Waage im Gleichgewicht: links 3x plus 5, rechts 20`,
+  basicsExample1Label: `<strong>Beispiel Schritt für Schritt:</strong> Löse die Gleichung 3x + 5 = 20.`,
+  basicsExample1Steps: `1. Auf beiden Seiten 5 abziehen: 3x + 5 − 5 = 20 − 5<br>2. Ergibt: 3x = 15<br>3. Auf beiden Seiten durch 3 teilen: x = 5`,
+  basicsP2Both: `<strong>Wichtige Regel:</strong> Jede Rechnung, die du auf einer Seite machst (addieren, subtrahieren, multiplizieren, dividieren), musst du genauso auf der anderen Seite machen.`,
+  basicsExample2Label: `<strong>Beispiel Schritt für Schritt:</strong> Löse die Gleichung 4(x − 2) = 20.`,
+  basicsExample2Steps: `1. Klammer ausmultiplizieren: 4x − 8 = 20<br>2. Auf beiden Seiten 8 addieren: 4x = 28<br>3. Auf beiden Seiten durch 4 teilen: x = 7`,
+  merkeTitle: `Merke`, merkeBody: `Was du auf einer Seite der Gleichung machst, musst du auch auf der anderen Seite machen.<br>Ziel ist es, x am Ende allein auf einer Seite stehen zu haben.<br>Am besten löst man zuerst Klammern auf, dann Zahlen wegrechnen, dann durch den Koeffizienten von x teilen.`,
+  taskWord: `Aufgabe`,
+  task1Question: `Löse die Gleichung 2x + 3 = 11. Wie groß ist x?`, task2Question: `Löse die Gleichung 5x − 4 = 21. Wie groß ist x?`, task3Question: `Löse die Gleichung 3x + 7 = 4x − 2. Wie groß ist x?`, task4Question: `Löse die Gleichung 4(x − 2) = 20. Wie groß ist x?`, task5Question: `Löse die Gleichung x/3 + 2 = 6. Wie groß ist x?`, task6Question: `Löse die Gleichung 2x + 5 = 3x − 1. Wie groß ist x?`,
+  task7Question: `Ein Rechteck hat den Umfang 26 cm. Die Länge ist x, die Breite ist 3 cm kürzer als die Länge. Die Gleichung dafür lautet 2x + 2(x − 3) = 26. Wie groß ist x?`,
+  task8Question: `Drei aufeinanderfolgende Zahlen ergeben zusammen 54. Die kleinste Zahl ist x. Die Gleichung dafür lautet x + (x + 1) + (x + 2) = 54. Wie groß ist x?`,
+  answerPlaceholder: `Deine Antwort`, checkButton: `Prüfen`, solutionSummary: `Lösung anzeigen`,
+  task1Result: `Ergebnis: x = 4`, task2Result: `Ergebnis: x = 5`, task3Result: `Ergebnis: x = 9`, task4Result: `Ergebnis: x = 7`, task5Result: `Ergebnis: x = 12`, task6Result: `Ergebnis: x = 6`, task7Result: `Ergebnis: x = 8`, task8Result: `Ergebnis: x = 17`,
+  task1Step1: `Auf beiden Seiten 3 abziehen: 2x = 8.`, task1Step2: `Auf beiden Seiten durch 2 teilen: x = 4.`, task1Step3: `Probe: 2 · 4 + 3 = 11. Stimmt!`,
+  task1Hint: `Die 3 muss auf beiden Seiten abgezogen werden, nicht nur auf der linken Seite.`,
+  task2Step1: `Auf beiden Seiten 4 addieren: 5x = 25.`, task2Step2: `Auf beiden Seiten durch 5 teilen: x = 5.`, task2Step3: `Probe: 5 · 5 − 4 = 21. Stimmt!`,
+  task2Hint: `Steht −4 auf der linken Seite, addiert man 4 auf beiden Seiten, um es zu entfernen.`,
+  task3Step1: `Auf beiden Seiten 3x abziehen: 7 = x − 2.`, task3Step2: `Auf beiden Seiten 2 addieren: x = 9.`, task3Step3: `Probe: 3 · 9 + 7 = 34 und 4 · 9 − 2 = 34. Stimmt!`,
+  task3Hint: `Wenn x auf beiden Seiten vorkommt, zieht man den kleineren x-Term auf beiden Seiten ab, damit x nur noch einmal übrig bleibt.`,
+  task4Step1: `Klammer ausmultiplizieren: 4x − 8 = 20.`, task4Step2: `Auf beiden Seiten 8 addieren: 4x = 28.`, task4Step3: `Auf beiden Seiten durch 4 teilen: x = 7.`,
+  task4Hint: `Zuerst die Klammer auflösen, bevor man mit der Gleichung weiterrechnet.`,
+  task5Step1: `Auf beiden Seiten 2 abziehen: x/3 = 4.`, task5Step2: `Auf beiden Seiten mit 3 multiplizieren: x = 12.`, task5Step3: `Probe: 12/3 + 2 = 6. Stimmt!`,
+  task5Hint: `Um x/3 loszuwerden, multipliziert man beide Seiten mit 3, man dividiert nicht.`,
+  task6Step1: `Auf beiden Seiten 2x abziehen: 5 = x − 1.`, task6Step2: `Auf beiden Seiten 1 addieren: x = 6.`, task6Step3: `Probe: 2 · 6 + 5 = 17 und 3 · 6 − 1 = 17. Stimmt!`,
+  task6Hint: `Man kann auch den größeren x-Term abziehen, dann muss man mit einer negativen Zahl weiterrechnen – meist ist es einfacher, den kleineren Term abzuziehen.`,
+  task7Step1: `Klammer ausmultiplizieren: 2x + 2x − 6 = 26.`, task7Step2: `Zusammenfassen: 4x − 6 = 26. Auf beiden Seiten 6 addieren: 4x = 32.`, task7Step3: `Auf beiden Seiten durch 4 teilen: x = 8.`,
+  task7Hint: `In Sachaufgaben zuerst die Gleichung sauber aufstellen, dann erst wie gewohnt lösen.`,
+  task8Step1: `Zusammenfassen: 3x + 3 = 54.`, task8Step2: `Auf beiden Seiten 3 abziehen: 3x = 51.`, task8Step3: `Auf beiden Seiten durch 3 teilen: x = 17.`,
+  task8Hint: `Die drei Zahlen zuerst als x, x+1 und x+2 aufschreiben, dann alle x-Glieder und alle Zahlen getrennt zusammenfassen.`,
+  hintLabel: `Typischer Fehler:`, footerMessage: `Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!`,
+  fbEmpty: `Trag bitte eine Zahl ein, bevor du prüfst.`, fbCorrect: `Richtig! Gut gemacht!`, fbIncorrect: `Noch nicht ganz richtig. Schau dir die Lösung weiter unten an und versuch es dann nochmal.`
+},
+en: {
+  eyebrow: `Luisen-Gymnasium · Grade 7`, titleLine1: `Solving Linear`, titleAccent: `Equations`, backLink: `← All Topics`, h2Basics: `Basics`,
+  basicsP1: `An equation is like a balanced scale: both sides always have to stay equal. To find x, you're allowed to do the same calculation on both sides of the equation — then the scale stays balanced.`,
+  scaleAria: `A balanced scale: left side 3x plus 5, right side 20`,
+  basicsExample1Label: `<strong>Step-by-step example:</strong> Solve the equation 3x + 5 = 20.`,
+  basicsExample1Steps: `1. Subtract 5 on both sides: 3x + 5 − 5 = 20 − 5<br>2. Gives: 3x = 15<br>3. Divide both sides by 3: x = 5`,
+  basicsP2Both: `<strong>Important rule:</strong> whatever calculation you do on one side (adding, subtracting, multiplying, dividing), you must do the same on the other side.`,
+  basicsExample2Label: `<strong>Step-by-step example:</strong> Solve the equation 4(x − 2) = 20.`,
+  basicsExample2Steps: `1. Expand the bracket: 4x − 8 = 20<br>2. Add 8 on both sides: 4x = 28<br>3. Divide both sides by 4: x = 7`,
+  merkeTitle: `Remember`, merkeBody: `Whatever you do to one side of the equation, you also have to do to the other side.<br>The goal is to end up with x alone on one side.<br>Best order: first expand brackets, then remove numbers, then divide by the coefficient of x.`,
+  taskWord: `Exercise`,
+  task1Question: `Solve the equation 2x + 3 = 11. What's x?`, task2Question: `Solve the equation 5x − 4 = 21. What's x?`, task3Question: `Solve the equation 3x + 7 = 4x − 2. What's x?`, task4Question: `Solve the equation 4(x − 2) = 20. What's x?`, task5Question: `Solve the equation x/3 + 2 = 6. What's x?`, task6Question: `Solve the equation 2x + 5 = 3x − 1. What's x?`,
+  task7Question: `A rectangle has a perimeter of 26 cm. The length is x, the width is 3 cm shorter than the length. The equation is 2x + 2(x − 3) = 26. What's x?`,
+  task8Question: `Three consecutive numbers add up to 54. The smallest number is x. The equation is x + (x + 1) + (x + 2) = 54. What's x?`,
+  answerPlaceholder: `Your answer`, checkButton: `Check`, solutionSummary: `Show solution`,
+  task1Result: `Result: x = 4`, task2Result: `Result: x = 5`, task3Result: `Result: x = 9`, task4Result: `Result: x = 7`, task5Result: `Result: x = 12`, task6Result: `Result: x = 6`, task7Result: `Result: x = 8`, task8Result: `Result: x = 17`,
+  task1Step1: `Subtract 3 on both sides: 2x = 8.`, task1Step2: `Divide both sides by 2: x = 4.`, task1Step3: `Check: 2 · 4 + 3 = 11. Correct!`,
+  task1Hint: `The 3 has to be subtracted on both sides, not just the left one.`,
+  task2Step1: `Add 4 on both sides: 5x = 25.`, task2Step2: `Divide both sides by 5: x = 5.`, task2Step3: `Check: 5 · 5 − 4 = 21. Correct!`,
+  task2Hint: `If there's a −4 on the left side, you add 4 on both sides to remove it.`,
+  task3Step1: `Subtract 3x on both sides: 7 = x − 2.`, task3Step2: `Add 2 on both sides: x = 9.`, task3Step3: `Check: 3 · 9 + 7 = 34 and 4 · 9 − 2 = 34. Correct!`,
+  task3Hint: `If x appears on both sides, subtract the smaller x-term on both sides so only one x is left.`,
+  task4Step1: `Expand the bracket: 4x − 8 = 20.`, task4Step2: `Add 8 on both sides: 4x = 28.`, task4Step3: `Divide both sides by 4: x = 7.`,
+  task4Hint: `Expand the bracket first, before continuing with the equation.`,
+  task5Step1: `Subtract 2 on both sides: x/3 = 4.`, task5Step2: `Multiply both sides by 3: x = 12.`, task5Step3: `Check: 12/3 + 2 = 6. Correct!`,
+  task5Hint: `To get rid of x/3, you multiply both sides by 3, you don't divide.`,
+  task6Step1: `Subtract 2x on both sides: 5 = x − 1.`, task6Step2: `Add 1 on both sides: x = 6.`, task6Step3: `Check: 2 · 6 + 5 = 17 and 3 · 6 − 1 = 17. Correct!`,
+  task6Hint: `You could also subtract the larger x-term, but then you'd have to work with a negative number — usually it's easier to subtract the smaller term.`,
+  task7Step1: `Expand the bracket: 2x + 2x − 6 = 26.`, task7Step2: `Combine: 4x − 6 = 26. Add 6 on both sides: 4x = 32.`, task7Step3: `Divide both sides by 4: x = 8.`,
+  task7Hint: `In word problems, first set up the equation carefully, then solve it as usual.`,
+  task8Step1: `Combine: 3x + 3 = 54.`, task8Step2: `Subtract 3 on both sides: 3x = 51.`, task8Step3: `Divide both sides by 3: x = 17.`,
+  task8Hint: `First write down the three numbers as x, x+1 and x+2, then combine all the x-terms and all the numbers separately.`,
+  hintLabel: `Common mistake:`, footerMessage: `Take your time and check the solution if you need to. You can do this!`,
+  fbEmpty: `Please enter a number before checking.`, fbCorrect: `Correct! Well done!`, fbIncorrect: `Not quite right yet. Check the solution below and try again.`
+},
+es: {
+  eyebrow: `Luisen-Gymnasium · 7.º curso`, titleLine1: `Resolver ecuaciones`, titleAccent: `lineales`, backLink: `← Todos los temas`, h2Basics: `Fundamentos`,
+  basicsP1: `Una ecuación es como una balanza en equilibrio: ambos lados siempre deben permanecer iguales. Para hallar x, puedes hacer la misma operación en ambos lados de la ecuación — así la balanza sigue en equilibrio.`,
+  scaleAria: `Una balanza en equilibrio: a la izquierda 3x más 5, a la derecha 20`,
+  basicsExample1Label: `<strong>Ejemplo paso a paso:</strong> Resuelve la ecuación 3x + 5 = 20.`,
+  basicsExample1Steps: `1. Resta 5 en ambos lados: 3x + 5 − 5 = 20 − 5<br>2. Da: 3x = 15<br>3. Divide ambos lados entre 3: x = 5`,
+  basicsP2Both: `<strong>Regla importante:</strong> cualquier operación que hagas en un lado (sumar, restar, multiplicar, dividir) debes hacerla también en el otro lado.`,
+  basicsExample2Label: `<strong>Ejemplo paso a paso:</strong> Resuelve la ecuación 4(x − 2) = 20.`,
+  basicsExample2Steps: `1. Desarrolla el paréntesis: 4x − 8 = 20<br>2. Suma 8 en ambos lados: 4x = 28<br>3. Divide ambos lados entre 4: x = 7`,
+  merkeTitle: `Recuerda`, merkeBody: `Lo que hagas en un lado de la ecuación, tienes que hacerlo también en el otro lado.<br>El objetivo es que al final x quede sola en un lado.<br>Orden recomendado: primero desarrolla los paréntesis, luego elimina los números, después divide entre el coeficiente de x.`,
+  taskWord: `Ejercicio`,
+  task1Question: `Resuelve la ecuación 2x + 3 = 11. ¿Cuánto vale x?`, task2Question: `Resuelve la ecuación 5x − 4 = 21. ¿Cuánto vale x?`, task3Question: `Resuelve la ecuación 3x + 7 = 4x − 2. ¿Cuánto vale x?`, task4Question: `Resuelve la ecuación 4(x − 2) = 20. ¿Cuánto vale x?`, task5Question: `Resuelve la ecuación x/3 + 2 = 6. ¿Cuánto vale x?`, task6Question: `Resuelve la ecuación 2x + 5 = 3x − 1. ¿Cuánto vale x?`,
+  task7Question: `Un rectángulo tiene un perímetro de 26 cm. El largo es x, el ancho es 3 cm menor que el largo. La ecuación es 2x + 2(x − 3) = 26. ¿Cuánto vale x?`,
+  task8Question: `Tres números consecutivos suman 54. El número más pequeño es x. La ecuación es x + (x + 1) + (x + 2) = 54. ¿Cuánto vale x?`,
+  answerPlaceholder: `Tu respuesta`, checkButton: `Comprobar`, solutionSummary: `Ver solución`,
+  task1Result: `Resultado: x = 4`, task2Result: `Resultado: x = 5`, task3Result: `Resultado: x = 9`, task4Result: `Resultado: x = 7`, task5Result: `Resultado: x = 12`, task6Result: `Resultado: x = 6`, task7Result: `Resultado: x = 8`, task8Result: `Resultado: x = 17`,
+  task1Step1: `Resta 3 en ambos lados: 2x = 8.`, task1Step2: `Divide ambos lados entre 2: x = 4.`, task1Step3: `Comprobación: 2 · 4 + 3 = 11. ¡Correcto!`,
+  task1Hint: `El 3 debe restarse en ambos lados, no solo en el izquierdo.`,
+  task2Step1: `Suma 4 en ambos lados: 5x = 25.`, task2Step2: `Divide ambos lados entre 5: x = 5.`, task2Step3: `Comprobación: 5 · 5 − 4 = 21. ¡Correcto!`,
+  task2Hint: `Si hay un −4 en el lado izquierdo, se suma 4 en ambos lados para eliminarlo.`,
+  task3Step1: `Resta 3x en ambos lados: 7 = x − 2.`, task3Step2: `Suma 2 en ambos lados: x = 9.`, task3Step3: `Comprobación: 3 · 9 + 7 = 34 y 4 · 9 − 2 = 34. ¡Correcto!`,
+  task3Hint: `Si x aparece en ambos lados, resta el término x más pequeño en ambos lados para que quede solo una x.`,
+  task4Step1: `Desarrolla el paréntesis: 4x − 8 = 20.`, task4Step2: `Suma 8 en ambos lados: 4x = 28.`, task4Step3: `Divide ambos lados entre 4: x = 7.`,
+  task4Hint: `Primero desarrolla el paréntesis, antes de seguir con la ecuación.`,
+  task5Step1: `Resta 2 en ambos lados: x/3 = 4.`, task5Step2: `Multiplica ambos lados por 3: x = 12.`, task5Step3: `Comprobación: 12/3 + 2 = 6. ¡Correcto!`,
+  task5Hint: `Para eliminar x/3, se multiplican ambos lados por 3, no se divide.`,
+  task6Step1: `Resta 2x en ambos lados: 5 = x − 1.`, task6Step2: `Suma 1 en ambos lados: x = 6.`, task6Step3: `Comprobación: 2 · 6 + 5 = 17 y 3 · 6 − 1 = 17. ¡Correcto!`,
+  task6Hint: `También podrías restar el término x más grande, pero entonces tendrías que trabajar con un número negativo — normalmente es más fácil restar el término más pequeño.`,
+  task7Step1: `Desarrolla el paréntesis: 2x + 2x − 6 = 26.`, task7Step2: `Combina: 4x − 6 = 26. Suma 6 en ambos lados: 4x = 32.`, task7Step3: `Divide ambos lados entre 4: x = 8.`,
+  task7Hint: `En los problemas de texto, primero plantea la ecuación con cuidado y luego resuélvela como siempre.`,
+  task8Step1: `Combina: 3x + 3 = 54.`, task8Step2: `Resta 3 en ambos lados: 3x = 51.`, task8Step3: `Divide ambos lados entre 3: x = 17.`,
+  task8Hint: `Primero escribe los tres números como x, x+1 y x+2, luego combina por separado todos los términos x y todos los números.`,
+  hintLabel: `Error típico:`, footerMessage: `Tómate tu tiempo y revisa la solución si la necesitas. ¡Tú puedes!`,
+  fbEmpty: `Introduce un número antes de comprobar.`, fbCorrect: `¡Correcto! ¡Muy bien!`, fbIncorrect: `Todavía no es correcto. Revisa la solución de abajo e inténtalo de nuevo.`
+},
+fr: {
+  eyebrow: `Luisen-Gymnasium · 5e (7e cl. all.)`, titleLine1: `Résoudre des équations`, titleAccent: `linéaires`, backLink: `← Tous les thèmes`, h2Basics: `Les bases`,
+  basicsP1: `Une équation est comme une balance en équilibre : les deux côtés doivent toujours rester égaux. Pour trouver x, tu peux faire la même opération des deux côtés de l'équation — la balance reste alors en équilibre.`,
+  scaleAria: `Une balance en équilibre : à gauche 3x plus 5, à droite 20`,
+  basicsExample1Label: `<strong>Exemple étape par étape :</strong> Résous l'équation 3x + 5 = 20.`,
+  basicsExample1Steps: `1. Soustrais 5 des deux côtés : 3x + 5 − 5 = 20 − 5<br>2. Donne : 3x = 15<br>3. Divise les deux côtés par 3 : x = 5`,
+  basicsP2Both: `<strong>Règle importante :</strong> toute opération que tu fais d'un côté (additionner, soustraire, multiplier, diviser), tu dois la faire aussi de l'autre côté.`,
+  basicsExample2Label: `<strong>Exemple étape par étape :</strong> Résous l'équation 4(x − 2) = 20.`,
+  basicsExample2Steps: `1. Développe la parenthèse : 4x − 8 = 20<br>2. Ajoute 8 des deux côtés : 4x = 28<br>3. Divise les deux côtés par 4 : x = 7`,
+  merkeTitle: `À retenir`, merkeBody: `Ce que tu fais d'un côté de l'équation, tu dois aussi le faire de l'autre côté.<br>Le but est d'avoir x seul d'un côté à la fin.<br>Ordre conseillé : d'abord développer les parenthèses, puis éliminer les nombres, puis diviser par le coefficient de x.`,
+  taskWord: `Exercice`,
+  task1Question: `Résous l'équation 2x + 3 = 11. Combien vaut x ?`, task2Question: `Résous l'équation 5x − 4 = 21. Combien vaut x ?`, task3Question: `Résous l'équation 3x + 7 = 4x − 2. Combien vaut x ?`, task4Question: `Résous l'équation 4(x − 2) = 20. Combien vaut x ?`, task5Question: `Résous l'équation x/3 + 2 = 6. Combien vaut x ?`, task6Question: `Résous l'équation 2x + 5 = 3x − 1. Combien vaut x ?`,
+  task7Question: `Un rectangle a un périmètre de 26 cm. La longueur est x, la largeur est 3 cm plus petite que la longueur. L'équation est 2x + 2(x − 3) = 26. Combien vaut x ?`,
+  task8Question: `Trois nombres consécutifs donnent une somme de 54. Le plus petit nombre est x. L'équation est x + (x + 1) + (x + 2) = 54. Combien vaut x ?`,
+  answerPlaceholder: `Ta réponse`, checkButton: `Vérifier`, solutionSummary: `Voir la solution`,
+  task1Result: `Résultat : x = 4`, task2Result: `Résultat : x = 5`, task3Result: `Résultat : x = 9`, task4Result: `Résultat : x = 7`, task5Result: `Résultat : x = 12`, task6Result: `Résultat : x = 6`, task7Result: `Résultat : x = 8`, task8Result: `Résultat : x = 17`,
+  task1Step1: `Soustrais 3 des deux côtés : 2x = 8.`, task1Step2: `Divise les deux côtés par 2 : x = 4.`, task1Step3: `Vérification : 2 · 4 + 3 = 11. Correct !`,
+  task1Hint: `Le 3 doit être soustrait des deux côtés, pas seulement à gauche.`,
+  task2Step1: `Ajoute 4 des deux côtés : 5x = 25.`, task2Step2: `Divise les deux côtés par 5 : x = 5.`, task2Step3: `Vérification : 5 · 5 − 4 = 21. Correct !`,
+  task2Hint: `S'il y a un −4 à gauche, on ajoute 4 des deux côtés pour l'éliminer.`,
+  task3Step1: `Soustrais 3x des deux côtés : 7 = x − 2.`, task3Step2: `Ajoute 2 des deux côtés : x = 9.`, task3Step3: `Vérification : 3 · 9 + 7 = 34 et 4 · 9 − 2 = 34. Correct !`,
+  task3Hint: `Si x apparaît des deux côtés, soustrais le plus petit terme en x des deux côtés pour qu'il n'en reste qu'un.`,
+  task4Step1: `Développe la parenthèse : 4x − 8 = 20.`, task4Step2: `Ajoute 8 des deux côtés : 4x = 28.`, task4Step3: `Divise les deux côtés par 4 : x = 7.`,
+  task4Hint: `Développe d'abord la parenthèse, avant de continuer avec l'équation.`,
+  task5Step1: `Soustrais 2 des deux côtés : x/3 = 4.`, task5Step2: `Multiplie les deux côtés par 3 : x = 12.`, task5Step3: `Vérification : 12/3 + 2 = 6. Correct !`,
+  task5Hint: `Pour éliminer x/3, on multiplie les deux côtés par 3, on ne divise pas.`,
+  task6Step1: `Soustrais 2x des deux côtés : 5 = x − 1.`, task6Step2: `Ajoute 1 des deux côtés : x = 6.`, task6Step3: `Vérification : 2 · 6 + 5 = 17 et 3 · 6 − 1 = 17. Correct !`,
+  task6Hint: `On pourrait aussi soustraire le plus grand terme en x, mais il faudrait alors travailler avec un nombre négatif — c'est généralement plus simple de soustraire le plus petit terme.`,
+  task7Step1: `Développe la parenthèse : 2x + 2x − 6 = 26.`, task7Step2: `Regroupe : 4x − 6 = 26. Ajoute 6 des deux côtés : 4x = 32.`, task7Step3: `Divise les deux côtés par 4 : x = 8.`,
+  task7Hint: `Dans les problèmes, pose d'abord l'équation avec soin, puis résous-la comme d'habitude.`,
+  task8Step1: `Regroupe : 3x + 3 = 54.`, task8Step2: `Soustrais 3 des deux côtés : 3x = 51.`, task8Step3: `Divise les deux côtés par 3 : x = 17.`,
+  task8Hint: `Écris d'abord les trois nombres comme x, x+1 et x+2, puis regroupe séparément tous les termes en x et tous les nombres.`,
+  hintLabel: `Erreur fréquente :`, footerMessage: `Prends ton temps et regarde la solution si besoin. Tu vas y arriver !`,
+  fbEmpty: `Merci d'indiquer un nombre avant de vérifier.`, fbCorrect: `Correct ! Bien joué !`, fbIncorrect: `Pas encore tout à fait juste. Regarde la solution ci-dessous et réessaie.`
+},
+tr: {
+  eyebrow: `Luisen-Gymnasium · 7. Sınıf`, titleLine1: `Doğrusal Denklemleri`, titleAccent: `Çözme`, backLink: `← Tüm Konular`, h2Basics: `Temel Bilgiler`,
+  basicsP1: `Bir denklem dengede duran bir terazi gibidir: her iki taraf her zaman eşit kalmalıdır. x'i bulmak için, denklemin her iki tarafında aynı işlemi yapabilirsin — terazi dengede kalır.`,
+  scaleAria: `Dengede bir terazi: solda 3x artı 5, sağda 20`,
+  basicsExample1Label: `<strong>Adım adım örnek:</strong> 3x + 5 = 20 denklemini çöz.`,
+  basicsExample1Steps: `1. Her iki taraftan 5 çıkar: 3x + 5 − 5 = 20 − 5<br>2. Sonuç: 3x = 15<br>3. Her iki tarafı 3'e böl: x = 5`,
+  basicsP2Both: `<strong>Önemli kural:</strong> bir tarafta yaptığın her işlemi (toplama, çıkarma, çarpma, bölme) diğer tarafta da yapmalısın.`,
+  basicsExample2Label: `<strong>Adım adım örnek:</strong> 4(x − 2) = 20 denklemini çöz.`,
+  basicsExample2Steps: `1. Parantezi aç: 4x − 8 = 20<br>2. Her iki tarafa 8 ekle: 4x = 28<br>3. Her iki tarafı 4'e böl: x = 7`,
+  merkeTitle: `Unutma`, merkeBody: `Denklemin bir tarafında yaptığını diğer tarafında da yapmalısın.<br>Amaç, sonunda x'i tek başına bir tarafta bırakmaktır.<br>En iyi sıra: önce parantezleri aç, sonra sayıları uzaklaştır, sonra x'in katsayısına böl.`,
+  taskWord: `Alıştırma`,
+  task1Question: `2x + 3 = 11 denklemini çöz. x kaçtır?`, task2Question: `5x − 4 = 21 denklemini çöz. x kaçtır?`, task3Question: `3x + 7 = 4x − 2 denklemini çöz. x kaçtır?`, task4Question: `4(x − 2) = 20 denklemini çöz. x kaçtır?`, task5Question: `x/3 + 2 = 6 denklemini çöz. x kaçtır?`, task6Question: `2x + 5 = 3x − 1 denklemini çöz. x kaçtır?`,
+  task7Question: `Bir dikdörtgenin çevresi 26 cm'dir. Uzunluk x, genişlik uzunluktan 3 cm daha kısadır. Bunun için denklem 2x + 2(x − 3) = 26'dır. x kaçtır?`,
+  task8Question: `Ardışık üç sayının toplamı 54'tür. En küçük sayı x'tir. Bunun için denklem x + (x + 1) + (x + 2) = 54'tür. x kaçtır?`,
+  answerPlaceholder: `Cevabın`, checkButton: `Kontrol et`, solutionSummary: `Çözümü göster`,
+  task1Result: `Sonuç: x = 4`, task2Result: `Sonuç: x = 5`, task3Result: `Sonuç: x = 9`, task4Result: `Sonuç: x = 7`, task5Result: `Sonuç: x = 12`, task6Result: `Sonuç: x = 6`, task7Result: `Sonuç: x = 8`, task8Result: `Sonuç: x = 17`,
+  task1Step1: `Her iki taraftan 3 çıkar: 2x = 8.`, task1Step2: `Her iki tarafı 2'ye böl: x = 4.`, task1Step3: `Kontrol: 2 · 4 + 3 = 11. Doğru!`,
+  task1Hint: `3, sadece sol tarafta değil her iki tarafta da çıkarılmalıdır.`,
+  task2Step1: `Her iki tarafa 4 ekle: 5x = 25.`, task2Step2: `Her iki tarafı 5'e böl: x = 5.`, task2Step3: `Kontrol: 5 · 5 − 4 = 21. Doğru!`,
+  task2Hint: `Sol tarafta −4 varsa, onu kaldırmak için her iki tarafa 4 eklenir.`,
+  task3Step1: `Her iki taraftan 3x çıkar: 7 = x − 2.`, task3Step2: `Her iki tarafa 2 ekle: x = 9.`, task3Step3: `Kontrol: 3 · 9 + 7 = 34 ve 4 · 9 − 2 = 34. Doğru!`,
+  task3Hint: `x her iki tarafta da varsa, sadece bir x kalması için her iki taraftan küçük x terimini çıkar.`,
+  task4Step1: `Parantezi aç: 4x − 8 = 20.`, task4Step2: `Her iki tarafa 8 ekle: 4x = 28.`, task4Step3: `Her iki tarafı 4'e böl: x = 7.`,
+  task4Hint: `Denklemle devam etmeden önce önce parantezi aç.`,
+  task5Step1: `Her iki taraftan 2 çıkar: x/3 = 4.`, task5Step2: `Her iki tarafı 3 ile çarp: x = 12.`, task5Step3: `Kontrol: 12/3 + 2 = 6. Doğru!`,
+  task5Hint: `x/3'ten kurtulmak için her iki taraf 3 ile çarpılır, bölünmez.`,
+  task6Step1: `Her iki taraftan 2x çıkar: 5 = x − 1.`, task6Step2: `Her iki tarafa 1 ekle: x = 6.`, task6Step3: `Kontrol: 2 · 6 + 5 = 17 ve 3 · 6 − 1 = 17. Doğru!`,
+  task6Hint: `Daha büyük x terimini de çıkarabilirsin, ama o zaman negatif bir sayıyla devam etmen gerekir — genellikle küçük terimi çıkarmak daha kolaydır.`,
+  task7Step1: `Parantezi aç: 2x + 2x − 6 = 26.`, task7Step2: `Birleştir: 4x − 6 = 26. Her iki tarafa 6 ekle: 4x = 32.`, task7Step3: `Her iki tarafı 4'e böl: x = 8.`,
+  task7Hint: `Metin problemlerinde önce denklemi dikkatlice kur, sonra her zamanki gibi çöz.`,
+  task8Step1: `Birleştir: 3x + 3 = 54.`, task8Step2: `Her iki taraftan 3 çıkar: 3x = 51.`, task8Step3: `Her iki tarafı 3'e böl: x = 17.`,
+  task8Hint: `Önce üç sayıyı x, x+1 ve x+2 olarak yaz, sonra tüm x terimlerini ve tüm sayıları ayrı ayrı birleştir.`,
+  hintLabel: `Sık yapılan hata:`, footerMessage: `Sakin sakin hesapla, gerekirse çözüme bak. Bunu başarabilirsin!`,
+  fbEmpty: `Kontrol etmeden önce lütfen bir sayı gir.`, fbCorrect: `Doğru! Aferin!`, fbIncorrect: `Henüz tam doğru değil. Aşağıdaki çözüme bak ve tekrar dene.`
+},
+ru: {
+  eyebrow: `Luisen-Gymnasium · 7 класс`, titleLine1: `Решение линейных`, titleAccent: `уравнений`, backLink: `← Все темы`, h2Basics: `Основы`,
+  basicsP1: `Уравнение похоже на весы в равновесии: обе стороны всегда должны оставаться равными. Чтобы найти x, можно выполнить одно и то же действие с обеих сторон уравнения — тогда весы останутся в равновесии.`,
+  scaleAria: `Весы в равновесии: слева 3x плюс 5, справа 20`,
+  basicsExample1Label: `<strong>Пример по шагам:</strong> Реши уравнение 3x + 5 = 20.`,
+  basicsExample1Steps: `1. Вычти 5 с обеих сторон: 3x + 5 − 5 = 20 − 5<br>2. Получаем: 3x = 15<br>3. Раздели обе стороны на 3: x = 5`,
+  basicsP2Both: `<strong>Важное правило:</strong> любое действие, которое ты делаешь с одной стороной (сложение, вычитание, умножение, деление), нужно так же сделать с другой стороной.`,
+  basicsExample2Label: `<strong>Пример по шагам:</strong> Реши уравнение 4(x − 2) = 20.`,
+  basicsExample2Steps: `1. Раскрой скобку: 4x − 8 = 20<br>2. Прибавь 8 к обеим сторонам: 4x = 28<br>3. Раздели обе стороны на 4: x = 7`,
+  merkeTitle: `Запомни`, merkeBody: `Что ты делаешь с одной стороной уравнения, то же самое нужно сделать и с другой.<br>Цель — в конце оставить x одиноко на одной стороне.<br>Лучший порядок: сначала раскрыть скобки, потом убрать числа, потом разделить на коэффициент x.`,
+  taskWord: `Задание`,
+  task1Question: `Реши уравнение 2x + 3 = 11. Чему равен x?`, task2Question: `Реши уравнение 5x − 4 = 21. Чему равен x?`, task3Question: `Реши уравнение 3x + 7 = 4x − 2. Чему равен x?`, task4Question: `Реши уравнение 4(x − 2) = 20. Чему равен x?`, task5Question: `Реши уравнение x/3 + 2 = 6. Чему равен x?`, task6Question: `Реши уравнение 2x + 5 = 3x − 1. Чему равен x?`,
+  task7Question: `Периметр прямоугольника равен 26 см. Длина равна x, ширина на 3 см меньше длины. Уравнение: 2x + 2(x − 3) = 26. Чему равен x?`,
+  task8Question: `Сумма трёх последовательных чисел равна 54. Наименьшее число равно x. Уравнение: x + (x + 1) + (x + 2) = 54. Чему равен x?`,
+  answerPlaceholder: `Твой ответ`, checkButton: `Проверить`, solutionSummary: `Показать решение`,
+  task1Result: `Результат: x = 4`, task2Result: `Результат: x = 5`, task3Result: `Результат: x = 9`, task4Result: `Результат: x = 7`, task5Result: `Результат: x = 12`, task6Result: `Результат: x = 6`, task7Result: `Результат: x = 8`, task8Result: `Результат: x = 17`,
+  task1Step1: `Вычти 3 с обеих сторон: 2x = 8.`, task1Step2: `Раздели обе стороны на 2: x = 4.`, task1Step3: `Проверка: 2 · 4 + 3 = 11. Верно!`,
+  task1Hint: `3 нужно вычесть с обеих сторон, а не только с левой.`,
+  task2Step1: `Прибавь 4 к обеим сторонам: 5x = 25.`, task2Step2: `Раздели обе стороны на 5: x = 5.`, task2Step3: `Проверка: 5 · 5 − 4 = 21. Верно!`,
+  task2Hint: `Если слева стоит −4, прибавляют 4 к обеим сторонам, чтобы убрать его.`,
+  task3Step1: `Вычти 3x с обеих сторон: 7 = x − 2.`, task3Step2: `Прибавь 2 к обеим сторонам: x = 9.`, task3Step3: `Проверка: 3 · 9 + 7 = 34 и 4 · 9 − 2 = 34. Верно!`,
+  task3Hint: `Если x встречается с обеих сторон, вычитают меньший x-член с обеих сторон, чтобы остался только один x.`,
+  task4Step1: `Раскрой скобку: 4x − 8 = 20.`, task4Step2: `Прибавь 8 к обеим сторонам: 4x = 28.`, task4Step3: `Раздели обе стороны на 4: x = 7.`,
+  task4Hint: `Сначала раскрой скобку, прежде чем продолжать решать уравнение.`,
+  task5Step1: `Вычти 2 с обеих сторон: x/3 = 4.`, task5Step2: `Умножь обе стороны на 3: x = 12.`, task5Step3: `Проверка: 12/3 + 2 = 6. Верно!`,
+  task5Hint: `Чтобы избавиться от x/3, обе стороны умножают на 3, а не делят.`,
+  task6Step1: `Вычти 2x с обеих сторон: 5 = x − 1.`, task6Step2: `Прибавь 1 к обеим сторонам: x = 6.`, task6Step3: `Проверка: 2 · 6 + 5 = 17 и 3 · 6 − 1 = 17. Верно!`,
+  task6Hint: `Можно вычесть и больший x-член, но тогда придётся работать с отрицательным числом — обычно проще вычесть меньший член.`,
+  task7Step1: `Раскрой скобку: 2x + 2x − 6 = 26.`, task7Step2: `Объедини: 4x − 6 = 26. Прибавь 6 к обеим сторонам: 4x = 32.`, task7Step3: `Раздели обе стороны на 4: x = 8.`,
+  task7Hint: `В текстовых задачах сначала аккуратно составь уравнение, а затем реши его как обычно.`,
+  task8Step1: `Объедини: 3x + 3 = 54.`, task8Step2: `Вычти 3 с обеих сторон: 3x = 51.`, task8Step3: `Раздели обе стороны на 3: x = 17.`,
+  task8Hint: `Сначала запиши три числа как x, x+1 и x+2, затем отдельно объедини все x-члены и все числа.`,
+  hintLabel: `Типичная ошибка:`, footerMessage: `Считай спокойно и при необходимости смотри решение. У тебя получится!`,
+  fbEmpty: `Пожалуйста, введи число перед проверкой.`, fbCorrect: `Правильно! Отлично!`, fbIncorrect: `Пока не совсем верно. Посмотри решение ниже и попробуй ещё раз.`
+},
+ar: {
+  eyebrow: `مدرسة لويزن الثانوية · الصف السابع`, titleLine1: `حل المعادلات`, titleAccent: `الخطية`, backLink: `← جميع المواضيع`, h2Basics: `الأساسيات`,
+  basicsP1: `المعادلة مثل ميزان متوازن: يجب أن يبقى الطرفان متساويين دائمًا. لإيجاد x، يمكنك إجراء نفس العملية على طرفي المعادلة — عندها يبقى الميزان متوازنًا.`,
+  scaleAria: `ميزان متوازن: على اليسار 3x زائد 5، وعلى اليمين 20`,
+  basicsExample1Label: `<strong>مثال خطوة بخطوة:</strong> حل المعادلة 3x + 5 = 20.`,
+  basicsExample1Steps: `1. اطرح 5 من الطرفين: 3x + 5 − 5 = 20 − 5<br>2. ينتج: 3x = 15<br>3. اقسم الطرفين على 3: x = 5`,
+  basicsP2Both: `<strong>قاعدة مهمة:</strong> أي عملية تقوم بها على طرف واحد (جمع، طرح، ضرب، قسمة) يجب أن تقوم بها أيضًا على الطرف الآخر.`,
+  basicsExample2Label: `<strong>مثال خطوة بخطوة:</strong> حل المعادلة 4(x − 2) = 20.`,
+  basicsExample2Steps: `1. افكّ القوس: 4x − 8 = 20<br>2. أضف 8 إلى الطرفين: 4x = 28<br>3. اقسم الطرفين على 4: x = 7`,
+  merkeTitle: `تذكّر`, merkeBody: `ما تفعله في طرف من المعادلة يجب أن تفعله أيضًا في الطرف الآخر.<br>الهدف هو أن يبقى x وحيدًا في النهاية على أحد الطرفين.<br>الترتيب الأفضل: فك الأقواس أولًا، ثم إزالة الأعداد، ثم القسمة على معامل x.`,
+  taskWord: `تمرين`,
+  task1Question: `حل المعادلة 2x + 3 = 11. كم قيمة x؟`, task2Question: `حل المعادلة 5x − 4 = 21. كم قيمة x؟`, task3Question: `حل المعادلة 3x + 7 = 4x − 2. كم قيمة x؟`, task4Question: `حل المعادلة 4(x − 2) = 20. كم قيمة x؟`, task5Question: `حل المعادلة x/3 + 2 = 6. كم قيمة x؟`, task6Question: `حل المعادلة 2x + 5 = 3x − 1. كم قيمة x؟`,
+  task7Question: `محيط مستطيل يساوي 26 سم. الطول هو x، والعرض أقصر من الطول بـ 3 سم. المعادلة هي 2x + 2(x − 3) = 26. كم قيمة x؟`,
+  task8Question: `مجموع ثلاثة أعداد متتالية يساوي 54. أصغر عدد هو x. المعادلة هي x + (x + 1) + (x + 2) = 54. كم قيمة x؟`,
+  answerPlaceholder: `إجابتك`, checkButton: `تحقق`, solutionSummary: `عرض الحل`,
+  task1Result: `النتيجة: x = 4`, task2Result: `النتيجة: x = 5`, task3Result: `النتيجة: x = 9`, task4Result: `النتيجة: x = 7`, task5Result: `النتيجة: x = 12`, task6Result: `النتيجة: x = 6`, task7Result: `النتيجة: x = 8`, task8Result: `النتيجة: x = 17`,
+  task1Step1: `اطرح 3 من الطرفين: 2x = 8.`, task1Step2: `اقسم الطرفين على 2: x = 4.`, task1Step3: `التحقق: 2 · 4 + 3 = 11. صحيح!`,
+  task1Hint: `يجب طرح 3 من الطرفين، وليس فقط من الطرف الأيسر.`,
+  task2Step1: `أضف 4 إلى الطرفين: 5x = 25.`, task2Step2: `اقسم الطرفين على 5: x = 5.`, task2Step3: `التحقق: 5 · 5 − 4 = 21. صحيح!`,
+  task2Hint: `إذا كان هناك −4 على اليسار، تُضاف 4 إلى الطرفين لإزالتها.`,
+  task3Step1: `اطرح 3x من الطرفين: 7 = x − 2.`, task3Step2: `أضف 2 إلى الطرفين: x = 9.`, task3Step3: `التحقق: 3 · 9 + 7 = 34 و 4 · 9 − 2 = 34. صحيح!`,
+  task3Hint: `إذا ظهر x في الطرفين، تُطرَح حد x الأصغر من الطرفين ليبقى x واحد فقط.`,
+  task4Step1: `افكّ القوس: 4x − 8 = 20.`, task4Step2: `أضف 8 إلى الطرفين: 4x = 28.`, task4Step3: `اقسم الطرفين على 4: x = 7.`,
+  task4Hint: `افكّ القوس أولًا، قبل متابعة حل المعادلة.`,
+  task5Step1: `اطرح 2 من الطرفين: x/3 = 4.`, task5Step2: `اضرب الطرفين في 3: x = 12.`, task5Step3: `التحقق: 12/3 + 2 = 6. صحيح!`,
+  task5Hint: `للتخلص من x/3، تُضرَب الطرفان في 3، ولا تُقسَم.`,
+  task6Step1: `اطرح 2x من الطرفين: 5 = x − 1.`, task6Step2: `أضف 1 إلى الطرفين: x = 6.`, task6Step3: `التحقق: 2 · 6 + 5 = 17 و 3 · 6 − 1 = 17. صحيح!`,
+  task6Hint: `يمكنك أيضًا طرح حد x الأكبر، لكنك ستحتاج للعمل بعدد سالب — عادة يكون طرح الحد الأصغر أسهل.`,
+  task7Step1: `افكّ القوس: 2x + 2x − 6 = 26.`, task7Step2: `اجمع: 4x − 6 = 26. أضف 6 إلى الطرفين: 4x = 32.`, task7Step3: `اقسم الطرفين على 4: x = 8.`,
+  task7Hint: `في المسائل اللفظية، اكتب المعادلة بعناية أولًا، ثم حلّها كالمعتاد.`,
+  task8Step1: `اجمع: 3x + 3 = 54.`, task8Step2: `اطرح 3 من الطرفين: 3x = 51.`, task8Step3: `اقسم الطرفين على 3: x = 17.`,
+  task8Hint: `اكتب أولًا الأعداد الثلاثة كـ x و x+1 و x+2، ثم اجمع كل حدود x وكل الأعداد على حدة.`,
+  hintLabel: `خطأ شائع:`, footerMessage: `احسب بهدوء وراجع الحل إذا احتجت إليه. أنت قادر على ذلك!`,
+  fbEmpty: `الرجاء إدخال رقم قبل التحقق.`, fbCorrect: `صحيح! أحسنت!`, fbIncorrect: `ليست صحيحة تمامًا بعد. راجع الحل أدناه وحاول مرة أخرى.`
+},
+zh: {
+  eyebrow: `路易森文理中学 · 七年级`, titleLine1: `解一元一次`, titleAccent: `方程`, backLink: `← 所有主题`, h2Basics: `基础知识`,
+  basicsP1: `方程就像一个平衡的天平：两边必须始终保持相等。要求出 x，你可以在方程两边做同样的运算——这样天平就能保持平衡。`,
+  scaleAria: `一个平衡的天平：左边是3x加5，右边是20`,
+  basicsExample1Label: `<strong>分步示例：</strong> 解方程 3x + 5 = 20。`,
+  basicsExample1Steps: `1. 两边都减去 5：3x + 5 − 5 = 20 − 5<br>2. 得到：3x = 15<br>3. 两边都除以 3：x = 5`,
+  basicsP2Both: `<strong>重要规则：</strong>你在一边做的任何运算（加、减、乘、除），也必须在另一边做同样的运算。`,
+  basicsExample2Label: `<strong>分步示例：</strong> 解方程 4(x − 2) = 20。`,
+  basicsExample2Steps: `1. 展开括号：4x − 8 = 20<br>2. 两边都加 8：4x = 28<br>3. 两边都除以 4：x = 7`,
+  merkeTitle: `记住`, merkeBody: `你在方程一边做的运算，另一边也要做同样的。<br>目标是最终让 x 单独留在一边。<br>最佳顺序：先展开括号，再消去数字，最后除以 x 的系数。`,
+  taskWord: `练习`,
+  task1Question: `解方程 2x + 3 = 11。x 是多少？`, task2Question: `解方程 5x − 4 = 21。x 是多少？`, task3Question: `解方程 3x + 7 = 4x − 2。x 是多少？`, task4Question: `解方程 4(x − 2) = 20。x 是多少？`, task5Question: `解方程 x/3 + 2 = 6。x 是多少？`, task6Question: `解方程 2x + 5 = 3x − 1。x 是多少？`,
+  task7Question: `一个矩形的周长是 26 厘米。长是 x，宽比长短 3 厘米。方程是 2x + 2(x − 3) = 26。x 是多少？`,
+  task8Question: `三个连续的数之和是 54。最小的数是 x。方程是 x + (x + 1) + (x + 2) = 54。x 是多少？`,
+  answerPlaceholder: `你的答案`, checkButton: `检查`, solutionSummary: `显示答案`,
+  task1Result: `结果：x = 4`, task2Result: `结果：x = 5`, task3Result: `结果：x = 9`, task4Result: `结果：x = 7`, task5Result: `结果：x = 12`, task6Result: `结果：x = 6`, task7Result: `结果：x = 8`, task8Result: `结果：x = 17`,
+  task1Step1: `两边都减去 3：2x = 8。`, task1Step2: `两边都除以 2：x = 4。`, task1Step3: `验证：2 · 4 + 3 = 11。正确！`,
+  task1Hint: `3 必须在两边都减去，不能只减左边。`,
+  task2Step1: `两边都加 4：5x = 25。`, task2Step2: `两边都除以 5：x = 5。`, task2Step3: `验证：5 · 5 − 4 = 21。正确！`,
+  task2Hint: `如果左边有 −4，就在两边都加上 4 来消去它。`,
+  task3Step1: `两边都减去 3x：7 = x − 2。`, task3Step2: `两边都加 2：x = 9。`, task3Step3: `验证：3 · 9 + 7 = 34，4 · 9 − 2 = 34。正确！`,
+  task3Hint: `如果两边都有 x，就在两边减去较小的 x 项，使只剩下一个 x。`,
+  task4Step1: `展开括号：4x − 8 = 20。`, task4Step2: `两边都加 8：4x = 28。`, task4Step3: `两边都除以 4：x = 7。`,
+  task4Hint: `继续解方程之前，要先展开括号。`,
+  task5Step1: `两边都减去 2：x/3 = 4。`, task5Step2: `两边都乘以 3：x = 12。`, task5Step3: `验证：12/3 + 2 = 6。正确！`,
+  task5Hint: `要消去 x/3，需要两边都乘以 3，而不是除以 3。`,
+  task6Step1: `两边都减去 2x：5 = x − 1。`, task6Step2: `两边都加 1：x = 6。`, task6Step3: `验证：2 · 6 + 5 = 17，3 · 6 − 1 = 17。正确！`,
+  task6Hint: `也可以减去较大的 x 项，但那样就要用负数继续计算——通常减去较小的项更简单。`,
+  task7Step1: `展开括号：2x + 2x − 6 = 26。`, task7Step2: `合并：4x − 6 = 26。两边都加 6：4x = 32。`, task7Step3: `两边都除以 4：x = 8。`,
+  task7Hint: `在应用题中，先仔细列出方程，再照常求解。`,
+  task8Step1: `合并：3x + 3 = 54。`, task8Step2: `两边都减去 3：3x = 51。`, task8Step3: `两边都除以 3：x = 17。`,
+  task8Hint: `先把三个数写成 x、x+1 和 x+2，然后分别合并所有 x 项和所有数字。`,
+  hintLabel: `常见错误：`, footerMessage: `慢慢算，需要的话看看答案。你能做到！`,
+  fbEmpty: `请先输入一个数字再检查。`, fbCorrect: `正确！做得好！`, fbIncorrect: `还不完全正确。看看下面的答案，再试一次。`
+}
+};
+
+var currentLang = 'de';
+
+function setLanguage(lang){
+  var dict = TRANSLATIONS[lang] || TRANSLATIONS.de;
+  currentLang = TRANSLATIONS[lang] ? lang : 'de';
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = (currentLang === 'ar') ? 'rtl' : 'ltr';
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var key = el.getAttribute('data-i18n');
+    if(dict[key] !== undefined){ el.innerHTML = dict[key]; }
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-placeholder');
+    if(dict[key] !== undefined){ el.setAttribute('placeholder', dict[key]); }
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-aria');
+    if(dict[key] !== undefined){ el.setAttribute('aria-label', dict[key]); }
+  });
+  try{ localStorage.setItem('mathecoach_lang', currentLang); }catch(e){}
+  var sel = document.getElementById('langSelect');
+  if(sel) sel.value = currentLang;
+}
+
+function check(id, correct){
+  var dict = TRANSLATIONS[currentLang] || TRANSLATIONS.de;
+  var input = document.getElementById('input' + id);
+  var feedback = document.getElementById('feedback' + id);
+  var raw = input.value.trim();
+  var match = raw.match(/-?\d+/);
+  feedback.classList.remove('show', 'correct', 'incorrect');
+  if(!match){
+    feedback.textContent = dict.fbEmpty;
+    feedback.classList.add('show', 'incorrect');
+    return;
+  }
+  var value = parseInt(match[0], 10);
+  if(value === correct){
+    feedback.textContent = dict.fbCorrect;
+    feedback.classList.add('show', 'correct');
+  } else {
+    feedback.textContent = dict.fbIncorrect;
+    feedback.classList.add('show', 'incorrect');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var saved = 'de';
+  try{ saved = localStorage.getItem('mathecoach_lang') || 'de'; }catch(e){}
+  setLanguage(saved);
+});
+</script>
+
+</body>
+</html>
