@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Textaufgaben in Gleichungen übersetzen</title>
+<style>
+  :root{
+    --bg:#FAFAF9; --card:#FFFFFF; --ink:#241C1C; --ink-soft:#5C4F4C;
+    --red:#C41230; --gold:#E0A526; --blue:#2478B5;
+    --merke-bg:#FBF1DC; --merke-border:#E0A526;
+    --success:#1E8E5A; --success-bg:#E5F5EC; --error:#B3401D; --error-bg:#FBEDE6;
+    --font-display: ui-rounded, "SF Pro Rounded", "Segoe UI Rounded", "Nunito", system-ui, sans-serif;
+    --font-body: system-ui, "Segoe UI", Roboto, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:18px; line-height:1.5; padding-bottom:60px; }
+  .wrap{ max-width:640px; margin:0 auto; padding:0 20px; }
+  header{ background:var(--card); padding:30px 20px 0; text-align:center; position:relative; }
+  .header-inner{ padding-bottom:26px; }
+  .lang-switch{ display:flex; justify-content:center; margin-bottom:14px; }
+  #langSelect{ font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--ink); background:var(--card); border:2px solid #E3DFDA; border-radius:999px; padding:6px 14px; cursor:pointer; }
+  #langSelect:focus-visible{ outline:3px solid var(--blue); }
+  .back-link{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--blue); text-decoration:none; margin-bottom:16px; }
+  .eyebrow{ font-family:var(--font-display); font-weight:700; font-size:14px; letter-spacing:0.08em; text-transform:uppercase; color:var(--blue); margin-bottom:8px; }
+  h1{ font-family:var(--font-display); font-size:28px; font-weight:800; margin:0; line-height:1.25; }
+  h1 .accent{ color:var(--red); }
+  .wave{ display:block; width:100%; height:30px; }
+  section{ margin-top:32px; }
+  .card{ background:var(--card); border-radius:22px; padding:24px 22px; box-shadow:0 2px 14px rgba(36,28,28,0.07); }
+  h2{ font-family:var(--font-display); font-size:21px; font-weight:800; margin:0 0 14px; }
+  h2 .num{ display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:var(--blue); color:white; font-size:16px; margin-inline-end:10px; vertical-align:middle; }
+  p{ margin:0 0 14px; color:var(--ink-soft); }
+  .merke{ background:var(--merke-bg); border:2px solid var(--merke-border); border-radius:16px; padding:16px 18px; margin-top:16px; }
+  .merke-title{ font-family:var(--font-display); font-weight:800; color:#8A5A0F; font-size:15px; letter-spacing:0.04em; text-transform:uppercase; margin-bottom:6px; }
+  .merke-body{ color:#6B4A12; font-weight:600; margin:0; }
+  .keyword-diagram{ width:100%; height:auto; margin:18px 0 6px; }
+  .task-card{ margin-top:18px; }
+  .task-question{ font-family:var(--font-display); font-weight:700; font-size:19px; margin-bottom:16px; }
+  .answer-row{ display:flex; gap:10px; margin-bottom:6px; }
+  input[type="text"]{ flex:1; font-size:18px; font-family:var(--font-body); padding:12px 14px; border-radius:12px; border:2px solid #E3DFDA; background:#FBFAF9; color:var(--ink); }
+  input[type="text"]:focus{ outline:3px solid #C9DCEA; border-color:var(--blue); }
+  button.check{ font-family:var(--font-display); font-weight:700; font-size:16px; color:white; background:var(--blue); border:none; border-radius:12px; padding:0 20px; cursor:pointer; }
+  button.check:active{ transform:translateY(1px); }
+  button.check:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
+  .feedback{ margin-top:10px; padding:12px 14px; border-radius:12px; font-weight:700; display:none; }
+  .feedback.show{ display:block; }
+  .feedback.correct{ background:var(--success-bg); color:var(--success); }
+  .feedback.incorrect{ background:var(--error-bg); color:var(--error); }
+  details{ margin-top:14px; border-top:2px dashed #E3DFDA; padding-top:12px; }
+  summary{ font-family:var(--font-display); font-weight:700; color:var(--blue); cursor:pointer; font-size:15px; }
+  .solution{ margin-top:12px; }
+  .solution ol{ margin:0 0 12px; padding-inline-start:22px; color:var(--ink-soft); }
+  .solution li{ margin-bottom:6px; }
+  .solution-result{ font-family:var(--font-display); font-weight:800; color:var(--ink); margin-bottom:12px; }
+  .hint-box{ background:#F1EFEC; border-radius:12px; padding:12px 14px; font-size:16px; color:var(--ink-soft); }
+  .hint-box strong{ color:var(--ink); }
+  footer{ text-align:center; margin-top:36px; padding:0 20px; }
+  footer p{ font-family:var(--font-display); font-weight:700; color:var(--ink); }
+  .footer-wave{ display:block; width:100%; max-width:280px; height:16px; margin:0 auto 18px; opacity:0.6; }
+  [dir="rtl"] .back-link{ flex-direction:row-reverse; }
+  @media (prefers-reduced-motion: no-preference){ button.check{ transition:transform 0.1s ease; } }
+  @media (max-width: 480px){ .answer-row{ flex-direction:column; } button.check{ width:100%; padding:14px 20px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="lang-switch">
+      <select id="langSelect" onchange="setLanguage(this.value)">
+        <option value="de">Deutsch</option><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="tr">Türkçe</option><option value="ru">Русский</option><option value="ar">العربية</option><option value="zh">中文</option>
+      </select>
+    </div>
+    <a class="back-link" href="index.html" data-i18n="backLink">← Alle Themen</a>
+    <div class="eyebrow" data-i18n="eyebrow">Luisen-Gymnasium · Klasse 7</div>
+    <h1><span data-i18n="titleLine1">Textaufgaben in</span><br><span class="accent" data-i18n="titleAccent">Gleichungen übersetzen</span></h1>
+  </div>
+  <svg class="wave" viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+    <path d="M -10 22 C 190 4, 390 40, 590 22 S 990 4, 1210 22" fill="none" stroke="#C41230" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 32 C 190 50, 390 14, 590 32 S 990 50, 1210 32" fill="none" stroke="#E0A526" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 42 C 190 24, 390 58, 590 42 S 990 24, 1210 42" fill="none" stroke="#2478B5" stroke-width="5" stroke-linecap="round"/>
+  </svg>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <div class="card">
+      <h2 data-i18n="h2Basics">Grundlagen</h2>
+      <p data-i18n="basicsP1">Bei Textaufgaben musst du zuerst die gesuchte Zahl als Variable (meist x) benennen. Dann übersetzt du bestimmte Wörter in Rechenzeichen.</p>
+
+      <svg class="keyword-diagram" viewBox="0 0 600 220" xmlns="http://www.w3.org/2000/svg" role="img" data-i18n-aria="keywordAria" aria-label="Übersetzungstabelle: Summe wird zu Plus, vermindert um wird zu Minus, das Doppelte wird zu Mal 2, ist gleich wird zu Gleichheitszeichen">
+        <rect x="20" y="10" width="560" height="46" rx="10" fill="#C41230" fill-opacity="0.1"/>
+        <text x="40" y="39" text-anchor="start" font-family="ui-rounded, system-ui, sans-serif" font-size="16" font-weight="700" fill="#241C1C" data-i18n="kwRow1Text">Summe aus ... und ...</text>
+        <text x="560" y="39" text-anchor="end" font-family="ui-rounded, system-ui, sans-serif" font-size="20" font-weight="800" fill="#C41230">+</text>
+        <rect x="20" y="60" width="560" height="46" rx="10" fill="#E0A526" fill-opacity="0.15"/>
+        <text x="40" y="89" text-anchor="start" font-family="ui-rounded, system-ui, sans-serif" font-size="16" font-weight="700" fill="#241C1C" data-i18n="kwRow2Text">vermindert um ...</text>
+        <text x="560" y="89" text-anchor="end" font-family="ui-rounded, system-ui, sans-serif" font-size="20" font-weight="800" fill="#8A5A0F">−</text>
+        <rect x="20" y="110" width="560" height="46" rx="10" fill="#2478B5" fill-opacity="0.1"/>
+        <text x="40" y="139" text-anchor="start" font-family="ui-rounded, system-ui, sans-serif" font-size="16" font-weight="700" fill="#241C1C" data-i18n="kwRow3Text">das Doppelte / Dreifache von ...</text>
+        <text x="560" y="139" text-anchor="end" font-family="ui-rounded, system-ui, sans-serif" font-size="20" font-weight="800" fill="#2478B5">· 2 / · 3</text>
+        <rect x="20" y="160" width="560" height="46" rx="10" fill="#241C1C" fill-opacity="0.06"/>
+        <text x="40" y="189" text-anchor="start" font-family="ui-rounded, system-ui, sans-serif" font-size="16" font-weight="700" fill="#241C1C" data-i18n="kwRow4Text">ist gleich</text>
+        <text x="560" y="189" text-anchor="end" font-family="ui-rounded, system-ui, sans-serif" font-size="20" font-weight="800" fill="#241C1C">=</text>
+      </svg>
+
+      <p data-i18n="basicsExample1Label"><strong>Beispiel Schritt für Schritt:</strong> "Die Summe aus einer Zahl x und 12 ist gleich 30."</p>
+      <p data-i18n="basicsExample1Steps">1. "Summe aus x und 12" wird zu x + 12<br>2. "ist gleich 30" wird zu = 30<br>3. Gleichung: x + 12 = 30<br>4. Lösen: x = 18</p>
+
+      <p data-i18n="basicsP2Longer">Manchmal enthält ein Satz mehrere Schlüsselwörter gleichzeitig – dann arbeitest du sie Schritt für Schritt von innen nach außen ab.</p>
+
+      <p data-i18n="basicsExample2Label"><strong>Beispiel Schritt für Schritt:</strong> "Das Doppelte einer Zahl x, vermindert um 5, ist gleich 21."</p>
+      <p data-i18n="basicsExample2Steps">1. "Das Doppelte von x" wird zu 2x<br>2. "vermindert um 5" wird zu − 5<br>3. Gleichung: 2x − 5 = 21<br>4. Lösen: x = 13</p>
+
+      <div class="merke">
+        <div class="merke-title" data-i18n="merkeTitle">Merke</div>
+        <p class="merke-body" data-i18n="merkeBody">Zuerst die unbekannte Zahl als x benennen.<br>Schlüsselwörter in Rechenzeichen übersetzen: Summe → +, vermindert um → −, das Doppelte → · 2.<br>"ist gleich" wird zum Gleichheitszeichen.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">1</span><span data-i18n="taskWord">Aufgabe</span> 1</h2>
+      <div class="task-question" data-i18n="task1Question">Eine Zahl x plus 9 ist gleich 24. Wie groß ist x?</div>
+      <div class="answer-row">
+        <input type="text" id="input1" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(1, 15)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback1"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task1Result">Ergebnis: x = 15</div>
+          <ol>
+            <li data-i18n="task1Step1">Gleichung aufstellen: x + 9 = 24.</li>
+            <li data-i18n="task1Step2">Auf beiden Seiten 9 abziehen: x = 15.</li>
+            <li data-i18n="task1Step3">Probe: 15 + 9 = 24. Stimmt!</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task1Hint">"Plus 9" bedeutet, dass 9 zur Zahl x addiert wird – nicht andersherum.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">2</span><span data-i18n="taskWord">Aufgabe</span> 2</h2>
+      <div class="task-question" data-i18n="task2Question">Das Dreifache einer Zahl x ist gleich 27. Wie groß ist x?</div>
+      <div class="answer-row">
+        <input type="text" id="input2" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(2, 9)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback2"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task2Result">Ergebnis: x = 9</div>
+          <ol>
+            <li data-i18n="task2Step1">Gleichung aufstellen: 3x = 27.</li>
+            <li data-i18n="task2Step2">Auf beiden Seiten durch 3 teilen: x = 9.</li>
+            <li data-i18n="task2Step3">Probe: 3 · 9 = 27. Stimmt!</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task2Hint">"Das Dreifache" bedeutet mal 3, nicht plus 3.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">3</span><span data-i18n="taskWord">Aufgabe</span> 3</h2>
+      <div class="task-question" data-i18n="task3Question">Eine Zahl x, vermindert um 6, ist gleich 14. Wie groß ist x?</div>
+      <div class="answer-row">
+        <input type="text" id="input3" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(3, 20)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback3"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task3Result">Ergebnis: x = 20</div>
+          <ol>
+            <li data-i18n="task3Step1">Gleichung aufstellen: x − 6 = 14.</li>
+            <li data-i18n="task3Step2">Auf beiden Seiten 6 addieren: x = 20.</li>
+            <li data-i18n="task3Step3">Probe: 20 − 6 = 14. Stimmt!</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task3Hint">"Vermindert um" bedeutet, dass die Zahl selbst kleiner wird – x steht am Anfang, nicht die 6.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">4</span><span data-i18n="taskWord">Aufgabe</span> 4</h2>
+      <div class="task-question" data-i18n="task4Question">Die Summe aus dem Doppelten einer Zahl x und 5 ist gleich 21. Wie groß ist x?</div>
+      <div class="answer-row">
+        <input type="text" id="input4" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(4, 8)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback4"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task4Result">Ergebnis: x = 8</div>
+          <ol>
+            <li data-i18n="task4Step1">Gleichung aufstellen: 2x + 5 = 21.</li>
+            <li data-i18n="task4Step2">Auf beiden Seiten 5 abziehen: 2x = 16.</li>
+            <li data-i18n="task4Step3">Auf beiden Seiten durch 2 teilen: x = 8.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task4Hint">Erst "das Doppelte von x" als 2x übersetzen, dann die Summe mit der 5 bilden.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">5</span><span data-i18n="taskWord">Aufgabe</span> 5</h2>
+      <div class="task-question" data-i18n="task5Question">Das Fünffache einer Zahl x, vermindert um 4, ist gleich 26. Wie groß ist x?</div>
+      <div class="answer-row">
+        <input type="text" id="input5" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(5, 6)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback5"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task5Result">Ergebnis: x = 6</div>
+          <ol>
+            <li data-i18n="task5Step1">Gleichung aufstellen: 5x − 4 = 26.</li>
+            <li data-i18n="task5Step2">Auf beiden Seiten 4 addieren: 5x = 30.</li>
+            <li data-i18n="task5Step3">Auf beiden Seiten durch 5 teilen: x = 6.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task5Hint">"Das Fünffache von x" ist 5x, nicht x + 5.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">6</span><span data-i18n="taskWord">Aufgabe</span> 6</h2>
+      <div class="task-question" data-i18n="task6Question">Die Summe zweier aufeinanderfolgender Zahlen ist 37. Die kleinere Zahl ist x. Wie groß ist x?</div>
+      <div class="answer-row">
+        <input type="text" id="input6" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(6, 18)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback6"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task6Result">Ergebnis: x = 18</div>
+          <ol>
+            <li data-i18n="task6Step1">Die zweite Zahl ist x + 1. Gleichung: x + (x + 1) = 37.</li>
+            <li data-i18n="task6Step2">Zusammenfassen: 2x + 1 = 37. Auf beiden Seiten 1 abziehen: 2x = 36.</li>
+            <li data-i18n="task6Step3">Auf beiden Seiten durch 2 teilen: x = 18.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task6Hint">"Aufeinanderfolgend" bedeutet, dass sich die Zahlen um genau 1 unterscheiden.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">7</span><span data-i18n="taskWord">Aufgabe</span> 7</h2>
+      <div class="task-question" data-i18n="task7Question">Lisa ist x Jahre alt. In 4 Jahren ist sie 20 Jahre alt. Wie alt ist sie jetzt?</div>
+      <div class="answer-row">
+        <input type="text" id="input7" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(7, 16)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback7"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task7Result">Ergebnis: x = 16 Jahre</div>
+          <ol>
+            <li data-i18n="task7Step1">Gleichung aufstellen: x + 4 = 20.</li>
+            <li data-i18n="task7Step2">Auf beiden Seiten 4 abziehen: x = 16.</li>
+            <li data-i18n="task7Step3">Probe: 16 + 4 = 20. Stimmt!</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task7Hint">"In 4 Jahren" bedeutet, dass 4 zum jetzigen Alter x addiert wird.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">8</span><span data-i18n="taskWord">Aufgabe</span> 8</h2>
+      <div class="task-question" data-i18n="task8Question">Ein Buch kostet x Euro. Nach einem Rabatt von 5 Euro kostet es noch 12 Euro. Wie viel hat das Buch ursprünglich gekostet?</div>
+      <div class="answer-row">
+        <input type="text" id="input8" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(8, 17)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback8"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task8Result">Ergebnis: x = 17 Euro</div>
+          <ol>
+            <li data-i18n="task8Step1">Gleichung aufstellen: x − 5 = 12.</li>
+            <li data-i18n="task8Step2">Auf beiden Seiten 5 addieren: x = 17.</li>
+            <li data-i18n="task8Step3">Probe: 17 − 5 = 12. Stimmt!</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task8Hint">Gefragt ist der ursprüngliche Preis x, nicht der reduzierte Preis von 12 Euro.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <footer>
+    <svg class="footer-wave" viewBox="0 0 280 16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+      <path d="M -5 8 C 40 1, 80 15, 140 8 S 240 1, 285 8" fill="none" stroke="#C41230" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M -5 8 C 40 15, 80 1, 140 8 S 240 15, 285 8" fill="none" stroke="#2478B5" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+    </svg>
+    <p id="footer-msg" data-i18n="footerMessage">Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!</p>
+  </footer>
+
+</div>
+
+<script>
+const TRANSLATIONS = {
+de: {
+  eyebrow: `Luisen-Gymnasium · Klasse 7`, titleLine1: `Textaufgaben in`, titleAccent: `Gleichungen übersetzen`, backLink: `← Alle Themen`, h2Basics: `Grundlagen`,
+  basicsP1: `Bei Textaufgaben musst du zuerst die gesuchte Zahl als Variable (meist x) benennen. Dann übersetzt du bestimmte Wörter in Rechenzeichen.`,
+  keywordAria: `Übersetzungstabelle: Summe wird zu Plus, vermindert um wird zu Minus, das Doppelte wird zu Mal 2, ist gleich wird zu Gleichheitszeichen`,
+  kwRow1Text: `Summe aus ... und ...`, kwRow2Text: `vermindert um ...`, kwRow3Text: `das Doppelte / Dreifache von ...`, kwRow4Text: `ist gleich`,
+  basicsExample1Label: `<strong>Beispiel Schritt für Schritt:</strong> "Die Summe aus einer Zahl x und 12 ist gleich 30."`,
+  basicsExample1Steps: `1. "Summe aus x und 12" wird zu x + 12<br>2. "ist gleich 30" wird zu = 30<br>3. Gleichung: x + 12 = 30<br>4. Lösen: x = 18`,
+  basicsP2Longer: `Manchmal enthält ein Satz mehrere Schlüsselwörter gleichzeitig – dann arbeitest du sie Schritt für Schritt von innen nach außen ab.`,
+  basicsExample2Label: `<strong>Beispiel Schritt für Schritt:</strong> "Das Doppelte einer Zahl x, vermindert um 5, ist gleich 21."`,
+  basicsExample2Steps: `1. "Das Doppelte von x" wird zu 2x<br>2. "vermindert um 5" wird zu − 5<br>3. Gleichung: 2x − 5 = 21<br>4. Lösen: x = 13`,
+  merkeTitle: `Merke`, merkeBody: `Zuerst die unbekannte Zahl als x benennen.<br>Schlüsselwörter in Rechenzeichen übersetzen: Summe → +, vermindert um → −, das Doppelte → · 2.<br>"ist gleich" wird zum Gleichheitszeichen.`,
+  taskWord: `Aufgabe`,
+  task1Question: `Eine Zahl x plus 9 ist gleich 24. Wie groß ist x?`, task2Question: `Das Dreifache einer Zahl x ist gleich 27. Wie groß ist x?`, task3Question: `Eine Zahl x, vermindert um 6, ist gleich 14. Wie groß ist x?`, task4Question: `Die Summe aus dem Doppelten einer Zahl x und 5 ist gleich 21. Wie groß ist x?`, task5Question: `Das Fünffache einer Zahl x, vermindert um 4, ist gleich 26. Wie groß ist x?`, task6Question: `Die Summe zweier aufeinanderfolgender Zahlen ist 37. Die kleinere Zahl ist x. Wie groß ist x?`,
+  task7Question: `Lisa ist x Jahre alt. In 4 Jahren ist sie 20 Jahre alt. Wie alt ist sie jetzt?`,
+  task8Question: `Ein Buch kostet x Euro. Nach einem Rabatt von 5 Euro kostet es noch 12 Euro. Wie viel hat das Buch ursprünglich gekostet?`,
+  answerPlaceholder: `Deine Antwort`, checkButton: `Prüfen`, solutionSummary: `Lösung anzeigen`,
+  task1Result: `Ergebnis: x = 15`, task2Result: `Ergebnis: x = 9`, task3Result: `Ergebnis: x = 20`, task4Result: `Ergebnis: x = 8`, task5Result: `Ergebnis: x = 6`, task6Result: `Ergebnis: x = 18`, task7Result: `Ergebnis: x = 16 Jahre`, task8Result: `Ergebnis: x = 17 Euro`,
+  task1Step1: `Gleichung aufstellen: x + 9 = 24.`, task1Step2: `Auf beiden Seiten 9 abziehen: x = 15.`, task1Step3: `Probe: 15 + 9 = 24. Stimmt!`,
+  task1Hint: `"Plus 9" bedeutet, dass 9 zur Zahl x addiert wird – nicht andersherum.`,
+  task2Step1: `Gleichung aufstellen: 3x = 27.`, task2Step2: `Auf beiden Seiten durch 3 teilen: x = 9.`, task2Step3: `Probe: 3 · 9 = 27. Stimmt!`,
+  task2Hint: `"Das Dreifache" bedeutet mal 3, nicht plus 3.`,
+  task3Step1: `Gleichung aufstellen: x − 6 = 14.`, task3Step2: `Auf beiden Seiten 6 addieren: x = 20.`, task3Step3: `Probe: 20 − 6 = 14. Stimmt!`,
+  task3Hint: `"Vermindert um" bedeutet, dass die Zahl selbst kleiner wird – x steht am Anfang, nicht die 6.`,
+  task4Step1: `Gleichung aufstellen: 2x + 5 = 21.`, task4Step2: `Auf beiden Seiten 5 abziehen: 2x = 16.`, task4Step3: `Auf beiden Seiten durch 2 teilen: x = 8.`,
+  task4Hint: `Erst "das Doppelte von x" als 2x übersetzen, dann die Summe mit der 5 bilden.`,
+  task5Step1: `Gleichung aufstellen: 5x − 4 = 26.`, task5Step2: `Auf beiden Seiten 4 addieren: 5x = 30.`, task5Step3: `Auf beiden Seiten durch 5 teilen: x = 6.`,
+  task5Hint: `"Das Fünffache von x" ist 5x, nicht x + 5.`,
+  task6Step1: `Die zweite Zahl ist x + 1. Gleichung: x + (x + 1) = 37.`, task6Step2: `Zusammenfassen: 2x + 1 = 37. Auf beiden Seiten 1 abziehen: 2x = 36.`, task6Step3: `Auf beiden Seiten durch 2 teilen: x = 18.`,
+  task6Hint: `"Aufeinanderfolgend" bedeutet, dass sich die Zahlen um genau 1 unterscheiden.`,
+  task7Step1: `Gleichung aufstellen: x + 4 = 20.`, task7Step2: `Auf beiden Seiten 4 abziehen: x = 16.`, task7Step3: `Probe: 16 + 4 = 20. Stimmt!`,
+  task7Hint: `"In 4 Jahren" bedeutet, dass 4 zum jetzigen Alter x addiert wird.`,
+  task8Step1: `Gleichung aufstellen: x − 5 = 12.`, task8Step2: `Auf beiden Seiten 5 addieren: x = 17.`, task8Step3: `Probe: 17 − 5 = 12. Stimmt!`,
+  task8Hint: `Gefragt ist der ursprüngliche Preis x, nicht der reduzierte Preis von 12 Euro.`,
+  hintLabel: `Typischer Fehler:`, footerMessage: `Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!`,
+  fbEmpty: `Trag bitte eine Zahl ein, bevor du prüfst.`, fbCorrect: `Richtig! Gut gemacht!`, fbIncorrect: `Noch nicht ganz richtig. Schau dir die Lösung weiter unten an und versuch es dann nochmal.`
+},
+en: {
+  eyebrow: `Luisen-Gymnasium · Grade 7`, titleLine1: `Translating Word`, titleAccent: `Problems into Equations`, backLink: `← All Topics`, h2Basics: `Basics`,
+  basicsP1: `In word problems, you first have to name the unknown number as a variable (usually x). Then you translate certain words into operation signs.`,
+  keywordAria: `Translation table: sum becomes plus, decreased by becomes minus, twice becomes times 2, equals becomes an equals sign`,
+  kwRow1Text: `Sum of ... and ...`, kwRow2Text: `decreased by ...`, kwRow3Text: `twice / three times ...`, kwRow4Text: `equals`,
+  basicsExample1Label: `<strong>Step-by-step example:</strong> "The sum of a number x and 12 equals 30."`,
+  basicsExample1Steps: `1. "Sum of x and 12" becomes x + 12<br>2. "equals 30" becomes = 30<br>3. Equation: x + 12 = 30<br>4. Solve: x = 18`,
+  basicsP2Longer: `Sometimes a sentence contains several keywords at once — then work through them step by step, from inside out.`,
+  basicsExample2Label: `<strong>Step-by-step example:</strong> "Twice a number x, decreased by 5, equals 21."`,
+  basicsExample2Steps: `1. "Twice x" becomes 2x<br>2. "decreased by 5" becomes − 5<br>3. Equation: 2x − 5 = 21<br>4. Solve: x = 13`,
+  merkeTitle: `Remember`, merkeBody: `First name the unknown number as x.<br>Translate keywords into operation signs: sum → +, decreased by → −, twice → · 2.<br>"equals" becomes an equals sign.`,
+  taskWord: `Exercise`,
+  task1Question: `A number x plus 9 equals 24. What's x?`, task2Question: `Three times a number x equals 27. What's x?`, task3Question: `A number x, decreased by 6, equals 14. What's x?`, task4Question: `The sum of twice a number x and 5 equals 21. What's x?`, task5Question: `Five times a number x, decreased by 4, equals 26. What's x?`, task6Question: `The sum of two consecutive numbers is 37. The smaller number is x. What's x?`,
+  task7Question: `Lisa is x years old. In 4 years she will be 20. How old is she now?`,
+  task8Question: `A book costs x euros. After a discount of 5 euros, it costs 12 euros. What did the book originally cost?`,
+  answerPlaceholder: `Your answer`, checkButton: `Check`, solutionSummary: `Show solution`,
+  task1Result: `Result: x = 15`, task2Result: `Result: x = 9`, task3Result: `Result: x = 20`, task4Result: `Result: x = 8`, task5Result: `Result: x = 6`, task6Result: `Result: x = 18`, task7Result: `Result: x = 16 years`, task8Result: `Result: x = 17 euros`,
+  task1Step1: `Set up the equation: x + 9 = 24.`, task1Step2: `Subtract 9 on both sides: x = 15.`, task1Step3: `Check: 15 + 9 = 24. Correct!`,
+  task1Hint: `"Plus 9" means 9 is added to the number x — not the other way round.`,
+  task2Step1: `Set up the equation: 3x = 27.`, task2Step2: `Divide both sides by 3: x = 9.`, task2Step3: `Check: 3 · 9 = 27. Correct!`,
+  task2Hint: `"Three times" means multiplied by 3, not plus 3.`,
+  task3Step1: `Set up the equation: x − 6 = 14.`, task3Step2: `Add 6 on both sides: x = 20.`, task3Step3: `Check: 20 − 6 = 14. Correct!`,
+  task3Hint: `"Decreased by" means the number itself gets smaller — x comes first, not the 6.`,
+  task4Step1: `Set up the equation: 2x + 5 = 21.`, task4Step2: `Subtract 5 on both sides: 2x = 16.`, task4Step3: `Divide both sides by 2: x = 8.`,
+  task4Hint: `First translate "twice x" as 2x, then form the sum with the 5.`,
+  task5Step1: `Set up the equation: 5x − 4 = 26.`, task5Step2: `Add 4 on both sides: 5x = 30.`, task5Step3: `Divide both sides by 5: x = 6.`,
+  task5Hint: `"Five times x" is 5x, not x + 5.`,
+  task6Step1: `The second number is x + 1. Equation: x + (x + 1) = 37.`, task6Step2: `Combine: 2x + 1 = 37. Subtract 1 on both sides: 2x = 36.`, task6Step3: `Divide both sides by 2: x = 18.`,
+  task6Hint: `"Consecutive" means the numbers differ by exactly 1.`,
+  task7Step1: `Set up the equation: x + 4 = 20.`, task7Step2: `Subtract 4 on both sides: x = 16.`, task7Step3: `Check: 16 + 4 = 20. Correct!`,
+  task7Hint: `"In 4 years" means 4 is added to the current age x.`,
+  task8Step1: `Set up the equation: x − 5 = 12.`, task8Step2: `Add 5 on both sides: x = 17.`, task8Step3: `Check: 17 − 5 = 12. Correct!`,
+  task8Hint: `The question asks for the original price x, not the discounted price of 12 euros.`,
+  hintLabel: `Common mistake:`, footerMessage: `Take your time and check the solution if you need to. You can do this!`,
+  fbEmpty: `Please enter a number before checking.`, fbCorrect: `Correct! Well done!`, fbIncorrect: `Not quite right yet. Check the solution below and try again.`
+},
+es: {
+  eyebrow: `Luisen-Gymnasium · 7.º curso`, titleLine1: `Traducir problemas`, titleAccent: `de texto a ecuaciones`, backLink: `← Todos los temas`, h2Basics: `Fundamentos`,
+  basicsP1: `En los problemas de texto, primero debes nombrar el número buscado como una variable (normalmente x). Luego traduces ciertas palabras a signos de operación.`,
+  keywordAria: `Tabla de traducción: suma se convierte en más, disminuido en se convierte en menos, el doble se convierte en por 2, es igual a se convierte en el signo igual`,
+  kwRow1Text: `Suma de ... y ...`, kwRow2Text: `disminuido en ...`, kwRow3Text: `el doble / el triple de ...`, kwRow4Text: `es igual a`,
+  basicsExample1Label: `<strong>Ejemplo paso a paso:</strong> "La suma de un número x y 12 es igual a 30."`,
+  basicsExample1Steps: `1. "Suma de x y 12" se convierte en x + 12<br>2. "es igual a 30" se convierte en = 30<br>3. Ecuación: x + 12 = 30<br>4. Resuelve: x = 18`,
+  basicsP2Longer: `A veces una frase contiene varias palabras clave a la vez — entonces las trabajas paso a paso, de dentro hacia fuera.`,
+  basicsExample2Label: `<strong>Ejemplo paso a paso:</strong> "El doble de un número x, disminuido en 5, es igual a 21."`,
+  basicsExample2Steps: `1. "El doble de x" se convierte en 2x<br>2. "disminuido en 5" se convierte en − 5<br>3. Ecuación: 2x − 5 = 21<br>4. Resuelve: x = 13`,
+  merkeTitle: `Recuerda`, merkeBody: `Primero nombra el número desconocido como x.<br>Traduce las palabras clave a signos de operación: suma → +, disminuido en → −, el doble → · 2.<br>"es igual a" se convierte en el signo igual.`,
+  taskWord: `Ejercicio`,
+  task1Question: `Un número x más 9 es igual a 24. ¿Cuánto vale x?`, task2Question: `El triple de un número x es igual a 27. ¿Cuánto vale x?`, task3Question: `Un número x, disminuido en 6, es igual a 14. ¿Cuánto vale x?`, task4Question: `La suma del doble de un número x y 5 es igual a 21. ¿Cuánto vale x?`, task5Question: `El quíntuple de un número x, disminuido en 4, es igual a 26. ¿Cuánto vale x?`, task6Question: `La suma de dos números consecutivos es 37. El número menor es x. ¿Cuánto vale x?`,
+  task7Question: `Lisa tiene x años. Dentro de 4 años tendrá 20. ¿Cuántos años tiene ahora?`,
+  task8Question: `Un libro cuesta x euros. Después de un descuento de 5 euros, cuesta 12 euros. ¿Cuánto costaba el libro originalmente?`,
+  answerPlaceholder: `Tu respuesta`, checkButton: `Comprobar`, solutionSummary: `Ver solución`,
+  task1Result: `Resultado: x = 15`, task2Result: `Resultado: x = 9`, task3Result: `Resultado: x = 20`, task4Result: `Resultado: x = 8`, task5Result: `Resultado: x = 6`, task6Result: `Resultado: x = 18`, task7Result: `Resultado: x = 16 años`, task8Result: `Resultado: x = 17 euros`,
+  task1Step1: `Plantea la ecuación: x + 9 = 24.`, task1Step2: `Resta 9 en ambos lados: x = 15.`, task1Step3: `Comprobación: 15 + 9 = 24. ¡Correcto!`,
+  task1Hint: `"Más 9" significa que 9 se suma al número x — no al revés.`,
+  task2Step1: `Plantea la ecuación: 3x = 27.`, task2Step2: `Divide ambos lados entre 3: x = 9.`, task2Step3: `Comprobación: 3 · 9 = 27. ¡Correcto!`,
+  task2Hint: `"El triple" significa multiplicado por 3, no más 3.`,
+  task3Step1: `Plantea la ecuación: x − 6 = 14.`, task3Step2: `Suma 6 en ambos lados: x = 20.`, task3Step3: `Comprobación: 20 − 6 = 14. ¡Correcto!`,
+  task3Hint: `"Disminuido en" significa que el número mismo se hace más pequeño — x va primero, no el 6.`,
+  task4Step1: `Plantea la ecuación: 2x + 5 = 21.`, task4Step2: `Resta 5 en ambos lados: 2x = 16.`, task4Step3: `Divide ambos lados entre 2: x = 8.`,
+  task4Hint: `Primero traduce "el doble de x" como 2x, luego forma la suma con el 5.`,
+  task5Step1: `Plantea la ecuación: 5x − 4 = 26.`, task5Step2: `Suma 4 en ambos lados: 5x = 30.`, task5Step3: `Divide ambos lados entre 5: x = 6.`,
+  task5Hint: `"El quíntuple de x" es 5x, no x + 5.`,
+  task6Step1: `El segundo número es x + 1. Ecuación: x + (x + 1) = 37.`, task6Step2: `Combina: 2x + 1 = 37. Resta 1 en ambos lados: 2x = 36.`, task6Step3: `Divide ambos lados entre 2: x = 18.`,
+  task6Hint: `"Consecutivos" significa que los números se diferencian en exactamente 1.`,
+  task7Step1: `Plantea la ecuación: x + 4 = 20.`, task7Step2: `Resta 4 en ambos lados: x = 16.`, task7Step3: `Comprobación: 16 + 4 = 20. ¡Correcto!`,
+  task7Hint: `"Dentro de 4 años" significa que se suma 4 a la edad actual x.`,
+  task8Step1: `Plantea la ecuación: x − 5 = 12.`, task8Step2: `Suma 5 en ambos lados: x = 17.`, task8Step3: `Comprobación: 17 − 5 = 12. ¡Correcto!`,
+  task8Hint: `Se pregunta por el precio original x, no por el precio con descuento de 12 euros.`,
+  hintLabel: `Error típico:`, footerMessage: `Tómate tu tiempo y revisa la solución si la necesitas. ¡Tú puedes!`,
+  fbEmpty: `Introduce un número antes de comprobar.`, fbCorrect: `¡Correcto! ¡Muy bien!`, fbIncorrect: `Todavía no es correcto. Revisa la solución de abajo e inténtalo de nuevo.`
+},
+fr: {
+  eyebrow: `Luisen-Gymnasium · 5e (7e cl. all.)`, titleLine1: `Traduire des problèmes`, titleAccent: `en équations`, backLink: `← Tous les thèmes`, h2Basics: `Les bases`,
+  basicsP1: `Dans les problèmes de texte, tu dois d'abord nommer le nombre recherché comme une variable (généralement x). Ensuite, tu traduis certains mots en signes d'opération.`,
+  keywordAria: `Tableau de traduction : somme devient plus, diminué de devient moins, le double devient fois 2, est égal à devient le signe égal`,
+  kwRow1Text: `Somme de ... et ...`, kwRow2Text: `diminué de ...`, kwRow3Text: `le double / le triple de ...`, kwRow4Text: `est égal à`,
+  basicsExample1Label: `<strong>Exemple étape par étape :</strong> « La somme d'un nombre x et de 12 est égale à 30. »`,
+  basicsExample1Steps: `1. « Somme de x et 12 » devient x + 12<br>2. « est égale à 30 » devient = 30<br>3. Équation : x + 12 = 30<br>4. Résous : x = 18`,
+  basicsP2Longer: `Parfois une phrase contient plusieurs mots-clés à la fois — travaille-les alors étape par étape, de l'intérieur vers l'extérieur.`,
+  basicsExample2Label: `<strong>Exemple étape par étape :</strong> « Le double d'un nombre x, diminué de 5, est égal à 21. »`,
+  basicsExample2Steps: `1. « Le double de x » devient 2x<br>2. « diminué de 5 » devient − 5<br>3. Équation : 2x − 5 = 21<br>4. Résous : x = 13`,
+  merkeTitle: `À retenir`, merkeBody: `Nomme d'abord le nombre inconnu x.<br>Traduis les mots-clés en signes d'opération : somme → +, diminué de → −, le double → · 2.<br>« est égal à » devient le signe égal.`,
+  taskWord: `Exercice`,
+  task1Question: `Un nombre x plus 9 est égal à 24. Combien vaut x ?`, task2Question: `Le triple d'un nombre x est égal à 27. Combien vaut x ?`, task3Question: `Un nombre x, diminué de 6, est égal à 14. Combien vaut x ?`, task4Question: `La somme du double d'un nombre x et de 5 est égale à 21. Combien vaut x ?`, task5Question: `Le quintuple d'un nombre x, diminué de 4, est égal à 26. Combien vaut x ?`, task6Question: `La somme de deux nombres consécutifs est 37. Le plus petit nombre est x. Combien vaut x ?`,
+  task7Question: `Lisa a x ans. Dans 4 ans, elle aura 20 ans. Quel âge a-t-elle maintenant ?`,
+  task8Question: `Un livre coûte x euros. Après une remise de 5 euros, il coûte 12 euros. Combien coûtait le livre à l'origine ?`,
+  answerPlaceholder: `Ta réponse`, checkButton: `Vérifier`, solutionSummary: `Voir la solution`,
+  task1Result: `Résultat : x = 15`, task2Result: `Résultat : x = 9`, task3Result: `Résultat : x = 20`, task4Result: `Résultat : x = 8`, task5Result: `Résultat : x = 6`, task6Result: `Résultat : x = 18`, task7Result: `Résultat : x = 16 ans`, task8Result: `Résultat : x = 17 euros`,
+  task1Step1: `Pose l'équation : x + 9 = 24.`, task1Step2: `Soustrais 9 des deux côtés : x = 15.`, task1Step3: `Vérification : 15 + 9 = 24. Correct !`,
+  task1Hint: `« Plus 9 » signifie que 9 est ajouté au nombre x — pas l'inverse.`,
+  task2Step1: `Pose l'équation : 3x = 27.`, task2Step2: `Divise les deux côtés par 3 : x = 9.`, task2Step3: `Vérification : 3 · 9 = 27. Correct !`,
+  task2Hint: `« Le triple » signifie multiplié par 3, pas plus 3.`,
+  task3Step1: `Pose l'équation : x − 6 = 14.`, task3Step2: `Ajoute 6 des deux côtés : x = 20.`, task3Step3: `Vérification : 20 − 6 = 14. Correct !`,
+  task3Hint: `« Diminué de » signifie que le nombre lui-même diminue — x vient en premier, pas le 6.`,
+  task4Step1: `Pose l'équation : 2x + 5 = 21.`, task4Step2: `Soustrais 5 des deux côtés : 2x = 16.`, task4Step3: `Divise les deux côtés par 2 : x = 8.`,
+  task4Hint: `Traduis d'abord « le double de x » par 2x, puis forme la somme avec le 5.`,
+  task5Step1: `Pose l'équation : 5x − 4 = 26.`, task5Step2: `Ajoute 4 des deux côtés : 5x = 30.`, task5Step3: `Divise les deux côtés par 5 : x = 6.`,
+  task5Hint: `« Le quintuple de x » vaut 5x, pas x + 5.`,
+  task6Step1: `Le deuxième nombre est x + 1. Équation : x + (x + 1) = 37.`, task6Step2: `Regroupe : 2x + 1 = 37. Soustrais 1 des deux côtés : 2x = 36.`, task6Step3: `Divise les deux côtés par 2 : x = 18.`,
+  task6Hint: `« Consécutifs » signifie que les nombres diffèrent exactement de 1.`,
+  task7Step1: `Pose l'équation : x + 4 = 20.`, task7Step2: `Soustrais 4 des deux côtés : x = 16.`, task7Step3: `Vérification : 16 + 4 = 20. Correct !`,
+  task7Hint: `« Dans 4 ans » signifie que 4 est ajouté à l'âge actuel x.`,
+  task8Step1: `Pose l'équation : x − 5 = 12.`, task8Step2: `Ajoute 5 des deux côtés : x = 17.`, task8Step3: `Vérification : 17 − 5 = 12. Correct !`,
+  task8Hint: `La question porte sur le prix d'origine x, pas sur le prix réduit de 12 euros.`,
+  hintLabel: `Erreur fréquente :`, footerMessage: `Prends ton temps et regarde la solution si besoin. Tu vas y arriver !`,
+  fbEmpty: `Merci d'indiquer un nombre avant de vérifier.`, fbCorrect: `Correct ! Bien joué !`, fbIncorrect: `Pas encore tout à fait juste. Regarde la solution ci-dessous et réessaie.`
+},
+tr: {
+  eyebrow: `Luisen-Gymnasium · 7. Sınıf`, titleLine1: `Sözel Problemleri`, titleAccent: `Denklemlere Çevirme`, backLink: `← Tüm Konular`, h2Basics: `Temel Bilgiler`,
+  basicsP1: `Sözel problemlerde önce aranan sayıyı bir değişken (genellikle x) olarak adlandırmalısın. Sonra belirli kelimeleri işlem işaretlerine çevirirsin.`,
+  keywordAria: `Çeviri tablosu: toplam artı olur, azaltılmış eksi olur, iki katı çarpı 2 olur, eşittir eşittir işareti olur`,
+  kwRow1Text: `... ve ...'nin toplamı`, kwRow2Text: `... azaltılmış`, kwRow3Text: `... iki katı / üç katı`, kwRow4Text: `eşittir`,
+  basicsExample1Label: `<strong>Adım adım örnek:</strong> "Bir sayı x ve 12'nin toplamı 30'a eşittir."`,
+  basicsExample1Steps: `1. "x ve 12'nin toplamı" x + 12 olur<br>2. "30'a eşittir" = 30 olur<br>3. Denklem: x + 12 = 30<br>4. Çöz: x = 18`,
+  basicsP2Longer: `Bazen bir cümlede birden fazla anahtar kelime aynı anda bulunur — o zaman onları adım adım, içten dışa doğru işlersin.`,
+  basicsExample2Label: `<strong>Adım adım örnek:</strong> "Bir sayı x'in iki katı, 5 azaltılmış, 21'e eşittir."`,
+  basicsExample2Steps: `1. "x'in iki katı" 2x olur<br>2. "5 azaltılmış" − 5 olur<br>3. Denklem: 2x − 5 = 21<br>4. Çöz: x = 13`,
+  merkeTitle: `Unutma`, merkeBody: `Önce bilinmeyen sayıyı x olarak adlandır.<br>Anahtar kelimeleri işlem işaretlerine çevir: toplam → +, azaltılmış → −, iki katı → · 2.<br>"eşittir" eşittir işareti olur.`,
+  taskWord: `Alıştırma`,
+  task1Question: `Bir sayı x artı 9, 24'e eşittir. x kaçtır?`, task2Question: `Bir sayı x'in üç katı 27'ye eşittir. x kaçtır?`, task3Question: `Bir sayı x, 6 azaltılmış, 14'e eşittir. x kaçtır?`, task4Question: `Bir sayı x'in iki katı ile 5'in toplamı 21'e eşittir. x kaçtır?`, task5Question: `Bir sayı x'in beş katı, 4 azaltılmış, 26'ya eşittir. x kaçtır?`, task6Question: `İki ardışık sayının toplamı 37'dir. Küçük sayı x'tir. x kaçtır?`,
+  task7Question: `Lisa x yaşındadır. 4 yıl sonra 20 yaşında olacaktır. Şimdi kaç yaşındadır?`,
+  task8Question: `Bir kitap x avro. 5 avro indirimden sonra 12 avro. Kitap başlangıçta kaç avroydu?`,
+  answerPlaceholder: `Cevabın`, checkButton: `Kontrol et`, solutionSummary: `Çözümü göster`,
+  task1Result: `Sonuç: x = 15`, task2Result: `Sonuç: x = 9`, task3Result: `Sonuç: x = 20`, task4Result: `Sonuç: x = 8`, task5Result: `Sonuç: x = 6`, task6Result: `Sonuç: x = 18`, task7Result: `Sonuç: x = 16 yaş`, task8Result: `Sonuç: x = 17 avro`,
+  task1Step1: `Denklemi kur: x + 9 = 24.`, task1Step2: `Her iki taraftan 9 çıkar: x = 15.`, task1Step3: `Kontrol: 15 + 9 = 24. Doğru!`,
+  task1Hint: `"Artı 9", 9'un x sayısına eklendiği anlamına gelir — tersi değil.`,
+  task2Step1: `Denklemi kur: 3x = 27.`, task2Step2: `Her iki tarafı 3'e böl: x = 9.`, task2Step3: `Kontrol: 3 · 9 = 27. Doğru!`,
+  task2Hint: `"Üç katı" 3 ile çarpma demektir, artı 3 değil.`,
+  task3Step1: `Denklemi kur: x − 6 = 14.`, task3Step2: `Her iki tarafa 6 ekle: x = 20.`, task3Step3: `Kontrol: 20 − 6 = 14. Doğru!`,
+  task3Hint: `"Azaltılmış" sayının kendisinin küçüldüğü anlamına gelir — önce x gelir, 6 değil.`,
+  task4Step1: `Denklemi kur: 2x + 5 = 21.`, task4Step2: `Her iki taraftan 5 çıkar: 2x = 16.`, task4Step3: `Her iki tarafı 2'ye böl: x = 8.`,
+  task4Hint: `Önce "x'in iki katı"nı 2x olarak çevir, sonra 5 ile toplamını oluştur.`,
+  task5Step1: `Denklemi kur: 5x − 4 = 26.`, task5Step2: `Her iki tarafa 4 ekle: 5x = 30.`, task5Step3: `Her iki tarafı 5'e böl: x = 6.`,
+  task5Hint: `"x'in beş katı" 5x'tir, x + 5 değil.`,
+  task6Step1: `İkinci sayı x + 1'dir. Denklem: x + (x + 1) = 37.`, task6Step2: `Birleştir: 2x + 1 = 37. Her iki taraftan 1 çıkar: 2x = 36.`, task6Step3: `Her iki tarafı 2'ye böl: x = 18.`,
+  task6Hint: `"Ardışık" sayıların tam olarak 1 farklı olduğu anlamına gelir.`,
+  task7Step1: `Denklemi kur: x + 4 = 20.`, task7Step2: `Her iki taraftan 4 çıkar: x = 16.`, task7Step3: `Kontrol: 16 + 4 = 20. Doğru!`,
+  task7Hint: `"4 yıl sonra", şimdiki yaş x'e 4 eklendiği anlamına gelir.`,
+  task8Step1: `Denklemi kur: x − 5 = 12.`, task8Step2: `Her iki tarafa 5 ekle: x = 17.`, task8Step3: `Kontrol: 17 − 5 = 12. Doğru!`,
+  task8Hint: `Sorulan, orijinal fiyat x'tir, indirimli 12 avro değil.`,
+  hintLabel: `Sık yapılan hata:`, footerMessage: `Sakin sakin hesapla, gerekirse çözüme bak. Bunu başarabilirsin!`,
+  fbEmpty: `Kontrol etmeden önce lütfen bir sayı gir.`, fbCorrect: `Doğru! Aferin!`, fbIncorrect: `Henüz tam doğru değil. Aşağıdaki çözüme bak ve tekrar dene.`
+},
+ru: {
+  eyebrow: `Luisen-Gymnasium · 7 класс`, titleLine1: `Перевод текстовых задач`, titleAccent: `в уравнения`, backLink: `← Все темы`, h2Basics: `Основы`,
+  basicsP1: `В текстовых задачах сначала нужно обозначить искомое число переменной (обычно x). Затем ты переводишь определённые слова в знаки действий.`,
+  keywordAria: `Таблица перевода: сумма становится плюсом, уменьшенное на становится минусом, удвоенное становится умножить на 2, равно становится знаком равенства`,
+  kwRow1Text: `Сумма ... и ...`, kwRow2Text: `уменьшенное на ...`, kwRow3Text: `удвоенное / утроенное ...`, kwRow4Text: `равно`,
+  basicsExample1Label: `<strong>Пример по шагам:</strong> «Сумма числа x и 12 равна 30.»`,
+  basicsExample1Steps: `1. «Сумма x и 12» становится x + 12<br>2. «равна 30» становится = 30<br>3. Уравнение: x + 12 = 30<br>4. Решаем: x = 18`,
+  basicsP2Longer: `Иногда в предложении сразу несколько ключевых слов — тогда обрабатывай их по шагам, изнутри наружу.`,
+  basicsExample2Label: `<strong>Пример по шагам:</strong> «Удвоенное число x, уменьшенное на 5, равно 21.»`,
+  basicsExample2Steps: `1. «Удвоенное x» становится 2x<br>2. «уменьшенное на 5» становится − 5<br>3. Уравнение: 2x − 5 = 21<br>4. Решаем: x = 13`,
+  merkeTitle: `Запомни`, merkeBody: `Сначала обозначь неизвестное число как x.<br>Переводи ключевые слова в знаки действий: сумма → +, уменьшенное на → −, удвоенное → · 2.<br>«равно» становится знаком равенства.`,
+  taskWord: `Задание`,
+  task1Question: `Число x плюс 9 равно 24. Чему равен x?`, task2Question: `Утроенное число x равно 27. Чему равен x?`, task3Question: `Число x, уменьшенное на 6, равно 14. Чему равен x?`, task4Question: `Сумма удвоенного числа x и 5 равна 21. Чему равен x?`, task5Question: `Упятерённое число x, уменьшенное на 4, равно 26. Чему равен x?`, task6Question: `Сумма двух последовательных чисел равна 37. Меньшее число равно x. Чему равен x?`,
+  task7Question: `Лизе x лет. Через 4 года ей будет 20. Сколько ей лет сейчас?`,
+  task8Question: `Книга стоит x евро. После скидки в 5 евро она стоит 12 евро. Сколько стоила книга изначально?`,
+  answerPlaceholder: `Твой ответ`, checkButton: `Проверить`, solutionSummary: `Показать решение`,
+  task1Result: `Результат: x = 15`, task2Result: `Результат: x = 9`, task3Result: `Результат: x = 20`, task4Result: `Результат: x = 8`, task5Result: `Результат: x = 6`, task6Result: `Результат: x = 18`, task7Result: `Результат: x = 16 лет`, task8Result: `Результат: x = 17 евро`,
+  task1Step1: `Составь уравнение: x + 9 = 24.`, task1Step2: `Вычти 9 с обеих сторон: x = 15.`, task1Step3: `Проверка: 15 + 9 = 24. Верно!`,
+  task1Hint: `«Плюс 9» означает, что 9 прибавляется к числу x — а не наоборот.`,
+  task2Step1: `Составь уравнение: 3x = 27.`, task2Step2: `Раздели обе стороны на 3: x = 9.`, task2Step3: `Проверка: 3 · 9 = 27. Верно!`,
+  task2Hint: `«Утроенное» означает умножить на 3, а не прибавить 3.`,
+  task3Step1: `Составь уравнение: x − 6 = 14.`, task3Step2: `Прибавь 6 к обеим сторонам: x = 20.`, task3Step3: `Проверка: 20 − 6 = 14. Верно!`,
+  task3Hint: `«Уменьшенное на» означает, что само число становится меньше — сначала идёт x, а не 6.`,
+  task4Step1: `Составь уравнение: 2x + 5 = 21.`, task4Step2: `Вычти 5 с обеих сторон: 2x = 16.`, task4Step3: `Раздели обе стороны на 2: x = 8.`,
+  task4Hint: `Сначала переведи «удвоенное x» как 2x, затем составь сумму с 5.`,
+  task5Step1: `Составь уравнение: 5x − 4 = 26.`, task5Step2: `Прибавь 4 к обеим сторонам: 5x = 30.`, task5Step3: `Раздели обе стороны на 5: x = 6.`,
+  task5Hint: `«Упятерённое x» — это 5x, а не x + 5.`,
+  task6Step1: `Второе число — x + 1. Уравнение: x + (x + 1) = 37.`, task6Step2: `Объедини: 2x + 1 = 37. Вычти 1 с обеих сторон: 2x = 36.`, task6Step3: `Раздели обе стороны на 2: x = 18.`,
+  task6Hint: `«Последовательные» означает, что числа отличаются ровно на 1.`,
+  task7Step1: `Составь уравнение: x + 4 = 20.`, task7Step2: `Вычти 4 с обеих сторон: x = 16.`, task7Step3: `Проверка: 16 + 4 = 20. Верно!`,
+  task7Hint: `«Через 4 года» означает, что 4 прибавляется к текущему возрасту x.`,
+  task8Step1: `Составь уравнение: x − 5 = 12.`, task8Step2: `Прибавь 5 к обеим сторонам: x = 17.`, task8Step3: `Проверка: 17 − 5 = 12. Верно!`,
+  task8Hint: `Спрашивается про изначальную цену x, а не про цену со скидкой в 12 евро.`,
+  hintLabel: `Типичная ошибка:`, footerMessage: `Считай спокойно и при необходимости смотри решение. У тебя получится!`,
+  fbEmpty: `Пожалуйста, введи число перед проверкой.`, fbCorrect: `Правильно! Отлично!`, fbIncorrect: `Пока не совсем верно. Посмотри решение ниже и попробуй ещё раз.`
+},
+ar: {
+  eyebrow: `مدرسة لويزن الثانوية · الصف السابع`, titleLine1: `تحويل المسائل اللفظية`, titleAccent: `إلى معادلات`, backLink: `← جميع المواضيع`, h2Basics: `الأساسيات`,
+  basicsP1: `في المسائل اللفظية، يجب أولًا تسمية العدد المطلوب كمتغير (عادة x). ثم تُترجَم كلمات معينة إلى إشارات عمليات.`,
+  keywordAria: `جدول الترجمة: مجموع تصبح زائد، منقوصًا منه تصبح ناقص، ضعف تصبح ضرب في 2، يساوي تصبح علامة يساوي`,
+  kwRow1Text: `مجموع ... و ...`, kwRow2Text: `منقوصًا منه ...`, kwRow3Text: `ضعف / ثلاثة أضعاف ...`, kwRow4Text: `يساوي`,
+  basicsExample1Label: `<strong>مثال خطوة بخطوة:</strong> "مجموع عدد x و12 يساوي 30."`,
+  basicsExample1Steps: `1. "مجموع x و12" تصبح x + 12<br>2. "يساوي 30" تصبح = 30<br>3. المعادلة: x + 12 = 30<br>4. حل: x = 18`,
+  basicsP2Longer: `أحيانًا تحتوي الجملة على عدة كلمات مفتاحية في آن واحد — عندها تعالجها خطوة بخطوة، من الداخل إلى الخارج.`,
+  basicsExample2Label: `<strong>مثال خطوة بخطوة:</strong> "ضعف عدد x، منقوصًا منه 5، يساوي 21."`,
+  basicsExample2Steps: `1. "ضعف x" تصبح 2x<br>2. "منقوصًا منه 5" تصبح − 5<br>3. المعادلة: 2x − 5 = 21<br>4. حل: x = 13`,
+  merkeTitle: `تذكّر`, merkeBody: `سمِّ العدد المجهول أولًا x.<br>ترجم الكلمات المفتاحية إلى إشارات عمليات: مجموع ← +، منقوصًا منه ← −، ضعف ← × 2.<br>"يساوي" تصبح علامة يساوي.`,
+  taskWord: `تمرين`,
+  task1Question: `عدد x زائد 9 يساوي 24. كم قيمة x؟`, task2Question: `ثلاثة أضعاف عدد x يساوي 27. كم قيمة x؟`, task3Question: `عدد x، منقوصًا منه 6، يساوي 14. كم قيمة x؟`, task4Question: `مجموع ضعف عدد x و5 يساوي 21. كم قيمة x؟`, task5Question: `خمسة أضعاف عدد x، منقوصًا منه 4، يساوي 26. كم قيمة x؟`, task6Question: `مجموع عددين متتاليين يساوي 37. العدد الأصغر هو x. كم قيمة x؟`,
+  task7Question: `عمر ليزا x سنة. بعد 4 سنوات سيكون عمرها 20 سنة. كم عمرها الآن؟`,
+  task8Question: `يكلف كتاب x يورو. بعد خصم 5 يورو، يصبح ثمنه 12 يورو. كم كان ثمن الكتاب الأصلي؟`,
+  answerPlaceholder: `إجابتك`, checkButton: `تحقق`, solutionSummary: `عرض الحل`,
+  task1Result: `النتيجة: x = 15`, task2Result: `النتيجة: x = 9`, task3Result: `النتيجة: x = 20`, task4Result: `النتيجة: x = 8`, task5Result: `النتيجة: x = 6`, task6Result: `النتيجة: x = 18`, task7Result: `النتيجة: x = 16 سنة`, task8Result: `النتيجة: x = 17 يورو`,
+  task1Step1: `اكتب المعادلة: x + 9 = 24.`, task1Step2: `اطرح 9 من الطرفين: x = 15.`, task1Step3: `التحقق: 15 + 9 = 24. صحيح!`,
+  task1Hint: `"زائد 9" تعني أن 9 تُضاف إلى العدد x — وليس العكس.`,
+  task2Step1: `اكتب المعادلة: 3x = 27.`, task2Step2: `اقسم الطرفين على 3: x = 9.`, task2Step3: `التحقق: 3 · 9 = 27. صحيح!`,
+  task2Hint: `"ثلاثة أضعاف" تعني الضرب في 3، وليس زائد 3.`,
+  task3Step1: `اكتب المعادلة: x − 6 = 14.`, task3Step2: `أضف 6 إلى الطرفين: x = 20.`, task3Step3: `التحقق: 20 − 6 = 14. صحيح!`,
+  task3Hint: `"منقوصًا منه" تعني أن العدد نفسه يصبح أصغر — يأتي x أولًا، وليس الـ6.`,
+  task4Step1: `اكتب المعادلة: 2x + 5 = 21.`, task4Step2: `اطرح 5 من الطرفين: 2x = 16.`, task4Step3: `اقسم الطرفين على 2: x = 8.`,
+  task4Hint: `ترجم أولًا "ضعف x" إلى 2x، ثم كوّن المجموع مع الـ5.`,
+  task5Step1: `اكتب المعادلة: 5x − 4 = 26.`, task5Step2: `أضف 4 إلى الطرفين: 5x = 30.`, task5Step3: `اقسم الطرفين على 5: x = 6.`,
+  task5Hint: `"خمسة أضعاف x" هي 5x، وليست x + 5.`,
+  task6Step1: `العدد الثاني هو x + 1. المعادلة: x + (x + 1) = 37.`, task6Step2: `اجمع: 2x + 1 = 37. اطرح 1 من الطرفين: 2x = 36.`, task6Step3: `اقسم الطرفين على 2: x = 18.`,
+  task6Hint: `"متتاليان" تعني أن العددين يختلفان بمقدار 1 بالضبط.`,
+  task7Step1: `اكتب المعادلة: x + 4 = 20.`, task7Step2: `اطرح 4 من الطرفين: x = 16.`, task7Step3: `التحقق: 16 + 4 = 20. صحيح!`,
+  task7Hint: `"بعد 4 سنوات" تعني أن 4 تُضاف إلى العمر الحالي x.`,
+  task8Step1: `اكتب المعادلة: x − 5 = 12.`, task8Step2: `أضف 5 إلى الطرفين: x = 17.`, task8Step3: `التحقق: 17 − 5 = 12. صحيح!`,
+  task8Hint: `السؤال عن السعر الأصلي x، وليس عن السعر المخفض 12 يورو.`,
+  hintLabel: `خطأ شائع:`, footerMessage: `احسب بهدوء وراجع الحل إذا احتجت إليه. أنت قادر على ذلك!`,
+  fbEmpty: `الرجاء إدخال رقم قبل التحقق.`, fbCorrect: `صحيح! أحسنت!`, fbIncorrect: `ليست صحيحة تمامًا بعد. راجع الحل أدناه وحاول مرة أخرى.`
+},
+zh: {
+  eyebrow: `路易森文理中学 · 七年级`, titleLine1: `把应用题转化`, titleAccent: `为方程`, backLink: `← 所有主题`, h2Basics: `基础知识`,
+  basicsP1: `在应用题中，首先要把要求的数设为一个变量（通常是 x）。然后把某些词语翻译成运算符号。`,
+  keywordAria: `翻译表：和变成加号，减少变成减号，两倍变成乘以2，等于变成等号`,
+  kwRow1Text: `...和...的和`, kwRow2Text: `...减少`, kwRow3Text: `...的两倍/三倍`, kwRow4Text: `等于`,
+  basicsExample1Label: `<strong>分步示例：</strong>"一个数 x 和 12 的和等于 30。"`,
+  basicsExample1Steps: `1. "x 和 12 的和"变成 x + 12<br>2. "等于 30"变成 = 30<br>3. 方程：x + 12 = 30<br>4. 求解：x = 18`,
+  basicsP2Longer: `有时一句话会同时包含多个关键词——这时要一步步从内到外处理。`,
+  basicsExample2Label: `<strong>分步示例：</strong>"一个数 x 的两倍减少 5 等于 21。"`,
+  basicsExample2Steps: `1. "x 的两倍"变成 2x<br>2. "减少 5"变成 − 5<br>3. 方程：2x − 5 = 21<br>4. 求解：x = 13`,
+  merkeTitle: `记住`, merkeBody: `先把未知数设为 x。<br>把关键词翻译成运算符号：和 → +，减少 → −，两倍 → ×2。<br>"等于"变成等号。`,
+  taskWord: `练习`,
+  task1Question: `一个数 x 加 9 等于 24。x 是多少？`, task2Question: `一个数 x 的三倍等于 27。x 是多少？`, task3Question: `一个数 x 减少 6 等于 14。x 是多少？`, task4Question: `一个数 x 的两倍与 5 的和等于 21。x 是多少？`, task5Question: `一个数 x 的五倍减少 4 等于 26。x 是多少？`, task6Question: `两个连续数的和是 37。较小的数是 x。x 是多少？`,
+  task7Question: `丽莎现在 x 岁。4 年后她将是 20 岁。她现在多大？`,
+  task8Question: `一本书原价 x 欧元。打折 5 欧元后是 12 欧元。这本书原价是多少？`,
+  answerPlaceholder: `你的答案`, checkButton: `检查`, solutionSummary: `显示答案`,
+  task1Result: `结果：x = 15`, task2Result: `结果：x = 9`, task3Result: `结果：x = 20`, task4Result: `结果：x = 8`, task5Result: `结果：x = 6`, task6Result: `结果：x = 18`, task7Result: `结果：x = 16 岁`, task8Result: `结果：x = 17 欧元`,
+  task1Step1: `列方程：x + 9 = 24。`, task1Step2: `两边都减去 9：x = 15。`, task1Step3: `验证：15 + 9 = 24。正确！`,
+  task1Hint: `"加 9"表示把 9 加到数 x 上——而不是反过来。`,
+  task2Step1: `列方程：3x = 27。`, task2Step2: `两边都除以 3：x = 9。`, task2Step3: `验证：3 · 9 = 27。正确！`,
+  task2Hint: `"三倍"表示乘以 3，不是加 3。`,
+  task3Step1: `列方程：x − 6 = 14。`, task3Step2: `两边都加 6：x = 20。`, task3Step3: `验证：20 − 6 = 14。正确！`,
+  task3Hint: `"减少"表示这个数本身变小——x 在前面，不是 6。`,
+  task4Step1: `列方程：2x + 5 = 21。`, task4Step2: `两边都减去 5：2x = 16。`, task4Step3: `两边都除以 2：x = 8。`,
+  task4Hint: `先把"x 的两倍"翻译成 2x，再和 5 组成和。`,
+  task5Step1: `列方程：5x − 4 = 26。`, task5Step2: `两边都加 4：5x = 30。`, task5Step3: `两边都除以 5：x = 6。`,
+  task5Hint: `"x 的五倍"是 5x，不是 x + 5。`,
+  task6Step1: `第二个数是 x + 1。方程：x + (x + 1) = 37。`, task6Step2: `合并：2x + 1 = 37。两边都减去 1：2x = 36。`, task6Step3: `两边都除以 2：x = 18。`,
+  task6Hint: `"连续"表示这些数正好相差 1。`,
+  task7Step1: `列方程：x + 4 = 20。`, task7Step2: `两边都减去 4：x = 16。`, task7Step3: `验证：16 + 4 = 20。正确！`,
+  task7Hint: `"4 年后"表示把 4 加到现在的年龄 x 上。`,
+  task8Step1: `列方程：x − 5 = 12。`, task8Step2: `两边都加 5：x = 17。`, task8Step3: `验证：17 − 5 = 12。正确！`,
+  task8Hint: `问的是原价 x，不是打折后的 12 欧元。`,
+  hintLabel: `常见错误：`, footerMessage: `慢慢算，需要的话看看答案。你能做到！`,
+  fbEmpty: `请先输入一个数字再检查。`, fbCorrect: `正确！做得好！`, fbIncorrect: `还不完全正确。看看下面的答案，再试一次。`
+}
+};
+
+var currentLang = 'de';
+
+function setLanguage(lang){
+  var dict = TRANSLATIONS[lang] || TRANSLATIONS.de;
+  currentLang = TRANSLATIONS[lang] ? lang : 'de';
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = (currentLang === 'ar') ? 'rtl' : 'ltr';
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var key = el.getAttribute('data-i18n');
+    if(dict[key] !== undefined){ el.innerHTML = dict[key]; }
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-placeholder');
+    if(dict[key] !== undefined){ el.setAttribute('placeholder', dict[key]); }
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-aria');
+    if(dict[key] !== undefined){ el.setAttribute('aria-label', dict[key]); }
+  });
+  try{ localStorage.setItem('mathecoach_lang', currentLang); }catch(e){}
+  var sel = document.getElementById('langSelect');
+  if(sel) sel.value = currentLang;
+}
+
+function check(id, correct){
+  var dict = TRANSLATIONS[currentLang] || TRANSLATIONS.de;
+  var input = document.getElementById('input' + id);
+  var feedback = document.getElementById('feedback' + id);
+  var raw = input.value.trim();
+  var match = raw.match(/-?\d+/);
+  feedback.classList.remove('show', 'correct', 'incorrect');
+  if(!match){
+    feedback.textContent = dict.fbEmpty;
+    feedback.classList.add('show', 'incorrect');
+    return;
+  }
+  var value = parseInt(match[0], 10);
+  if(value === correct){
+    feedback.textContent = dict.fbCorrect;
+    feedback.classList.add('show', 'correct');
+  } else {
+    feedback.textContent = dict.fbIncorrect;
+    feedback.classList.add('show', 'incorrect');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var saved = 'de';
+  try{ saved = localStorage.getItem('mathecoach_lang') || 'de'; }catch(e){}
+  setLanguage(saved);
+});
+</script>
+
+</body>
+</html>
