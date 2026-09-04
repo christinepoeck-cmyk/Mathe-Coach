@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Koordinatensystem</title>
+<style>
+  :root{
+    --bg:#FAFAF9; --card:#FFFFFF; --ink:#241C1C; --ink-soft:#5C4F4C;
+    --red:#C41230; --gold:#E0A526; --blue:#2478B5;
+    --merke-bg:#FBF1DC; --merke-border:#E0A526;
+    --success:#1E8E5A; --success-bg:#E5F5EC; --error:#B3401D; --error-bg:#FBEDE6;
+    --font-display: ui-rounded, "SF Pro Rounded", "Segoe UI Rounded", "Nunito", system-ui, sans-serif;
+    --font-body: system-ui, "Segoe UI", Roboto, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:18px; line-height:1.5; padding-bottom:60px; }
+  .wrap{ max-width:640px; margin:0 auto; padding:0 20px; }
+  header{ background:var(--card); padding:30px 20px 0; text-align:center; position:relative; }
+  .header-inner{ padding-bottom:26px; }
+  .lang-switch{ display:flex; justify-content:center; margin-bottom:14px; }
+  #langSelect{ font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--ink); background:var(--card); border:2px solid #E3DFDA; border-radius:999px; padding:6px 14px; cursor:pointer; }
+  #langSelect:focus-visible{ outline:3px solid var(--blue); }
+  .back-link{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--blue); text-decoration:none; margin-bottom:16px; }
+  .eyebrow{ font-family:var(--font-display); font-weight:700; font-size:14px; letter-spacing:0.08em; text-transform:uppercase; color:var(--blue); margin-bottom:8px; }
+  h1{ font-family:var(--font-display); font-size:28px; font-weight:800; margin:0; line-height:1.25; }
+  h1 .accent{ color:var(--red); }
+  .wave{ display:block; width:100%; height:30px; }
+  section{ margin-top:32px; }
+  .card{ background:var(--card); border-radius:22px; padding:24px 22px; box-shadow:0 2px 14px rgba(36,28,28,0.07); }
+  h2{ font-family:var(--font-display); font-size:21px; font-weight:800; margin:0 0 14px; }
+  h2 .num{ display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:var(--blue); color:white; font-size:16px; margin-inline-end:10px; vertical-align:middle; }
+  p{ margin:0 0 14px; color:var(--ink-soft); }
+  .merke{ background:var(--merke-bg); border:2px solid var(--merke-border); border-radius:16px; padding:16px 18px; margin-top:16px; }
+  .merke-title{ font-family:var(--font-display); font-weight:800; color:#8A5A0F; font-size:15px; letter-spacing:0.04em; text-transform:uppercase; margin-bottom:6px; }
+  .merke-body{ color:#6B4A12; font-weight:600; margin:0; }
+  .coord-diagram{ width:100%; height:auto; margin:18px 0 6px; }
+  .task-card{ margin-top:18px; }
+  .task-question{ font-family:var(--font-display); font-weight:700; font-size:19px; margin-bottom:16px; }
+  .answer-row{ display:flex; gap:10px; margin-bottom:6px; }
+  input[type="text"]{ flex:1; font-size:18px; font-family:var(--font-body); padding:12px 14px; border-radius:12px; border:2px solid #E3DFDA; background:#FBFAF9; color:var(--ink); }
+  input[type="text"]:focus{ outline:3px solid #C9DCEA; border-color:var(--blue); }
+  button.check{ font-family:var(--font-display); font-weight:700; font-size:16px; color:white; background:var(--blue); border:none; border-radius:12px; padding:0 20px; cursor:pointer; }
+  button.check:active{ transform:translateY(1px); }
+  button.check:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
+  .feedback{ margin-top:10px; padding:12px 14px; border-radius:12px; font-weight:700; display:none; }
+  .feedback.show{ display:block; }
+  .feedback.correct{ background:var(--success-bg); color:var(--success); }
+  .feedback.incorrect{ background:var(--error-bg); color:var(--error); }
+  details{ margin-top:14px; border-top:2px dashed #E3DFDA; padding-top:12px; }
+  summary{ font-family:var(--font-display); font-weight:700; color:var(--blue); cursor:pointer; font-size:15px; }
+  .solution{ margin-top:12px; }
+  .solution ol{ margin:0 0 12px; padding-inline-start:22px; color:var(--ink-soft); }
+  .solution li{ margin-bottom:6px; }
+  .solution-result{ font-family:var(--font-display); font-weight:800; color:var(--ink); margin-bottom:12px; }
+  .hint-box{ background:#F1EFEC; border-radius:12px; padding:12px 14px; font-size:16px; color:var(--ink-soft); }
+  .hint-box strong{ color:var(--ink); }
+  footer{ text-align:center; margin-top:36px; padding:0 20px; }
+  footer p{ font-family:var(--font-display); font-weight:700; color:var(--ink); }
+  .footer-wave{ display:block; width:100%; max-width:280px; height:16px; margin:0 auto 18px; opacity:0.6; }
+  [dir="rtl"] .back-link{ flex-direction:row-reverse; }
+  @media (prefers-reduced-motion: no-preference){ button.check{ transition:transform 0.1s ease; } }
+  @media (max-width: 480px){ .answer-row{ flex-direction:column; } button.check{ width:100%; padding:14px 20px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="lang-switch">
+      <select id="langSelect" onchange="setLanguage(this.value)">
+        <option value="de">Deutsch</option><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="tr">Türkçe</option><option value="ru">Русский</option><option value="ar">العربية</option><option value="zh">中文</option>
+      </select>
+    </div>
+    <a class="back-link" href="index.html" data-i18n="backLink">← Alle Themen</a>
+    <div class="eyebrow" data-i18n="eyebrow">Luisen-Gymnasium · Klasse 6</div>
+    <h1><span data-i18n="titleLine1">Koordinaten-</span><br><span class="accent" data-i18n="titleAccent">system</span></h1>
+  </div>
+  <svg class="wave" viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+    <path d="M -10 22 C 190 4, 390 40, 590 22 S 990 4, 1210 22" fill="none" stroke="#C41230" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 32 C 190 50, 390 14, 590 32 S 990 50, 1210 32" fill="none" stroke="#E0A526" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 42 C 190 24, 390 58, 590 42 S 990 24, 1210 42" fill="none" stroke="#2478B5" stroke-width="5" stroke-linecap="round"/>
+  </svg>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <div class="card">
+      <h2 data-i18n="h2Basics">Grundlagen</h2>
+      <p data-i18n="basicsP1">Ein Koordinatensystem besteht aus zwei Achsen: der waagrechten x-Achse und der senkrechten y-Achse. Sie schneiden sich im Ursprung (0|0). Ein Punkt wird als (x|y) angegeben – zuerst die x-Koordinate, dann die y-Koordinate.</p>
+
+      <svg class="coord-diagram" viewBox="0 0 600 260" xmlns="http://www.w3.org/2000/svg" role="img" data-i18n-aria="coordAria" aria-label="Koordinatensystem mit vier Quadranten: oben rechts plus plus, oben links minus plus, unten links minus minus, unten rechts plus minus">
+        <defs>
+          <marker id="arrX" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#241C1C"/></marker>
+          <marker id="arrY" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#241C1C"/></marker>
+        </defs>
+        <rect x="30" y="10" width="270" height="120" fill="#2478B5" fill-opacity="0.08"/>
+        <rect x="300" y="10" width="270" height="120" fill="#C41230" fill-opacity="0.08"/>
+        <rect x="30" y="130" width="270" height="120" fill="#E0A526" fill-opacity="0.12"/>
+        <rect x="300" y="130" width="270" height="120" fill="#241C1C" fill-opacity="0.05"/>
+        <line x1="20" y1="130" x2="580" y2="130" stroke="#241C1C" stroke-width="2.5" marker-end="url(#arrX)"/>
+        <line x1="300" y1="250" x2="300" y2="10" stroke="#241C1C" stroke-width="2.5" marker-end="url(#arrY)"/>
+        <text x="585" y="135" text-anchor="start" font-family="ui-rounded, system-ui, sans-serif" font-size="15" font-weight="800" fill="#241C1C">x</text>
+        <text x="300" y="5" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="15" font-weight="800" fill="#241C1C">y</text>
+        <text x="285" y="145" text-anchor="end" font-family="ui-rounded, system-ui, sans-serif" font-size="13" font-weight="700" fill="#241C1C">0</text>
+        <text x="440" y="75" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="15" font-weight="800" fill="#C41230">(+ | +)</text>
+        <text x="160" y="75" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="15" font-weight="800" fill="#2478B5">(− | +)</text>
+        <text x="160" y="195" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="15" font-weight="800" fill="#8A5A0F">(− | −)</text>
+        <text x="440" y="195" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="15" font-weight="800" fill="#241C1C">(+ | −)</text>
+      </svg>
+
+      <p data-i18n="basicsExample1Label"><strong>Beispiel Schritt für Schritt:</strong> Trage den Punkt A(3|4) ein.</p>
+      <p data-i18n="basicsExample1Steps">1. Von 0 aus 3 Einheiten nach rechts gehen (x-Koordinate)<br>2. Von dort 4 Einheiten nach oben gehen (y-Koordinate)<br>3. Dort liegt der Punkt A</p>
+
+      <p data-i18n="basicsP2Quadrants">Das Koordinatensystem ist in vier Quadranten aufgeteilt, je nachdem, welche Vorzeichen x und y haben.</p>
+
+      <p data-i18n="basicsExample2Label"><strong>Beispiel Schritt für Schritt:</strong> In welchem Quadranten liegt der Punkt (−4|2)?</p>
+      <p data-i18n="basicsExample2Steps">1. x ist negativ, y ist positiv<br>2. Das entspricht (− | +)<br>3. Der Punkt liegt im 2. Quadranten</p>
+
+      <div class="merke">
+        <div class="merke-title" data-i18n="merkeTitle">Merke</div>
+        <p class="merke-body" data-i18n="merkeBody">Ein Punkt wird als (x|y) angegeben: zuerst x, dann y.<br>Quadrant I: (+|+), Quadrant II: (−|+), Quadrant III: (−|−), Quadrant IV: (+|−).<br>Der Ursprung liegt bei (0|0).</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">1</span><span data-i18n="taskWord">Aufgabe</span> 1</h2>
+      <div class="task-question" data-i18n="task1Question">Punkt A liegt bei (3|5). Welche x-Koordinate hat A?</div>
+      <div class="answer-row">
+        <input type="text" id="input1" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(1, 3)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback1"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task1Result">Ergebnis: 3</div>
+          <ol>
+            <li data-i18n="task1Step1">Bei (x|y) steht die x-Koordinate immer an erster Stelle.</li>
+            <li data-i18n="task1Step2">Bei (3|5) ist die erste Zahl 3.</li>
+            <li data-i18n="task1Step3">Die x-Koordinate ist 3.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task1Hint">Die x-Koordinate steht immer zuerst, die y-Koordinate danach.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">2</span><span data-i18n="taskWord">Aufgabe</span> 2</h2>
+      <div class="task-question" data-i18n="task2Question">Punkt A liegt bei (3|5). Welche y-Koordinate hat A?</div>
+      <div class="answer-row">
+        <input type="text" id="input2" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(2, 5)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback2"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task2Result">Ergebnis: 5</div>
+          <ol>
+            <li data-i18n="task2Step1">Bei (x|y) steht die y-Koordinate immer an zweiter Stelle.</li>
+            <li data-i18n="task2Step2">Bei (3|5) ist die zweite Zahl 5.</li>
+            <li data-i18n="task2Step3">Die y-Koordinate ist 5.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task2Hint">Die Reihenfolge in (x|y) nicht vertauschen.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">3</span><span data-i18n="taskWord">Aufgabe</span> 3</h2>
+      <div class="task-question" data-i18n="task3Question">In welchem Quadranten liegt der Punkt (−4|2)? (Antwort als Zahl 1 bis 4)</div>
+      <div class="answer-row">
+        <input type="text" id="input3" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(3, 2)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback3"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task3Result">Ergebnis: Quadrant 2</div>
+          <ol>
+            <li data-i18n="task3Step1">x ist negativ, y ist positiv.</li>
+            <li data-i18n="task3Step2">Das entspricht (− | +).</li>
+            <li data-i18n="task3Step3">Das ist der 2. Quadrant.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task3Hint">Die Quadranten werden gegen den Uhrzeigersinn nummeriert, beginnend oben rechts.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">4</span><span data-i18n="taskWord">Aufgabe</span> 4</h2>
+      <div class="task-question" data-i18n="task4Question">In welchem Quadranten liegt der Punkt (−3|−6)? (Antwort als Zahl 1 bis 4)</div>
+      <div class="answer-row">
+        <input type="text" id="input4" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(4, 3)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback4"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task4Result">Ergebnis: Quadrant 3</div>
+          <ol>
+            <li data-i18n="task4Step1">x ist negativ, y ist negativ.</li>
+            <li data-i18n="task4Step2">Das entspricht (− | −).</li>
+            <li data-i18n="task4Step3">Das ist der 3. Quadrant.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task4Hint">Wenn beide Koordinaten negativ sind, ist es der 3. Quadrant (unten links).</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">5</span><span data-i18n="taskWord">Aufgabe</span> 5</h2>
+      <div class="task-question" data-i18n="task5Question">In welchem Quadranten liegt der Punkt (5|−2)? (Antwort als Zahl 1 bis 4)</div>
+      <div class="answer-row">
+        <input type="text" id="input5" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(5, 4)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback5"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task5Result">Ergebnis: Quadrant 4</div>
+          <ol>
+            <li data-i18n="task5Step1">x ist positiv, y ist negativ.</li>
+            <li data-i18n="task5Step2">Das entspricht (+ | −).</li>
+            <li data-i18n="task5Step3">Das ist der 4. Quadrant.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task5Hint">Zuerst das Vorzeichen von x prüfen, dann das von y – beide zusammen bestimmen den Quadranten.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">6</span><span data-i18n="taskWord">Aufgabe</span> 6</h2>
+      <div class="task-question" data-i18n="task6Question">Zwei Punkte A(2|3) und B(2|8) liegen auf einer senkrechten Linie. Wie groß ist der Abstand zwischen ihnen?</div>
+      <div class="answer-row">
+        <input type="text" id="input6" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(6, 5)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback6"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task6Result">Ergebnis: 5</div>
+          <ol>
+            <li data-i18n="task6Step1">Beide Punkte haben dieselbe x-Koordinate (2), also liegen sie auf einer senkrechten Linie.</li>
+            <li data-i18n="task6Step2">Der Abstand ist die Differenz der y-Koordinaten: 8 − 3 = 5.</li>
+            <li data-i18n="task6Step3">Der Abstand beträgt 5.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task6Hint">Bei einer senkrechten Linie vergleicht man nur die y-Koordinaten, nicht die x-Koordinaten.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">7</span><span data-i18n="taskWord">Aufgabe</span> 7</h2>
+      <div class="task-question" data-i18n="task7Question">Auf einem Stadtplan liegt die Schule bei (4|1) und der Sportplatz bei (4|7). Wie viele Einheiten müssen die Schüler in y-Richtung laufen, um vom Sportplatz zur Schule zu kommen?</div>
+      <div class="answer-row">
+        <input type="text" id="input7" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(7, 6)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback7"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task7Result">Ergebnis: 6</div>
+          <ol>
+            <li data-i18n="task7Step1">Beide Orte haben dieselbe x-Koordinate (4).</li>
+            <li data-i18n="task7Step2">Der Abstand ist die Differenz der y-Koordinaten: 7 − 1 = 6.</li>
+            <li data-i18n="task7Step3">Die Schüler müssen 6 Einheiten laufen.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task7Hint">Bei gleicher x-Koordinate ändert sich nur die y-Koordinate, also nur diese vergleichen.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">8</span><span data-i18n="taskWord">Aufgabe</span> 8</h2>
+      <div class="task-question" data-i18n="task8Question">Zwei Punkte C(−2|4) und D(5|4) liegen auf einer waagrechten Linie. Wie groß ist der Abstand zwischen ihnen?</div>
+      <div class="answer-row">
+        <input type="text" id="input8" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(8, 7)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback8"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task8Result">Ergebnis: 7</div>
+          <ol>
+            <li data-i18n="task8Step1">Beide Punkte haben dieselbe y-Koordinate (4), also liegen sie auf einer waagrechten Linie.</li>
+            <li data-i18n="task8Step2">Der Abstand ist die Differenz der x-Koordinaten: 5 − (−2) = 7.</li>
+            <li data-i18n="task8Step3">Der Abstand beträgt 7.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task8Hint">Bei einer negativen Koordinate wird die Differenz wie bei negativen Zahlen berechnet: 5 − (−2) = 5 + 2 = 7.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <footer>
+    <svg class="footer-wave" viewBox="0 0 280 16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+      <path d="M -5 8 C 40 1, 80 15, 140 8 S 240 1, 285 8" fill="none" stroke="#C41230" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M -5 8 C 40 15, 80 1, 140 8 S 240 15, 285 8" fill="none" stroke="#2478B5" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+    </svg>
+    <p id="footer-msg" data-i18n="footerMessage">Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!</p>
+  </footer>
+
+</div>
+
+<script>
+const TRANSLATIONS = {
+de: {
+  eyebrow: `Luisen-Gymnasium · Klasse 6`, titleLine1: `Koordinaten-`, titleAccent: `system`, backLink: `← Alle Themen`, h2Basics: `Grundlagen`,
+  basicsP1: `Ein Koordinatensystem besteht aus zwei Achsen: der waagrechten x-Achse und der senkrechten y-Achse. Sie schneiden sich im Ursprung (0|0). Ein Punkt wird als (x|y) angegeben – zuerst die x-Koordinate, dann die y-Koordinate.`,
+  coordAria: `Koordinatensystem mit vier Quadranten: oben rechts plus plus, oben links minus plus, unten links minus minus, unten rechts plus minus`,
+  basicsExample1Label: `<strong>Beispiel Schritt für Schritt:</strong> Trage den Punkt A(3|4) ein.`,
+  basicsExample1Steps: `1. Von 0 aus 3 Einheiten nach rechts gehen (x-Koordinate)<br>2. Von dort 4 Einheiten nach oben gehen (y-Koordinate)<br>3. Dort liegt der Punkt A`,
+  basicsP2Quadrants: `Das Koordinatensystem ist in vier Quadranten aufgeteilt, je nachdem, welche Vorzeichen x und y haben.`,
+  basicsExample2Label: `<strong>Beispiel Schritt für Schritt:</strong> In welchem Quadranten liegt der Punkt (−4|2)?`,
+  basicsExample2Steps: `1. x ist negativ, y ist positiv<br>2. Das entspricht (− | +)<br>3. Der Punkt liegt im 2. Quadranten`,
+  merkeTitle: `Merke`, merkeBody: `Ein Punkt wird als (x|y) angegeben: zuerst x, dann y.<br>Quadrant I: (+|+), Quadrant II: (−|+), Quadrant III: (−|−), Quadrant IV: (+|−).<br>Der Ursprung liegt bei (0|0).`,
+  taskWord: `Aufgabe`,
+  task1Question: `Punkt A liegt bei (3|5). Welche x-Koordinate hat A?`, task2Question: `Punkt A liegt bei (3|5). Welche y-Koordinate hat A?`, task3Question: `In welchem Quadranten liegt der Punkt (−4|2)? (Antwort als Zahl 1 bis 4)`, task4Question: `In welchem Quadranten liegt der Punkt (−3|−6)? (Antwort als Zahl 1 bis 4)`, task5Question: `In welchem Quadranten liegt der Punkt (5|−2)? (Antwort als Zahl 1 bis 4)`, task6Question: `Zwei Punkte A(2|3) und B(2|8) liegen auf einer senkrechten Linie. Wie groß ist der Abstand zwischen ihnen?`,
+  task7Question: `Auf einem Stadtplan liegt die Schule bei (4|1) und der Sportplatz bei (4|7). Wie viele Einheiten müssen die Schüler in y-Richtung laufen, um vom Sportplatz zur Schule zu kommen?`,
+  task8Question: `Zwei Punkte C(−2|4) und D(5|4) liegen auf einer waagrechten Linie. Wie groß ist der Abstand zwischen ihnen?`,
+  answerPlaceholder: `Deine Antwort`, checkButton: `Prüfen`, solutionSummary: `Lösung anzeigen`,
+  task1Result: `Ergebnis: 3`, task2Result: `Ergebnis: 5`, task3Result: `Ergebnis: Quadrant 2`, task4Result: `Ergebnis: Quadrant 3`, task5Result: `Ergebnis: Quadrant 4`, task6Result: `Ergebnis: 5`, task7Result: `Ergebnis: 6`, task8Result: `Ergebnis: 7`,
+  task1Step1: `Bei (x|y) steht die x-Koordinate immer an erster Stelle.`, task1Step2: `Bei (3|5) ist die erste Zahl 3.`, task1Step3: `Die x-Koordinate ist 3.`,
+  task1Hint: `Die x-Koordinate steht immer zuerst, die y-Koordinate danach.`,
+  task2Step1: `Bei (x|y) steht die y-Koordinate immer an zweiter Stelle.`, task2Step2: `Bei (3|5) ist die zweite Zahl 5.`, task2Step3: `Die y-Koordinate ist 5.`,
+  task2Hint: `Die Reihenfolge in (x|y) nicht vertauschen.`,
+  task3Step1: `x ist negativ, y ist positiv.`, task3Step2: `Das entspricht (− | +).`, task3Step3: `Das ist der 2. Quadrant.`,
+  task3Hint: `Die Quadranten werden gegen den Uhrzeigersinn nummeriert, beginnend oben rechts.`,
+  task4Step1: `x ist negativ, y ist negativ.`, task4Step2: `Das entspricht (− | −).`, task4Step3: `Das ist der 3. Quadrant.`,
+  task4Hint: `Wenn beide Koordinaten negativ sind, ist es der 3. Quadrant (unten links).`,
+  task5Step1: `x ist positiv, y ist negativ.`, task5Step2: `Das entspricht (+ | −).`, task5Step3: `Das ist der 4. Quadrant.`,
+  task5Hint: `Zuerst das Vorzeichen von x prüfen, dann das von y – beide zusammen bestimmen den Quadranten.`,
+  task6Step1: `Beide Punkte haben dieselbe x-Koordinate (2), also liegen sie auf einer senkrechten Linie.`, task6Step2: `Der Abstand ist die Differenz der y-Koordinaten: 8 − 3 = 5.`, task6Step3: `Der Abstand beträgt 5.`,
+  task6Hint: `Bei einer senkrechten Linie vergleicht man nur die y-Koordinaten, nicht die x-Koordinaten.`,
+  task7Step1: `Beide Orte haben dieselbe x-Koordinate (4).`, task7Step2: `Der Abstand ist die Differenz der y-Koordinaten: 7 − 1 = 6.`, task7Step3: `Die Schüler müssen 6 Einheiten laufen.`,
+  task7Hint: `Bei gleicher x-Koordinate ändert sich nur die y-Koordinate, also nur diese vergleichen.`,
+  task8Step1: `Beide Punkte haben dieselbe y-Koordinate (4), also liegen sie auf einer waagrechten Linie.`, task8Step2: `Der Abstand ist die Differenz der x-Koordinaten: 5 − (−2) = 7.`, task8Step3: `Der Abstand beträgt 7.`,
+  task8Hint: `Bei einer negativen Koordinate wird die Differenz wie bei negativen Zahlen berechnet: 5 − (−2) = 5 + 2 = 7.`,
+  hintLabel: `Typischer Fehler:`, footerMessage: `Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!`,
+  fbEmpty: `Trag bitte eine Zahl ein, bevor du prüfst.`, fbCorrect: `Richtig! Gut gemacht!`, fbIncorrect: `Noch nicht ganz richtig. Schau dir die Lösung weiter unten an und versuch es dann nochmal.`
+},
+en: {
+  eyebrow: `Luisen-Gymnasium · Grade 6`, titleLine1: `Coordinate`, titleAccent: `System`, backLink: `← All Topics`, h2Basics: `Basics`,
+  basicsP1: `A coordinate system consists of two axes: the horizontal x-axis and the vertical y-axis. They intersect at the origin (0|0). A point is written as (x|y) — the x-coordinate first, then the y-coordinate.`,
+  coordAria: `Coordinate system with four quadrants: top right plus plus, top left minus plus, bottom left minus minus, bottom right plus minus`,
+  basicsExample1Label: `<strong>Step-by-step example:</strong> Plot the point A(3|4).`,
+  basicsExample1Steps: `1. From 0, go 3 units to the right (x-coordinate)<br>2. From there, go 4 units up (y-coordinate)<br>3. That's where point A is`,
+  basicsP2Quadrants: `The coordinate system is divided into four quadrants, depending on the signs of x and y.`,
+  basicsExample2Label: `<strong>Step-by-step example:</strong> Which quadrant is the point (−4|2) in?`,
+  basicsExample2Steps: `1. x is negative, y is positive<br>2. That corresponds to (− | +)<br>3. The point is in quadrant II`,
+  merkeTitle: `Remember`, merkeBody: `A point is written as (x|y): x first, then y.<br>Quadrant I: (+|+), Quadrant II: (−|+), Quadrant III: (−|−), Quadrant IV: (+|−).<br>The origin is at (0|0).`,
+  taskWord: `Exercise`,
+  task1Question: `Point A is at (3|5). What's A's x-coordinate?`, task2Question: `Point A is at (3|5). What's A's y-coordinate?`, task3Question: `Which quadrant is the point (−4|2) in? (Answer as a number 1 to 4)`, task4Question: `Which quadrant is the point (−3|−6) in? (Answer as a number 1 to 4)`, task5Question: `Which quadrant is the point (5|−2) in? (Answer as a number 1 to 4)`, task6Question: `Two points A(2|3) and B(2|8) lie on a vertical line. What's the distance between them?`,
+  task7Question: `On a city map, the school is at (4|1) and the sports field is at (4|7). How many units do the students have to walk in the y-direction to get from the sports field to the school?`,
+  task8Question: `Two points C(−2|4) and D(5|4) lie on a horizontal line. What's the distance between them?`,
+  answerPlaceholder: `Your answer`, checkButton: `Check`, solutionSummary: `Show solution`,
+  task1Result: `Result: 3`, task2Result: `Result: 5`, task3Result: `Result: Quadrant 2`, task4Result: `Result: Quadrant 3`, task5Result: `Result: Quadrant 4`, task6Result: `Result: 5`, task7Result: `Result: 6`, task8Result: `Result: 7`,
+  task1Step1: `In (x|y), the x-coordinate is always given first.`, task1Step2: `In (3|5), the first number is 3.`, task1Step3: `The x-coordinate is 3.`,
+  task1Hint: `The x-coordinate always comes first, the y-coordinate after.`,
+  task2Step1: `In (x|y), the y-coordinate is always given second.`, task2Step2: `In (3|5), the second number is 5.`, task2Step3: `The y-coordinate is 5.`,
+  task2Hint: `Don't swap the order in (x|y).`,
+  task3Step1: `x is negative, y is positive.`, task3Step2: `That corresponds to (− | +).`, task3Step3: `That's quadrant II.`,
+  task3Hint: `The quadrants are numbered counterclockwise, starting from the top right.`,
+  task4Step1: `x is negative, y is negative.`, task4Step2: `That corresponds to (− | −).`, task4Step3: `That's quadrant III.`,
+  task4Hint: `If both coordinates are negative, it's quadrant III (bottom left).`,
+  task5Step1: `x is positive, y is negative.`, task5Step2: `That corresponds to (+ | −).`, task5Step3: `That's quadrant IV.`,
+  task5Hint: `First check the sign of x, then the sign of y — together they determine the quadrant.`,
+  task6Step1: `Both points have the same x-coordinate (2), so they lie on a vertical line.`, task6Step2: `The distance is the difference of the y-coordinates: 8 − 3 = 5.`, task6Step3: `The distance is 5.`,
+  task6Hint: `For a vertical line, you only compare the y-coordinates, not the x-coordinates.`,
+  task7Step1: `Both places have the same x-coordinate (4).`, task7Step2: `The distance is the difference of the y-coordinates: 7 − 1 = 6.`, task7Step3: `The students need to walk 6 units.`,
+  task7Hint: `With the same x-coordinate, only the y-coordinate changes, so just compare that.`,
+  task8Step1: `Both points have the same y-coordinate (4), so they lie on a horizontal line.`, task8Step2: `The distance is the difference of the x-coordinates: 5 − (−2) = 7.`, task8Step3: `The distance is 7.`,
+  task8Hint: `With a negative coordinate, calculate the difference like with negative numbers: 5 − (−2) = 5 + 2 = 7.`,
+  hintLabel: `Common mistake:`, footerMessage: `Take your time and check the solution if you need to. You can do this!`,
+  fbEmpty: `Please enter a number before checking.`, fbCorrect: `Correct! Well done!`, fbIncorrect: `Not quite right yet. Check the solution below and try again.`
+},
+es: {
+  eyebrow: `Luisen-Gymnasium · 6.º curso`, titleLine1: `Sistema de`, titleAccent: `coordenadas`, backLink: `← Todos los temas`, h2Basics: `Fundamentos`,
+  basicsP1: `Un sistema de coordenadas consta de dos ejes: el eje x horizontal y el eje y vertical. Se cruzan en el origen (0|0). Un punto se escribe como (x|y) — primero la coordenada x, luego la coordenada y.`,
+  coordAria: `Sistema de coordenadas con cuatro cuadrantes: arriba a la derecha más más, arriba a la izquierda menos más, abajo a la izquierda menos menos, abajo a la derecha más menos`,
+  basicsExample1Label: `<strong>Ejemplo paso a paso:</strong> Marca el punto A(3|4).`,
+  basicsExample1Steps: `1. Desde 0, avanza 3 unidades a la derecha (coordenada x)<br>2. Desde ahí, sube 4 unidades (coordenada y)<br>3. Ahí está el punto A`,
+  basicsP2Quadrants: `El sistema de coordenadas se divide en cuatro cuadrantes, según los signos de x e y.`,
+  basicsExample2Label: `<strong>Ejemplo paso a paso:</strong> ¿En qué cuadrante está el punto (−4|2)?`,
+  basicsExample2Steps: `1. x es negativo, y es positivo<br>2. Eso corresponde a (− | +)<br>3. El punto está en el cuadrante II`,
+  merkeTitle: `Recuerda`, merkeBody: `Un punto se escribe como (x|y): primero x, luego y.<br>Cuadrante I: (+|+), Cuadrante II: (−|+), Cuadrante III: (−|−), Cuadrante IV: (+|−).<br>El origen está en (0|0).`,
+  taskWord: `Ejercicio`,
+  task1Question: `El punto A está en (3|5). ¿Cuál es la coordenada x de A?`, task2Question: `El punto A está en (3|5). ¿Cuál es la coordenada y de A?`, task3Question: `¿En qué cuadrante está el punto (−4|2)? (Responde con un número del 1 al 4)`, task4Question: `¿En qué cuadrante está el punto (−3|−6)? (Responde con un número del 1 al 4)`, task5Question: `¿En qué cuadrante está el punto (5|−2)? (Responde con un número del 1 al 4)`, task6Question: `Dos puntos A(2|3) y B(2|8) están en una línea vertical. ¿Cuál es la distancia entre ellos?`,
+  task7Question: `En un plano de la ciudad, el colegio está en (4|1) y el campo deportivo en (4|7). ¿Cuántas unidades deben caminar los alumnos en dirección y para ir del campo deportivo al colegio?`,
+  task8Question: `Dos puntos C(−2|4) y D(5|4) están en una línea horizontal. ¿Cuál es la distancia entre ellos?`,
+  answerPlaceholder: `Tu respuesta`, checkButton: `Comprobar`, solutionSummary: `Ver solución`,
+  task1Result: `Resultado: 3`, task2Result: `Resultado: 5`, task3Result: `Resultado: Cuadrante 2`, task4Result: `Resultado: Cuadrante 3`, task5Result: `Resultado: Cuadrante 4`, task6Result: `Resultado: 5`, task7Result: `Resultado: 6`, task8Result: `Resultado: 7`,
+  task1Step1: `En (x|y), la coordenada x siempre va primero.`, task1Step2: `En (3|5), el primer número es 3.`, task1Step3: `La coordenada x es 3.`,
+  task1Hint: `La coordenada x siempre va primero, la coordenada y después.`,
+  task2Step1: `En (x|y), la coordenada y siempre va en segundo lugar.`, task2Step2: `En (3|5), el segundo número es 5.`, task2Step3: `La coordenada y es 5.`,
+  task2Hint: `No intercambies el orden en (x|y).`,
+  task3Step1: `x es negativo, y es positivo.`, task3Step2: `Eso corresponde a (− | +).`, task3Step3: `Ese es el cuadrante II.`,
+  task3Hint: `Los cuadrantes se numeran en sentido antihorario, empezando arriba a la derecha.`,
+  task4Step1: `x es negativo, y es negativo.`, task4Step2: `Eso corresponde a (− | −).`, task4Step3: `Ese es el cuadrante III.`,
+  task4Hint: `Si ambas coordenadas son negativas, es el cuadrante III (abajo a la izquierda).`,
+  task5Step1: `x es positivo, y es negativo.`, task5Step2: `Eso corresponde a (+ | −).`, task5Step3: `Ese es el cuadrante IV.`,
+  task5Hint: `Primero comprueba el signo de x, luego el de y — juntos determinan el cuadrante.`,
+  task6Step1: `Ambos puntos tienen la misma coordenada x (2), así que están en una línea vertical.`, task6Step2: `La distancia es la diferencia de las coordenadas y: 8 − 3 = 5.`, task6Step3: `La distancia es 5.`,
+  task6Hint: `En una línea vertical solo se comparan las coordenadas y, no las x.`,
+  task7Step1: `Ambos lugares tienen la misma coordenada x (4).`, task7Step2: `La distancia es la diferencia de las coordenadas y: 7 − 1 = 6.`, task7Step3: `Los alumnos deben caminar 6 unidades.`,
+  task7Hint: `Con la misma coordenada x, solo cambia la coordenada y, así que compara solo esa.`,
+  task8Step1: `Ambos puntos tienen la misma coordenada y (4), así que están en una línea horizontal.`, task8Step2: `La distancia es la diferencia de las coordenadas x: 5 − (−2) = 7.`, task8Step3: `La distancia es 7.`,
+  task8Hint: `Con una coordenada negativa, la diferencia se calcula como con números negativos: 5 − (−2) = 5 + 2 = 7.`,
+  hintLabel: `Error típico:`, footerMessage: `Tómate tu tiempo y revisa la solución si la necesitas. ¡Tú puedes!`,
+  fbEmpty: `Introduce un número antes de comprobar.`, fbCorrect: `¡Correcto! ¡Muy bien!`, fbIncorrect: `Todavía no es correcto. Revisa la solución de abajo e inténtalo de nuevo.`
+},
+fr: {
+  eyebrow: `Luisen-Gymnasium · 6e`, titleLine1: `Système de`, titleAccent: `coordonnées`, backLink: `← Tous les thèmes`, h2Basics: `Les bases`,
+  basicsP1: `Un système de coordonnées comprend deux axes : l'axe des x horizontal et l'axe des y vertical. Ils se croisent à l'origine (0|0). Un point s'écrit (x|y) — d'abord la coordonnée x, puis la coordonnée y.`,
+  coordAria: `Système de coordonnées avec quatre quadrants : en haut à droite plus plus, en haut à gauche moins plus, en bas à gauche moins moins, en bas à droite plus moins`,
+  basicsExample1Label: `<strong>Exemple étape par étape :</strong> Place le point A(3|4).`,
+  basicsExample1Steps: `1. Depuis 0, avance de 3 unités vers la droite (coordonnée x)<br>2. De là, monte de 4 unités (coordonnée y)<br>3. C'est là que se trouve le point A`,
+  basicsP2Quadrants: `Le système de coordonnées est divisé en quatre quadrants, selon les signes de x et y.`,
+  basicsExample2Label: `<strong>Exemple étape par étape :</strong> Dans quel quadrant se trouve le point (−4|2) ?`,
+  basicsExample2Steps: `1. x est négatif, y est positif<br>2. Cela correspond à (− | +)<br>3. Le point est dans le quadrant II`,
+  merkeTitle: `À retenir`, merkeBody: `Un point s'écrit (x|y) : d'abord x, puis y.<br>Quadrant I : (+|+), Quadrant II : (−|+), Quadrant III : (−|−), Quadrant IV : (+|−).<br>L'origine est à (0|0).`,
+  taskWord: `Exercice`,
+  task1Question: `Le point A est en (3|5). Quelle est la coordonnée x de A ?`, task2Question: `Le point A est en (3|5). Quelle est la coordonnée y de A ?`, task3Question: `Dans quel quadrant se trouve le point (−4|2) ? (Réponds avec un nombre de 1 à 4)`, task4Question: `Dans quel quadrant se trouve le point (−3|−6) ? (Réponds avec un nombre de 1 à 4)`, task5Question: `Dans quel quadrant se trouve le point (5|−2) ? (Réponds avec un nombre de 1 à 4)`, task6Question: `Deux points A(2|3) et B(2|8) sont sur une ligne verticale. Quelle est la distance entre eux ?`,
+  task7Question: `Sur un plan de la ville, l'école est en (4|1) et le terrain de sport en (4|7). Combien d'unités les élèves doivent-ils parcourir en direction y pour aller du terrain de sport à l'école ?`,
+  task8Question: `Deux points C(−2|4) et D(5|4) sont sur une ligne horizontale. Quelle est la distance entre eux ?`,
+  answerPlaceholder: `Ta réponse`, checkButton: `Vérifier`, solutionSummary: `Voir la solution`,
+  task1Result: `Résultat : 3`, task2Result: `Résultat : 5`, task3Result: `Résultat : Quadrant 2`, task4Result: `Résultat : Quadrant 3`, task5Result: `Résultat : Quadrant 4`, task6Result: `Résultat : 5`, task7Result: `Résultat : 6`, task8Result: `Résultat : 7`,
+  task1Step1: `Dans (x|y), la coordonnée x est toujours donnée en premier.`, task1Step2: `Dans (3|5), le premier nombre est 3.`, task1Step3: `La coordonnée x est 3.`,
+  task1Hint: `La coordonnée x vient toujours en premier, la coordonnée y ensuite.`,
+  task2Step1: `Dans (x|y), la coordonnée y est toujours donnée en second.`, task2Step2: `Dans (3|5), le deuxième nombre est 5.`, task2Step3: `La coordonnée y est 5.`,
+  task2Hint: `N'inverse pas l'ordre dans (x|y).`,
+  task3Step1: `x est négatif, y est positif.`, task3Step2: `Cela correspond à (− | +).`, task3Step3: `C'est le quadrant II.`,
+  task3Hint: `Les quadrants sont numérotés dans le sens antihoraire, en commençant en haut à droite.`,
+  task4Step1: `x est négatif, y est négatif.`, task4Step2: `Cela correspond à (− | −).`, task4Step3: `C'est le quadrant III.`,
+  task4Hint: `Si les deux coordonnées sont négatives, c'est le quadrant III (en bas à gauche).`,
+  task5Step1: `x est positif, y est négatif.`, task5Step2: `Cela correspond à (+ | −).`, task5Step3: `C'est le quadrant IV.`,
+  task5Hint: `Vérifie d'abord le signe de x, puis celui de y — les deux ensemble déterminent le quadrant.`,
+  task6Step1: `Les deux points ont la même coordonnée x (2), ils sont donc sur une ligne verticale.`, task6Step2: `La distance est la différence des coordonnées y : 8 − 3 = 5.`, task6Step3: `La distance est 5.`,
+  task6Hint: `Sur une ligne verticale, on ne compare que les coordonnées y, pas les x.`,
+  task7Step1: `Les deux lieux ont la même coordonnée x (4).`, task7Step2: `La distance est la différence des coordonnées y : 7 − 1 = 6.`, task7Step3: `Les élèves doivent parcourir 6 unités.`,
+  task7Hint: `Avec la même coordonnée x, seule la coordonnée y change, donc compare seulement celle-là.`,
+  task8Step1: `Les deux points ont la même coordonnée y (4), ils sont donc sur une ligne horizontale.`, task8Step2: `La distance est la différence des coordonnées x : 5 − (−2) = 7.`, task8Step3: `La distance est 7.`,
+  task8Hint: `Avec une coordonnée négative, calcule la différence comme avec des nombres négatifs : 5 − (−2) = 5 + 2 = 7.`,
+  hintLabel: `Erreur fréquente :`, footerMessage: `Prends ton temps et regarde la solution si besoin. Tu vas y arriver !`,
+  fbEmpty: `Merci d'indiquer un nombre avant de vérifier.`, fbCorrect: `Correct ! Bien joué !`, fbIncorrect: `Pas encore tout à fait juste. Regarde la solution ci-dessous et réessaie.`
+},
+tr: {
+  eyebrow: `Luisen-Gymnasium · 6. Sınıf`, titleLine1: `Koordinat`, titleAccent: `Sistemi`, backLink: `← Tüm Konular`, h2Basics: `Temel Bilgiler`,
+  basicsP1: `Bir koordinat sistemi iki eksenden oluşur: yatay x ekseni ve dikey y ekseni. Bu eksenler orijinde (0|0) kesişir. Bir nokta (x|y) olarak yazılır — önce x koordinatı, sonra y koordinatı.`,
+  coordAria: `Dört bölgeli koordinat sistemi: sağ üst artı artı, sol üst eksi artı, sol alt eksi eksi, sağ alt artı eksi`,
+  basicsExample1Label: `<strong>Adım adım örnek:</strong> A(3|4) noktasını işaretle.`,
+  basicsExample1Steps: `1. 0'dan 3 birim sağa git (x koordinatı)<br>2. Oradan 4 birim yukarı git (y koordinatı)<br>3. A noktası orada`,
+  basicsP2Quadrants: `Koordinat sistemi, x ve y'nin işaretlerine bağlı olarak dört bölgeye ayrılır.`,
+  basicsExample2Label: `<strong>Adım adım örnek:</strong> (−4|2) noktası hangi bölgededir?`,
+  basicsExample2Steps: `1. x negatif, y pozitif<br>2. Bu (− | +) demektir<br>3. Nokta 2. bölgededir`,
+  merkeTitle: `Unutma`, merkeBody: `Bir nokta (x|y) olarak yazılır: önce x, sonra y.<br>1. Bölge: (+|+), 2. Bölge: (−|+), 3. Bölge: (−|−), 4. Bölge: (+|−).<br>Orijin (0|0) noktasındadır.`,
+  taskWord: `Alıştırma`,
+  task1Question: `A noktası (3|5) konumundadır. A'nın x koordinatı nedir?`, task2Question: `A noktası (3|5) konumundadır. A'nın y koordinatı nedir?`, task3Question: `(−4|2) noktası hangi bölgededir? (Cevabı 1-4 arası bir sayı olarak ver)`, task4Question: `(−3|−6) noktası hangi bölgededir? (Cevabı 1-4 arası bir sayı olarak ver)`, task5Question: `(5|−2) noktası hangi bölgededir? (Cevabı 1-4 arası bir sayı olarak ver)`, task6Question: `A(2|3) ve B(2|8) noktaları dikey bir çizgi üzerindedir. Aralarındaki mesafe nedir?`,
+  task7Question: `Bir şehir haritasında okul (4|1), spor sahası (4|7) konumundadır. Öğrencilerin spor sahasından okula gitmek için y yönünde kaç birim yürümesi gerekir?`,
+  task8Question: `C(−2|4) ve D(5|4) noktaları yatay bir çizgi üzerindedir. Aralarındaki mesafe nedir?`,
+  answerPlaceholder: `Cevabın`, checkButton: `Kontrol et`, solutionSummary: `Çözümü göster`,
+  task1Result: `Sonuç: 3`, task2Result: `Sonuç: 5`, task3Result: `Sonuç: 2. Bölge`, task4Result: `Sonuç: 3. Bölge`, task5Result: `Sonuç: 4. Bölge`, task6Result: `Sonuç: 5`, task7Result: `Sonuç: 6`, task8Result: `Sonuç: 7`,
+  task1Step1: `(x|y)'de x koordinatı her zaman önce gelir.`, task1Step2: `(3|5)'te ilk sayı 3'tür.`, task1Step3: `x koordinatı 3'tür.`,
+  task1Hint: `x koordinatı her zaman önce, y koordinatı sonra gelir.`,
+  task2Step1: `(x|y)'de y koordinatı her zaman ikinci sırada gelir.`, task2Step2: `(3|5)'te ikinci sayı 5'tir.`, task2Step3: `y koordinatı 5'tir.`,
+  task2Hint: `(x|y)'deki sırayı değiştirme.`,
+  task3Step1: `x negatif, y pozitiftir.`, task3Step2: `Bu (− | +) demektir.`, task3Step3: `Bu 2. bölgedir.`,
+  task3Hint: `Bölgeler sağ üstten başlayarak saat yönünün tersine numaralandırılır.`,
+  task4Step1: `x negatif, y negatiftir.`, task4Step2: `Bu (− | −) demektir.`, task4Step3: `Bu 3. bölgedir.`,
+  task4Hint: `Her iki koordinat da negatifse, bu 3. bölgedir (sol alt).`,
+  task5Step1: `x pozitif, y negatiftir.`, task5Step2: `Bu (+ | −) demektir.`, task5Step3: `Bu 4. bölgedir.`,
+  task5Hint: `Önce x'in işaretini, sonra y'nin işaretini kontrol et — ikisi birlikte bölgeyi belirler.`,
+  task6Step1: `Her iki noktanın da x koordinatı aynıdır (2), yani dikey bir çizgi üzerindedirler.`, task6Step2: `Mesafe, y koordinatlarının farkıdır: 8 − 3 = 5.`, task6Step3: `Mesafe 5'tir.`,
+  task6Hint: `Dikey bir çizgide sadece y koordinatları karşılaştırılır, x koordinatları değil.`,
+  task7Step1: `Her iki yerin de x koordinatı aynıdır (4).`, task7Step2: `Mesafe, y koordinatlarının farkıdır: 7 − 1 = 6.`, task7Step3: `Öğrencilerin 6 birim yürümesi gerekir.`,
+  task7Hint: `x koordinatı aynıysa sadece y koordinatı değişir, yani sadece onu karşılaştır.`,
+  task8Step1: `Her iki noktanın da y koordinatı aynıdır (4), yani yatay bir çizgi üzerindedirler.`, task8Step2: `Mesafe, x koordinatlarının farkıdır: 5 − (−2) = 7.`, task8Step3: `Mesafe 7'dir.`,
+  task8Hint: `Negatif bir koordinat varsa fark, negatif sayılardaki gibi hesaplanır: 5 − (−2) = 5 + 2 = 7.`,
+  hintLabel: `Sık yapılan hata:`, footerMessage: `Sakin sakin hesapla, gerekirse çözüme bak. Bunu başarabilirsin!`,
+  fbEmpty: `Kontrol etmeden önce lütfen bir sayı gir.`, fbCorrect: `Doğru! Aferin!`, fbIncorrect: `Henüz tam doğru değil. Aşağıdaki çözüme bak ve tekrar dene.`
+},
+ru: {
+  eyebrow: `Luisen-Gymnasium · 6 класс`, titleLine1: `Система`, titleAccent: `координат`, backLink: `← Все темы`, h2Basics: `Основы`,
+  basicsP1: `Система координат состоит из двух осей: горизонтальной оси x и вертикальной оси y. Они пересекаются в начале координат (0|0). Точка записывается как (x|y) — сначала координата x, потом координата y.`,
+  coordAria: `Система координат с четырьмя квадрантами: справа сверху плюс плюс, слева сверху минус плюс, слева снизу минус минус, справа снизу плюс минус`,
+  basicsExample1Label: `<strong>Пример по шагам:</strong> Отметь точку A(3|4).`,
+  basicsExample1Steps: `1. От 0 пройди 3 единицы вправо (координата x)<br>2. Оттуда пройди 4 единицы вверх (координата y)<br>3. Там находится точка A`,
+  basicsP2Quadrants: `Система координат разделена на четыре квадранта в зависимости от знаков x и y.`,
+  basicsExample2Label: `<strong>Пример по шагам:</strong> В каком квадранте находится точка (−4|2)?`,
+  basicsExample2Steps: `1. x отрицательное, y положительное<br>2. Это соответствует (− | +)<br>3. Точка находится во II квадранте`,
+  merkeTitle: `Запомни`, merkeBody: `Точка записывается как (x|y): сначала x, потом y.<br>Квадрант I: (+|+), Квадрант II: (−|+), Квадрант III: (−|−), Квадрант IV: (+|−).<br>Начало координат находится в (0|0).`,
+  taskWord: `Задание`,
+  task1Question: `Точка A находится в (3|5). Чему равна x-координата A?`, task2Question: `Точка A находится в (3|5). Чему равна y-координата A?`, task3Question: `В каком квадранте находится точка (−4|2)? (Ответь числом от 1 до 4)`, task4Question: `В каком квадранте находится точка (−3|−6)? (Ответь числом от 1 до 4)`, task5Question: `В каком квадранте находится точка (5|−2)? (Ответь числом от 1 до 4)`, task6Question: `Две точки A(2|3) и B(2|8) лежат на вертикальной линии. Каково расстояние между ними?`,
+  task7Question: `На карте города школа находится в (4|1), а спортивная площадка в (4|7). Сколько единиц нужно пройти ученикам в направлении y, чтобы попасть со спортивной площадки в школу?`,
+  task8Question: `Две точки C(−2|4) и D(5|4) лежат на горизонтальной линии. Каково расстояние между ними?`,
+  answerPlaceholder: `Твой ответ`, checkButton: `Проверить`, solutionSummary: `Показать решение`,
+  task1Result: `Результат: 3`, task2Result: `Результат: 5`, task3Result: `Результат: квадрант 2`, task4Result: `Результат: квадрант 3`, task5Result: `Результат: квадрант 4`, task6Result: `Результат: 5`, task7Result: `Результат: 6`, task8Result: `Результат: 7`,
+  task1Step1: `В (x|y) координата x всегда указывается первой.`, task1Step2: `В (3|5) первое число — 3.`, task1Step3: `Координата x равна 3.`,
+  task1Hint: `Координата x всегда идёт первой, координата y — после.`,
+  task2Step1: `В (x|y) координата y всегда указывается второй.`, task2Step2: `В (3|5) второе число — 5.`, task2Step3: `Координата y равна 5.`,
+  task2Hint: `Не меняй порядок в (x|y).`,
+  task3Step1: `x отрицательное, y положительное.`, task3Step2: `Это соответствует (− | +).`, task3Step3: `Это II квадрант.`,
+  task3Hint: `Квадранты нумеруются против часовой стрелки, начиная сверху справа.`,
+  task4Step1: `x отрицательное, y отрицательное.`, task4Step2: `Это соответствует (− | −).`, task4Step3: `Это III квадрант.`,
+  task4Hint: `Если обе координаты отрицательны, это III квадрант (снизу слева).`,
+  task5Step1: `x положительное, y отрицательное.`, task5Step2: `Это соответствует (+ | −).`, task5Step3: `Это IV квадрант.`,
+  task5Hint: `Сначала проверь знак x, затем знак y — вместе они определяют квадрант.`,
+  task6Step1: `У обеих точек одинаковая координата x (2), значит, они лежат на вертикальной линии.`, task6Step2: `Расстояние — это разность координат y: 8 − 3 = 5.`, task6Step3: `Расстояние равно 5.`,
+  task6Hint: `На вертикальной линии сравнивают только координаты y, а не x.`,
+  task7Step1: `У обоих мест одинаковая координата x (4).`, task7Step2: `Расстояние — это разность координат y: 7 − 1 = 6.`, task7Step3: `Ученикам нужно пройти 6 единиц.`,
+  task7Hint: `При одинаковой координате x меняется только координата y, поэтому сравнивай только её.`,
+  task8Step1: `У обеих точек одинаковая координата y (4), значит, они лежат на горизонтальной линии.`, task8Step2: `Расстояние — это разность координат x: 5 − (−2) = 7.`, task8Step3: `Расстояние равно 7.`,
+  task8Hint: `С отрицательной координатой разность вычисляется как с отрицательными числами: 5 − (−2) = 5 + 2 = 7.`,
+  hintLabel: `Типичная ошибка:`, footerMessage: `Считай спокойно и при необходимости смотри решение. У тебя получится!`,
+  fbEmpty: `Пожалуйста, введи число перед проверкой.`, fbCorrect: `Правильно! Отлично!`, fbIncorrect: `Пока не совсем верно. Посмотри решение ниже и попробуй ещё раз.`
+},
+ar: {
+  eyebrow: `مدرسة لويزن الثانوية · الصف السادس`, titleLine1: `نظام`, titleAccent: `الإحداثيات`, backLink: `← جميع المواضيع`, h2Basics: `الأساسيات`,
+  basicsP1: `يتكون نظام الإحداثيات من محورين: محور x الأفقي ومحور y الرأسي. يتقاطعان عند نقطة الأصل (0|0). تُكتب النقطة بصيغة (x|y) — إحداثي x أولًا، ثم إحداثي y.`,
+  coordAria: `نظام إحداثيات بأربعة أرباع: أعلى اليمين موجب موجب، أعلى اليسار سالب موجب، أسفل اليسار سالب سالب، أسفل اليمين موجب سالب`,
+  basicsExample1Label: `<strong>مثال خطوة بخطوة:</strong> ارسم النقطة A(3|4).`,
+  basicsExample1Steps: `1. من 0، تحرك 3 وحدات لليمين (إحداثي x)<br>2. من هناك، تحرك 4 وحدات لأعلى (إحداثي y)<br>3. هناك تقع النقطة A`,
+  basicsP2Quadrants: `ينقسم نظام الإحداثيات إلى أربعة أرباع، بحسب إشارتي x وy.`,
+  basicsExample2Label: `<strong>مثال خطوة بخطوة:</strong> في أي ربع تقع النقطة (−4|2)؟`,
+  basicsExample2Steps: `1. x سالب، y موجب<br>2. هذا يقابل (− | +)<br>3. تقع النقطة في الربع الثاني`,
+  merkeTitle: `تذكّر`, merkeBody: `تُكتب النقطة بصيغة (x|y): x أولًا، ثم y.<br>الربع الأول: (+|+)، الربع الثاني: (−|+)، الربع الثالث: (−|−)، الربع الرابع: (+|−).<br>نقطة الأصل عند (0|0).`,
+  taskWord: `تمرين`,
+  task1Question: `تقع النقطة A عند (3|5). ما هو إحداثي x للنقطة A؟`, task2Question: `تقع النقطة A عند (3|5). ما هو إحداثي y للنقطة A؟`, task3Question: `في أي ربع تقع النقطة (−4|2)؟ (أجب برقم من 1 إلى 4)`, task4Question: `في أي ربع تقع النقطة (−3|−6)؟ (أجب برقم من 1 إلى 4)`, task5Question: `في أي ربع تقع النقطة (5|−2)؟ (أجب برقم من 1 إلى 4)`, task6Question: `تقع النقطتان A(2|3) وB(2|8) على خط رأسي. ما المسافة بينهما؟`,
+  task7Question: `على خريطة مدينة، تقع المدرسة عند (4|1) والملعب عند (4|7). كم وحدة يجب أن يسير الطلاب في اتجاه y للوصول من الملعب إلى المدرسة؟`,
+  task8Question: `تقع النقطتان C(−2|4) وD(5|4) على خط أفقي. ما المسافة بينهما؟`,
+  answerPlaceholder: `إجابتك`, checkButton: `تحقق`, solutionSummary: `عرض الحل`,
+  task1Result: `النتيجة: 3`, task2Result: `النتيجة: 5`, task3Result: `النتيجة: الربع 2`, task4Result: `النتيجة: الربع 3`, task5Result: `النتيجة: الربع 4`, task6Result: `النتيجة: 5`, task7Result: `النتيجة: 6`, task8Result: `النتيجة: 7`,
+  task1Step1: `في (x|y)، يُذكَر إحداثي x دائمًا أولًا.`, task1Step2: `في (3|5)، الرقم الأول هو 3.`, task1Step3: `إحداثي x هو 3.`,
+  task1Hint: `إحداثي x يأتي دائمًا أولًا، وإحداثي y بعده.`,
+  task2Step1: `في (x|y)، يُذكَر إحداثي y دائمًا ثانيًا.`, task2Step2: `في (3|5)، الرقم الثاني هو 5.`, task2Step3: `إحداثي y هو 5.`,
+  task2Hint: `لا تبدّل الترتيب في (x|y).`,
+  task3Step1: `x سالب، y موجب.`, task3Step2: `هذا يقابل (− | +).`, task3Step3: `هذا هو الربع الثاني.`,
+  task3Hint: `تُرقَّم الأرباع عكس اتجاه عقارب الساعة، بدءًا من أعلى اليمين.`,
+  task4Step1: `x سالب، y سالب.`, task4Step2: `هذا يقابل (− | −).`, task4Step3: `هذا هو الربع الثالث.`,
+  task4Hint: `إذا كان الإحداثيان سالبين، فهذا هو الربع الثالث (أسفل اليسار).`,
+  task5Step1: `x موجب، y سالب.`, task5Step2: `هذا يقابل (+ | −).`, task5Step3: `هذا هو الربع الرابع.`,
+  task5Hint: `تحقق أولًا من إشارة x، ثم إشارة y — يحددان معًا الربع.`,
+  task6Step1: `النقطتان لهما نفس إحداثي x (2)، إذن تقعان على خط رأسي.`, task6Step2: `المسافة هي الفرق بين إحداثيات y: 8 − 3 = 5.`, task6Step3: `المسافة تساوي 5.`,
+  task6Hint: `على الخط الرأسي، تُقارَن إحداثيات y فقط، وليس x.`,
+  task7Step1: `للمكانين نفس إحداثي x (4).`, task7Step2: `المسافة هي الفرق بين إحداثيات y: 7 − 1 = 6.`, task7Step3: `يجب أن يسير الطلاب 6 وحدات.`,
+  task7Hint: `عند تساوي إحداثي x، يتغير إحداثي y فقط، لذا قارن هذا فقط.`,
+  task8Step1: `النقطتان لهما نفس إحداثي y (4)، إذن تقعان على خط أفقي.`, task8Step2: `المسافة هي الفرق بين إحداثيات x: 5 − (−2) = 7.`, task8Step3: `المسافة تساوي 7.`,
+  task8Hint: `مع وجود إحداثي سالب، يُحسَب الفرق كما مع الأعداد السالبة: 5 − (−2) = 5 + 2 = 7.`,
+  hintLabel: `خطأ شائع:`, footerMessage: `احسب بهدوء وراجع الحل إذا احتجت إليه. أنت قادر على ذلك!`,
+  fbEmpty: `الرجاء إدخال رقم قبل التحقق.`, fbCorrect: `صحيح! أحسنت!`, fbIncorrect: `ليست صحيحة تمامًا بعد. راجع الحل أدناه وحاول مرة أخرى.`
+},
+zh: {
+  eyebrow: `路易森文理中学 · 六年级`, titleLine1: `坐标`, titleAccent: `系统`, backLink: `← 所有主题`, h2Basics: `基础知识`,
+  basicsP1: `坐标系由两条轴组成：水平的 x 轴和垂直的 y 轴。它们在原点 (0|0) 相交。一个点写作 (x|y)——先写 x 坐标，再写 y 坐标。`,
+  coordAria: `带有四个象限的坐标系：右上角正正，左上角负正，左下角负负，右下角正负`,
+  basicsExample1Label: `<strong>分步示例：</strong> 标出点 A(3|4)。`,
+  basicsExample1Steps: `1. 从 0 向右走 3 个单位（x 坐标）<br>2. 从那里向上走 4 个单位（y 坐标）<br>3. 那就是点 A 的位置`,
+  basicsP2Quadrants: `坐标系根据 x 和 y 的符号被分成四个象限。`,
+  basicsExample2Label: `<strong>分步示例：</strong> 点 (−4|2) 在哪个象限？`,
+  basicsExample2Steps: `1. x 是负数，y 是正数<br>2. 这对应 (− | +)<br>3. 这个点在第二象限`,
+  merkeTitle: `记住`, merkeBody: `一个点写作 (x|y)：先 x，后 y。<br>第一象限：(+|+)，第二象限：(−|+)，第三象限：(−|−)，第四象限：(+|−)。<br>原点在 (0|0)。`,
+  taskWord: `练习`,
+  task1Question: `点 A 位于 (3|5)。A 的 x 坐标是多少？`, task2Question: `点 A 位于 (3|5)。A 的 y 坐标是多少？`, task3Question: `点 (−4|2) 在哪个象限？（答案为 1 到 4 的数字）`, task4Question: `点 (−3|−6) 在哪个象限？（答案为 1 到 4 的数字）`, task5Question: `点 (5|−2) 在哪个象限？（答案为 1 到 4 的数字）`, task6Question: `两点 A(2|3) 和 B(2|8) 在一条垂直线上。它们之间的距离是多少？`,
+  task7Question: `在城市地图上，学校位于 (4|1)，运动场位于 (4|7)。学生从运动场走到学校需要沿 y 方向走多少个单位？`,
+  task8Question: `两点 C(−2|4) 和 D(5|4) 在一条水平线上。它们之间的距离是多少？`,
+  answerPlaceholder: `你的答案`, checkButton: `检查`, solutionSummary: `显示答案`,
+  task1Result: `结果：3`, task2Result: `结果：5`, task3Result: `结果：第2象限`, task4Result: `结果：第3象限`, task5Result: `结果：第4象限`, task6Result: `结果：5`, task7Result: `结果：6`, task8Result: `结果：7`,
+  task1Step1: `在 (x|y) 中，x 坐标总是排在第一位。`, task1Step2: `在 (3|5) 中，第一个数是 3。`, task1Step3: `x 坐标是 3。`,
+  task1Hint: `x 坐标总是在前面，y 坐标在后面。`,
+  task2Step1: `在 (x|y) 中，y 坐标总是排在第二位。`, task2Step2: `在 (3|5) 中，第二个数是 5。`, task2Step3: `y 坐标是 5。`,
+  task2Hint: `不要颠倒 (x|y) 中的顺序。`,
+  task3Step1: `x 是负数，y 是正数。`, task3Step2: `这对应 (− | +)。`, task3Step3: `这是第二象限。`,
+  task3Hint: `象限从右上角开始，按逆时针方向编号。`,
+  task4Step1: `x 是负数，y 是负数。`, task4Step2: `这对应 (− | −)。`, task4Step3: `这是第三象限。`,
+  task4Hint: `如果两个坐标都是负数，就是第三象限（左下方）。`,
+  task5Step1: `x 是正数，y 是负数。`, task5Step2: `这对应 (+ | −)。`, task5Step3: `这是第四象限。`,
+  task5Hint: `先看 x 的符号，再看 y 的符号——两者一起决定象限。`,
+  task6Step1: `两点的 x 坐标相同（2），所以它们在一条垂直线上。`, task6Step2: `距离是 y 坐标之差：8 − 3 = 5。`, task6Step3: `距离是 5。`,
+  task6Hint: `在垂直线上，只比较 y 坐标，不比较 x 坐标。`,
+  task7Step1: `两个地点的 x 坐标相同（4）。`, task7Step2: `距离是 y 坐标之差：7 − 1 = 6。`, task7Step3: `学生需要走 6 个单位。`,
+  task7Hint: `x 坐标相同时，只有 y 坐标变化，所以只比较它。`,
+  task8Step1: `两点的 y 坐标相同（4），所以它们在一条水平线上。`, task8Step2: `距离是 x 坐标之差：5 − (−2) = 7。`, task8Step3: `距离是 7。`,
+  task8Hint: `遇到负坐标时，像负数一样计算差值：5 − (−2) = 5 + 2 = 7。`,
+  hintLabel: `常见错误：`, footerMessage: `慢慢算，需要的话看看答案。你能做到！`,
+  fbEmpty: `请先输入一个数字再检查。`, fbCorrect: `正确！做得好！`, fbIncorrect: `还不完全正确。看看下面的答案，再试一次。`
+}
+};
+
+var currentLang = 'de';
+
+function setLanguage(lang){
+  var dict = TRANSLATIONS[lang] || TRANSLATIONS.de;
+  currentLang = TRANSLATIONS[lang] ? lang : 'de';
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = (currentLang === 'ar') ? 'rtl' : 'ltr';
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var key = el.getAttribute('data-i18n');
+    if(dict[key] !== undefined){ el.innerHTML = dict[key]; }
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-placeholder');
+    if(dict[key] !== undefined){ el.setAttribute('placeholder', dict[key]); }
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-aria');
+    if(dict[key] !== undefined){ el.setAttribute('aria-label', dict[key]); }
+  });
+  try{ localStorage.setItem('mathecoach_lang', currentLang); }catch(e){}
+  var sel = document.getElementById('langSelect');
+  if(sel) sel.value = currentLang;
+}
+
+function check(id, correct){
+  var dict = TRANSLATIONS[currentLang] || TRANSLATIONS.de;
+  var input = document.getElementById('input' + id);
+  var feedback = document.getElementById('feedback' + id);
+  var raw = input.value.trim();
+  var match = raw.match(/-?\d+/);
+  feedback.classList.remove('show', 'correct', 'incorrect');
+  if(!match){
+    feedback.textContent = dict.fbEmpty;
+    feedback.classList.add('show', 'incorrect');
+    return;
+  }
+  var value = parseInt(match[0], 10);
+  if(value === correct){
+    feedback.textContent = dict.fbCorrect;
+    feedback.classList.add('show', 'correct');
+  } else {
+    feedback.textContent = dict.fbIncorrect;
+    feedback.classList.add('show', 'incorrect');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var saved = 'de';
+  try{ saved = localStorage.getItem('mathecoach_lang') || 'de'; }catch(e){}
+  setLanguage(saved);
+});
+</script>
+
+</body>
+</html>

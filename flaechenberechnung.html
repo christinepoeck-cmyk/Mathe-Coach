@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flächenberechnung</title>
+<style>
+  :root{
+    --bg:#FAFAF9; --card:#FFFFFF; --ink:#241C1C; --ink-soft:#5C4F4C;
+    --red:#C41230; --gold:#E0A526; --blue:#2478B5;
+    --merke-bg:#FBF1DC; --merke-border:#E0A526;
+    --success:#1E8E5A; --success-bg:#E5F5EC; --error:#B3401D; --error-bg:#FBEDE6;
+    --font-display: ui-rounded, "SF Pro Rounded", "Segoe UI Rounded", "Nunito", system-ui, sans-serif;
+    --font-body: system-ui, "Segoe UI", Roboto, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:18px; line-height:1.5; padding-bottom:60px; }
+  .wrap{ max-width:640px; margin:0 auto; padding:0 20px; }
+  header{ background:var(--card); padding:30px 20px 0; text-align:center; position:relative; }
+  .header-inner{ padding-bottom:26px; }
+  .lang-switch{ display:flex; justify-content:center; margin-bottom:14px; }
+  #langSelect{ font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--ink); background:var(--card); border:2px solid #E3DFDA; border-radius:999px; padding:6px 14px; cursor:pointer; }
+  #langSelect:focus-visible{ outline:3px solid var(--blue); }
+  .back-link{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--blue); text-decoration:none; margin-bottom:16px; }
+  .eyebrow{ font-family:var(--font-display); font-weight:700; font-size:14px; letter-spacing:0.08em; text-transform:uppercase; color:var(--blue); margin-bottom:8px; }
+  h1{ font-family:var(--font-display); font-size:28px; font-weight:800; margin:0; line-height:1.25; }
+  h1 .accent{ color:var(--red); }
+  .wave{ display:block; width:100%; height:30px; }
+  section{ margin-top:32px; }
+  .card{ background:var(--card); border-radius:22px; padding:24px 22px; box-shadow:0 2px 14px rgba(36,28,28,0.07); }
+  h2{ font-family:var(--font-display); font-size:21px; font-weight:800; margin:0 0 14px; }
+  h2 .num{ display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:var(--blue); color:white; font-size:16px; margin-inline-end:10px; vertical-align:middle; }
+  p{ margin:0 0 14px; color:var(--ink-soft); }
+  .merke{ background:var(--merke-bg); border:2px solid var(--merke-border); border-radius:16px; padding:16px 18px; margin-top:16px; }
+  .merke-title{ font-family:var(--font-display); font-weight:800; color:#8A5A0F; font-size:15px; letter-spacing:0.04em; text-transform:uppercase; margin-bottom:6px; }
+  .merke-body{ color:#6B4A12; font-weight:600; margin:0; }
+  .shapes-diagram{ width:100%; height:auto; margin:18px 0 6px; }
+  .task-card{ margin-top:18px; }
+  .task-question{ font-family:var(--font-display); font-weight:700; font-size:19px; margin-bottom:16px; }
+  .answer-row{ display:flex; gap:10px; margin-bottom:6px; }
+  input[type="text"]{ flex:1; font-size:18px; font-family:var(--font-body); padding:12px 14px; border-radius:12px; border:2px solid #E3DFDA; background:#FBFAF9; color:var(--ink); }
+  input[type="text"]:focus{ outline:3px solid #C9DCEA; border-color:var(--blue); }
+  button.check{ font-family:var(--font-display); font-weight:700; font-size:16px; color:white; background:var(--blue); border:none; border-radius:12px; padding:0 20px; cursor:pointer; }
+  button.check:active{ transform:translateY(1px); }
+  button.check:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
+  .feedback{ margin-top:10px; padding:12px 14px; border-radius:12px; font-weight:700; display:none; }
+  .feedback.show{ display:block; }
+  .feedback.correct{ background:var(--success-bg); color:var(--success); }
+  .feedback.incorrect{ background:var(--error-bg); color:var(--error); }
+  details{ margin-top:14px; border-top:2px dashed #E3DFDA; padding-top:12px; }
+  summary{ font-family:var(--font-display); font-weight:700; color:var(--blue); cursor:pointer; font-size:15px; }
+  .solution{ margin-top:12px; }
+  .solution ol{ margin:0 0 12px; padding-inline-start:22px; color:var(--ink-soft); }
+  .solution li{ margin-bottom:6px; }
+  .solution-result{ font-family:var(--font-display); font-weight:800; color:var(--ink); margin-bottom:12px; }
+  .hint-box{ background:#F1EFEC; border-radius:12px; padding:12px 14px; font-size:16px; color:var(--ink-soft); }
+  .hint-box strong{ color:var(--ink); }
+  footer{ text-align:center; margin-top:36px; padding:0 20px; }
+  footer p{ font-family:var(--font-display); font-weight:700; color:var(--ink); }
+  .footer-wave{ display:block; width:100%; max-width:280px; height:16px; margin:0 auto 18px; opacity:0.6; }
+  [dir="rtl"] .back-link{ flex-direction:row-reverse; }
+  @media (prefers-reduced-motion: no-preference){ button.check{ transition:transform 0.1s ease; } }
+  @media (max-width: 480px){ .answer-row{ flex-direction:column; } button.check{ width:100%; padding:14px 20px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="lang-switch">
+      <select id="langSelect" onchange="setLanguage(this.value)">
+        <option value="de">Deutsch</option><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="tr">Türkçe</option><option value="ru">Русский</option><option value="ar">العربية</option><option value="zh">中文</option>
+      </select>
+    </div>
+    <a class="back-link" href="index.html" data-i18n="backLink">← Alle Themen</a>
+    <div class="eyebrow" data-i18n="eyebrow">Luisen-Gymnasium · Klasse 6</div>
+    <h1><span data-i18n="titleLine1">Flächen-</span><br><span class="accent" data-i18n="titleAccent">berechnung</span></h1>
+  </div>
+  <svg class="wave" viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+    <path d="M -10 22 C 190 4, 390 40, 590 22 S 990 4, 1210 22" fill="none" stroke="#C41230" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 32 C 190 50, 390 14, 590 32 S 990 50, 1210 32" fill="none" stroke="#E0A526" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 42 C 190 24, 390 58, 590 42 S 990 24, 1210 42" fill="none" stroke="#2478B5" stroke-width="5" stroke-linecap="round"/>
+  </svg>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <div class="card">
+      <h2 data-i18n="h2Basics">Grundlagen</h2>
+      <p data-i18n="basicsP1">Für Rechteck, Dreieck und Trapez gibt es feste Formeln, um die Fläche zu berechnen. Wichtig ist, die richtigen Seiten und Höhen aus der Zeichnung abzulesen.</p>
+
+      <svg class="shapes-diagram" viewBox="0 0 600 220" xmlns="http://www.w3.org/2000/svg" role="img" data-i18n-aria="shapesAria" aria-label="Drei Formen mit Formeln: Rechteck a mal b, Dreieck Grundseite mal Höhe geteilt durch 2, Trapez a plus c geteilt durch 2 mal Höhe">
+        <rect x="20" y="20" width="150" height="90" fill="#C41230" fill-opacity="0.15" stroke="#C41230" stroke-width="2.5"/>
+        <text x="95" y="130" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="15" font-weight="800" fill="#C41230">A = a · b</text>
+        <polygon points="230,110 320,110 275,20" fill="#E0A526" fill-opacity="0.2" stroke="#8A5A0F" stroke-width="2.5"/>
+        <text x="275" y="130" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="14" font-weight="800" fill="#8A5A0F">A = g · h : 2</text>
+        <polygon points="390,110 560,110 530,20 420,20" fill="#2478B5" fill-opacity="0.15" stroke="#2478B5" stroke-width="2.5"/>
+        <text x="475" y="130" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="13" font-weight="800" fill="#2478B5">A = (a+c):2 · h</text>
+        <text x="95" y="165" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="14" font-weight="700" fill="#241C1C" data-i18n="shapeRect">Rechteck</text>
+        <text x="275" y="165" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="14" font-weight="700" fill="#241C1C" data-i18n="shapeTri">Dreieck</text>
+        <text x="475" y="165" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="14" font-weight="700" fill="#241C1C" data-i18n="shapeTrap">Trapez</text>
+      </svg>
+
+      <p data-i18n="basicsExample1Label"><strong>Beispiel Schritt für Schritt:</strong> Rechteck mit a = 8 cm und b = 5 cm.</p>
+      <p data-i18n="basicsExample1Steps">1. Formel: A = a · b<br>2. Einsetzen: A = 8 · 5<br>3. Ergebnis: A = 40 cm²</p>
+
+      <p data-i18n="basicsP2Triangle"><strong>Beim Dreieck</strong> wird die Fläche durch 2 geteilt, weil ein Dreieck genau die Hälfte eines Rechtecks mit denselben Maßen ist.</p>
+
+      <p data-i18n="basicsExample2Label"><strong>Beispiel Schritt für Schritt:</strong> Dreieck mit g = 10 cm und h = 6 cm.</p>
+      <p data-i18n="basicsExample2Steps">1. Formel: A = g · h : 2<br>2. Einsetzen: A = 10 · 6 : 2<br>3. Rechnen: 10 · 6 = 60, dann 60 : 2 = 30<br>4. Ergebnis: A = 30 cm²</p>
+
+      <div class="merke">
+        <div class="merke-title" data-i18n="merkeTitle">Merke</div>
+        <p class="merke-body" data-i18n="merkeBody">Rechteck: A = a · b.<br>Dreieck: A = g · h : 2.<br>Trapez: A = (a + c) : 2 · h.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">1</span><span data-i18n="taskWord">Aufgabe</span> 1</h2>
+      <div class="task-question" data-i18n="task1Question">Ein Rechteck hat a = 8 cm und b = 5 cm. Wie groß ist die Fläche (in cm²)?</div>
+      <div class="answer-row">
+        <input type="text" id="input1" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(1, 40)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback1"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task1Result">Ergebnis: 40 cm²</div>
+          <ol>
+            <li data-i18n="task1Step1">Formel: A = a · b.</li>
+            <li data-i18n="task1Step2">Einsetzen: 8 · 5 = 40.</li>
+            <li data-i18n="task1Step3">Ergebnis: 40 cm².</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task1Hint">Die Flächeneinheit ist cm² (Quadratzentimeter), nicht cm.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">2</span><span data-i18n="taskWord">Aufgabe</span> 2</h2>
+      <div class="task-question" data-i18n="task2Question">Ein Rechteck hat a = 12 cm und b = 7 cm. Wie groß ist die Fläche (in cm²)?</div>
+      <div class="answer-row">
+        <input type="text" id="input2" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(2, 84)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback2"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task2Result">Ergebnis: 84 cm²</div>
+          <ol>
+            <li data-i18n="task2Step1">Formel: A = a · b.</li>
+            <li data-i18n="task2Step2">Einsetzen: 12 · 7 = 84.</li>
+            <li data-i18n="task2Step3">Ergebnis: 84 cm².</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task2Hint">Beide Seiten müssen miteinander multipliziert werden, nicht addiert.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">3</span><span data-i18n="taskWord">Aufgabe</span> 3</h2>
+      <div class="task-question" data-i18n="task3Question">Ein Dreieck hat g = 10 cm und h = 6 cm. Wie groß ist die Fläche (in cm²)?</div>
+      <div class="answer-row">
+        <input type="text" id="input3" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(3, 30)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback3"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task3Result">Ergebnis: 30 cm²</div>
+          <ol>
+            <li data-i18n="task3Step1">Formel: A = g · h : 2.</li>
+            <li data-i18n="task3Step2">Einsetzen: 10 · 6 : 2.</li>
+            <li data-i18n="task3Step3">Rechnen: 10 · 6 = 60, dann 60 : 2 = 30.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task3Hint">Das Teilen durch 2 beim Dreieck nicht vergessen.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">4</span><span data-i18n="taskWord">Aufgabe</span> 4</h2>
+      <div class="task-question" data-i18n="task4Question">Ein Dreieck hat g = 14 cm und h = 5 cm. Wie groß ist die Fläche (in cm²)?</div>
+      <div class="answer-row">
+        <input type="text" id="input4" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(4, 35)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback4"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task4Result">Ergebnis: 35 cm²</div>
+          <ol>
+            <li data-i18n="task4Step1">Formel: A = g · h : 2.</li>
+            <li data-i18n="task4Step2">Einsetzen: 14 · 5 : 2.</li>
+            <li data-i18n="task4Step3">Rechnen: 14 · 5 = 70, dann 70 : 2 = 35.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task4Hint">Erst multiplizieren, dann durch 2 teilen – nicht umgekehrt.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">5</span><span data-i18n="taskWord">Aufgabe</span> 5</h2>
+      <div class="task-question" data-i18n="task5Question">Ein Trapez hat a = 8 cm, c = 4 cm und h = 5 cm. Wie groß ist die Fläche (in cm²)?</div>
+      <div class="answer-row">
+        <input type="text" id="input5" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(5, 30)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback5"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task5Result">Ergebnis: 30 cm²</div>
+          <ol>
+            <li data-i18n="task5Step1">Formel: A = (a + c) : 2 · h.</li>
+            <li data-i18n="task5Step2">Einsetzen: (8 + 4) : 2 · 5.</li>
+            <li data-i18n="task5Step3">Rechnen: 12 : 2 = 6, dann 6 · 5 = 30.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task5Hint">Erst die beiden parallelen Seiten a und c addieren, dann erst weiterrechnen.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">6</span><span data-i18n="taskWord">Aufgabe</span> 6</h2>
+      <div class="task-question" data-i18n="task6Question">Ein Trapez hat a = 10 cm, c = 6 cm und h = 4 cm. Wie groß ist die Fläche (in cm²)?</div>
+      <div class="answer-row">
+        <input type="text" id="input6" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(6, 32)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback6"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task6Result">Ergebnis: 32 cm²</div>
+          <ol>
+            <li data-i18n="task6Step1">Formel: A = (a + c) : 2 · h.</li>
+            <li data-i18n="task6Step2">Einsetzen: (10 + 6) : 2 · 4.</li>
+            <li data-i18n="task6Step3">Rechnen: 16 : 2 = 8, dann 8 · 4 = 32.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task6Hint">a und c sind die beiden parallelen Seiten, h ist der senkrechte Abstand zwischen ihnen.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">7</span><span data-i18n="taskWord">Aufgabe</span> 7</h2>
+      <div class="task-question" data-i18n="task7Question">Ein rechteckiges Zimmer ist 6 m lang und 4 m breit. Wie viele Quadratmeter Teppich werden benötigt?</div>
+      <div class="answer-row">
+        <input type="text" id="input7" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(7, 24)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback7"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task7Result">Ergebnis: 24 m²</div>
+          <ol>
+            <li data-i18n="task7Step1">Formel: A = a · b.</li>
+            <li data-i18n="task7Step2">Einsetzen: 6 · 4 = 24.</li>
+            <li data-i18n="task7Step3">Ergebnis: 24 m².</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task7Hint">Ein rechteckiges Zimmer wird genau wie ein Rechteck berechnet: Länge mal Breite.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">8</span><span data-i18n="taskWord">Aufgabe</span> 8</h2>
+      <div class="task-question" data-i18n="task8Question">Ein dreieckiges Blumenbeet hat eine Grundseite von 8 m und eine Höhe von 3 m. Wie groß ist die Fläche (in m²)?</div>
+      <div class="answer-row">
+        <input type="text" id="input8" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(8, 12)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback8"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task8Result">Ergebnis: 12 m²</div>
+          <ol>
+            <li data-i18n="task8Step1">Formel: A = g · h : 2.</li>
+            <li data-i18n="task8Step2">Einsetzen: 8 · 3 : 2.</li>
+            <li data-i18n="task8Step3">Rechnen: 8 · 3 = 24, dann 24 : 2 = 12.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task8Hint">Auch bei Sachaufgaben mit einem Dreieck nicht das Teilen durch 2 vergessen.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <footer>
+    <svg class="footer-wave" viewBox="0 0 280 16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+      <path d="M -5 8 C 40 1, 80 15, 140 8 S 240 1, 285 8" fill="none" stroke="#C41230" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M -5 8 C 40 15, 80 1, 140 8 S 240 15, 285 8" fill="none" stroke="#2478B5" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+    </svg>
+    <p id="footer-msg" data-i18n="footerMessage">Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!</p>
+  </footer>
+
+</div>
+
+<script>
+const TRANSLATIONS = {
+de: {
+  eyebrow: `Luisen-Gymnasium · Klasse 6`, titleLine1: `Flächen-`, titleAccent: `berechnung`, backLink: `← Alle Themen`, h2Basics: `Grundlagen`,
+  basicsP1: `Für Rechteck, Dreieck und Trapez gibt es feste Formeln, um die Fläche zu berechnen. Wichtig ist, die richtigen Seiten und Höhen aus der Zeichnung abzulesen.`,
+  shapesAria: `Drei Formen mit Formeln: Rechteck a mal b, Dreieck Grundseite mal Höhe geteilt durch 2, Trapez a plus c geteilt durch 2 mal Höhe`,
+  shapeRect: `Rechteck`, shapeTri: `Dreieck`, shapeTrap: `Trapez`,
+  basicsExample1Label: `<strong>Beispiel Schritt für Schritt:</strong> Rechteck mit a = 8 cm und b = 5 cm.`,
+  basicsExample1Steps: `1. Formel: A = a · b<br>2. Einsetzen: A = 8 · 5<br>3. Ergebnis: A = 40 cm²`,
+  basicsP2Triangle: `<strong>Beim Dreieck</strong> wird die Fläche durch 2 geteilt, weil ein Dreieck genau die Hälfte eines Rechtecks mit denselben Maßen ist.`,
+  basicsExample2Label: `<strong>Beispiel Schritt für Schritt:</strong> Dreieck mit g = 10 cm und h = 6 cm.`,
+  basicsExample2Steps: `1. Formel: A = g · h : 2<br>2. Einsetzen: A = 10 · 6 : 2<br>3. Rechnen: 10 · 6 = 60, dann 60 : 2 = 30<br>4. Ergebnis: A = 30 cm²`,
+  merkeTitle: `Merke`, merkeBody: `Rechteck: A = a · b.<br>Dreieck: A = g · h : 2.<br>Trapez: A = (a + c) : 2 · h.`,
+  taskWord: `Aufgabe`,
+  task1Question: `Ein Rechteck hat a = 8 cm und b = 5 cm. Wie groß ist die Fläche (in cm²)?`, task2Question: `Ein Rechteck hat a = 12 cm und b = 7 cm. Wie groß ist die Fläche (in cm²)?`, task3Question: `Ein Dreieck hat g = 10 cm und h = 6 cm. Wie groß ist die Fläche (in cm²)?`, task4Question: `Ein Dreieck hat g = 14 cm und h = 5 cm. Wie groß ist die Fläche (in cm²)?`, task5Question: `Ein Trapez hat a = 8 cm, c = 4 cm und h = 5 cm. Wie groß ist die Fläche (in cm²)?`, task6Question: `Ein Trapez hat a = 10 cm, c = 6 cm und h = 4 cm. Wie groß ist die Fläche (in cm²)?`,
+  task7Question: `Ein rechteckiges Zimmer ist 6 m lang und 4 m breit. Wie viele Quadratmeter Teppich werden benötigt?`,
+  task8Question: `Ein dreieckiges Blumenbeet hat eine Grundseite von 8 m und eine Höhe von 3 m. Wie groß ist die Fläche (in m²)?`,
+  answerPlaceholder: `Deine Antwort`, checkButton: `Prüfen`, solutionSummary: `Lösung anzeigen`,
+  task1Result: `Ergebnis: 40 cm²`, task2Result: `Ergebnis: 84 cm²`, task3Result: `Ergebnis: 30 cm²`, task4Result: `Ergebnis: 35 cm²`, task5Result: `Ergebnis: 30 cm²`, task6Result: `Ergebnis: 32 cm²`, task7Result: `Ergebnis: 24 m²`, task8Result: `Ergebnis: 12 m²`,
+  task1Step1: `Formel: A = a · b.`, task1Step2: `Einsetzen: 8 · 5 = 40.`, task1Step3: `Ergebnis: 40 cm².`,
+  task1Hint: `Die Flächeneinheit ist cm² (Quadratzentimeter), nicht cm.`,
+  task2Step1: `Formel: A = a · b.`, task2Step2: `Einsetzen: 12 · 7 = 84.`, task2Step3: `Ergebnis: 84 cm².`,
+  task2Hint: `Beide Seiten müssen miteinander multipliziert werden, nicht addiert.`,
+  task3Step1: `Formel: A = g · h : 2.`, task3Step2: `Einsetzen: 10 · 6 : 2.`, task3Step3: `Rechnen: 10 · 6 = 60, dann 60 : 2 = 30.`,
+  task3Hint: `Das Teilen durch 2 beim Dreieck nicht vergessen.`,
+  task4Step1: `Formel: A = g · h : 2.`, task4Step2: `Einsetzen: 14 · 5 : 2.`, task4Step3: `Rechnen: 14 · 5 = 70, dann 70 : 2 = 35.`,
+  task4Hint: `Erst multiplizieren, dann durch 2 teilen – nicht umgekehrt.`,
+  task5Step1: `Formel: A = (a + c) : 2 · h.`, task5Step2: `Einsetzen: (8 + 4) : 2 · 5.`, task5Step3: `Rechnen: 12 : 2 = 6, dann 6 · 5 = 30.`,
+  task5Hint: `Erst die beiden parallelen Seiten a und c addieren, dann erst weiterrechnen.`,
+  task6Step1: `Formel: A = (a + c) : 2 · h.`, task6Step2: `Einsetzen: (10 + 6) : 2 · 4.`, task6Step3: `Rechnen: 16 : 2 = 8, dann 8 · 4 = 32.`,
+  task6Hint: `a und c sind die beiden parallelen Seiten, h ist der senkrechte Abstand zwischen ihnen.`,
+  task7Step1: `Formel: A = a · b.`, task7Step2: `Einsetzen: 6 · 4 = 24.`, task7Step3: `Ergebnis: 24 m².`,
+  task7Hint: `Ein rechteckiges Zimmer wird genau wie ein Rechteck berechnet: Länge mal Breite.`,
+  task8Step1: `Formel: A = g · h : 2.`, task8Step2: `Einsetzen: 8 · 3 : 2.`, task8Step3: `Rechnen: 8 · 3 = 24, dann 24 : 2 = 12.`,
+  task8Hint: `Auch bei Sachaufgaben mit einem Dreieck nicht das Teilen durch 2 vergessen.`,
+  hintLabel: `Typischer Fehler:`, footerMessage: `Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!`,
+  fbEmpty: `Trag bitte eine Zahl ein, bevor du prüfst.`, fbCorrect: `Richtig! Gut gemacht!`, fbIncorrect: `Noch nicht ganz richtig. Schau dir die Lösung weiter unten an und versuch es dann nochmal.`
+},
+en: {
+  eyebrow: `Luisen-Gymnasium · Grade 6`, titleLine1: `Area`, titleAccent: `Calculations`, backLink: `← All Topics`, h2Basics: `Basics`,
+  basicsP1: `For rectangles, triangles and trapezoids there are fixed formulas to calculate the area. It's important to correctly read the sides and heights from the drawing.`,
+  shapesAria: `Three shapes with formulas: rectangle a times b, triangle base times height divided by 2, trapezoid a plus c divided by 2 times height`,
+  shapeRect: `Rectangle`, shapeTri: `Triangle`, shapeTrap: `Trapezoid`,
+  basicsExample1Label: `<strong>Step-by-step example:</strong> Rectangle with a = 8 cm and b = 5 cm.`,
+  basicsExample1Steps: `1. Formula: A = a · b<br>2. Substitute: A = 8 · 5<br>3. Result: A = 40 cm²`,
+  basicsP2Triangle: `<strong>For a triangle,</strong> the area is divided by 2, because a triangle is exactly half of a rectangle with the same measurements.`,
+  basicsExample2Label: `<strong>Step-by-step example:</strong> Triangle with base = 10 cm and height = 6 cm.`,
+  basicsExample2Steps: `1. Formula: A = base · height : 2<br>2. Substitute: A = 10 · 6 : 2<br>3. Calculate: 10 · 6 = 60, then 60 : 2 = 30<br>4. Result: A = 30 cm²`,
+  merkeTitle: `Remember`, merkeBody: `Rectangle: A = a · b.<br>Triangle: A = base · height : 2.<br>Trapezoid: A = (a + c) : 2 · height.`,
+  taskWord: `Exercise`,
+  task1Question: `A rectangle has a = 8 cm and b = 5 cm. What's the area (in cm²)?`, task2Question: `A rectangle has a = 12 cm and b = 7 cm. What's the area (in cm²)?`, task3Question: `A triangle has base = 10 cm and height = 6 cm. What's the area (in cm²)?`, task4Question: `A triangle has base = 14 cm and height = 5 cm. What's the area (in cm²)?`, task5Question: `A trapezoid has a = 8 cm, c = 4 cm and height = 5 cm. What's the area (in cm²)?`, task6Question: `A trapezoid has a = 10 cm, c = 6 cm and height = 4 cm. What's the area (in cm²)?`,
+  task7Question: `A rectangular room is 6 m long and 4 m wide. How many square meters of carpet are needed?`,
+  task8Question: `A triangular flower bed has a base of 8 m and a height of 3 m. What's the area (in m²)?`,
+  answerPlaceholder: `Your answer`, checkButton: `Check`, solutionSummary: `Show solution`,
+  task1Result: `Result: 40 cm²`, task2Result: `Result: 84 cm²`, task3Result: `Result: 30 cm²`, task4Result: `Result: 35 cm²`, task5Result: `Result: 30 cm²`, task6Result: `Result: 32 cm²`, task7Result: `Result: 24 m²`, task8Result: `Result: 12 m²`,
+  task1Step1: `Formula: A = a · b.`, task1Step2: `Substitute: 8 · 5 = 40.`, task1Step3: `Result: 40 cm².`,
+  task1Hint: `The area unit is cm² (square centimeters), not cm.`,
+  task2Step1: `Formula: A = a · b.`, task2Step2: `Substitute: 12 · 7 = 84.`, task2Step3: `Result: 84 cm².`,
+  task2Hint: `Both sides need to be multiplied together, not added.`,
+  task3Step1: `Formula: A = base · height : 2.`, task3Step2: `Substitute: 10 · 6 : 2.`, task3Step3: `Calculate: 10 · 6 = 60, then 60 : 2 = 30.`,
+  task3Hint: `Don't forget to divide by 2 for a triangle.`,
+  task4Step1: `Formula: A = base · height : 2.`, task4Step2: `Substitute: 14 · 5 : 2.`, task4Step3: `Calculate: 14 · 5 = 70, then 70 : 2 = 35.`,
+  task4Hint: `Multiply first, then divide by 2 — not the other way round.`,
+  task5Step1: `Formula: A = (a + c) : 2 · height.`, task5Step2: `Substitute: (8 + 4) : 2 · 5.`, task5Step3: `Calculate: 12 : 2 = 6, then 6 · 5 = 30.`,
+  task5Hint: `First add the two parallel sides a and c, then continue calculating.`,
+  task6Step1: `Formula: A = (a + c) : 2 · height.`, task6Step2: `Substitute: (10 + 6) : 2 · 4.`, task6Step3: `Calculate: 16 : 2 = 8, then 8 · 4 = 32.`,
+  task6Hint: `a and c are the two parallel sides, h is the perpendicular distance between them.`,
+  task7Step1: `Formula: A = a · b.`, task7Step2: `Substitute: 6 · 4 = 24.`, task7Step3: `Result: 24 m².`,
+  task7Hint: `A rectangular room is calculated exactly like a rectangle: length times width.`,
+  task8Step1: `Formula: A = base · height : 2.`, task8Step2: `Substitute: 8 · 3 : 2.`, task8Step3: `Calculate: 8 · 3 = 24, then 24 : 2 = 12.`,
+  task8Hint: `Even in word problems with a triangle, don't forget to divide by 2.`,
+  hintLabel: `Common mistake:`, footerMessage: `Take your time and check the solution if you need to. You can do this!`,
+  fbEmpty: `Please enter a number before checking.`, fbCorrect: `Correct! Well done!`, fbIncorrect: `Not quite right yet. Check the solution below and try again.`
+},
+es: {
+  eyebrow: `Luisen-Gymnasium · 6.º curso`, titleLine1: `Cálculo de`, titleAccent: `áreas`, backLink: `← Todos los temas`, h2Basics: `Fundamentos`,
+  basicsP1: `Para el rectángulo, el triángulo y el trapecio hay fórmulas fijas para calcular el área. Es importante leer correctamente los lados y las alturas en el dibujo.`,
+  shapesAria: `Tres figuras con fórmulas: rectángulo a por b, triángulo base por altura entre 2, trapecio a más c entre 2 por altura`,
+  shapeRect: `Rectángulo`, shapeTri: `Triángulo`, shapeTrap: `Trapecio`,
+  basicsExample1Label: `<strong>Ejemplo paso a paso:</strong> Rectángulo con a = 8 cm y b = 5 cm.`,
+  basicsExample1Steps: `1. Fórmula: A = a · b<br>2. Sustituye: A = 8 · 5<br>3. Resultado: A = 40 cm²`,
+  basicsP2Triangle: `<strong>En el triángulo,</strong> el área se divide entre 2, porque un triángulo es exactamente la mitad de un rectángulo con las mismas medidas.`,
+  basicsExample2Label: `<strong>Ejemplo paso a paso:</strong> Triángulo con base = 10 cm y altura = 6 cm.`,
+  basicsExample2Steps: `1. Fórmula: A = base · altura : 2<br>2. Sustituye: A = 10 · 6 : 2<br>3. Calcula: 10 · 6 = 60, luego 60 : 2 = 30<br>4. Resultado: A = 30 cm²`,
+  merkeTitle: `Recuerda`, merkeBody: `Rectángulo: A = a · b.<br>Triángulo: A = base · altura : 2.<br>Trapecio: A = (a + c) : 2 · altura.`,
+  taskWord: `Ejercicio`,
+  task1Question: `Un rectángulo tiene a = 8 cm y b = 5 cm. ¿Cuál es el área (en cm²)?`, task2Question: `Un rectángulo tiene a = 12 cm y b = 7 cm. ¿Cuál es el área (en cm²)?`, task3Question: `Un triángulo tiene base = 10 cm y altura = 6 cm. ¿Cuál es el área (en cm²)?`, task4Question: `Un triángulo tiene base = 14 cm y altura = 5 cm. ¿Cuál es el área (en cm²)?`, task5Question: `Un trapecio tiene a = 8 cm, c = 4 cm y altura = 5 cm. ¿Cuál es el área (en cm²)?`, task6Question: `Un trapecio tiene a = 10 cm, c = 6 cm y altura = 4 cm. ¿Cuál es el área (en cm²)?`,
+  task7Question: `Una habitación rectangular mide 6 m de largo y 4 m de ancho. ¿Cuántos metros cuadrados de alfombra se necesitan?`,
+  task8Question: `Un macizo de flores triangular tiene una base de 8 m y una altura de 3 m. ¿Cuál es el área (en m²)?`,
+  answerPlaceholder: `Tu respuesta`, checkButton: `Comprobar`, solutionSummary: `Ver solución`,
+  task1Result: `Resultado: 40 cm²`, task2Result: `Resultado: 84 cm²`, task3Result: `Resultado: 30 cm²`, task4Result: `Resultado: 35 cm²`, task5Result: `Resultado: 30 cm²`, task6Result: `Resultado: 32 cm²`, task7Result: `Resultado: 24 m²`, task8Result: `Resultado: 12 m²`,
+  task1Step1: `Fórmula: A = a · b.`, task1Step2: `Sustituye: 8 · 5 = 40.`, task1Step3: `Resultado: 40 cm².`,
+  task1Hint: `La unidad de área es cm² (centímetros cuadrados), no cm.`,
+  task2Step1: `Fórmula: A = a · b.`, task2Step2: `Sustituye: 12 · 7 = 84.`, task2Step3: `Resultado: 84 cm².`,
+  task2Hint: `Ambos lados deben multiplicarse entre sí, no sumarse.`,
+  task3Step1: `Fórmula: A = base · altura : 2.`, task3Step2: `Sustituye: 10 · 6 : 2.`, task3Step3: `Calcula: 10 · 6 = 60, luego 60 : 2 = 30.`,
+  task3Hint: `No olvides dividir entre 2 en el triángulo.`,
+  task4Step1: `Fórmula: A = base · altura : 2.`, task4Step2: `Sustituye: 14 · 5 : 2.`, task4Step3: `Calcula: 14 · 5 = 70, luego 70 : 2 = 35.`,
+  task4Hint: `Primero multiplica, luego divide entre 2 — no al revés.`,
+  task5Step1: `Fórmula: A = (a + c) : 2 · altura.`, task5Step2: `Sustituye: (8 + 4) : 2 · 5.`, task5Step3: `Calcula: 12 : 2 = 6, luego 6 · 5 = 30.`,
+  task5Hint: `Primero suma los dos lados paralelos a y c, luego sigue calculando.`,
+  task6Step1: `Fórmula: A = (a + c) : 2 · altura.`, task6Step2: `Sustituye: (10 + 6) : 2 · 4.`, task6Step3: `Calcula: 16 : 2 = 8, luego 8 · 4 = 32.`,
+  task6Hint: `a y c son los dos lados paralelos, h es la distancia perpendicular entre ellos.`,
+  task7Step1: `Fórmula: A = a · b.`, task7Step2: `Sustituye: 6 · 4 = 24.`, task7Step3: `Resultado: 24 m².`,
+  task7Hint: `Una habitación rectangular se calcula igual que un rectángulo: largo por ancho.`,
+  task8Step1: `Fórmula: A = base · altura : 2.`, task8Step2: `Sustituye: 8 · 3 : 2.`, task8Step3: `Calcula: 8 · 3 = 24, luego 24 : 2 = 12.`,
+  task8Hint: `Incluso en problemas de texto con un triángulo, no olvides dividir entre 2.`,
+  hintLabel: `Error típico:`, footerMessage: `Tómate tu tiempo y revisa la solución si la necesitas. ¡Tú puedes!`,
+  fbEmpty: `Introduce un número antes de comprobar.`, fbCorrect: `¡Correcto! ¡Muy bien!`, fbIncorrect: `Todavía no es correcto. Revisa la solución de abajo e inténtalo de nuevo.`
+},
+fr: {
+  eyebrow: `Luisen-Gymnasium · 6e`, titleLine1: `Calcul`, titleAccent: `d'aires`, backLink: `← Tous les thèmes`, h2Basics: `Les bases`,
+  basicsP1: `Pour le rectangle, le triangle et le trapèze, il existe des formules fixes pour calculer l'aire. Il est important de bien lire les côtés et les hauteurs sur le dessin.`,
+  shapesAria: `Trois formes avec des formules : rectangle a fois b, triangle base fois hauteur divisé par 2, trapèze a plus c divisé par 2 fois hauteur`,
+  shapeRect: `Rectangle`, shapeTri: `Triangle`, shapeTrap: `Trapèze`,
+  basicsExample1Label: `<strong>Exemple étape par étape :</strong> Rectangle avec a = 8 cm et b = 5 cm.`,
+  basicsExample1Steps: `1. Formule : A = a · b<br>2. Substitue : A = 8 · 5<br>3. Résultat : A = 40 cm²`,
+  basicsP2Triangle: `<strong>Pour le triangle,</strong> l'aire est divisée par 2, car un triangle représente exactement la moitié d'un rectangle avec les mêmes dimensions.`,
+  basicsExample2Label: `<strong>Exemple étape par étape :</strong> Triangle avec base = 10 cm et hauteur = 6 cm.`,
+  basicsExample2Steps: `1. Formule : A = base · hauteur : 2<br>2. Substitue : A = 10 · 6 : 2<br>3. Calcule : 10 · 6 = 60, puis 60 : 2 = 30<br>4. Résultat : A = 30 cm²`,
+  merkeTitle: `À retenir`, merkeBody: `Rectangle : A = a · b.<br>Triangle : A = base · hauteur : 2.<br>Trapèze : A = (a + c) : 2 · hauteur.`,
+  taskWord: `Exercice`,
+  task1Question: `Un rectangle a a = 8 cm et b = 5 cm. Quelle est l'aire (en cm²) ?`, task2Question: `Un rectangle a a = 12 cm et b = 7 cm. Quelle est l'aire (en cm²) ?`, task3Question: `Un triangle a une base = 10 cm et une hauteur = 6 cm. Quelle est l'aire (en cm²) ?`, task4Question: `Un triangle a une base = 14 cm et une hauteur = 5 cm. Quelle est l'aire (en cm²) ?`, task5Question: `Un trapèze a a = 8 cm, c = 4 cm et une hauteur = 5 cm. Quelle est l'aire (en cm²) ?`, task6Question: `Un trapèze a a = 10 cm, c = 6 cm et une hauteur = 4 cm. Quelle est l'aire (en cm²) ?`,
+  task7Question: `Une pièce rectangulaire mesure 6 m de long et 4 m de large. Combien de mètres carrés de moquette faut-il ?`,
+  task8Question: `Un parterre de fleurs triangulaire a une base de 8 m et une hauteur de 3 m. Quelle est l'aire (en m²) ?`,
+  answerPlaceholder: `Ta réponse`, checkButton: `Vérifier`, solutionSummary: `Voir la solution`,
+  task1Result: `Résultat : 40 cm²`, task2Result: `Résultat : 84 cm²`, task3Result: `Résultat : 30 cm²`, task4Result: `Résultat : 35 cm²`, task5Result: `Résultat : 30 cm²`, task6Result: `Résultat : 32 cm²`, task7Result: `Résultat : 24 m²`, task8Result: `Résultat : 12 m²`,
+  task1Step1: `Formule : A = a · b.`, task1Step2: `Substitue : 8 · 5 = 40.`, task1Step3: `Résultat : 40 cm².`,
+  task1Hint: `L'unité d'aire est cm² (centimètres carrés), pas cm.`,
+  task2Step1: `Formule : A = a · b.`, task2Step2: `Substitue : 12 · 7 = 84.`, task2Step3: `Résultat : 84 cm².`,
+  task2Hint: `Les deux côtés doivent être multipliés entre eux, pas additionnés.`,
+  task3Step1: `Formule : A = base · hauteur : 2.`, task3Step2: `Substitue : 10 · 6 : 2.`, task3Step3: `Calcule : 10 · 6 = 60, puis 60 : 2 = 30.`,
+  task3Hint: `N'oublie pas de diviser par 2 pour un triangle.`,
+  task4Step1: `Formule : A = base · hauteur : 2.`, task4Step2: `Substitue : 14 · 5 : 2.`, task4Step3: `Calcule : 14 · 5 = 70, puis 70 : 2 = 35.`,
+  task4Hint: `Multiplie d'abord, puis divise par 2 — pas l'inverse.`,
+  task5Step1: `Formule : A = (a + c) : 2 · hauteur.`, task5Step2: `Substitue : (8 + 4) : 2 · 5.`, task5Step3: `Calcule : 12 : 2 = 6, puis 6 · 5 = 30.`,
+  task5Hint: `Additionne d'abord les deux côtés parallèles a et c, puis continue.`,
+  task6Step1: `Formule : A = (a + c) : 2 · hauteur.`, task6Step2: `Substitue : (10 + 6) : 2 · 4.`, task6Step3: `Calcule : 16 : 2 = 8, puis 8 · 4 = 32.`,
+  task6Hint: `a et c sont les deux côtés parallèles, h est la distance perpendiculaire entre eux.`,
+  task7Step1: `Formule : A = a · b.`, task7Step2: `Substitue : 6 · 4 = 24.`, task7Step3: `Résultat : 24 m².`,
+  task7Hint: `Une pièce rectangulaire se calcule exactement comme un rectangle : longueur fois largeur.`,
+  task8Step1: `Formule : A = base · hauteur : 2.`, task8Step2: `Substitue : 8 · 3 : 2.`, task8Step3: `Calcule : 8 · 3 = 24, puis 24 : 2 = 12.`,
+  task8Hint: `Même dans les problèmes avec un triangle, n'oublie pas de diviser par 2.`,
+  hintLabel: `Erreur fréquente :`, footerMessage: `Prends ton temps et regarde la solution si besoin. Tu vas y arriver !`,
+  fbEmpty: `Merci d'indiquer un nombre avant de vérifier.`, fbCorrect: `Correct ! Bien joué !`, fbIncorrect: `Pas encore tout à fait juste. Regarde la solution ci-dessous et réessaie.`
+},
+tr: {
+  eyebrow: `Luisen-Gymnasium · 6. Sınıf`, titleLine1: `Alan`, titleAccent: `Hesabı`, backLink: `← Tüm Konular`, h2Basics: `Temel Bilgiler`,
+  basicsP1: `Dikdörtgen, üçgen ve yamuk için alanı hesaplamak üzere sabit formüller vardır. Çizimden doğru kenarları ve yükseklikleri okumak önemlidir.`,
+  shapesAria: `Formülleriyle üç şekil: dikdörtgen a çarpı b, üçgen taban çarpı yükseklik bölü 2, yamuk a artı c bölü 2 çarpı yükseklik`,
+  shapeRect: `Dikdörtgen`, shapeTri: `Üçgen`, shapeTrap: `Yamuk`,
+  basicsExample1Label: `<strong>Adım adım örnek:</strong> a = 8 cm ve b = 5 cm olan bir dikdörtgen.`,
+  basicsExample1Steps: `1. Formül: A = a · b<br>2. Yerine koy: A = 8 · 5<br>3. Sonuç: A = 40 cm²`,
+  basicsP2Triangle: `<strong>Üçgende</strong> alan 2'ye bölünür, çünkü bir üçgen, aynı ölçülere sahip bir dikdörtgenin tam yarısıdır.`,
+  basicsExample2Label: `<strong>Adım adım örnek:</strong> Taban = 10 cm ve yükseklik = 6 cm olan bir üçgen.`,
+  basicsExample2Steps: `1. Formül: A = taban · yükseklik : 2<br>2. Yerine koy: A = 10 · 6 : 2<br>3. Hesapla: 10 · 6 = 60, sonra 60 : 2 = 30<br>4. Sonuç: A = 30 cm²`,
+  merkeTitle: `Unutma`, merkeBody: `Dikdörtgen: A = a · b.<br>Üçgen: A = taban · yükseklik : 2.<br>Yamuk: A = (a + c) : 2 · yükseklik.`,
+  taskWord: `Alıştırma`,
+  task1Question: `Bir dikdörtgenin a = 8 cm ve b = 5 cm'dir. Alan kaç cm²'dir?`, task2Question: `Bir dikdörtgenin a = 12 cm ve b = 7 cm'dir. Alan kaç cm²'dir?`, task3Question: `Bir üçgenin tabanı = 10 cm ve yüksekliği = 6 cm'dir. Alan kaç cm²'dir?`, task4Question: `Bir üçgenin tabanı = 14 cm ve yüksekliği = 5 cm'dir. Alan kaç cm²'dir?`, task5Question: `Bir yamuğun a = 8 cm, c = 4 cm ve yüksekliği = 5 cm'dir. Alan kaç cm²'dir?`, task6Question: `Bir yamuğun a = 10 cm, c = 6 cm ve yüksekliği = 4 cm'dir. Alan kaç cm²'dir?`,
+  task7Question: `Dikdörtgen bir oda 6 m uzunluğunda ve 4 m genişliğindedir. Kaç metrekare halı gerekir?`,
+  task8Question: `Üçgen bir çiçek tarhının tabanı 8 m ve yüksekliği 3 m'dir. Alan kaç m²'dir?`,
+  answerPlaceholder: `Cevabın`, checkButton: `Kontrol et`, solutionSummary: `Çözümü göster`,
+  task1Result: `Sonuç: 40 cm²`, task2Result: `Sonuç: 84 cm²`, task3Result: `Sonuç: 30 cm²`, task4Result: `Sonuç: 35 cm²`, task5Result: `Sonuç: 30 cm²`, task6Result: `Sonuç: 32 cm²`, task7Result: `Sonuç: 24 m²`, task8Result: `Sonuç: 12 m²`,
+  task1Step1: `Formül: A = a · b.`, task1Step2: `Yerine koy: 8 · 5 = 40.`, task1Step3: `Sonuç: 40 cm².`,
+  task1Hint: `Alan birimi cm²'dir (santimetrekare), cm değil.`,
+  task2Step1: `Formül: A = a · b.`, task2Step2: `Yerine koy: 12 · 7 = 84.`, task2Step3: `Sonuç: 84 cm².`,
+  task2Hint: `Her iki kenar birbiriyle çarpılmalıdır, toplanmamalıdır.`,
+  task3Step1: `Formül: A = taban · yükseklik : 2.`, task3Step2: `Yerine koy: 10 · 6 : 2.`, task3Step3: `Hesapla: 10 · 6 = 60, sonra 60 : 2 = 30.`,
+  task3Hint: `Üçgende 2'ye bölmeyi unutma.`,
+  task4Step1: `Formül: A = taban · yükseklik : 2.`, task4Step2: `Yerine koy: 14 · 5 : 2.`, task4Step3: `Hesapla: 14 · 5 = 70, sonra 70 : 2 = 35.`,
+  task4Hint: `Önce çarp, sonra 2'ye böl — tersi değil.`,
+  task5Step1: `Formül: A = (a + c) : 2 · yükseklik.`, task5Step2: `Yerine koy: (8 + 4) : 2 · 5.`, task5Step3: `Hesapla: 12 : 2 = 6, sonra 6 · 5 = 30.`,
+  task5Hint: `Önce a ve c paralel kenarlarını topla, sonra devam et.`,
+  task6Step1: `Formül: A = (a + c) : 2 · yükseklik.`, task6Step2: `Yerine koy: (10 + 6) : 2 · 4.`, task6Step3: `Hesapla: 16 : 2 = 8, sonra 8 · 4 = 32.`,
+  task6Hint: `a ve c iki paralel kenardır, h ise ikisi arasındaki dik uzaklıktır.`,
+  task7Step1: `Formül: A = a · b.`, task7Step2: `Yerine koy: 6 · 4 = 24.`, task7Step3: `Sonuç: 24 m².`,
+  task7Hint: `Dikdörtgen bir oda tam olarak bir dikdörtgen gibi hesaplanır: uzunluk çarpı genişlik.`,
+  task8Step1: `Formül: A = taban · yükseklik : 2.`, task8Step2: `Yerine koy: 8 · 3 : 2.`, task8Step3: `Hesapla: 8 · 3 = 24, sonra 24 : 2 = 12.`,
+  task8Hint: `Üçgenli metin problemlerinde de 2'ye bölmeyi unutma.`,
+  hintLabel: `Sık yapılan hata:`, footerMessage: `Sakin sakin hesapla, gerekirse çözüme bak. Bunu başarabilirsin!`,
+  fbEmpty: `Kontrol etmeden önce lütfen bir sayı gir.`, fbCorrect: `Doğru! Aferin!`, fbIncorrect: `Henüz tam doğru değil. Aşağıdaki çözüme bak ve tekrar dene.`
+},
+ru: {
+  eyebrow: `Luisen-Gymnasium · 6 класс`, titleLine1: `Вычисление`, titleAccent: `площади`, backLink: `← Все темы`, h2Basics: `Основы`,
+  basicsP1: `Для прямоугольника, треугольника и трапеции есть готовые формулы для вычисления площади. Важно правильно определить стороны и высоты на рисунке.`,
+  shapesAria: `Три фигуры с формулами: прямоугольник a умножить на b, треугольник основание умножить на высоту разделить на 2, трапеция a плюс c разделить на 2 умножить на высоту`,
+  shapeRect: `Прямоугольник`, shapeTri: `Треугольник`, shapeTrap: `Трапеция`,
+  basicsExample1Label: `<strong>Пример по шагам:</strong> Прямоугольник с a = 8 см и b = 5 см.`,
+  basicsExample1Steps: `1. Формула: S = a · b<br>2. Подставить: S = 8 · 5<br>3. Результат: S = 40 см²`,
+  basicsP2Triangle: `<strong>У треугольника</strong> площадь делят на 2, потому что треугольник составляет ровно половину прямоугольника с теми же размерами.`,
+  basicsExample2Label: `<strong>Пример по шагам:</strong> Треугольник с основанием = 10 см и высотой = 6 см.`,
+  basicsExample2Steps: `1. Формула: S = основание · высота : 2<br>2. Подставить: S = 10 · 6 : 2<br>3. Вычислить: 10 · 6 = 60, затем 60 : 2 = 30<br>4. Результат: S = 30 см²`,
+  merkeTitle: `Запомни`, merkeBody: `Прямоугольник: S = a · b.<br>Треугольник: S = основание · высота : 2.<br>Трапеция: S = (a + c) : 2 · высота.`,
+  taskWord: `Задание`,
+  task1Question: `У прямоугольника a = 8 см и b = 5 см. Чему равна площадь (в см²)?`, task2Question: `У прямоугольника a = 12 см и b = 7 см. Чему равна площадь (в см²)?`, task3Question: `У треугольника основание = 10 см и высота = 6 см. Чему равна площадь (в см²)?`, task4Question: `У треугольника основание = 14 см и высота = 5 см. Чему равна площадь (в см²)?`, task5Question: `У трапеции a = 8 см, c = 4 см и высота = 5 см. Чему равна площадь (в см²)?`, task6Question: `У трапеции a = 10 см, c = 6 см и высота = 4 см. Чему равна площадь (в см²)?`,
+  task7Question: `Прямоугольная комната 6 м в длину и 4 м в ширину. Сколько квадратных метров ковра нужно?`,
+  task8Question: `У треугольной клумбы основание 8 м и высота 3 м. Чему равна площадь (в м²)?`,
+  answerPlaceholder: `Твой ответ`, checkButton: `Проверить`, solutionSummary: `Показать решение`,
+  task1Result: `Результат: 40 см²`, task2Result: `Результат: 84 см²`, task3Result: `Результат: 30 см²`, task4Result: `Результат: 35 см²`, task5Result: `Результат: 30 см²`, task6Result: `Результат: 32 см²`, task7Result: `Результат: 24 м²`, task8Result: `Результат: 12 м²`,
+  task1Step1: `Формула: S = a · b.`, task1Step2: `Подставить: 8 · 5 = 40.`, task1Step3: `Результат: 40 см².`,
+  task1Hint: `Единица площади — см² (квадратный сантиметр), а не см.`,
+  task2Step1: `Формула: S = a · b.`, task2Step2: `Подставить: 12 · 7 = 84.`, task2Step3: `Результат: 84 см².`,
+  task2Hint: `Обе стороны нужно перемножить, а не сложить.`,
+  task3Step1: `Формула: S = основание · высота : 2.`, task3Step2: `Подставить: 10 · 6 : 2.`, task3Step3: `Вычислить: 10 · 6 = 60, затем 60 : 2 = 30.`,
+  task3Hint: `Не забудь разделить на 2 для треугольника.`,
+  task4Step1: `Формула: S = основание · высота : 2.`, task4Step2: `Подставить: 14 · 5 : 2.`, task4Step3: `Вычислить: 14 · 5 = 70, затем 70 : 2 = 35.`,
+  task4Hint: `Сначала умножь, потом раздели на 2 — не наоборот.`,
+  task5Step1: `Формула: S = (a + c) : 2 · высота.`, task5Step2: `Подставить: (8 + 4) : 2 · 5.`, task5Step3: `Вычислить: 12 : 2 = 6, затем 6 · 5 = 30.`,
+  task5Hint: `Сначала сложи две параллельные стороны a и c, потом продолжай вычислять.`,
+  task6Step1: `Формула: S = (a + c) : 2 · высота.`, task6Step2: `Подставить: (10 + 6) : 2 · 4.`, task6Step3: `Вычислить: 16 : 2 = 8, затем 8 · 4 = 32.`,
+  task6Hint: `a и c — две параллельные стороны, h — перпендикулярное расстояние между ними.`,
+  task7Step1: `Формула: S = a · b.`, task7Step2: `Подставить: 6 · 4 = 24.`, task7Step3: `Результат: 24 м².`,
+  task7Hint: `Прямоугольная комната считается так же, как прямоугольник: длина умножить на ширину.`,
+  task8Step1: `Формула: S = основание · высота : 2.`, task8Step2: `Подставить: 8 · 3 : 2.`, task8Step3: `Вычислить: 8 · 3 = 24, затем 24 : 2 = 12.`,
+  task8Hint: `Даже в текстовых задачах с треугольником не забывай делить на 2.`,
+  hintLabel: `Типичная ошибка:`, footerMessage: `Считай спокойно и при необходимости смотри решение. У тебя получится!`,
+  fbEmpty: `Пожалуйста, введи число перед проверкой.`, fbCorrect: `Правильно! Отлично!`, fbIncorrect: `Пока не совсем верно. Посмотри решение ниже и попробуй ещё раз.`
+},
+ar: {
+  eyebrow: `مدرسة لويزن الثانوية · الصف السادس`, titleLine1: `حساب`, titleAccent: `المساحة`, backLink: `← جميع المواضيع`, h2Basics: `الأساسيات`,
+  basicsP1: `توجد معادلات ثابتة لحساب مساحة المستطيل والمثلث وشبه المنحرف. من المهم قراءة الأضلاع والارتفاعات بشكل صحيح من الرسم.`,
+  shapesAria: `ثلاثة أشكال بمعادلاتها: مستطيل a في b، مثلث القاعدة في الارتفاع مقسومًا على 2، شبه منحرف a زائد c مقسومًا على 2 في الارتفاع`,
+  shapeRect: `مستطيل`, shapeTri: `مثلث`, shapeTrap: `شبه منحرف`,
+  basicsExample1Label: `<strong>مثال خطوة بخطوة:</strong> مستطيل بـ a = 8 سم وb = 5 سم.`,
+  basicsExample1Steps: `1. المعادلة: A = a · b<br>2. عوّض: A = 8 · 5<br>3. النتيجة: A = 40 سم²`,
+  basicsP2Triangle: `<strong>في المثلث،</strong> تُقسَم المساحة على 2، لأن المثلث يساوي بالضبط نصف مستطيل بنفس القياسات.`,
+  basicsExample2Label: `<strong>مثال خطوة بخطوة:</strong> مثلث بقاعدة = 10 سم وارتفاع = 6 سم.`,
+  basicsExample2Steps: `1. المعادلة: A = القاعدة · الارتفاع ÷ 2<br>2. عوّض: A = 10 · 6 ÷ 2<br>3. احسب: 10 · 6 = 60، ثم 60 ÷ 2 = 30<br>4. النتيجة: A = 30 سم²`,
+  merkeTitle: `تذكّر`, merkeBody: `المستطيل: A = a · b.<br>المثلث: A = القاعدة · الارتفاع ÷ 2.<br>شبه المنحرف: A = (a + c) ÷ 2 × الارتفاع.`,
+  taskWord: `تمرين`,
+  task1Question: `مستطيل له a = 8 سم وb = 5 سم. كم تبلغ المساحة (بالسم²)؟`, task2Question: `مستطيل له a = 12 سم وb = 7 سم. كم تبلغ المساحة (بالسم²)؟`, task3Question: `مثلث له قاعدة = 10 سم وارتفاع = 6 سم. كم تبلغ المساحة (بالسم²)؟`, task4Question: `مثلث له قاعدة = 14 سم وارتفاع = 5 سم. كم تبلغ المساحة (بالسم²)؟`, task5Question: `شبه منحرف له a = 8 سم، c = 4 سم وارتفاع = 5 سم. كم تبلغ المساحة (بالسم²)؟`, task6Question: `شبه منحرف له a = 10 سم، c = 6 سم وارتفاع = 4 سم. كم تبلغ المساحة (بالسم²)؟`,
+  task7Question: `غرفة مستطيلة طولها 6 م وعرضها 4 م. كم متر مربع من السجاد مطلوب؟`,
+  task8Question: `حوض زهور مثلث قاعدته 8 م وارتفاعه 3 م. كم تبلغ المساحة (بالم²)؟`,
+  answerPlaceholder: `إجابتك`, checkButton: `تحقق`, solutionSummary: `عرض الحل`,
+  task1Result: `النتيجة: 40 سم²`, task2Result: `النتيجة: 84 سم²`, task3Result: `النتيجة: 30 سم²`, task4Result: `النتيجة: 35 سم²`, task5Result: `النتيجة: 30 سم²`, task6Result: `النتيجة: 32 سم²`, task7Result: `النتيجة: 24 م²`, task8Result: `النتيجة: 12 م²`,
+  task1Step1: `المعادلة: A = a · b.`, task1Step2: `عوّض: 8 · 5 = 40.`, task1Step3: `النتيجة: 40 سم².`,
+  task1Hint: `وحدة المساحة هي سم² (سنتيمتر مربع)، وليس سم.`,
+  task2Step1: `المعادلة: A = a · b.`, task2Step2: `عوّض: 12 · 7 = 84.`, task2Step3: `النتيجة: 84 سم².`,
+  task2Hint: `يجب ضرب الضلعين معًا، وليس جمعهما.`,
+  task3Step1: `المعادلة: A = القاعدة · الارتفاع ÷ 2.`, task3Step2: `عوّض: 10 · 6 ÷ 2.`, task3Step3: `احسب: 10 · 6 = 60، ثم 60 ÷ 2 = 30.`,
+  task3Hint: `لا تنسَ القسمة على 2 في المثلث.`,
+  task4Step1: `المعادلة: A = القاعدة · الارتفاع ÷ 2.`, task4Step2: `عوّض: 14 · 5 ÷ 2.`, task4Step3: `احسب: 14 · 5 = 70، ثم 70 ÷ 2 = 35.`,
+  task4Hint: `اضرب أولًا، ثم اقسم على 2 — وليس العكس.`,
+  task5Step1: `المعادلة: A = (a + c) ÷ 2 × الارتفاع.`, task5Step2: `عوّض: (8 + 4) ÷ 2 × 5.`, task5Step3: `احسب: 12 ÷ 2 = 6، ثم 6 × 5 = 30.`,
+  task5Hint: `اجمع أولًا الضلعين المتوازيين a وc، ثم تابع الحساب.`,
+  task6Step1: `المعادلة: A = (a + c) ÷ 2 × الارتفاع.`, task6Step2: `عوّض: (10 + 6) ÷ 2 × 4.`, task6Step3: `احسب: 16 ÷ 2 = 8، ثم 8 × 4 = 32.`,
+  task6Hint: `a وc هما الضلعان المتوازيان، وh هي المسافة العمودية بينهما.`,
+  task7Step1: `المعادلة: A = a · b.`, task7Step2: `عوّض: 6 · 4 = 24.`, task7Step3: `النتيجة: 24 م².`,
+  task7Hint: `تُحسَب الغرفة المستطيلة تمامًا مثل المستطيل: الطول في العرض.`,
+  task8Step1: `المعادلة: A = القاعدة · الارتفاع ÷ 2.`, task8Step2: `عوّض: 8 · 3 ÷ 2.`, task8Step3: `احسب: 8 · 3 = 24، ثم 24 ÷ 2 = 12.`,
+  task8Hint: `حتى في المسائل اللفظية بمثلث، لا تنسَ القسمة على 2.`,
+  hintLabel: `خطأ شائع:`, footerMessage: `احسب بهدوء وراجع الحل إذا احتجت إليه. أنت قادر على ذلك!`,
+  fbEmpty: `الرجاء إدخال رقم قبل التحقق.`, fbCorrect: `صحيح! أحسنت!`, fbIncorrect: `ليست صحيحة تمامًا بعد. راجع الحل أدناه وحاول مرة أخرى.`
+},
+zh: {
+  eyebrow: `路易森文理中学 · 六年级`, titleLine1: `面积`, titleAccent: `计算`, backLink: `← 所有主题`, h2Basics: `基础知识`,
+  basicsP1: `矩形、三角形和梯形都有固定的公式来计算面积。重要的是要从图中正确读出边长和高。`,
+  shapesAria: `带公式的三个图形：矩形a乘b，三角形底乘高除以2，梯形a加c除以2乘高`,
+  shapeRect: `矩形`, shapeTri: `三角形`, shapeTrap: `梯形`,
+  basicsExample1Label: `<strong>分步示例：</strong> 矩形 a = 8 厘米，b = 5 厘米。`,
+  basicsExample1Steps: `1. 公式：A = a · b<br>2. 代入：A = 8 · 5<br>3. 结果：A = 40 平方厘米`,
+  basicsP2Triangle: `<strong>三角形</strong>的面积要除以2，因为三角形正好是相同尺寸矩形面积的一半。`,
+  basicsExample2Label: `<strong>分步示例：</strong> 三角形底 = 10 厘米，高 = 6 厘米。`,
+  basicsExample2Steps: `1. 公式：A = 底 · 高 ÷ 2<br>2. 代入：A = 10 · 6 ÷ 2<br>3. 计算：10 · 6 = 60，然后 60 ÷ 2 = 30<br>4. 结果：A = 30 平方厘米`,
+  merkeTitle: `记住`, merkeBody: `矩形：A = a · b。<br>三角形：A = 底 · 高 ÷ 2。<br>梯形：A = (a + c) ÷ 2 · 高。`,
+  taskWord: `练习`,
+  task1Question: `一个矩形 a = 8 厘米，b = 5 厘米。面积是多少平方厘米？`, task2Question: `一个矩形 a = 12 厘米，b = 7 厘米。面积是多少平方厘米？`, task3Question: `一个三角形底 = 10 厘米，高 = 6 厘米。面积是多少平方厘米？`, task4Question: `一个三角形底 = 14 厘米，高 = 5 厘米。面积是多少平方厘米？`, task5Question: `一个梯形 a = 8 厘米，c = 4 厘米，高 = 5 厘米。面积是多少平方厘米？`, task6Question: `一个梯形 a = 10 厘米，c = 6 厘米，高 = 4 厘米。面积是多少平方厘米？`,
+  task7Question: `一个矩形房间长 6 米，宽 4 米。需要多少平方米的地毯？`,
+  task8Question: `一个三角形花坛底为 8 米，高为 3 米。面积是多少平方米？`,
+  answerPlaceholder: `你的答案`, checkButton: `检查`, solutionSummary: `显示答案`,
+  task1Result: `结果：40 平方厘米`, task2Result: `结果：84 平方厘米`, task3Result: `结果：30 平方厘米`, task4Result: `结果：35 平方厘米`, task5Result: `结果：30 平方厘米`, task6Result: `结果：32 平方厘米`, task7Result: `结果：24 平方米`, task8Result: `结果：12 平方米`,
+  task1Step1: `公式：A = a · b。`, task1Step2: `代入：8 · 5 = 40。`, task1Step3: `结果：40 平方厘米。`,
+  task1Hint: `面积单位是平方厘米，不是厘米。`,
+  task2Step1: `公式：A = a · b。`, task2Step2: `代入：12 · 7 = 84。`, task2Step3: `结果：84 平方厘米。`,
+  task2Hint: `两条边要相乘，而不是相加。`,
+  task3Step1: `公式：A = 底 · 高 ÷ 2。`, task3Step2: `代入：10 · 6 ÷ 2。`, task3Step3: `计算：10 · 6 = 60，然后 60 ÷ 2 = 30。`,
+  task3Hint: `三角形不要忘了除以 2。`,
+  task4Step1: `公式：A = 底 · 高 ÷ 2。`, task4Step2: `代入：14 · 5 ÷ 2。`, task4Step3: `计算：14 · 5 = 70，然后 70 ÷ 2 = 35。`,
+  task4Hint: `先乘，再除以 2——不是反过来。`,
+  task5Step1: `公式：A = (a + c) ÷ 2 · 高。`, task5Step2: `代入：(8 + 4) ÷ 2 · 5。`, task5Step3: `计算：12 ÷ 2 = 6，然后 6 · 5 = 30。`,
+  task5Hint: `先把两条平行边 a 和 c 相加，再继续计算。`,
+  task6Step1: `公式：A = (a + c) ÷ 2 · 高。`, task6Step2: `代入：(10 + 6) ÷ 2 · 4。`, task6Step3: `计算：16 ÷ 2 = 8，然后 8 · 4 = 32。`,
+  task6Hint: `a 和 c 是两条平行边，h 是它们之间的垂直距离。`,
+  task7Step1: `公式：A = a · b。`, task7Step2: `代入：6 · 4 = 24。`, task7Step3: `结果：24 平方米。`,
+  task7Hint: `矩形房间的计算方法与矩形完全相同：长乘宽。`,
+  task8Step1: `公式：A = 底 · 高 ÷ 2。`, task8Step2: `代入：8 · 3 ÷ 2。`, task8Step3: `计算：8 · 3 = 24，然后 24 ÷ 2 = 12。`,
+  task8Hint: `即使是关于三角形的应用题，也别忘了除以 2。`,
+  hintLabel: `常见错误：`, footerMessage: `慢慢算，需要的话看看答案。你能做到！`,
+  fbEmpty: `请先输入一个数字再检查。`, fbCorrect: `正确！做得好！`, fbIncorrect: `还不完全正确。看看下面的答案，再试一次。`
+}
+};
+
+var currentLang = 'de';
+
+function setLanguage(lang){
+  var dict = TRANSLATIONS[lang] || TRANSLATIONS.de;
+  currentLang = TRANSLATIONS[lang] ? lang : 'de';
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = (currentLang === 'ar') ? 'rtl' : 'ltr';
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var key = el.getAttribute('data-i18n');
+    if(dict[key] !== undefined){ el.innerHTML = dict[key]; }
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-placeholder');
+    if(dict[key] !== undefined){ el.setAttribute('placeholder', dict[key]); }
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-aria');
+    if(dict[key] !== undefined){ el.setAttribute('aria-label', dict[key]); }
+  });
+  try{ localStorage.setItem('mathecoach_lang', currentLang); }catch(e){}
+  var sel = document.getElementById('langSelect');
+  if(sel) sel.value = currentLang;
+}
+
+function check(id, correct){
+  var dict = TRANSLATIONS[currentLang] || TRANSLATIONS.de;
+  var input = document.getElementById('input' + id);
+  var feedback = document.getElementById('feedback' + id);
+  var raw = input.value.trim();
+  var match = raw.match(/-?\d+/);
+  feedback.classList.remove('show', 'correct', 'incorrect');
+  if(!match){
+    feedback.textContent = dict.fbEmpty;
+    feedback.classList.add('show', 'incorrect');
+    return;
+  }
+  var value = parseInt(match[0], 10);
+  if(value === correct){
+    feedback.textContent = dict.fbCorrect;
+    feedback.classList.add('show', 'correct');
+  } else {
+    feedback.textContent = dict.fbIncorrect;
+    feedback.classList.add('show', 'incorrect');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var saved = 'de';
+  try{ saved = localStorage.getItem('mathecoach_lang') || 'de'; }catch(e){}
+  setLanguage(saved);
+});
+</script>
+
+</body>
+</html>
