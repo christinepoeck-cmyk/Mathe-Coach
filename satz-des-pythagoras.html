@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Satz des Pythagoras</title>
+<style>
+  :root{
+    --bg:#FAFAF9; --card:#FFFFFF; --ink:#241C1C; --ink-soft:#5C4F4C;
+    --red:#C41230; --gold:#E0A526; --blue:#2478B5;
+    --merke-bg:#FBF1DC; --merke-border:#E0A526;
+    --success:#1E8E5A; --success-bg:#E5F5EC; --error:#B3401D; --error-bg:#FBEDE6;
+    --font-display: ui-rounded, "SF Pro Rounded", "Segoe UI Rounded", "Nunito", system-ui, sans-serif;
+    --font-body: system-ui, "Segoe UI", Roboto, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:18px; line-height:1.5; padding-bottom:60px; }
+  .wrap{ max-width:640px; margin:0 auto; padding:0 20px; }
+  header{ background:var(--card); padding:30px 20px 0; text-align:center; position:relative; }
+  .header-inner{ padding-bottom:26px; }
+  .lang-switch{ display:flex; justify-content:center; margin-bottom:14px; }
+  #langSelect{ font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--ink); background:var(--card); border:2px solid #E3DFDA; border-radius:999px; padding:6px 14px; cursor:pointer; }
+  #langSelect:focus-visible{ outline:3px solid var(--blue); }
+  .back-link{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--blue); text-decoration:none; margin-bottom:16px; }
+  .eyebrow{ font-family:var(--font-display); font-weight:700; font-size:14px; letter-spacing:0.08em; text-transform:uppercase; color:var(--blue); margin-bottom:8px; }
+  h1{ font-family:var(--font-display); font-size:28px; font-weight:800; margin:0; line-height:1.25; }
+  h1 .accent{ color:var(--red); }
+  .wave{ display:block; width:100%; height:30px; }
+  section{ margin-top:32px; }
+  .card{ background:var(--card); border-radius:22px; padding:24px 22px; box-shadow:0 2px 14px rgba(36,28,28,0.07); }
+  h2{ font-family:var(--font-display); font-size:21px; font-weight:800; margin:0 0 14px; }
+  h2 .num{ display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:var(--blue); color:white; font-size:16px; margin-inline-end:10px; vertical-align:middle; }
+  p{ margin:0 0 14px; color:var(--ink-soft); }
+  .merke{ background:var(--merke-bg); border:2px solid var(--merke-border); border-radius:16px; padding:16px 18px; margin-top:16px; }
+  .merke-title{ font-family:var(--font-display); font-weight:800; color:#8A5A0F; font-size:15px; letter-spacing:0.04em; text-transform:uppercase; margin-bottom:6px; }
+  .merke-body{ color:#6B4A12; font-weight:600; margin:0; }
+  .pyth-diagram{ width:100%; height:auto; margin:18px 0 6px; }
+  .task-card{ margin-top:18px; }
+  .task-question{ font-family:var(--font-display); font-weight:700; font-size:19px; margin-bottom:16px; }
+  .answer-row{ display:flex; gap:10px; margin-bottom:6px; }
+  input[type="text"]{ flex:1; font-size:18px; font-family:var(--font-body); padding:12px 14px; border-radius:12px; border:2px solid #E3DFDA; background:#FBFAF9; color:var(--ink); }
+  input[type="text"]:focus{ outline:3px solid #C9DCEA; border-color:var(--blue); }
+  button.check{ font-family:var(--font-display); font-weight:700; font-size:16px; color:white; background:var(--blue); border:none; border-radius:12px; padding:0 20px; cursor:pointer; }
+  button.check:active{ transform:translateY(1px); }
+  button.check:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
+  .feedback{ margin-top:10px; padding:12px 14px; border-radius:12px; font-weight:700; display:none; }
+  .feedback.show{ display:block; }
+  .feedback.correct{ background:var(--success-bg); color:var(--success); }
+  .feedback.incorrect{ background:var(--error-bg); color:var(--error); }
+  details{ margin-top:14px; border-top:2px dashed #E3DFDA; padding-top:12px; }
+  summary{ font-family:var(--font-display); font-weight:700; color:var(--blue); cursor:pointer; font-size:15px; }
+  .solution{ margin-top:12px; }
+  .solution ol{ margin:0 0 12px; padding-inline-start:22px; color:var(--ink-soft); }
+  .solution li{ margin-bottom:6px; }
+  .solution-result{ font-family:var(--font-display); font-weight:800; color:var(--ink); margin-bottom:12px; }
+  .hint-box{ background:#F1EFEC; border-radius:12px; padding:12px 14px; font-size:16px; color:var(--ink-soft); }
+  .hint-box strong{ color:var(--ink); }
+  footer{ text-align:center; margin-top:36px; padding:0 20px; }
+  footer p{ font-family:var(--font-display); font-weight:700; color:var(--ink); }
+  .footer-wave{ display:block; width:100%; max-width:280px; height:16px; margin:0 auto 18px; opacity:0.6; }
+  [dir="rtl"] .back-link{ flex-direction:row-reverse; }
+  @media (prefers-reduced-motion: no-preference){ button.check{ transition:transform 0.1s ease; } }
+  @media (max-width: 480px){ .answer-row{ flex-direction:column; } button.check{ width:100%; padding:14px 20px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="lang-switch">
+      <select id="langSelect" onchange="setLanguage(this.value)">
+        <option value="de">Deutsch</option><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="tr">Türkçe</option><option value="ru">Русский</option><option value="ar">العربية</option><option value="zh">中文</option>
+      </select>
+    </div>
+    <a class="back-link" href="index.html" data-i18n="backLink">← Alle Themen</a>
+    <div class="eyebrow" data-i18n="eyebrow">Luisen-Gymnasium · Klasse 9</div>
+    <h1><span data-i18n="titleLine1">Satz des</span><br><span class="accent" data-i18n="titleAccent">Pythagoras</span></h1>
+  </div>
+  <svg class="wave" viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+    <path d="M -10 22 C 190 4, 390 40, 590 22 S 990 4, 1210 22" fill="none" stroke="#C41230" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 32 C 190 50, 390 14, 590 32 S 990 50, 1210 32" fill="none" stroke="#E0A526" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 42 C 190 24, 390 58, 590 42 S 990 24, 1210 42" fill="none" stroke="#2478B5" stroke-width="5" stroke-linecap="round"/>
+  </svg>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <div class="card">
+      <h2 data-i18n="h2Basics">Grundlagen</h2>
+      <p data-i18n="basicsP1">In jedem rechtwinkligen Dreieck gilt: Das Quadrat über der Hypotenuse (der längsten Seite, gegenüber dem rechten Winkel) ist genauso groß wie die Summe der Quadrate über den beiden Katheten. Formel: a² + b² = c².</p>
+
+      <svg class="pyth-diagram" viewBox="0 0 600 220" xmlns="http://www.w3.org/2000/svg" role="img" data-i18n-aria="pythAria" aria-label="Rechtwinkliges Dreieck mit den Katheten a und b sowie der Hypotenuse c, Formel a Quadrat plus b Quadrat gleich c Quadrat">
+        <polygon points="80,190 300,190 80,60" fill="#2478B5" fill-opacity="0.08" stroke="#241C1C" stroke-width="2.5"/>
+        <rect x="80" y="170" width="20" height="20" fill="none" stroke="#241C1C" stroke-width="1.5"/>
+        <text x="190" y="210" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="16" font-weight="800" fill="#C41230">a</text>
+        <text x="60" y="130" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="16" font-weight="800" fill="#E0A526">b</text>
+        <text x="205" y="115" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="16" font-weight="800" fill="#2478B5">c</text>
+        <text x="450" y="115" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="22" font-weight="800" fill="#241C1C">a² + b² = c²</text>
+      </svg>
+
+      <p data-i18n="basicsExample1Label"><strong>Beispiel Schritt für Schritt:</strong> Rechtwinkliges Dreieck mit a = 3 und b = 4. Berechne c.</p>
+      <p data-i18n="basicsExample1Steps">1. Formel: a² + b² = c²<br>2. Einsetzen: 3² + 4² = c²<br>3. Rechnen: 9 + 16 = 25, also c² = 25<br>4. Wurzel ziehen: c = √25 = 5</p>
+
+      <p data-i18n="basicsP2Cathetus"><strong>Wenn eine Kathete gesucht ist,</strong> stellst du die Formel um: a² = c² − b² (bzw. b² = c² − a²).</p>
+
+      <p data-i18n="basicsExample2Label"><strong>Beispiel Schritt für Schritt:</strong> Rechtwinkliges Dreieck mit c = 13 und a = 5. Berechne b.</p>
+      <p data-i18n="basicsExample2Steps">1. Formel umstellen: b² = c² − a²<br>2. Einsetzen: b² = 13² − 5² = 169 − 25<br>3. Rechnen: 169 − 25 = 144<br>4. Wurzel ziehen: b = √144 = 12</p>
+
+      <div class="merke">
+        <div class="merke-title" data-i18n="merkeTitle">Merke</div>
+        <p class="merke-body" data-i18n="merkeBody">a² + b² = c², wobei c immer die Hypotenuse ist (gegenüber dem rechten Winkel).<br>Kathete gesucht: Katheten-Quadrat = Hypotenusen-Quadrat minus anderes Katheten-Quadrat.<br>Am Ende immer die Wurzel ziehen, um die Seitenlänge zu erhalten.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">1</span><span data-i18n="taskWord">Aufgabe</span> 1</h2>
+      <div class="task-question" data-i18n="task1Question">Rechtwinkliges Dreieck mit a = 3 und b = 4. Wie lang ist c?</div>
+      <div class="answer-row">
+        <input type="text" id="input1" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(1, 5)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback1"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task1Result">Ergebnis: c = 5</div>
+          <ol>
+            <li data-i18n="task1Step1">Formel: c² = a² + b².</li>
+            <li data-i18n="task1Step2">Einsetzen: c² = 3² + 4² = 9 + 16 = 25.</li>
+            <li data-i18n="task1Step3">Wurzel ziehen: c = √25 = 5.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task1Hint">Zuerst beide Katheten quadrieren und addieren, dann erst die Wurzel ziehen.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">2</span><span data-i18n="taskWord">Aufgabe</span> 2</h2>
+      <div class="task-question" data-i18n="task2Question">Rechtwinkliges Dreieck mit a = 6 und b = 8. Wie lang ist c?</div>
+      <div class="answer-row">
+        <input type="text" id="input2" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(2, 10)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback2"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task2Result">Ergebnis: c = 10</div>
+          <ol>
+            <li data-i18n="task2Step1">Formel: c² = a² + b².</li>
+            <li data-i18n="task2Step2">Einsetzen: c² = 6² + 8² = 36 + 64 = 100.</li>
+            <li data-i18n="task2Step3">Wurzel ziehen: c = √100 = 10.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task2Hint">c ist immer die längste Seite und liegt dem rechten Winkel gegenüber.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">3</span><span data-i18n="taskWord">Aufgabe</span> 3</h2>
+      <div class="task-question" data-i18n="task3Question">Rechtwinkliges Dreieck mit a = 5 und b = 12. Wie lang ist c?</div>
+      <div class="answer-row">
+        <input type="text" id="input3" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(3, 13)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback3"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task3Result">Ergebnis: c = 13</div>
+          <ol>
+            <li data-i18n="task3Step1">Formel: c² = a² + b².</li>
+            <li data-i18n="task3Step2">Einsetzen: c² = 5² + 12² = 25 + 144 = 169.</li>
+            <li data-i18n="task3Step3">Wurzel ziehen: c = √169 = 13.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task3Hint">5, 12, 13 ist ein bekanntes Zahlentripel, das oft in Aufgaben vorkommt.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">4</span><span data-i18n="taskWord">Aufgabe</span> 4</h2>
+      <div class="task-question" data-i18n="task4Question">Rechtwinkliges Dreieck mit c = 13 und a = 5. Wie lang ist b?</div>
+      <div class="answer-row">
+        <input type="text" id="input4" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(4, 12)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback4"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task4Result">Ergebnis: b = 12</div>
+          <ol>
+            <li data-i18n="task4Step1">Formel umstellen: b² = c² − a².</li>
+            <li data-i18n="task4Step2">Einsetzen: b² = 13² − 5² = 169 − 25 = 144.</li>
+            <li data-i18n="task4Step3">Wurzel ziehen: b = √144 = 12.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task4Hint">Ist eine Kathete gesucht, wird subtrahiert, nicht addiert.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">5</span><span data-i18n="taskWord">Aufgabe</span> 5</h2>
+      <div class="task-question" data-i18n="task5Question">Rechtwinkliges Dreieck mit c = 25 und a = 7. Wie lang ist b?</div>
+      <div class="answer-row">
+        <input type="text" id="input5" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(5, 24)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback5"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task5Result">Ergebnis: b = 24</div>
+          <ol>
+            <li data-i18n="task5Step1">Formel umstellen: b² = c² − a².</li>
+            <li data-i18n="task5Step2">Einsetzen: b² = 25² − 7² = 625 − 49 = 576.</li>
+            <li data-i18n="task5Step3">Wurzel ziehen: b = √576 = 24.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task5Hint">c ist immer die längste Seite und wird beim Umstellen der Formel niemals einfach abgezogen.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">6</span><span data-i18n="taskWord">Aufgabe</span> 6</h2>
+      <div class="task-question" data-i18n="task6Question">Rechtwinkliges Dreieck mit c = 10 und b = 6. Wie lang ist a?</div>
+      <div class="answer-row">
+        <input type="text" id="input6" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(6, 8)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback6"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task6Result">Ergebnis: a = 8</div>
+          <ol>
+            <li data-i18n="task6Step1">Formel umstellen: a² = c² − b².</li>
+            <li data-i18n="task6Step2">Einsetzen: a² = 10² − 6² = 100 − 36 = 64.</li>
+            <li data-i18n="task6Step3">Wurzel ziehen: a = √64 = 8.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task6Hint">6, 8, 10 ist das Zahlentripel 3, 4, 5 mit dem Faktor 2 multipliziert.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">7</span><span data-i18n="taskWord">Aufgabe</span> 7</h2>
+      <div class="task-question" data-i18n="task7Question">Eine Leiter lehnt an einer Wand. Der Fuß der Leiter ist 3 m von der Wand entfernt, die Leiter ist 5 m lang. Wie hoch reicht die Leiter an der Wand (in m)?</div>
+      <div class="answer-row">
+        <input type="text" id="input7" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(7, 4)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback7"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task7Result">Ergebnis: 4 m</div>
+          <ol>
+            <li data-i18n="task7Step1">Die Leiter ist die Hypotenuse (c = 5), der Abstand zur Wand eine Kathete (a = 3).</li>
+            <li data-i18n="task7Step2">Formel umstellen: b² = c² − a² = 5² − 3² = 25 − 9 = 16.</li>
+            <li data-i18n="task7Step3">Wurzel ziehen: b = √16 = 4.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task7Hint">Bei Sachaufgaben zuerst überlegen, welche Größe die Hypotenuse ist (meist die schräge Strecke).</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">8</span><span data-i18n="taskWord">Aufgabe</span> 8</h2>
+      <div class="task-question" data-i18n="task8Question">Ein Fernsehbildschirm ist 24 Zoll breit und 18 Zoll hoch. Wie groß ist die Diagonale (in Zoll)?</div>
+      <div class="answer-row">
+        <input type="text" id="input8" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(8, 30)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback8"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task8Result">Ergebnis: 30 Zoll</div>
+          <ol>
+            <li data-i18n="task8Step1">Breite und Höhe sind die Katheten, die Diagonale ist die Hypotenuse.</li>
+            <li data-i18n="task8Step2">Formel: c² = 24² + 18² = 576 + 324 = 900.</li>
+            <li data-i18n="task8Step3">Wurzel ziehen: c = √900 = 30.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task8Hint">Die Bildschirmdiagonale bildet mit Breite und Höhe ein rechtwinkliges Dreieck, deshalb funktioniert der Satz des Pythagoras hier.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <footer>
+    <svg class="footer-wave" viewBox="0 0 280 16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+      <path d="M -5 8 C 40 1, 80 15, 140 8 S 240 1, 285 8" fill="none" stroke="#C41230" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M -5 8 C 40 15, 80 1, 140 8 S 240 15, 285 8" fill="none" stroke="#2478B5" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+    </svg>
+    <p id="footer-msg" data-i18n="footerMessage">Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!</p>
+  </footer>
+
+</div>
+
+<script>
+const TRANSLATIONS = {
+de: {
+  eyebrow: `Luisen-Gymnasium · Klasse 9`, titleLine1: `Satz des`, titleAccent: `Pythagoras`, backLink: `← Alle Themen`, h2Basics: `Grundlagen`,
+  basicsP1: `In jedem rechtwinkligen Dreieck gilt: Das Quadrat über der Hypotenuse (der längsten Seite, gegenüber dem rechten Winkel) ist genauso groß wie die Summe der Quadrate über den beiden Katheten. Formel: a² + b² = c².`,
+  pythAria: `Rechtwinkliges Dreieck mit den Katheten a und b sowie der Hypotenuse c, Formel a Quadrat plus b Quadrat gleich c Quadrat`,
+  basicsExample1Label: `<strong>Beispiel Schritt für Schritt:</strong> Rechtwinkliges Dreieck mit a = 3 und b = 4. Berechne c.`,
+  basicsExample1Steps: `1. Formel: a² + b² = c²<br>2. Einsetzen: 3² + 4² = c²<br>3. Rechnen: 9 + 16 = 25, also c² = 25<br>4. Wurzel ziehen: c = √25 = 5`,
+  basicsP2Cathetus: `<strong>Wenn eine Kathete gesucht ist,</strong> stellst du die Formel um: a² = c² − b² (bzw. b² = c² − a²).`,
+  basicsExample2Label: `<strong>Beispiel Schritt für Schritt:</strong> Rechtwinkliges Dreieck mit c = 13 und a = 5. Berechne b.`,
+  basicsExample2Steps: `1. Formel umstellen: b² = c² − a²<br>2. Einsetzen: b² = 13² − 5² = 169 − 25<br>3. Rechnen: 169 − 25 = 144<br>4. Wurzel ziehen: b = √144 = 12`,
+  merkeTitle: `Merke`, merkeBody: `a² + b² = c², wobei c immer die Hypotenuse ist (gegenüber dem rechten Winkel).<br>Kathete gesucht: Katheten-Quadrat = Hypotenusen-Quadrat minus anderes Katheten-Quadrat.<br>Am Ende immer die Wurzel ziehen, um die Seitenlänge zu erhalten.`,
+  taskWord: `Aufgabe`,
+  task1Question: `Rechtwinkliges Dreieck mit a = 3 und b = 4. Wie lang ist c?`, task2Question: `Rechtwinkliges Dreieck mit a = 6 und b = 8. Wie lang ist c?`, task3Question: `Rechtwinkliges Dreieck mit a = 5 und b = 12. Wie lang ist c?`, task4Question: `Rechtwinkliges Dreieck mit c = 13 und a = 5. Wie lang ist b?`, task5Question: `Rechtwinkliges Dreieck mit c = 25 und a = 7. Wie lang ist b?`, task6Question: `Rechtwinkliges Dreieck mit c = 10 und b = 6. Wie lang ist a?`,
+  task7Question: `Eine Leiter lehnt an einer Wand. Der Fuß der Leiter ist 3 m von der Wand entfernt, die Leiter ist 5 m lang. Wie hoch reicht die Leiter an der Wand (in m)?`,
+  task8Question: `Ein Fernsehbildschirm ist 24 Zoll breit und 18 Zoll hoch. Wie groß ist die Diagonale (in Zoll)?`,
+  answerPlaceholder: `Deine Antwort`, checkButton: `Prüfen`, solutionSummary: `Lösung anzeigen`,
+  task1Result: `Ergebnis: c = 5`, task2Result: `Ergebnis: c = 10`, task3Result: `Ergebnis: c = 13`, task4Result: `Ergebnis: b = 12`, task5Result: `Ergebnis: b = 24`, task6Result: `Ergebnis: a = 8`, task7Result: `Ergebnis: 4 m`, task8Result: `Ergebnis: 30 Zoll`,
+  task1Step1: `Formel: c² = a² + b².`, task1Step2: `Einsetzen: c² = 3² + 4² = 9 + 16 = 25.`, task1Step3: `Wurzel ziehen: c = √25 = 5.`,
+  task1Hint: `Zuerst beide Katheten quadrieren und addieren, dann erst die Wurzel ziehen.`,
+  task2Step1: `Formel: c² = a² + b².`, task2Step2: `Einsetzen: c² = 6² + 8² = 36 + 64 = 100.`, task2Step3: `Wurzel ziehen: c = √100 = 10.`,
+  task2Hint: `c ist immer die längste Seite und liegt dem rechten Winkel gegenüber.`,
+  task3Step1: `Formel: c² = a² + b².`, task3Step2: `Einsetzen: c² = 5² + 12² = 25 + 144 = 169.`, task3Step3: `Wurzel ziehen: c = √169 = 13.`,
+  task3Hint: `5, 12, 13 ist ein bekanntes Zahlentripel, das oft in Aufgaben vorkommt.`,
+  task4Step1: `Formel umstellen: b² = c² − a².`, task4Step2: `Einsetzen: b² = 13² − 5² = 169 − 25 = 144.`, task4Step3: `Wurzel ziehen: b = √144 = 12.`,
+  task4Hint: `Ist eine Kathete gesucht, wird subtrahiert, nicht addiert.`,
+  task5Step1: `Formel umstellen: b² = c² − a².`, task5Step2: `Einsetzen: b² = 25² − 7² = 625 − 49 = 576.`, task5Step3: `Wurzel ziehen: b = √576 = 24.`,
+  task5Hint: `c ist immer die längste Seite und wird beim Umstellen der Formel niemals einfach abgezogen.`,
+  task6Step1: `Formel umstellen: a² = c² − b².`, task6Step2: `Einsetzen: a² = 10² − 6² = 100 − 36 = 64.`, task6Step3: `Wurzel ziehen: a = √64 = 8.`,
+  task6Hint: `6, 8, 10 ist das Zahlentripel 3, 4, 5 mit dem Faktor 2 multipliziert.`,
+  task7Step1: `Die Leiter ist die Hypotenuse (c = 5), der Abstand zur Wand eine Kathete (a = 3).`, task7Step2: `Formel umstellen: b² = c² − a² = 5² − 3² = 25 − 9 = 16.`, task7Step3: `Wurzel ziehen: b = √16 = 4.`,
+  task7Hint: `Bei Sachaufgaben zuerst überlegen, welche Größe die Hypotenuse ist (meist die schräge Strecke).`,
+  task8Step1: `Breite und Höhe sind die Katheten, die Diagonale ist die Hypotenuse.`, task8Step2: `Formel: c² = 24² + 18² = 576 + 324 = 900.`, task8Step3: `Wurzel ziehen: c = √900 = 30.`,
+  task8Hint: `Die Bildschirmdiagonale bildet mit Breite und Höhe ein rechtwinkliges Dreieck, deshalb funktioniert der Satz des Pythagoras hier.`,
+  hintLabel: `Typischer Fehler:`, footerMessage: `Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!`,
+  fbEmpty: `Trag bitte eine Zahl ein, bevor du prüfst.`, fbCorrect: `Richtig! Gut gemacht!`, fbIncorrect: `Noch nicht ganz richtig. Schau dir die Lösung weiter unten an und versuch es dann nochmal.`
+},
+en: {
+  eyebrow: `Luisen-Gymnasium · Grade 9`, titleLine1: `Pythagorean`, titleAccent: `Theorem`, backLink: `← All Topics`, h2Basics: `Basics`,
+  basicsP1: `In every right triangle: the square over the hypotenuse (the longest side, opposite the right angle) equals the sum of the squares over the two legs. Formula: a² + b² = c².`,
+  pythAria: `Right triangle with legs a and b and hypotenuse c, formula a squared plus b squared equals c squared`,
+  basicsExample1Label: `<strong>Step-by-step example:</strong> Right triangle with a = 3 and b = 4. Calculate c.`,
+  basicsExample1Steps: `1. Formula: a² + b² = c²<br>2. Substitute: 3² + 4² = c²<br>3. Calculate: 9 + 16 = 25, so c² = 25<br>4. Take the square root: c = √25 = 5`,
+  basicsP2Cathetus: `<strong>If you're looking for a leg,</strong> rearrange the formula: a² = c² − b² (or b² = c² − a²).`,
+  basicsExample2Label: `<strong>Step-by-step example:</strong> Right triangle with c = 13 and a = 5. Calculate b.`,
+  basicsExample2Steps: `1. Rearrange the formula: b² = c² − a²<br>2. Substitute: b² = 13² − 5² = 169 − 25<br>3. Calculate: 169 − 25 = 144<br>4. Take the square root: b = √144 = 12`,
+  merkeTitle: `Remember`, merkeBody: `a² + b² = c², where c is always the hypotenuse (opposite the right angle).<br>Looking for a leg: leg squared = hypotenuse squared minus the other leg squared.<br>Always take the square root at the end to get the side length.`,
+  taskWord: `Exercise`,
+  task1Question: `Right triangle with a = 3 and b = 4. How long is c?`, task2Question: `Right triangle with a = 6 and b = 8. How long is c?`, task3Question: `Right triangle with a = 5 and b = 12. How long is c?`, task4Question: `Right triangle with c = 13 and a = 5. How long is b?`, task5Question: `Right triangle with c = 25 and a = 7. How long is b?`, task6Question: `Right triangle with c = 10 and b = 6. How long is a?`,
+  task7Question: `A ladder leans against a wall. The foot of the ladder is 3 m from the wall, and the ladder is 5 m long. How high does the ladder reach on the wall (in m)?`,
+  task8Question: `A TV screen is 24 inches wide and 18 inches high. What's the diagonal (in inches)?`,
+  answerPlaceholder: `Your answer`, checkButton: `Check`, solutionSummary: `Show solution`,
+  task1Result: `Result: c = 5`, task2Result: `Result: c = 10`, task3Result: `Result: c = 13`, task4Result: `Result: b = 12`, task5Result: `Result: b = 24`, task6Result: `Result: a = 8`, task7Result: `Result: 4 m`, task8Result: `Result: 30 inches`,
+  task1Step1: `Formula: c² = a² + b².`, task1Step2: `Substitute: c² = 3² + 4² = 9 + 16 = 25.`, task1Step3: `Take the square root: c = √25 = 5.`,
+  task1Hint: `First square both legs and add them, then take the square root.`,
+  task2Step1: `Formula: c² = a² + b².`, task2Step2: `Substitute: c² = 6² + 8² = 36 + 64 = 100.`, task2Step3: `Take the square root: c = √100 = 10.`,
+  task2Hint: `c is always the longest side and lies opposite the right angle.`,
+  task3Step1: `Formula: c² = a² + b².`, task3Step2: `Substitute: c² = 5² + 12² = 25 + 144 = 169.`, task3Step3: `Take the square root: c = √169 = 13.`,
+  task3Hint: `5, 12, 13 is a well-known triple that often comes up in problems.`,
+  task4Step1: `Rearrange the formula: b² = c² − a².`, task4Step2: `Substitute: b² = 13² − 5² = 169 − 25 = 144.`, task4Step3: `Take the square root: b = √144 = 12.`,
+  task4Hint: `If you're looking for a leg, you subtract, not add.`,
+  task5Step1: `Rearrange the formula: b² = c² − a².`, task5Step2: `Substitute: b² = 25² − 7² = 625 − 49 = 576.`, task5Step3: `Take the square root: b = √576 = 24.`,
+  task5Hint: `c is always the longest side and is never simply subtracted when rearranging the formula.`,
+  task6Step1: `Rearrange the formula: a² = c² − b².`, task6Step2: `Substitute: a² = 10² − 6² = 100 − 36 = 64.`, task6Step3: `Take the square root: a = √64 = 8.`,
+  task6Hint: `6, 8, 10 is the triple 3, 4, 5 multiplied by a factor of 2.`,
+  task7Step1: `The ladder is the hypotenuse (c = 5), the distance from the wall is a leg (a = 3).`, task7Step2: `Rearrange the formula: b² = c² − a² = 5² − 3² = 25 − 9 = 16.`, task7Step3: `Take the square root: b = √16 = 4.`,
+  task7Hint: `In word problems, first think about which quantity is the hypotenuse (usually the slanted line).`,
+  task8Step1: `Width and height are the legs, the diagonal is the hypotenuse.`, task8Step2: `Formula: c² = 24² + 18² = 576 + 324 = 900.`, task8Step3: `Take the square root: c = √900 = 30.`,
+  task8Hint: `The screen diagonal forms a right triangle with the width and height, which is why the Pythagorean theorem works here.`,
+  hintLabel: `Common mistake:`, footerMessage: `Take your time and check the solution if you need to. You can do this!`,
+  fbEmpty: `Please enter a number before checking.`, fbCorrect: `Correct! Well done!`, fbIncorrect: `Not quite right yet. Check the solution below and try again.`
+},
+es: {
+  eyebrow: `Luisen-Gymnasium · 9.º curso`, titleLine1: `Teorema de`, titleAccent: `Pitágoras`, backLink: `← Todos los temas`, h2Basics: `Fundamentos`,
+  basicsP1: `En todo triángulo rectángulo se cumple: el cuadrado de la hipotenusa (el lado más largo, opuesto al ángulo recto) es igual a la suma de los cuadrados de los dos catetos. Fórmula: a² + b² = c².`,
+  pythAria: `Triángulo rectángulo con catetos a y b e hipotenusa c, fórmula a al cuadrado más b al cuadrado igual a c al cuadrado`,
+  basicsExample1Label: `<strong>Ejemplo paso a paso:</strong> Triángulo rectángulo con a = 3 y b = 4. Calcula c.`,
+  basicsExample1Steps: `1. Fórmula: a² + b² = c²<br>2. Sustituye: 3² + 4² = c²<br>3. Calcula: 9 + 16 = 25, así que c² = 25<br>4. Saca la raíz cuadrada: c = √25 = 5`,
+  basicsP2Cathetus: `<strong>Si buscas un cateto,</strong> reordena la fórmula: a² = c² − b² (o b² = c² − a²).`,
+  basicsExample2Label: `<strong>Ejemplo paso a paso:</strong> Triángulo rectángulo con c = 13 y a = 5. Calcula b.`,
+  basicsExample2Steps: `1. Reordena la fórmula: b² = c² − a²<br>2. Sustituye: b² = 13² − 5² = 169 − 25<br>3. Calcula: 169 − 25 = 144<br>4. Saca la raíz cuadrada: b = √144 = 12`,
+  merkeTitle: `Recuerda`, merkeBody: `a² + b² = c², donde c es siempre la hipotenusa (opuesta al ángulo recto).<br>Si buscas un cateto: cateto al cuadrado = hipotenusa al cuadrado menos el otro cateto al cuadrado.<br>Al final, saca siempre la raíz cuadrada para obtener la longitud del lado.`,
+  taskWord: `Ejercicio`,
+  task1Question: `Triángulo rectángulo con a = 3 y b = 4. ¿Cuánto mide c?`, task2Question: `Triángulo rectángulo con a = 6 y b = 8. ¿Cuánto mide c?`, task3Question: `Triángulo rectángulo con a = 5 y b = 12. ¿Cuánto mide c?`, task4Question: `Triángulo rectángulo con c = 13 y a = 5. ¿Cuánto mide b?`, task5Question: `Triángulo rectángulo con c = 25 y a = 7. ¿Cuánto mide b?`, task6Question: `Triángulo rectángulo con c = 10 y b = 6. ¿Cuánto mide a?`,
+  task7Question: `Una escalera está apoyada en una pared. El pie de la escalera está a 3 m de la pared, y la escalera mide 5 m. ¿Hasta qué altura llega la escalera en la pared (en m)?`,
+  task8Question: `Una pantalla de televisor mide 24 pulgadas de ancho y 18 de alto. ¿Cuánto mide la diagonal (en pulgadas)?`,
+  answerPlaceholder: `Tu respuesta`, checkButton: `Comprobar`, solutionSummary: `Ver solución`,
+  task1Result: `Resultado: c = 5`, task2Result: `Resultado: c = 10`, task3Result: `Resultado: c = 13`, task4Result: `Resultado: b = 12`, task5Result: `Resultado: b = 24`, task6Result: `Resultado: a = 8`, task7Result: `Resultado: 4 m`, task8Result: `Resultado: 30 pulgadas`,
+  task1Step1: `Fórmula: c² = a² + b².`, task1Step2: `Sustituye: c² = 3² + 4² = 9 + 16 = 25.`, task1Step3: `Saca la raíz cuadrada: c = √25 = 5.`,
+  task1Hint: `Primero eleva al cuadrado ambos catetos y súmalos, luego saca la raíz cuadrada.`,
+  task2Step1: `Fórmula: c² = a² + b².`, task2Step2: `Sustituye: c² = 6² + 8² = 36 + 64 = 100.`, task2Step3: `Saca la raíz cuadrada: c = √100 = 10.`,
+  task2Hint: `c siempre es el lado más largo y está opuesto al ángulo recto.`,
+  task3Step1: `Fórmula: c² = a² + b².`, task3Step2: `Sustituye: c² = 5² + 12² = 25 + 144 = 169.`, task3Step3: `Saca la raíz cuadrada: c = √169 = 13.`,
+  task3Hint: `5, 12, 13 es una terna conocida que aparece a menudo en los problemas.`,
+  task4Step1: `Reordena la fórmula: b² = c² − a².`, task4Step2: `Sustituye: b² = 13² − 5² = 169 − 25 = 144.`, task4Step3: `Saca la raíz cuadrada: b = √144 = 12.`,
+  task4Hint: `Si buscas un cateto, se resta, no se suma.`,
+  task5Step1: `Reordena la fórmula: b² = c² − a².`, task5Step2: `Sustituye: b² = 25² − 7² = 625 − 49 = 576.`, task5Step3: `Saca la raíz cuadrada: b = √576 = 24.`,
+  task5Hint: `c siempre es el lado más largo y nunca se resta simplemente al reordenar la fórmula.`,
+  task6Step1: `Reordena la fórmula: a² = c² − b².`, task6Step2: `Sustituye: a² = 10² − 6² = 100 − 36 = 64.`, task6Step3: `Saca la raíz cuadrada: a = √64 = 8.`,
+  task6Hint: `6, 8, 10 es la terna 3, 4, 5 multiplicada por un factor de 2.`,
+  task7Step1: `La escalera es la hipotenusa (c = 5), la distancia a la pared es un cateto (a = 3).`, task7Step2: `Reordena la fórmula: b² = c² − a² = 5² − 3² = 25 − 9 = 16.`, task7Step3: `Saca la raíz cuadrada: b = √16 = 4.`,
+  task7Hint: `En los problemas de texto, piensa primero cuál magnitud es la hipotenusa (normalmente la línea inclinada).`,
+  task8Step1: `El ancho y el alto son los catetos, la diagonal es la hipotenusa.`, task8Step2: `Fórmula: c² = 24² + 18² = 576 + 324 = 900.`, task8Step3: `Saca la raíz cuadrada: c = √900 = 30.`,
+  task8Hint: `La diagonal de la pantalla forma un triángulo rectángulo con el ancho y el alto, por eso funciona aquí el teorema de Pitágoras.`,
+  hintLabel: `Error típico:`, footerMessage: `Tómate tu tiempo y revisa la solución si la necesitas. ¡Tú puedes!`,
+  fbEmpty: `Introduce un número antes de comprobar.`, fbCorrect: `¡Correcto! ¡Muy bien!`, fbIncorrect: `Todavía no es correcto. Revisa la solución de abajo e inténtalo de nuevo.`
+},
+fr: {
+  eyebrow: `Luisen-Gymnasium · 3e`, titleLine1: `Théorème de`, titleAccent: `Pythagore`, backLink: `← Tous les thèmes`, h2Basics: `Les bases`,
+  basicsP1: `Dans tout triangle rectangle : le carré de l'hypoténuse (le côté le plus long, opposé à l'angle droit) est égal à la somme des carrés des deux côtés de l'angle droit. Formule : a² + b² = c².`,
+  pythAria: `Triangle rectangle avec les côtés a et b et l'hypoténuse c, formule a au carré plus b au carré égale c au carré`,
+  basicsExample1Label: `<strong>Exemple étape par étape :</strong> Triangle rectangle avec a = 3 et b = 4. Calcule c.`,
+  basicsExample1Steps: `1. Formule : a² + b² = c²<br>2. Substitue : 3² + 4² = c²<br>3. Calcule : 9 + 16 = 25, donc c² = 25<br>4. Extrais la racine carrée : c = √25 = 5`,
+  basicsP2Cathetus: `<strong>Si tu cherches un côté de l'angle droit,</strong> réarrange la formule : a² = c² − b² (ou b² = c² − a²).`,
+  basicsExample2Label: `<strong>Exemple étape par étape :</strong> Triangle rectangle avec c = 13 et a = 5. Calcule b.`,
+  basicsExample2Steps: `1. Réarrange la formule : b² = c² − a²<br>2. Substitue : b² = 13² − 5² = 169 − 25<br>3. Calcule : 169 − 25 = 144<br>4. Extrais la racine carrée : b = √144 = 12`,
+  merkeTitle: `À retenir`, merkeBody: `a² + b² = c², où c est toujours l'hypoténuse (opposée à l'angle droit).<br>Pour trouver un côté de l'angle droit : côté au carré = hypoténuse au carré moins l'autre côté au carré.<br>Extrais toujours la racine carrée à la fin pour obtenir la longueur du côté.`,
+  taskWord: `Exercice`,
+  task1Question: `Triangle rectangle avec a = 3 et b = 4. Combien mesure c ?`, task2Question: `Triangle rectangle avec a = 6 et b = 8. Combien mesure c ?`, task3Question: `Triangle rectangle avec a = 5 et b = 12. Combien mesure c ?`, task4Question: `Triangle rectangle avec c = 13 et a = 5. Combien mesure b ?`, task5Question: `Triangle rectangle avec c = 25 et a = 7. Combien mesure b ?`, task6Question: `Triangle rectangle avec c = 10 et b = 6. Combien mesure a ?`,
+  task7Question: `Une échelle est appuyée contre un mur. Le pied de l'échelle est à 3 m du mur, et l'échelle mesure 5 m. À quelle hauteur l'échelle touche-t-elle le mur (en m) ?`,
+  task8Question: `Un écran de télévision mesure 24 pouces de large et 18 pouces de haut. Combien mesure la diagonale (en pouces) ?`,
+  answerPlaceholder: `Ta réponse`, checkButton: `Vérifier`, solutionSummary: `Voir la solution`,
+  task1Result: `Résultat : c = 5`, task2Result: `Résultat : c = 10`, task3Result: `Résultat : c = 13`, task4Result: `Résultat : b = 12`, task5Result: `Résultat : b = 24`, task6Result: `Résultat : a = 8`, task7Result: `Résultat : 4 m`, task8Result: `Résultat : 30 pouces`,
+  task1Step1: `Formule : c² = a² + b².`, task1Step2: `Substitue : c² = 3² + 4² = 9 + 16 = 25.`, task1Step3: `Extrais la racine carrée : c = √25 = 5.`,
+  task1Hint: `Mets d'abord les deux côtés au carré et additionne-les, puis extrais la racine carrée.`,
+  task2Step1: `Formule : c² = a² + b².`, task2Step2: `Substitue : c² = 6² + 8² = 36 + 64 = 100.`, task2Step3: `Extrais la racine carrée : c = √100 = 10.`,
+  task2Hint: `c est toujours le côté le plus long et se trouve en face de l'angle droit.`,
+  task3Step1: `Formule : c² = a² + b².`, task3Step2: `Substitue : c² = 5² + 12² = 25 + 144 = 169.`, task3Step3: `Extrais la racine carrée : c = √169 = 13.`,
+  task3Hint: `5, 12, 13 est un triplet connu qui revient souvent dans les problèmes.`,
+  task4Step1: `Réarrange la formule : b² = c² − a².`, task4Step2: `Substitue : b² = 13² − 5² = 169 − 25 = 144.`, task4Step3: `Extrais la racine carrée : b = √144 = 12.`,
+  task4Hint: `Si tu cherches un côté de l'angle droit, tu soustrais, tu n'additionnes pas.`,
+  task5Step1: `Réarrange la formule : b² = c² − a².`, task5Step2: `Substitue : b² = 25² − 7² = 625 − 49 = 576.`, task5Step3: `Extrais la racine carrée : b = √576 = 24.`,
+  task5Hint: `c est toujours le côté le plus long et n'est jamais simplement soustrait en réarrangeant la formule.`,
+  task6Step1: `Réarrange la formule : a² = c² − b².`, task6Step2: `Substitue : a² = 10² − 6² = 100 − 36 = 64.`, task6Step3: `Extrais la racine carrée : a = √64 = 8.`,
+  task6Hint: `6, 8, 10 est le triplet 3, 4, 5 multiplié par 2.`,
+  task7Step1: `L'échelle est l'hypoténuse (c = 5), la distance au mur est un côté de l'angle droit (a = 3).`, task7Step2: `Réarrange la formule : b² = c² − a² = 5² − 3² = 25 − 9 = 16.`, task7Step3: `Extrais la racine carrée : b = √16 = 4.`,
+  task7Hint: `Dans les problèmes, réfléchis d'abord à quelle grandeur est l'hypoténuse (généralement la ligne inclinée).`,
+  task8Step1: `La largeur et la hauteur sont les côtés de l'angle droit, la diagonale est l'hypoténuse.`, task8Step2: `Formule : c² = 24² + 18² = 576 + 324 = 900.`, task8Step3: `Extrais la racine carrée : c = √900 = 30.`,
+  task8Hint: `La diagonale de l'écran forme un triangle rectangle avec la largeur et la hauteur, c'est pourquoi le théorème de Pythagore fonctionne ici.`,
+  hintLabel: `Erreur fréquente :`, footerMessage: `Prends ton temps et regarde la solution si besoin. Tu vas y arriver !`,
+  fbEmpty: `Merci d'indiquer un nombre avant de vérifier.`, fbCorrect: `Correct ! Bien joué !`, fbIncorrect: `Pas encore tout à fait juste. Regarde la solution ci-dessous et réessaie.`
+},
+tr: {
+  eyebrow: `Luisen-Gymnasium · 9. Sınıf`, titleLine1: `Pisagor`, titleAccent: `Teoremi`, backLink: `← Tüm Konular`, h2Basics: `Temel Bilgiler`,
+  basicsP1: `Her dik üçgende şu geçerlidir: hipotenüsün (dik açının karşısındaki en uzun kenar) karesi, iki dik kenarın karelerinin toplamına eşittir. Formül: a² + b² = c².`,
+  pythAria: `a ve b dik kenarları ile c hipotenüsü olan dik üçgen, formül a kare artı b kare eşittir c kare`,
+  basicsExample1Label: `<strong>Adım adım örnek:</strong> a = 3 ve b = 4 olan dik üçgen. c'yi hesapla.`,
+  basicsExample1Steps: `1. Formül: a² + b² = c²<br>2. Yerine koy: 3² + 4² = c²<br>3. Hesapla: 9 + 16 = 25, yani c² = 25<br>4. Karekök al: c = √25 = 5`,
+  basicsP2Cathetus: `<strong>Bir dik kenar aranıyorsa,</strong> formülü düzenlersin: a² = c² − b² (ya da b² = c² − a²).`,
+  basicsExample2Label: `<strong>Adım adım örnek:</strong> c = 13 ve a = 5 olan dik üçgen. b'yi hesapla.`,
+  basicsExample2Steps: `1. Formülü düzenle: b² = c² − a²<br>2. Yerine koy: b² = 13² − 5² = 169 − 25<br>3. Hesapla: 169 − 25 = 144<br>4. Karekök al: b = √144 = 12`,
+  merkeTitle: `Unutma`, merkeBody: `a² + b² = c², burada c her zaman hipotenüstür (dik açının karşısında).<br>Dik kenar aranıyorsa: dik kenar karesi = hipotenüs karesi eksi diğer dik kenar karesi.<br>Kenar uzunluğunu bulmak için sonunda her zaman karekök al.`,
+  taskWord: `Alıştırma`,
+  task1Question: `a = 3 ve b = 4 olan dik üçgen. c uzunluğu nedir?`, task2Question: `a = 6 ve b = 8 olan dik üçgen. c uzunluğu nedir?`, task3Question: `a = 5 ve b = 12 olan dik üçgen. c uzunluğu nedir?`, task4Question: `c = 13 ve a = 5 olan dik üçgen. b uzunluğu nedir?`, task5Question: `c = 25 ve a = 7 olan dik üçgen. b uzunluğu nedir?`, task6Question: `c = 10 ve b = 6 olan dik üçgen. a uzunluğu nedir?`,
+  task7Question: `Bir merdiven duvara yaslanıyor. Merdivenin ayağı duvardan 3 m uzaktadır, merdiven 5 m uzunluğundadır. Merdiven duvarda kaç metre yüksekliğe ulaşır?`,
+  task8Question: `Bir televizyon ekranı 24 inç genişliğinde ve 18 inç yüksekliğindedir. Köşegen kaç inçtir?`,
+  answerPlaceholder: `Cevabın`, checkButton: `Kontrol et`, solutionSummary: `Çözümü göster`,
+  task1Result: `Sonuç: c = 5`, task2Result: `Sonuç: c = 10`, task3Result: `Sonuç: c = 13`, task4Result: `Sonuç: b = 12`, task5Result: `Sonuç: b = 24`, task6Result: `Sonuç: a = 8`, task7Result: `Sonuç: 4 m`, task8Result: `Sonuç: 30 inç`,
+  task1Step1: `Formül: c² = a² + b².`, task1Step2: `Yerine koy: c² = 3² + 4² = 9 + 16 = 25.`, task1Step3: `Karekök al: c = √25 = 5.`,
+  task1Hint: `Önce her iki dik kenarı karesini al ve topla, sonra karekök al.`,
+  task2Step1: `Formül: c² = a² + b².`, task2Step2: `Yerine koy: c² = 6² + 8² = 36 + 64 = 100.`, task2Step3: `Karekök al: c = √100 = 10.`,
+  task2Hint: `c her zaman en uzun kenardır ve dik açının karşısındadır.`,
+  task3Step1: `Formül: c² = a² + b².`, task3Step2: `Yerine koy: c² = 5² + 12² = 25 + 144 = 169.`, task3Step3: `Karekök al: c = √169 = 13.`,
+  task3Hint: `5, 12, 13 problemlerde sıkça karşılaşılan bilinen bir sayı üçlüsüdür.`,
+  task4Step1: `Formülü düzenle: b² = c² − a².`, task4Step2: `Yerine koy: b² = 13² − 5² = 169 − 25 = 144.`, task4Step3: `Karekök al: b = √144 = 12.`,
+  task4Hint: `Bir dik kenar aranıyorsa çıkarma yapılır, toplama değil.`,
+  task5Step1: `Formülü düzenle: b² = c² − a².`, task5Step2: `Yerine koy: b² = 25² − 7² = 625 − 49 = 576.`, task5Step3: `Karekök al: b = √576 = 24.`,
+  task5Hint: `c her zaman en uzun kenardır ve formül düzenlenirken asla basitçe çıkarılmaz.`,
+  task6Step1: `Formülü düzenle: a² = c² − b².`, task6Step2: `Yerine koy: a² = 10² − 6² = 100 − 36 = 64.`, task6Step3: `Karekök al: a = √64 = 8.`,
+  task6Hint: `6, 8, 10, 3, 4, 5 üçlüsünün 2 ile çarpılmış halidir.`,
+  task7Step1: `Merdiven hipotenüstür (c = 5), duvara olan mesafe bir dik kenardır (a = 3).`, task7Step2: `Formülü düzenle: b² = c² − a² = 5² − 3² = 25 − 9 = 16.`, task7Step3: `Karekök al: b = √16 = 4.`,
+  task7Hint: `Metin problemlerinde önce hangi büyüklüğün hipotenüs olduğunu düşün (genellikle eğik doğru parçası).`,
+  task8Step1: `Genişlik ve yükseklik dik kenarlardır, köşegen hipotenüstür.`, task8Step2: `Formül: c² = 24² + 18² = 576 + 324 = 900.`, task8Step3: `Karekök al: c = √900 = 30.`,
+  task8Hint: `Ekran köşegeni, genişlik ve yükseklikle birlikte dik üçgen oluşturur, bu yüzden Pisagor teoremi burada işe yarar.`,
+  hintLabel: `Sık yapılan hata:`, footerMessage: `Sakin sakin hesapla, gerekirse çözüme bak. Bunu başarabilirsin!`,
+  fbEmpty: `Kontrol etmeden önce lütfen bir sayı gir.`, fbCorrect: `Doğru! Aferin!`, fbIncorrect: `Henüz tam doğru değil. Aşağıdaki çözüme bak ve tekrar dene.`
+},
+ru: {
+  eyebrow: `Luisen-Gymnasium · 9 класс`, titleLine1: `Теорема`, titleAccent: `Пифагора`, backLink: `← Все темы`, h2Basics: `Основы`,
+  basicsP1: `В любом прямоугольном треугольнике: квадрат гипотенузы (самой длинной стороны, лежащей напротив прямого угла) равен сумме квадратов двух катетов. Формула: a² + b² = c².`,
+  pythAria: `Прямоугольный треугольник с катетами a и b и гипотенузой c, формула a в квадрате плюс b в квадрате равно c в квадрате`,
+  basicsExample1Label: `<strong>Пример по шагам:</strong> Прямоугольный треугольник с a = 3 и b = 4. Вычисли c.`,
+  basicsExample1Steps: `1. Формула: a² + b² = c²<br>2. Подставить: 3² + 4² = c²<br>3. Вычислить: 9 + 16 = 25, значит c² = 25<br>4. Извлечь корень: c = √25 = 5`,
+  basicsP2Cathetus: `<strong>Если ищешь катет,</strong> преобразуй формулу: a² = c² − b² (или b² = c² − a²).`,
+  basicsExample2Label: `<strong>Пример по шагам:</strong> Прямоугольный треугольник с c = 13 и a = 5. Вычисли b.`,
+  basicsExample2Steps: `1. Преобразуй формулу: b² = c² − a²<br>2. Подставить: b² = 13² − 5² = 169 − 25<br>3. Вычислить: 169 − 25 = 144<br>4. Извлечь корень: b = √144 = 12`,
+  merkeTitle: `Запомни`, merkeBody: `a² + b² = c², где c всегда гипотенуза (напротив прямого угла).<br>Ищешь катет: квадрат катета = квадрат гипотенузы минус квадрат другого катета.<br>В конце всегда извлекай корень, чтобы получить длину стороны.`,
+  taskWord: `Задание`,
+  task1Question: `Прямоугольный треугольник с a = 3 и b = 4. Чему равен c?`, task2Question: `Прямоугольный треугольник с a = 6 и b = 8. Чему равен c?`, task3Question: `Прямоугольный треугольник с a = 5 и b = 12. Чему равен c?`, task4Question: `Прямоугольный треугольник с c = 13 и a = 5. Чему равен b?`, task5Question: `Прямоугольный треугольник с c = 25 и a = 7. Чему равен b?`, task6Question: `Прямоугольный треугольник с c = 10 и b = 6. Чему равен a?`,
+  task7Question: `Лестница прислонена к стене. Основание лестницы находится в 3 м от стены, длина лестницы 5 м. На какую высоту достаёт лестница по стене (в м)?`,
+  task8Question: `Экран телевизора имеет ширину 24 дюйма и высоту 18 дюймов. Чему равна диагональ (в дюймах)?`,
+  answerPlaceholder: `Твой ответ`, checkButton: `Проверить`, solutionSummary: `Показать решение`,
+  task1Result: `Результат: c = 5`, task2Result: `Результат: c = 10`, task3Result: `Результат: c = 13`, task4Result: `Результат: b = 12`, task5Result: `Результат: b = 24`, task6Result: `Результат: a = 8`, task7Result: `Результат: 4 м`, task8Result: `Результат: 30 дюймов`,
+  task1Step1: `Формула: c² = a² + b².`, task1Step2: `Подставить: c² = 3² + 4² = 9 + 16 = 25.`, task1Step3: `Извлечь корень: c = √25 = 5.`,
+  task1Hint: `Сначала возведи оба катета в квадрат и сложи, затем извлеки корень.`,
+  task2Step1: `Формула: c² = a² + b².`, task2Step2: `Подставить: c² = 6² + 8² = 36 + 64 = 100.`, task2Step3: `Извлечь корень: c = √100 = 10.`,
+  task2Hint: `c всегда самая длинная сторона и лежит напротив прямого угла.`,
+  task3Step1: `Формула: c² = a² + b².`, task3Step2: `Подставить: c² = 5² + 12² = 25 + 144 = 169.`, task3Step3: `Извлечь корень: c = √169 = 13.`,
+  task3Hint: `5, 12, 13 — известная тройка чисел, часто встречающаяся в задачах.`,
+  task4Step1: `Преобразуй формулу: b² = c² − a².`, task4Step2: `Подставить: b² = 13² − 5² = 169 − 25 = 144.`, task4Step3: `Извлечь корень: b = √144 = 12.`,
+  task4Hint: `Если ищешь катет, вычитают, а не складывают.`,
+  task5Step1: `Преобразуй формулу: b² = c² − a².`, task5Step2: `Подставить: b² = 25² − 7² = 625 − 49 = 576.`, task5Step3: `Извлечь корень: b = √576 = 24.`,
+  task5Hint: `c всегда самая длинная сторона и никогда просто не вычитается при преобразовании формулы.`,
+  task6Step1: `Преобразуй формулу: a² = c² − b².`, task6Step2: `Подставить: a² = 10² − 6² = 100 − 36 = 64.`, task6Step3: `Извлечь корень: a = √64 = 8.`,
+  task6Hint: `6, 8, 10 — это тройка 3, 4, 5, умноженная на 2.`,
+  task7Step1: `Лестница — это гипотенуза (c = 5), расстояние до стены — катет (a = 3).`, task7Step2: `Преобразуй формулу: b² = c² − a² = 5² − 3² = 25 − 9 = 16.`, task7Step3: `Извлечь корень: b = √16 = 4.`,
+  task7Hint: `В текстовых задачах сначала подумай, какая величина является гипотенузой (обычно наклонная линия).`,
+  task8Step1: `Ширина и высота — катеты, диагональ — гипотенуза.`, task8Step2: `Формула: c² = 24² + 18² = 576 + 324 = 900.`, task8Step3: `Извлечь корень: c = √900 = 30.`,
+  task8Hint: `Диагональ экрана образует прямоугольный треугольник с шириной и высотой, поэтому здесь работает теорема Пифагора.`,
+  hintLabel: `Типичная ошибка:`, footerMessage: `Считай спокойно и при необходимости смотри решение. У тебя получится!`,
+  fbEmpty: `Пожалуйста, введи число перед проверкой.`, fbCorrect: `Правильно! Отлично!`, fbIncorrect: `Пока не совсем верно. Посмотри решение ниже и попробуй ещё раз.`
+},
+ar: {
+  eyebrow: `مدرسة لويزن الثانوية · الصف التاسع`, titleLine1: `نظرية`, titleAccent: `فيثاغورس`, backLink: `← جميع المواضيع`, h2Basics: `الأساسيات`,
+  basicsP1: `في كل مثلث قائم الزاوية: مربع الوتر (أطول ضلع، المقابل للزاوية القائمة) يساوي مجموع مربعي الضلعين القائمين. المعادلة: a² + b² = c².`,
+  pythAria: `مثلث قائم الزاوية بضلعين قائمين a وb ووتر c، المعادلة a تربيع زائد b تربيع يساوي c تربيع`,
+  basicsExample1Label: `<strong>مثال خطوة بخطوة:</strong> مثلث قائم الزاوية بـ a = 3 وb = 4. احسب c.`,
+  basicsExample1Steps: `1. المعادلة: a² + b² = c²<br>2. عوّض: 3² + 4² = c²<br>3. احسب: 9 + 16 = 25، إذن c² = 25<br>4. خذ الجذر التربيعي: c = √25 = 5`,
+  basicsP2Cathetus: `<strong>إذا كان المطلوب ضلعًا قائمًا،</strong> أعد ترتيب المعادلة: a² = c² − b² (أو b² = c² − a²).`,
+  basicsExample2Label: `<strong>مثال خطوة بخطوة:</strong> مثلث قائم الزاوية بـ c = 13 وa = 5. احسب b.`,
+  basicsExample2Steps: `1. أعد ترتيب المعادلة: b² = c² − a²<br>2. عوّض: b² = 13² − 5² = 169 − 25<br>3. احسب: 169 − 25 = 144<br>4. خذ الجذر التربيعي: b = √144 = 12`,
+  merkeTitle: `تذكّر`, merkeBody: `a² + b² = c²، حيث c هو دائمًا الوتر (المقابل للزاوية القائمة).<br>إذا كان المطلوب ضلعًا قائمًا: مربع الضلع القائم = مربع الوتر ناقص مربع الضلع القائم الآخر.<br>خذ دائمًا الجذر التربيعي في النهاية للحصول على طول الضلع.`,
+  taskWord: `تمرين`,
+  task1Question: `مثلث قائم الزاوية بـ a = 3 وb = 4. كم يبلغ c؟`, task2Question: `مثلث قائم الزاوية بـ a = 6 وb = 8. كم يبلغ c؟`, task3Question: `مثلث قائم الزاوية بـ a = 5 وb = 12. كم يبلغ c؟`, task4Question: `مثلث قائم الزاوية بـ c = 13 وa = 5. كم يبلغ b؟`, task5Question: `مثلث قائم الزاوية بـ c = 25 وa = 7. كم يبلغ b؟`, task6Question: `مثلث قائم الزاوية بـ c = 10 وb = 6. كم يبلغ a؟`,
+  task7Question: `يستند سلم إلى حائط. قاعدة السلم على بعد 3 م من الحائط، وطول السلم 5 م. إلى أي ارتفاع يصل السلم على الحائط (بالمتر)؟`,
+  task8Question: `شاشة تلفاز عرضها 24 بوصة وارتفاعها 18 بوصة. كم يبلغ القطر (بالبوصة)؟`,
+  answerPlaceholder: `إجابتك`, checkButton: `تحقق`, solutionSummary: `عرض الحل`,
+  task1Result: `النتيجة: c = 5`, task2Result: `النتيجة: c = 10`, task3Result: `النتيجة: c = 13`, task4Result: `النتيجة: b = 12`, task5Result: `النتيجة: b = 24`, task6Result: `النتيجة: a = 8`, task7Result: `النتيجة: 4 م`, task8Result: `النتيجة: 30 بوصة`,
+  task1Step1: `المعادلة: c² = a² + b².`, task1Step2: `عوّض: c² = 3² + 4² = 9 + 16 = 25.`, task1Step3: `خذ الجذر التربيعي: c = √25 = 5.`,
+  task1Hint: `ربّع أولًا كلا الضلعين القائمين واجمعهما، ثم خذ الجذر التربيعي.`,
+  task2Step1: `المعادلة: c² = a² + b².`, task2Step2: `عوّض: c² = 6² + 8² = 36 + 64 = 100.`, task2Step3: `خذ الجذر التربيعي: c = √100 = 10.`,
+  task2Hint: `c هو دائمًا أطول ضلع ويقع مقابل الزاوية القائمة.`,
+  task3Step1: `المعادلة: c² = a² + b².`, task3Step2: `عوّض: c² = 5² + 12² = 25 + 144 = 169.`, task3Step3: `خذ الجذر التربيعي: c = √169 = 13.`,
+  task3Hint: `5، 12، 13 ثلاثية معروفة تظهر كثيرًا في المسائل.`,
+  task4Step1: `أعد ترتيب المعادلة: b² = c² − a².`, task4Step2: `عوّض: b² = 13² − 5² = 169 − 25 = 144.`, task4Step3: `خذ الجذر التربيعي: b = √144 = 12.`,
+  task4Hint: `إذا كان المطلوب ضلعًا قائمًا، يُطرَح ولا يُجمَع.`,
+  task5Step1: `أعد ترتيب المعادلة: b² = c² − a².`, task5Step2: `عوّض: b² = 25² − 7² = 625 − 49 = 576.`, task5Step3: `خذ الجذر التربيعي: b = √576 = 24.`,
+  task5Hint: `c هو دائمًا أطول ضلع ولا يُطرَح أبدًا بشكل مباشر عند إعادة ترتيب المعادلة.`,
+  task6Step1: `أعد ترتيب المعادلة: a² = c² − b².`, task6Step2: `عوّض: a² = 10² − 6² = 100 − 36 = 64.`, task6Step3: `خذ الجذر التربيعي: a = √64 = 8.`,
+  task6Hint: `6، 8، 10 هي الثلاثية 3، 4، 5 مضروبة في 2.`,
+  task7Step1: `السلم هو الوتر (c = 5)، والمسافة إلى الحائط ضلع قائم (a = 3).`, task7Step2: `أعد ترتيب المعادلة: b² = c² − a² = 5² − 3² = 25 − 9 = 16.`, task7Step3: `خذ الجذر التربيعي: b = √16 = 4.`,
+  task7Hint: `في المسائل اللفظية، فكّر أولًا في أي كمية تمثل الوتر (عادة الخط المائل).`,
+  task8Step1: `العرض والارتفاع هما الضلعان القائمان، والقطر هو الوتر.`, task8Step2: `المعادلة: c² = 24² + 18² = 576 + 324 = 900.`, task8Step3: `خذ الجذر التربيعي: c = √900 = 30.`,
+  task8Hint: `يشكّل قطر الشاشة مثلثًا قائم الزاوية مع العرض والارتفاع، لذلك تعمل نظرية فيثاغورس هنا.`,
+  hintLabel: `خطأ شائع:`, footerMessage: `احسب بهدوء وراجع الحل إذا احتجت إليه. أنت قادر على ذلك!`,
+  fbEmpty: `الرجاء إدخال رقم قبل التحقق.`, fbCorrect: `صحيح! أحسنت!`, fbIncorrect: `ليست صحيحة تمامًا بعد. راجع الحل أدناه وحاول مرة أخرى.`
+},
+zh: {
+  eyebrow: `路易森文理中学 · 九年级`, titleLine1: `勾股`, titleAccent: `定理`, backLink: `← 所有主题`, h2Basics: `基础知识`,
+  basicsP1: `在每个直角三角形中：斜边（最长的边，对着直角）的平方等于两条直角边平方的和。公式：a² + b² = c²。`,
+  pythAria: `直角三角形，直角边为a和b，斜边为c，公式：a的平方加b的平方等于c的平方`,
+  basicsExample1Label: `<strong>分步示例：</strong> 直角三角形 a = 3，b = 4。计算 c。`,
+  basicsExample1Steps: `1. 公式：a² + b² = c²<br>2. 代入：3² + 4² = c²<br>3. 计算：9 + 16 = 25，所以 c² = 25<br>4. 开平方：c = √25 = 5`,
+  basicsP2Cathetus: `<strong>如果要求直角边，</strong>把公式变形：a² = c² − b²（或 b² = c² − a²）。`,
+  basicsExample2Label: `<strong>分步示例：</strong> 直角三角形 c = 13，a = 5。计算 b。`,
+  basicsExample2Steps: `1. 变形公式：b² = c² − a²<br>2. 代入：b² = 13² − 5² = 169 − 25<br>3. 计算：169 − 25 = 144<br>4. 开平方：b = √144 = 12`,
+  merkeTitle: `记住`, merkeBody: `a² + b² = c²，其中 c 总是斜边（对着直角）。<br>求直角边：直角边的平方 = 斜边的平方减去另一条直角边的平方。<br>最后一定要开平方，才能得到边长。`,
+  taskWord: `练习`,
+  task1Question: `直角三角形 a = 3，b = 4。c 是多少？`, task2Question: `直角三角形 a = 6，b = 8。c 是多少？`, task3Question: `直角三角形 a = 5，b = 12。c 是多少？`, task4Question: `直角三角形 c = 13，a = 5。b 是多少？`, task5Question: `直角三角形 c = 25，a = 7。b 是多少？`, task6Question: `直角三角形 c = 10，b = 6。a 是多少？`,
+  task7Question: `一架梯子靠在墙上。梯子脚离墙 3 米，梯子长 5 米。梯子在墙上能到达多高（米）？`,
+  task8Question: `一台电视屏幕宽 24 英寸，高 18 英寸。对角线是多少英寸？`,
+  answerPlaceholder: `你的答案`, checkButton: `检查`, solutionSummary: `显示答案`,
+  task1Result: `结果：c = 5`, task2Result: `结果：c = 10`, task3Result: `结果：c = 13`, task4Result: `结果：b = 12`, task5Result: `结果：b = 24`, task6Result: `结果：a = 8`, task7Result: `结果：4 米`, task8Result: `结果：30 英寸`,
+  task1Step1: `公式：c² = a² + b²。`, task1Step2: `代入：c² = 3² + 4² = 9 + 16 = 25。`, task1Step3: `开平方：c = √25 = 5。`,
+  task1Hint: `先把两条直角边平方后相加，然后再开平方。`,
+  task2Step1: `公式：c² = a² + b²。`, task2Step2: `代入：c² = 6² + 8² = 36 + 64 = 100。`, task2Step3: `开平方：c = √100 = 10。`,
+  task2Hint: `c 总是最长的边，位于直角的对面。`,
+  task3Step1: `公式：c² = a² + b²。`, task3Step2: `代入：c² = 5² + 12² = 25 + 144 = 169。`, task3Step3: `开平方：c = √169 = 13。`,
+  task3Hint: `5、12、13 是一组常见的数组，经常出现在题目中。`,
+  task4Step1: `变形公式：b² = c² − a²。`, task4Step2: `代入：b² = 13² − 5² = 169 − 25 = 144。`, task4Step3: `开平方：b = √144 = 12。`,
+  task4Hint: `如果要求直角边，是相减，不是相加。`,
+  task5Step1: `变形公式：b² = c² − a²。`, task5Step2: `代入：b² = 25² − 7² = 625 − 49 = 576。`, task5Step3: `开平方：b = √576 = 24。`,
+  task5Hint: `c 总是最长的边，在变形公式时绝不能被简单地减去。`,
+  task6Step1: `变形公式：a² = c² − b²。`, task6Step2: `代入：a² = 10² − 6² = 100 − 36 = 64。`, task6Step3: `开平方：a = √64 = 8。`,
+  task6Hint: `6、8、10 就是 3、4、5 这组数乘以 2。`,
+  task7Step1: `梯子是斜边（c = 5），到墙的距离是一条直角边（a = 3）。`, task7Step2: `变形公式：b² = c² − a² = 5² − 3² = 25 − 9 = 16。`, task7Step3: `开平方：b = √16 = 4。`,
+  task7Hint: `在应用题中，先想清楚哪个量是斜边（通常是斜着的那条线）。`,
+  task8Step1: `宽和高是直角边，对角线是斜边。`, task8Step2: `公式：c² = 24² + 18² = 576 + 324 = 900。`, task8Step3: `开平方：c = √900 = 30。`,
+  task8Hint: `屏幕对角线与宽和高一起构成一个直角三角形，所以勾股定理在这里适用。`,
+  hintLabel: `常见错误：`, footerMessage: `慢慢算，需要的话看看答案。你能做到！`,
+  fbEmpty: `请先输入一个数字再检查。`, fbCorrect: `正确！做得好！`, fbIncorrect: `还不完全正确。看看下面的答案，再试一次。`
+}
+};
+
+var currentLang = 'de';
+
+function setLanguage(lang){
+  var dict = TRANSLATIONS[lang] || TRANSLATIONS.de;
+  currentLang = TRANSLATIONS[lang] ? lang : 'de';
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = (currentLang === 'ar') ? 'rtl' : 'ltr';
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var key = el.getAttribute('data-i18n');
+    if(dict[key] !== undefined){ el.innerHTML = dict[key]; }
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-placeholder');
+    if(dict[key] !== undefined){ el.setAttribute('placeholder', dict[key]); }
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-aria');
+    if(dict[key] !== undefined){ el.setAttribute('aria-label', dict[key]); }
+  });
+  try{ localStorage.setItem('mathecoach_lang', currentLang); }catch(e){}
+  var sel = document.getElementById('langSelect');
+  if(sel) sel.value = currentLang;
+}
+
+function check(id, correct){
+  var dict = TRANSLATIONS[currentLang] || TRANSLATIONS.de;
+  var input = document.getElementById('input' + id);
+  var feedback = document.getElementById('feedback' + id);
+  var raw = input.value.trim();
+  var match = raw.match(/-?\d+/);
+  feedback.classList.remove('show', 'correct', 'incorrect');
+  if(!match){
+    feedback.textContent = dict.fbEmpty;
+    feedback.classList.add('show', 'incorrect');
+    return;
+  }
+  var value = parseInt(match[0], 10);
+  if(value === correct){
+    feedback.textContent = dict.fbCorrect;
+    feedback.classList.add('show', 'correct');
+  } else {
+    feedback.textContent = dict.fbIncorrect;
+    feedback.classList.add('show', 'incorrect');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var saved = 'de';
+  try{ saved = localStorage.getItem('mathecoach_lang') || 'de'; }catch(e){}
+  setLanguage(saved);
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lineare Gleichungssysteme</title>
+<style>
+  :root{
+    --bg:#FAFAF9; --card:#FFFFFF; --ink:#241C1C; --ink-soft:#5C4F4C;
+    --red:#C41230; --gold:#E0A526; --blue:#2478B5;
+    --merke-bg:#FBF1DC; --merke-border:#E0A526;
+    --success:#1E8E5A; --success-bg:#E5F5EC; --error:#B3401D; --error-bg:#FBEDE6;
+    --font-display: ui-rounded, "SF Pro Rounded", "Segoe UI Rounded", "Nunito", system-ui, sans-serif;
+    --font-body: system-ui, "Segoe UI", Roboto, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:18px; line-height:1.5; padding-bottom:60px; }
+  .wrap{ max-width:640px; margin:0 auto; padding:0 20px; }
+  header{ background:var(--card); padding:30px 20px 0; text-align:center; position:relative; }
+  .header-inner{ padding-bottom:26px; }
+  .lang-switch{ display:flex; justify-content:center; margin-bottom:14px; }
+  #langSelect{ font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--ink); background:var(--card); border:2px solid #E3DFDA; border-radius:999px; padding:6px 14px; cursor:pointer; }
+  #langSelect:focus-visible{ outline:3px solid var(--blue); }
+  .back-link{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--blue); text-decoration:none; margin-bottom:16px; }
+  .eyebrow{ font-family:var(--font-display); font-weight:700; font-size:14px; letter-spacing:0.08em; text-transform:uppercase; color:var(--blue); margin-bottom:8px; }
+  h1{ font-family:var(--font-display); font-size:28px; font-weight:800; margin:0; line-height:1.25; }
+  h1 .accent{ color:var(--red); }
+  .wave{ display:block; width:100%; height:30px; }
+  section{ margin-top:32px; }
+  .card{ background:var(--card); border-radius:22px; padding:24px 22px; box-shadow:0 2px 14px rgba(36,28,28,0.07); }
+  h2{ font-family:var(--font-display); font-size:21px; font-weight:800; margin:0 0 14px; }
+  h2 .num{ display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:var(--blue); color:white; font-size:16px; margin-inline-end:10px; vertical-align:middle; }
+  p{ margin:0 0 14px; color:var(--ink-soft); }
+  .merke{ background:var(--merke-bg); border:2px solid var(--merke-border); border-radius:16px; padding:16px 18px; margin-top:16px; }
+  .merke-title{ font-family:var(--font-display); font-weight:800; color:#8A5A0F; font-size:15px; letter-spacing:0.04em; text-transform:uppercase; margin-bottom:6px; }
+  .merke-body{ color:#6B4A12; font-weight:600; margin:0; }
+  .system-diagram{ width:100%; height:auto; margin:18px 0 6px; }
+  .task-card{ margin-top:18px; }
+  .task-question{ font-family:var(--font-display); font-weight:700; font-size:19px; margin-bottom:16px; }
+  .answer-row{ display:flex; gap:10px; margin-bottom:6px; }
+  input[type="text"]{ flex:1; font-size:18px; font-family:var(--font-body); padding:12px 14px; border-radius:12px; border:2px solid #E3DFDA; background:#FBFAF9; color:var(--ink); }
+  input[type="text"]:focus{ outline:3px solid #C9DCEA; border-color:var(--blue); }
+  button.check{ font-family:var(--font-display); font-weight:700; font-size:16px; color:white; background:var(--blue); border:none; border-radius:12px; padding:0 20px; cursor:pointer; }
+  button.check:active{ transform:translateY(1px); }
+  button.check:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
+  .feedback{ margin-top:10px; padding:12px 14px; border-radius:12px; font-weight:700; display:none; }
+  .feedback.show{ display:block; }
+  .feedback.correct{ background:var(--success-bg); color:var(--success); }
+  .feedback.incorrect{ background:var(--error-bg); color:var(--error); }
+  details{ margin-top:14px; border-top:2px dashed #E3DFDA; padding-top:12px; }
+  summary{ font-family:var(--font-display); font-weight:700; color:var(--blue); cursor:pointer; font-size:15px; }
+  .solution{ margin-top:12px; }
+  .solution ol{ margin:0 0 12px; padding-inline-start:22px; color:var(--ink-soft); }
+  .solution li{ margin-bottom:6px; }
+  .solution-result{ font-family:var(--font-display); font-weight:800; color:var(--ink); margin-bottom:12px; }
+  .hint-box{ background:#F1EFEC; border-radius:12px; padding:12px 14px; font-size:16px; color:var(--ink-soft); }
+  .hint-box strong{ color:var(--ink); }
+  footer{ text-align:center; margin-top:36px; padding:0 20px; }
+  footer p{ font-family:var(--font-display); font-weight:700; color:var(--ink); }
+  .footer-wave{ display:block; width:100%; max-width:280px; height:16px; margin:0 auto 18px; opacity:0.6; }
+  [dir="rtl"] .back-link{ flex-direction:row-reverse; }
+  @media (prefers-reduced-motion: no-preference){ button.check{ transition:transform 0.1s ease; } }
+  @media (max-width: 480px){ .answer-row{ flex-direction:column; } button.check{ width:100%; padding:14px 20px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="lang-switch">
+      <select id="langSelect" onchange="setLanguage(this.value)">
+        <option value="de">Deutsch</option><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="tr">Türkçe</option><option value="ru">Русский</option><option value="ar">العربية</option><option value="zh">中文</option>
+      </select>
+    </div>
+    <a class="back-link" href="index.html" data-i18n="backLink">← Alle Themen</a>
+    <div class="eyebrow" data-i18n="eyebrow">Luisen-Gymnasium · Klasse 8</div>
+    <h1><span data-i18n="titleLine1">Lineare</span><br><span class="accent" data-i18n="titleAccent">Gleichungssysteme</span></h1>
+  </div>
+  <svg class="wave" viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+    <path d="M -10 22 C 190 4, 390 40, 590 22 S 990 4, 1210 22" fill="none" stroke="#C41230" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 32 C 190 50, 390 14, 590 32 S 990 50, 1210 32" fill="none" stroke="#E0A526" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 42 C 190 24, 390 58, 590 42 S 990 24, 1210 42" fill="none" stroke="#2478B5" stroke-width="5" stroke-linecap="round"/>
+  </svg>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <div class="card">
+      <h2 data-i18n="h2Basics">Grundlagen</h2>
+      <p data-i18n="basicsP1">Ein lineares Gleichungssystem besteht aus zwei Gleichungen mit zwei Unbekannten (meist x und y). Die Lösung ist das Zahlenpaar, das beide Gleichungen gleichzeitig erfüllt – geometrisch der Schnittpunkt zweier Geraden.</p>
+
+      <svg class="system-diagram" viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg" role="img" data-i18n-aria="systemAria" aria-label="Zwei sich kreuzende Geraden, der Schnittpunkt ist die Lösung des Gleichungssystems">
+        <line x1="60" y1="180" x2="500" y2="20" stroke="#C41230" stroke-width="3"/>
+        <line x1="60" y1="30" x2="500" y2="170" stroke="#2478B5" stroke-width="3"/>
+        <circle cx="280" cy="100" r="7" fill="#241C1C"/>
+        <text x="300" y="90" text-anchor="start" font-family="ui-rounded, system-ui, sans-serif" font-size="15" font-weight="800" fill="#241C1C" data-i18n="intersectionLabel">Lösung (Schnittpunkt)</text>
+      </svg>
+
+      <p data-i18n="basicsExample1Label"><strong>Beispiel Schritt für Schritt (Einsetzungsverfahren):</strong> y = x + 3 und 2x + y = 15.</p>
+      <p data-i18n="basicsExample1Steps">1. y in die zweite Gleichung einsetzen: 2x + (x + 3) = 15<br>2. Zusammenfassen: 3x + 3 = 15<br>3. Lösen: 3x = 12, also x = 4<br>4. x in y = x + 3 einsetzen: y = 4 + 3 = 7</p>
+
+      <p data-i18n="basicsP2Elimination"><strong>Beim Additionsverfahren</strong> addierst oder subtrahierst du beide Gleichungen so, dass eine Variable wegfällt.</p>
+
+      <p data-i18n="basicsExample2Label"><strong>Beispiel Schritt für Schritt (Additionsverfahren):</strong> x + y = 10 und x − y = 2.</p>
+      <p data-i18n="basicsExample2Steps">1. Beide Gleichungen addieren: (x + y) + (x − y) = 10 + 2<br>2. Die y-Glieder heben sich auf: 2x = 12<br>3. Lösen: x = 6<br>4. x in x + y = 10 einsetzen: y = 10 − 6 = 4</p>
+
+      <div class="merke">
+        <div class="merke-title" data-i18n="merkeTitle">Merke</div>
+        <p class="merke-body" data-i18n="merkeBody">Einsetzungsverfahren: eine Variable durch die andere ersetzen.<br>Additionsverfahren: Gleichungen so addieren oder subtrahieren, dass eine Variable wegfällt.<br>Am Ende immer den gefundenen Wert in eine der Gleichungen einsetzen, um die zweite Variable zu bestimmen.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">1</span><span data-i18n="taskWord">Aufgabe</span> 1</h2>
+      <div class="task-question" data-i18n="task1Question">y = x + 3 und 2x + y = 15. Wie groß ist x?</div>
+      <div class="answer-row">
+        <input type="text" id="input1" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(1, 4)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback1"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task1Result">Ergebnis: x = 4</div>
+          <ol>
+            <li data-i18n="task1Step1">y in die zweite Gleichung einsetzen: 2x + (x + 3) = 15.</li>
+            <li data-i18n="task1Step2">Zusammenfassen: 3x + 3 = 15.</li>
+            <li data-i18n="task1Step3">Lösen: 3x = 12, also x = 4.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task1Hint">Beim Einsetzen die gesamte rechte Seite von y (also x + 3) in Klammern einsetzen, nicht nur einen Teil.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">2</span><span data-i18n="taskWord">Aufgabe</span> 2</h2>
+      <div class="task-question" data-i18n="task2Question">y = x + 3 und 2x + y = 15. Wie groß ist y?</div>
+      <div class="answer-row">
+        <input type="text" id="input2" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(2, 7)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback2"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task2Result">Ergebnis: y = 7</div>
+          <ol>
+            <li data-i18n="task2Step1">Aus Aufgabe 1 wissen wir: x = 4.</li>
+            <li data-i18n="task2Step2">x in y = x + 3 einsetzen: y = 4 + 3.</li>
+            <li data-i18n="task2Step3">Ergebnis: y = 7.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task2Hint">Nach dem Finden von x nicht vergessen, y auch wirklich zu berechnen.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">3</span><span data-i18n="taskWord">Aufgabe</span> 3</h2>
+      <div class="task-question" data-i18n="task3Question">x + y = 10 und x − y = 2. Wie groß ist x?</div>
+      <div class="answer-row">
+        <input type="text" id="input3" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(3, 6)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback3"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task3Result">Ergebnis: x = 6</div>
+          <ol>
+            <li data-i18n="task3Step1">Beide Gleichungen addieren: (x + y) + (x − y) = 10 + 2.</li>
+            <li data-i18n="task3Step2">Die y-Glieder heben sich auf: 2x = 12.</li>
+            <li data-i18n="task3Step3">Lösen: x = 6.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task3Hint">Beim Addieren heben sich +y und −y gegenseitig auf – deshalb funktioniert das Additionsverfahren hier so gut.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">4</span><span data-i18n="taskWord">Aufgabe</span> 4</h2>
+      <div class="task-question" data-i18n="task4Question">x + y = 10 und x − y = 2. Wie groß ist y?</div>
+      <div class="answer-row">
+        <input type="text" id="input4" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(4, 4)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback4"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task4Result">Ergebnis: y = 4</div>
+          <ol>
+            <li data-i18n="task4Step1">Aus Aufgabe 3 wissen wir: x = 6.</li>
+            <li data-i18n="task4Step2">x in x + y = 10 einsetzen: 6 + y = 10.</li>
+            <li data-i18n="task4Step3">Auf beiden Seiten 6 abziehen: y = 4.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task4Hint">Man kann x auch in die zweite Gleichung einsetzen, das Ergebnis für y bleibt dasselbe.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">5</span><span data-i18n="taskWord">Aufgabe</span> 5</h2>
+      <div class="task-question" data-i18n="task5Question">3x + y = 16 und y = x. Wie groß ist x?</div>
+      <div class="answer-row">
+        <input type="text" id="input5" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(5, 4)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback5"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task5Result">Ergebnis: x = 4</div>
+          <ol>
+            <li data-i18n="task5Step1">y in die erste Gleichung einsetzen: 3x + x = 16.</li>
+            <li data-i18n="task5Step2">Zusammenfassen: 4x = 16.</li>
+            <li data-i18n="task5Step3">Auf beiden Seiten durch 4 teilen: x = 4.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task5Hint">Wenn y = x gilt, kann man y direkt durch x ersetzen und hat nur noch eine Variable.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">6</span><span data-i18n="taskWord">Aufgabe</span> 6</h2>
+      <div class="task-question" data-i18n="task6Question">3x + y = 16 und y = x. Wie groß ist y?</div>
+      <div class="answer-row">
+        <input type="text" id="input6" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(6, 4)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback6"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task6Result">Ergebnis: y = 4</div>
+          <ol>
+            <li data-i18n="task6Step1">Aus Aufgabe 5 wissen wir: x = 4.</li>
+            <li data-i18n="task6Step2">Da y = x gilt, ist y ebenfalls 4.</li>
+            <li data-i18n="task6Step3">Ergebnis: y = 4.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task6Hint">Wenn zwei Variablen laut Angabe gleich sind, haben sie am Ende auch denselben Zahlenwert.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">7</span><span data-i18n="taskWord">Aufgabe</span> 7</h2>
+      <div class="task-question" data-i18n="task7Question">Zwei Zahlen haben die Summe 20 und die Differenz 4. Das Gleichungssystem lautet x + y = 20, x − y = 4. Wie groß ist x?</div>
+      <div class="answer-row">
+        <input type="text" id="input7" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(7, 12)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback7"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task7Result">Ergebnis: x = 12</div>
+          <ol>
+            <li data-i18n="task7Step1">Beide Gleichungen addieren: (x + y) + (x − y) = 20 + 4.</li>
+            <li data-i18n="task7Step2">Die y-Glieder heben sich auf: 2x = 24.</li>
+            <li data-i18n="task7Step3">Auf beiden Seiten durch 2 teilen: x = 12.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task7Hint">Aus einer Textaufgabe zuerst korrekt das Gleichungssystem ableiten, dann erst rechnen.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">8</span><span data-i18n="taskWord">Aufgabe</span> 8</h2>
+      <div class="task-question" data-i18n="task8Question">Ein Erwachsenenticket kostet x Euro, ein Kinderticket y Euro. Es gilt x = 2y. 3 Erwachsene und 2 Kinder kosten zusammen 3x + 2y = 40 Euro. Wie viel kostet ein Kinderticket (y)?</div>
+      <div class="answer-row">
+        <input type="text" id="input8" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(8, 5)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback8"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task8Result">Ergebnis: 5 Euro</div>
+          <ol>
+            <li data-i18n="task8Step1">x = 2y in die zweite Gleichung einsetzen: 3 · (2y) + 2y = 40.</li>
+            <li data-i18n="task8Step2">Zusammenfassen: 6y + 2y = 40, also 8y = 40.</li>
+            <li data-i18n="task8Step3">Auf beiden Seiten durch 8 teilen: y = 5.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task8Hint">Beim Einsetzen von x = 2y sorgfältig 3 · 2y = 6y rechnen, nicht nur 3 · 2.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <footer>
+    <svg class="footer-wave" viewBox="0 0 280 16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+      <path d="M -5 8 C 40 1, 80 15, 140 8 S 240 1, 285 8" fill="none" stroke="#C41230" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M -5 8 C 40 15, 80 1, 140 8 S 240 15, 285 8" fill="none" stroke="#2478B5" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+    </svg>
+    <p id="footer-msg" data-i18n="footerMessage">Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!</p>
+  </footer>
+
+</div>
+
+<script>
+const TRANSLATIONS = {
+de: {
+  eyebrow: `Luisen-Gymnasium · Klasse 8`, titleLine1: `Lineare`, titleAccent: `Gleichungssysteme`, backLink: `← Alle Themen`, h2Basics: `Grundlagen`,
+  basicsP1: `Ein lineares Gleichungssystem besteht aus zwei Gleichungen mit zwei Unbekannten (meist x und y). Die Lösung ist das Zahlenpaar, das beide Gleichungen gleichzeitig erfüllt – geometrisch der Schnittpunkt zweier Geraden.`,
+  systemAria: `Zwei sich kreuzende Geraden, der Schnittpunkt ist die Lösung des Gleichungssystems`,
+  intersectionLabel: `Lösung (Schnittpunkt)`,
+  basicsExample1Label: `<strong>Beispiel Schritt für Schritt (Einsetzungsverfahren):</strong> y = x + 3 und 2x + y = 15.`,
+  basicsExample1Steps: `1. y in die zweite Gleichung einsetzen: 2x + (x + 3) = 15<br>2. Zusammenfassen: 3x + 3 = 15<br>3. Lösen: 3x = 12, also x = 4<br>4. x in y = x + 3 einsetzen: y = 4 + 3 = 7`,
+  basicsP2Elimination: `<strong>Beim Additionsverfahren</strong> addierst oder subtrahierst du beide Gleichungen so, dass eine Variable wegfällt.`,
+  basicsExample2Label: `<strong>Beispiel Schritt für Schritt (Additionsverfahren):</strong> x + y = 10 und x − y = 2.`,
+  basicsExample2Steps: `1. Beide Gleichungen addieren: (x + y) + (x − y) = 10 + 2<br>2. Die y-Glieder heben sich auf: 2x = 12<br>3. Lösen: x = 6<br>4. x in x + y = 10 einsetzen: y = 10 − 6 = 4`,
+  merkeTitle: `Merke`, merkeBody: `Einsetzungsverfahren: eine Variable durch die andere ersetzen.<br>Additionsverfahren: Gleichungen so addieren oder subtrahieren, dass eine Variable wegfällt.<br>Am Ende immer den gefundenen Wert in eine der Gleichungen einsetzen, um die zweite Variable zu bestimmen.`,
+  taskWord: `Aufgabe`,
+  task1Question: `y = x + 3 und 2x + y = 15. Wie groß ist x?`, task2Question: `y = x + 3 und 2x + y = 15. Wie groß ist y?`, task3Question: `x + y = 10 und x − y = 2. Wie groß ist x?`, task4Question: `x + y = 10 und x − y = 2. Wie groß ist y?`, task5Question: `3x + y = 16 und y = x. Wie groß ist x?`, task6Question: `3x + y = 16 und y = x. Wie groß ist y?`,
+  task7Question: `Zwei Zahlen haben die Summe 20 und die Differenz 4. Das Gleichungssystem lautet x + y = 20, x − y = 4. Wie groß ist x?`,
+  task8Question: `Ein Erwachsenenticket kostet x Euro, ein Kinderticket y Euro. Es gilt x = 2y. 3 Erwachsene und 2 Kinder kosten zusammen 3x + 2y = 40 Euro. Wie viel kostet ein Kinderticket (y)?`,
+  answerPlaceholder: `Deine Antwort`, checkButton: `Prüfen`, solutionSummary: `Lösung anzeigen`,
+  task1Result: `Ergebnis: x = 4`, task2Result: `Ergebnis: y = 7`, task3Result: `Ergebnis: x = 6`, task4Result: `Ergebnis: y = 4`, task5Result: `Ergebnis: x = 4`, task6Result: `Ergebnis: y = 4`, task7Result: `Ergebnis: x = 12`, task8Result: `Ergebnis: 5 Euro`,
+  task1Step1: `y in die zweite Gleichung einsetzen: 2x + (x + 3) = 15.`, task1Step2: `Zusammenfassen: 3x + 3 = 15.`, task1Step3: `Lösen: 3x = 12, also x = 4.`,
+  task1Hint: `Beim Einsetzen die gesamte rechte Seite von y (also x + 3) in Klammern einsetzen, nicht nur einen Teil.`,
+  task2Step1: `Aus Aufgabe 1 wissen wir: x = 4.`, task2Step2: `x in y = x + 3 einsetzen: y = 4 + 3.`, task2Step3: `Ergebnis: y = 7.`,
+  task2Hint: `Nach dem Finden von x nicht vergessen, y auch wirklich zu berechnen.`,
+  task3Step1: `Beide Gleichungen addieren: (x + y) + (x − y) = 10 + 2.`, task3Step2: `Die y-Glieder heben sich auf: 2x = 12.`, task3Step3: `Lösen: x = 6.`,
+  task3Hint: `Beim Addieren heben sich +y und −y gegenseitig auf – deshalb funktioniert das Additionsverfahren hier so gut.`,
+  task4Step1: `Aus Aufgabe 3 wissen wir: x = 6.`, task4Step2: `x in x + y = 10 einsetzen: 6 + y = 10.`, task4Step3: `Auf beiden Seiten 6 abziehen: y = 4.`,
+  task4Hint: `Man kann x auch in die zweite Gleichung einsetzen, das Ergebnis für y bleibt dasselbe.`,
+  task5Step1: `y in die erste Gleichung einsetzen: 3x + x = 16.`, task5Step2: `Zusammenfassen: 4x = 16.`, task5Step3: `Auf beiden Seiten durch 4 teilen: x = 4.`,
+  task5Hint: `Wenn y = x gilt, kann man y direkt durch x ersetzen und hat nur noch eine Variable.`,
+  task6Step1: `Aus Aufgabe 5 wissen wir: x = 4.`, task6Step2: `Da y = x gilt, ist y ebenfalls 4.`, task6Step3: `Ergebnis: y = 4.`,
+  task6Hint: `Wenn zwei Variablen laut Angabe gleich sind, haben sie am Ende auch denselben Zahlenwert.`,
+  task7Step1: `Beide Gleichungen addieren: (x + y) + (x − y) = 20 + 4.`, task7Step2: `Die y-Glieder heben sich auf: 2x = 24.`, task7Step3: `Auf beiden Seiten durch 2 teilen: x = 12.`,
+  task7Hint: `Aus einer Textaufgabe zuerst korrekt das Gleichungssystem ableiten, dann erst rechnen.`,
+  task8Step1: `x = 2y in die zweite Gleichung einsetzen: 3 · (2y) + 2y = 40.`, task8Step2: `Zusammenfassen: 6y + 2y = 40, also 8y = 40.`, task8Step3: `Auf beiden Seiten durch 8 teilen: y = 5.`,
+  task8Hint: `Beim Einsetzen von x = 2y sorgfältig 3 · 2y = 6y rechnen, nicht nur 3 · 2.`,
+  hintLabel: `Typischer Fehler:`, footerMessage: `Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!`,
+  fbEmpty: `Trag bitte eine Zahl ein, bevor du prüfst.`, fbCorrect: `Richtig! Gut gemacht!`, fbIncorrect: `Noch nicht ganz richtig. Schau dir die Lösung weiter unten an und versuch es dann nochmal.`
+},
+en: {
+  eyebrow: `Luisen-Gymnasium · Grade 8`, titleLine1: `Systems of Linear`, titleAccent: `Equations`, backLink: `← All Topics`, h2Basics: `Basics`,
+  basicsP1: `A system of linear equations consists of two equations with two unknowns (usually x and y). The solution is the pair of numbers that satisfies both equations at the same time — geometrically, the intersection of two lines.`,
+  systemAria: `Two intersecting lines, the intersection point is the solution of the system of equations`,
+  intersectionLabel: `Solution (intersection)`,
+  basicsExample1Label: `<strong>Step-by-step example (substitution method):</strong> y = x + 3 and 2x + y = 15.`,
+  basicsExample1Steps: `1. Substitute y into the second equation: 2x + (x + 3) = 15<br>2. Combine: 3x + 3 = 15<br>3. Solve: 3x = 12, so x = 4<br>4. Substitute x into y = x + 3: y = 4 + 3 = 7`,
+  basicsP2Elimination: `<strong>With the elimination method,</strong> you add or subtract both equations so that one variable disappears.`,
+  basicsExample2Label: `<strong>Step-by-step example (elimination method):</strong> x + y = 10 and x − y = 2.`,
+  basicsExample2Steps: `1. Add both equations: (x + y) + (x − y) = 10 + 2<br>2. The y terms cancel out: 2x = 12<br>3. Solve: x = 6<br>4. Substitute x into x + y = 10: y = 10 − 6 = 4`,
+  merkeTitle: `Remember`, merkeBody: `Substitution method: replace one variable with the other.<br>Elimination method: add or subtract the equations so that one variable disappears.<br>Always substitute the value you find into one of the equations to determine the second variable.`,
+  taskWord: `Exercise`,
+  task1Question: `y = x + 3 and 2x + y = 15. What's x?`, task2Question: `y = x + 3 and 2x + y = 15. What's y?`, task3Question: `x + y = 10 and x − y = 2. What's x?`, task4Question: `x + y = 10 and x − y = 2. What's y?`, task5Question: `3x + y = 16 and y = x. What's x?`, task6Question: `3x + y = 16 and y = x. What's y?`,
+  task7Question: `Two numbers have a sum of 20 and a difference of 4. The system is x + y = 20, x − y = 4. What's x?`,
+  task8Question: `An adult ticket costs x euros, a child's ticket costs y euros. x = 2y. 3 adults and 2 children together cost 3x + 2y = 40 euros. How much does a child's ticket cost (y)?`,
+  answerPlaceholder: `Your answer`, checkButton: `Check`, solutionSummary: `Show solution`,
+  task1Result: `Result: x = 4`, task2Result: `Result: y = 7`, task3Result: `Result: x = 6`, task4Result: `Result: y = 4`, task5Result: `Result: x = 4`, task6Result: `Result: y = 4`, task7Result: `Result: x = 12`, task8Result: `Result: 5 euros`,
+  task1Step1: `Substitute y into the second equation: 2x + (x + 3) = 15.`, task1Step2: `Combine: 3x + 3 = 15.`, task1Step3: `Solve: 3x = 12, so x = 4.`,
+  task1Hint: `When substituting, put the whole right side of y (i.e. x + 3) in brackets, not just part of it.`,
+  task2Step1: `From exercise 1 we know: x = 4.`, task2Step2: `Substitute x into y = x + 3: y = 4 + 3.`, task2Step3: `Result: y = 7.`,
+  task2Hint: `After finding x, don't forget to actually calculate y too.`,
+  task3Step1: `Add both equations: (x + y) + (x − y) = 10 + 2.`, task3Step2: `The y terms cancel out: 2x = 12.`, task3Step3: `Solve: x = 6.`,
+  task3Hint: `When adding, +y and −y cancel each other out — that's why the elimination method works so well here.`,
+  task4Step1: `From exercise 3 we know: x = 6.`, task4Step2: `Substitute x into x + y = 10: 6 + y = 10.`, task4Step3: `Subtract 6 on both sides: y = 4.`,
+  task4Hint: `You could also substitute x into the second equation, the result for y stays the same.`,
+  task5Step1: `Substitute y into the first equation: 3x + x = 16.`, task5Step2: `Combine: 4x = 16.`, task5Step3: `Divide both sides by 4: x = 4.`,
+  task5Hint: `If y = x, you can directly replace y with x and are left with only one variable.`,
+  task6Step1: `From exercise 5 we know: x = 4.`, task6Step2: `Since y = x, y is also 4.`, task6Step3: `Result: y = 4.`,
+  task6Hint: `If two variables are equal according to the problem, they also have the same numerical value in the end.`,
+  task7Step1: `Add both equations: (x + y) + (x − y) = 20 + 4.`, task7Step2: `The y terms cancel out: 2x = 24.`, task7Step3: `Divide both sides by 2: x = 12.`,
+  task7Hint: `In a word problem, first correctly derive the system of equations, only then calculate.`,
+  task8Step1: `Substitute x = 2y into the second equation: 3 · (2y) + 2y = 40.`, task8Step2: `Combine: 6y + 2y = 40, so 8y = 40.`, task8Step3: `Divide both sides by 8: y = 5.`,
+  task8Hint: `When substituting x = 2y, carefully calculate 3 · 2y = 6y, not just 3 · 2.`,
+  hintLabel: `Common mistake:`, footerMessage: `Take your time and check the solution if you need to. You can do this!`,
+  fbEmpty: `Please enter a number before checking.`, fbCorrect: `Correct! Well done!`, fbIncorrect: `Not quite right yet. Check the solution below and try again.`
+},
+es: {
+  eyebrow: `Luisen-Gymnasium · 8.º curso`, titleLine1: `Sistemas de ecuaciones`, titleAccent: `lineales`, backLink: `← Todos los temas`, h2Basics: `Fundamentos`,
+  basicsP1: `Un sistema de ecuaciones lineales consta de dos ecuaciones con dos incógnitas (normalmente x e y). La solución es el par de números que satisface ambas ecuaciones a la vez — geométricamente, el punto de intersección de dos rectas.`,
+  systemAria: `Dos rectas que se cruzan, el punto de intersección es la solución del sistema de ecuaciones`,
+  intersectionLabel: `Solución (intersección)`,
+  basicsExample1Label: `<strong>Ejemplo paso a paso (método de sustitución):</strong> y = x + 3 y 2x + y = 15.`,
+  basicsExample1Steps: `1. Sustituye y en la segunda ecuación: 2x + (x + 3) = 15<br>2. Combina: 3x + 3 = 15<br>3. Resuelve: 3x = 12, así que x = 4<br>4. Sustituye x en y = x + 3: y = 4 + 3 = 7`,
+  basicsP2Elimination: `<strong>En el método de reducción,</strong> sumas o restas ambas ecuaciones de modo que una variable desaparezca.`,
+  basicsExample2Label: `<strong>Ejemplo paso a paso (método de reducción):</strong> x + y = 10 y x − y = 2.`,
+  basicsExample2Steps: `1. Suma ambas ecuaciones: (x + y) + (x − y) = 10 + 2<br>2. Los términos con y se cancelan: 2x = 12<br>3. Resuelve: x = 6<br>4. Sustituye x en x + y = 10: y = 10 − 6 = 4`,
+  merkeTitle: `Recuerda`, merkeBody: `Método de sustitución: reemplazar una variable por la otra.<br>Método de reducción: sumar o restar las ecuaciones de modo que una variable desaparezca.<br>Al final, siempre sustituye el valor encontrado en una de las ecuaciones para hallar la segunda variable.`,
+  taskWord: `Ejercicio`,
+  task1Question: `y = x + 3 y 2x + y = 15. ¿Cuánto vale x?`, task2Question: `y = x + 3 y 2x + y = 15. ¿Cuánto vale y?`, task3Question: `x + y = 10 y x − y = 2. ¿Cuánto vale x?`, task4Question: `x + y = 10 y x − y = 2. ¿Cuánto vale y?`, task5Question: `3x + y = 16 e y = x. ¿Cuánto vale x?`, task6Question: `3x + y = 16 e y = x. ¿Cuánto vale y?`,
+  task7Question: `Dos números tienen suma 20 y diferencia 4. El sistema es x + y = 20, x − y = 4. ¿Cuánto vale x?`,
+  task8Question: `Una entrada de adulto cuesta x euros, una de niño cuesta y euros. x = 2y. 3 adultos y 2 niños cuestan juntos 3x + 2y = 40 euros. ¿Cuánto cuesta una entrada de niño (y)?`,
+  answerPlaceholder: `Tu respuesta`, checkButton: `Comprobar`, solutionSummary: `Ver solución`,
+  task1Result: `Resultado: x = 4`, task2Result: `Resultado: y = 7`, task3Result: `Resultado: x = 6`, task4Result: `Resultado: y = 4`, task5Result: `Resultado: x = 4`, task6Result: `Resultado: y = 4`, task7Result: `Resultado: x = 12`, task8Result: `Resultado: 5 euros`,
+  task1Step1: `Sustituye y en la segunda ecuación: 2x + (x + 3) = 15.`, task1Step2: `Combina: 3x + 3 = 15.`, task1Step3: `Resuelve: 3x = 12, así que x = 4.`,
+  task1Hint: `Al sustituir, pon todo el lado derecho de y (es decir, x + 3) entre paréntesis, no solo una parte.`,
+  task2Step1: `Del ejercicio 1 sabemos: x = 4.`, task2Step2: `Sustituye x en y = x + 3: y = 4 + 3.`, task2Step3: `Resultado: y = 7.`,
+  task2Hint: `Después de hallar x, no olvides calcular también y.`,
+  task3Step1: `Suma ambas ecuaciones: (x + y) + (x − y) = 10 + 2.`, task3Step2: `Los términos con y se cancelan: 2x = 12.`, task3Step3: `Resuelve: x = 6.`,
+  task3Hint: `Al sumar, +y y −y se cancelan mutuamente — por eso el método de reducción funciona tan bien aquí.`,
+  task4Step1: `Del ejercicio 3 sabemos: x = 6.`, task4Step2: `Sustituye x en x + y = 10: 6 + y = 10.`, task4Step3: `Resta 6 en ambos lados: y = 4.`,
+  task4Hint: `También podrías sustituir x en la segunda ecuación, el resultado para y sigue siendo el mismo.`,
+  task5Step1: `Sustituye y en la primera ecuación: 3x + x = 16.`, task5Step2: `Combina: 4x = 16.`, task5Step3: `Divide ambos lados entre 4: x = 4.`,
+  task5Hint: `Si y = x, puedes sustituir y directamente por x y te queda solo una variable.`,
+  task6Step1: `Del ejercicio 5 sabemos: x = 4.`, task6Step2: `Como y = x, y también es 4.`, task6Step3: `Resultado: y = 4.`,
+  task6Hint: `Si dos variables son iguales según el enunciado, al final también tienen el mismo valor numérico.`,
+  task7Step1: `Suma ambas ecuaciones: (x + y) + (x − y) = 20 + 4.`, task7Step2: `Los términos con y se cancelan: 2x = 24.`, task7Step3: `Divide ambos lados entre 2: x = 12.`,
+  task7Hint: `En un problema de texto, primero deduce correctamente el sistema de ecuaciones, y solo después calcula.`,
+  task8Step1: `Sustituye x = 2y en la segunda ecuación: 3 · (2y) + 2y = 40.`, task8Step2: `Combina: 6y + 2y = 40, así que 8y = 40.`, task8Step3: `Divide ambos lados entre 8: y = 5.`,
+  task8Hint: `Al sustituir x = 2y, calcula con cuidado 3 · 2y = 6y, no solo 3 · 2.`,
+  hintLabel: `Error típico:`, footerMessage: `Tómate tu tiempo y revisa la solución si la necesitas. ¡Tú puedes!`,
+  fbEmpty: `Introduce un número antes de comprobar.`, fbCorrect: `¡Correcto! ¡Muy bien!`, fbIncorrect: `Todavía no es correcto. Revisa la solución de abajo e inténtalo de nuevo.`
+},
+fr: {
+  eyebrow: `Luisen-Gymnasium · 4e`, titleLine1: `Systèmes d'équations`, titleAccent: `linéaires`, backLink: `← Tous les thèmes`, h2Basics: `Les bases`,
+  basicsP1: `Un système d'équations linéaires est composé de deux équations à deux inconnues (généralement x et y). La solution est le couple de nombres qui satisfait les deux équations en même temps — géométriquement, le point d'intersection de deux droites.`,
+  systemAria: `Deux droites qui se croisent, le point d'intersection est la solution du système d'équations`,
+  intersectionLabel: `Solution (point d'intersection)`,
+  basicsExample1Label: `<strong>Exemple étape par étape (méthode par substitution) :</strong> y = x + 3 et 2x + y = 15.`,
+  basicsExample1Steps: `1. Substitue y dans la deuxième équation : 2x + (x + 3) = 15<br>2. Regroupe : 3x + 3 = 15<br>3. Résous : 3x = 12, donc x = 4<br>4. Substitue x dans y = x + 3 : y = 4 + 3 = 7`,
+  basicsP2Elimination: `<strong>Avec la méthode par combinaison,</strong> tu additionnes ou soustrais les deux équations de façon à ce qu'une variable disparaisse.`,
+  basicsExample2Label: `<strong>Exemple étape par étape (méthode par combinaison) :</strong> x + y = 10 et x − y = 2.`,
+  basicsExample2Steps: `1. Additionne les deux équations : (x + y) + (x − y) = 10 + 2<br>2. Les termes en y s'annulent : 2x = 12<br>3. Résous : x = 6<br>4. Substitue x dans x + y = 10 : y = 10 − 6 = 4`,
+  merkeTitle: `À retenir`, merkeBody: `Méthode par substitution : remplacer une variable par l'autre.<br>Méthode par combinaison : additionner ou soustraire les équations pour éliminer une variable.<br>À la fin, substitue toujours la valeur trouvée dans l'une des équations pour déterminer la seconde variable.`,
+  taskWord: `Exercice`,
+  task1Question: `y = x + 3 et 2x + y = 15. Combien vaut x ?`, task2Question: `y = x + 3 et 2x + y = 15. Combien vaut y ?`, task3Question: `x + y = 10 et x − y = 2. Combien vaut x ?`, task4Question: `x + y = 10 et x − y = 2. Combien vaut y ?`, task5Question: `3x + y = 16 et y = x. Combien vaut x ?`, task6Question: `3x + y = 16 et y = x. Combien vaut y ?`,
+  task7Question: `Deux nombres ont pour somme 20 et pour différence 4. Le système est x + y = 20, x − y = 4. Combien vaut x ?`,
+  task8Question: `Un billet adulte coûte x euros, un billet enfant coûte y euros. x = 2y. 3 adultes et 2 enfants coûtent ensemble 3x + 2y = 40 euros. Combien coûte un billet enfant (y) ?`,
+  answerPlaceholder: `Ta réponse`, checkButton: `Vérifier`, solutionSummary: `Voir la solution`,
+  task1Result: `Résultat : x = 4`, task2Result: `Résultat : y = 7`, task3Result: `Résultat : x = 6`, task4Result: `Résultat : y = 4`, task5Result: `Résultat : x = 4`, task6Result: `Résultat : y = 4`, task7Result: `Résultat : x = 12`, task8Result: `Résultat : 5 euros`,
+  task1Step1: `Substitue y dans la deuxième équation : 2x + (x + 3) = 15.`, task1Step2: `Regroupe : 3x + 3 = 15.`, task1Step3: `Résous : 3x = 12, donc x = 4.`,
+  task1Hint: `Lors de la substitution, mets tout le côté droit de y (c'est-à-dire x + 3) entre parenthèses, pas seulement une partie.`,
+  task2Step1: `D'après l'exercice 1, on sait : x = 4.`, task2Step2: `Substitue x dans y = x + 3 : y = 4 + 3.`, task2Step3: `Résultat : y = 7.`,
+  task2Hint: `Après avoir trouvé x, n'oublie pas de calculer aussi y.`,
+  task3Step1: `Additionne les deux équations : (x + y) + (x − y) = 10 + 2.`, task3Step2: `Les termes en y s'annulent : 2x = 12.`, task3Step3: `Résous : x = 6.`,
+  task3Hint: `En additionnant, +y et −y s'annulent — c'est pourquoi la méthode par combinaison fonctionne si bien ici.`,
+  task4Step1: `D'après l'exercice 3, on sait : x = 6.`, task4Step2: `Substitue x dans x + y = 10 : 6 + y = 10.`, task4Step3: `Soustrais 6 des deux côtés : y = 4.`,
+  task4Hint: `Tu peux aussi substituer x dans la deuxième équation, le résultat pour y reste le même.`,
+  task5Step1: `Substitue y dans la première équation : 3x + x = 16.`, task5Step2: `Regroupe : 4x = 16.`, task5Step3: `Divise les deux côtés par 4 : x = 4.`,
+  task5Hint: `Si y = x, tu peux directement remplacer y par x et il ne reste plus qu'une seule variable.`,
+  task6Step1: `D'après l'exercice 5, on sait : x = 4.`, task6Step2: `Comme y = x, y vaut aussi 4.`, task6Step3: `Résultat : y = 4.`,
+  task6Hint: `Si deux variables sont égales selon l'énoncé, elles ont finalement aussi la même valeur numérique.`,
+  task7Step1: `Additionne les deux équations : (x + y) + (x − y) = 20 + 4.`, task7Step2: `Les termes en y s'annulent : 2x = 24.`, task7Step3: `Divise les deux côtés par 2 : x = 12.`,
+  task7Hint: `Dans un problème, déduis d'abord correctement le système d'équations, puis calcule seulement après.`,
+  task8Step1: `Substitue x = 2y dans la deuxième équation : 3 · (2y) + 2y = 40.`, task8Step2: `Regroupe : 6y + 2y = 40, donc 8y = 40.`, task8Step3: `Divise les deux côtés par 8 : y = 5.`,
+  task8Hint: `Lors de la substitution de x = 2y, calcule soigneusement 3 · 2y = 6y, pas seulement 3 · 2.`,
+  hintLabel: `Erreur fréquente :`, footerMessage: `Prends ton temps et regarde la solution si besoin. Tu vas y arriver !`,
+  fbEmpty: `Merci d'indiquer un nombre avant de vérifier.`, fbCorrect: `Correct ! Bien joué !`, fbIncorrect: `Pas encore tout à fait juste. Regarde la solution ci-dessous et réessaie.`
+},
+tr: {
+  eyebrow: `Luisen-Gymnasium · 8. Sınıf`, titleLine1: `Doğrusal Denklem`, titleAccent: `Sistemleri`, backLink: `← Tüm Konular`, h2Basics: `Temel Bilgiler`,
+  basicsP1: `Doğrusal bir denklem sistemi, iki bilinmeyenli (genellikle x ve y) iki denklemden oluşur. Çözüm, her iki denklemi aynı anda sağlayan sayı çiftidir — geometrik olarak iki doğrunun kesişim noktasıdır.`,
+  systemAria: `Kesişen iki doğru, kesişim noktası denklem sisteminin çözümüdür`,
+  intersectionLabel: `Çözüm (kesişim noktası)`,
+  basicsExample1Label: `<strong>Adım adım örnek (yerine koyma yöntemi):</strong> y = x + 3 ve 2x + y = 15.`,
+  basicsExample1Steps: `1. y'yi ikinci denkleme yerine koy: 2x + (x + 3) = 15<br>2. Birleştir: 3x + 3 = 15<br>3. Çöz: 3x = 12, yani x = 4<br>4. x'i y = x + 3'e yerine koy: y = 4 + 3 = 7`,
+  basicsP2Elimination: `<strong>Toplama yönteminde</strong> iki denklemi, bir değişken yok olacak şekilde toplarsın veya çıkarırsın.`,
+  basicsExample2Label: `<strong>Adım adım örnek (toplama yöntemi):</strong> x + y = 10 ve x − y = 2.`,
+  basicsExample2Steps: `1. Her iki denklemi topla: (x + y) + (x − y) = 10 + 2<br>2. y terimleri birbirini götürür: 2x = 12<br>3. Çöz: x = 6<br>4. x'i x + y = 10'a yerine koy: y = 10 − 6 = 4`,
+  merkeTitle: `Unutma`, merkeBody: `Yerine koyma yöntemi: bir değişkeni diğeriyle değiştir.<br>Toplama yöntemi: bir değişken yok olacak şekilde denklemleri topla veya çıkar.<br>Sonunda ikinci değişkeni bulmak için bulunan değeri her zaman denklemlerden birine yerine koy.`,
+  taskWord: `Alıştırma`,
+  task1Question: `y = x + 3 ve 2x + y = 15. x kaçtır?`, task2Question: `y = x + 3 ve 2x + y = 15. y kaçtır?`, task3Question: `x + y = 10 ve x − y = 2. x kaçtır?`, task4Question: `x + y = 10 ve x − y = 2. y kaçtır?`, task5Question: `3x + y = 16 ve y = x. x kaçtır?`, task6Question: `3x + y = 16 ve y = x. y kaçtır?`,
+  task7Question: `İki sayının toplamı 20, farkı 4'tür. Denklem sistemi x + y = 20, x − y = 4'tür. x kaçtır?`,
+  task8Question: `Bir yetişkin bileti x avro, bir çocuk bileti y avrodur. x = 2y'dir. 3 yetişkin ve 2 çocuk toplamda 3x + 2y = 40 avro tutar. Bir çocuk bileti (y) kaç avrodur?`,
+  answerPlaceholder: `Cevabın`, checkButton: `Kontrol et`, solutionSummary: `Çözümü göster`,
+  task1Result: `Sonuç: x = 4`, task2Result: `Sonuç: y = 7`, task3Result: `Sonuç: x = 6`, task4Result: `Sonuç: y = 4`, task5Result: `Sonuç: x = 4`, task6Result: `Sonuç: y = 4`, task7Result: `Sonuç: x = 12`, task8Result: `Sonuç: 5 avro`,
+  task1Step1: `y'yi ikinci denkleme yerine koy: 2x + (x + 3) = 15.`, task1Step2: `Birleştir: 3x + 3 = 15.`, task1Step3: `Çöz: 3x = 12, yani x = 4.`,
+  task1Hint: `Yerine koyarken y'nin tüm sağ tarafını (yani x + 3'ü) parantez içine koy, sadece bir kısmını değil.`,
+  task2Step1: `1. alıştırmadan biliyoruz: x = 4.`, task2Step2: `x'i y = x + 3'e yerine koy: y = 4 + 3.`, task2Step3: `Sonuç: y = 7.`,
+  task2Hint: `x'i bulduktan sonra y'yi de gerçekten hesaplamayı unutma.`,
+  task3Step1: `Her iki denklemi topla: (x + y) + (x − y) = 10 + 2.`, task3Step2: `y terimleri birbirini götürür: 2x = 12.`, task3Step3: `Çöz: x = 6.`,
+  task3Hint: `Toplarken +y ve −y birbirini götürür — bu yüzden toplama yöntemi burada çok iyi çalışır.`,
+  task4Step1: `3. alıştırmadan biliyoruz: x = 6.`, task4Step2: `x'i x + y = 10'a yerine koy: 6 + y = 10.`, task4Step3: `Her iki taraftan 6 çıkar: y = 4.`,
+  task4Hint: `x'i ikinci denkleme de yerine koyabilirsin, y için sonuç aynı kalır.`,
+  task5Step1: `y'yi ilk denkleme yerine koy: 3x + x = 16.`, task5Step2: `Birleştir: 4x = 16.`, task5Step3: `Her iki tarafı 4'e böl: x = 4.`,
+  task5Hint: `y = x ise, y'yi doğrudan x ile değiştirebilirsin ve sadece bir değişken kalır.`,
+  task6Step1: `5. alıştırmadan biliyoruz: x = 4.`, task6Step2: `y = x olduğundan, y de 4'tür.`, task6Step3: `Sonuç: y = 4.`,
+  task6Hint: `Soruya göre iki değişken eşitse, sonunda aynı sayısal değere de sahiptirler.`,
+  task7Step1: `Her iki denklemi topla: (x + y) + (x − y) = 20 + 4.`, task7Step2: `y terimleri birbirini götürür: 2x = 24.`, task7Step3: `Her iki tarafı 2'ye böl: x = 12.`,
+  task7Hint: `Bir metin probleminde önce denklem sistemini doğru şekilde türet, sonra hesapla.`,
+  task8Step1: `x = 2y'yi ikinci denkleme yerine koy: 3 · (2y) + 2y = 40.`, task8Step2: `Birleştir: 6y + 2y = 40, yani 8y = 40.`, task8Step3: `Her iki tarafı 8'e böl: y = 5.`,
+  task8Hint: `x = 2y'yi yerine koyarken 3 · 2y = 6y'yi dikkatlice hesapla, sadece 3 · 2'yi değil.`,
+  hintLabel: `Sık yapılan hata:`, footerMessage: `Sakin sakin hesapla, gerekirse çözüme bak. Bunu başarabilirsin!`,
+  fbEmpty: `Kontrol etmeden önce lütfen bir sayı gir.`, fbCorrect: `Doğru! Aferin!`, fbIncorrect: `Henüz tam doğru değil. Aşağıdaki çözüme bak ve tekrar dene.`
+},
+ru: {
+  eyebrow: `Luisen-Gymnasium · 8 класс`, titleLine1: `Системы линейных`, titleAccent: `уравнений`, backLink: `← Все темы`, h2Basics: `Основы`,
+  basicsP1: `Система линейных уравнений состоит из двух уравнений с двумя неизвестными (обычно x и y). Решение — это пара чисел, удовлетворяющая обоим уравнениям одновременно — геометрически это точка пересечения двух прямых.`,
+  systemAria: `Две пересекающиеся прямые, точка пересечения — решение системы уравнений`,
+  intersectionLabel: `Решение (точка пересечения)`,
+  basicsExample1Label: `<strong>Пример по шагам (метод подстановки):</strong> y = x + 3 и 2x + y = 15.`,
+  basicsExample1Steps: `1. Подставь y во второе уравнение: 2x + (x + 3) = 15<br>2. Объедини: 3x + 3 = 15<br>3. Реши: 3x = 12, значит x = 4<br>4. Подставь x в y = x + 3: y = 4 + 3 = 7`,
+  basicsP2Elimination: `<strong>При методе сложения</strong> ты складываешь или вычитаешь оба уравнения так, чтобы одна переменная исчезла.`,
+  basicsExample2Label: `<strong>Пример по шагам (метод сложения):</strong> x + y = 10 и x − y = 2.`,
+  basicsExample2Steps: `1. Сложи оба уравнения: (x + y) + (x − y) = 10 + 2<br>2. Члены с y сокращаются: 2x = 12<br>3. Реши: x = 6<br>4. Подставь x в x + y = 10: y = 10 − 6 = 4`,
+  merkeTitle: `Запомни`, merkeBody: `Метод подстановки: заменить одну переменную другой.<br>Метод сложения: складывать или вычитать уравнения так, чтобы одна переменная исчезла.<br>В конце всегда подставляй найденное значение в одно из уравнений, чтобы найти вторую переменную.`,
+  taskWord: `Задание`,
+  task1Question: `y = x + 3 и 2x + y = 15. Чему равен x?`, task2Question: `y = x + 3 и 2x + y = 15. Чему равен y?`, task3Question: `x + y = 10 и x − y = 2. Чему равен x?`, task4Question: `x + y = 10 и x − y = 2. Чему равен y?`, task5Question: `3x + y = 16 и y = x. Чему равен x?`, task6Question: `3x + y = 16 и y = x. Чему равен y?`,
+  task7Question: `Сумма двух чисел равна 20, а разность равна 4. Система: x + y = 20, x − y = 4. Чему равен x?`,
+  task8Question: `Взрослый билет стоит x евро, детский — y евро. x = 2y. 3 взрослых и 2 детей вместе стоят 3x + 2y = 40 евро. Сколько стоит детский билет (y)?`,
+  answerPlaceholder: `Твой ответ`, checkButton: `Проверить`, solutionSummary: `Показать решение`,
+  task1Result: `Результат: x = 4`, task2Result: `Результат: y = 7`, task3Result: `Результат: x = 6`, task4Result: `Результат: y = 4`, task5Result: `Результат: x = 4`, task6Result: `Результат: y = 4`, task7Result: `Результат: x = 12`, task8Result: `Результат: 5 евро`,
+  task1Step1: `Подставь y во второе уравнение: 2x + (x + 3) = 15.`, task1Step2: `Объедини: 3x + 3 = 15.`, task1Step3: `Реши: 3x = 12, значит x = 4.`,
+  task1Hint: `При подстановке заключай всю правую часть y (то есть x + 3) в скобки, а не только часть.`,
+  task2Step1: `Из задания 1 мы знаем: x = 4.`, task2Step2: `Подставь x в y = x + 3: y = 4 + 3.`, task2Step3: `Результат: y = 7.`,
+  task2Hint: `После нахождения x не забудь действительно вычислить и y.`,
+  task3Step1: `Сложи оба уравнения: (x + y) + (x − y) = 10 + 2.`, task3Step2: `Члены с y сокращаются: 2x = 12.`, task3Step3: `Реши: x = 6.`,
+  task3Hint: `При сложении +y и −y взаимно уничтожаются — поэтому метод сложения здесь так хорошо работает.`,
+  task4Step1: `Из задания 3 мы знаем: x = 6.`, task4Step2: `Подставь x в x + y = 10: 6 + y = 10.`, task4Step3: `Вычти 6 с обеих сторон: y = 4.`,
+  task4Hint: `Можно также подставить x во второе уравнение, результат для y останется тем же.`,
+  task5Step1: `Подставь y в первое уравнение: 3x + x = 16.`, task5Step2: `Объедини: 4x = 16.`, task5Step3: `Раздели обе стороны на 4: x = 4.`,
+  task5Hint: `Если y = x, можно сразу заменить y на x, и останется только одна переменная.`,
+  task6Step1: `Из задания 5 мы знаем: x = 4.`, task6Step2: `Так как y = x, y тоже равен 4.`, task6Step3: `Результат: y = 4.`,
+  task6Hint: `Если по условию две переменные равны, в итоге у них также одинаковое числовое значение.`,
+  task7Step1: `Сложи оба уравнения: (x + y) + (x − y) = 20 + 4.`, task7Step2: `Члены с y сокращаются: 2x = 24.`, task7Step3: `Раздели обе стороны на 2: x = 12.`,
+  task7Hint: `В текстовой задаче сначала правильно выведи систему уравнений, и только потом вычисляй.`,
+  task8Step1: `Подставь x = 2y во второе уравнение: 3 · (2y) + 2y = 40.`, task8Step2: `Объедини: 6y + 2y = 40, значит 8y = 40.`, task8Step3: `Раздели обе стороны на 8: y = 5.`,
+  task8Hint: `При подстановке x = 2y внимательно вычисли 3 · 2y = 6y, а не только 3 · 2.`,
+  hintLabel: `Типичная ошибка:`, footerMessage: `Считай спокойно и при необходимости смотри решение. У тебя получится!`,
+  fbEmpty: `Пожалуйста, введи число перед проверкой.`, fbCorrect: `Правильно! Отлично!`, fbIncorrect: `Пока не совсем верно. Посмотри решение ниже и попробуй ещё раз.`
+},
+ar: {
+  eyebrow: `مدرسة لويزن الثانوية · الصف الثامن`, titleLine1: `أنظمة المعادلات`, titleAccent: `الخطية`, backLink: `← جميع المواضيع`, h2Basics: `الأساسيات`,
+  basicsP1: `يتكون نظام المعادلات الخطية من معادلتين بمجهولين (عادة x وy). الحل هو زوج الأعداد الذي يحقق كلتا المعادلتين في آن واحد — هندسيًا، نقطة تقاطع خطين مستقيمين.`,
+  systemAria: `خطان مستقيمان متقاطعان، نقطة التقاطع هي حل نظام المعادلات`,
+  intersectionLabel: `الحل (نقطة التقاطع)`,
+  basicsExample1Label: `<strong>مثال خطوة بخطوة (طريقة التعويض):</strong> y = x + 3 و2x + y = 15.`,
+  basicsExample1Steps: `1. عوّض y في المعادلة الثانية: 2x + (x + 3) = 15<br>2. اجمع: 3x + 3 = 15<br>3. حل: 3x = 12، إذن x = 4<br>4. عوّض x في y = x + 3: y = 4 + 3 = 7`,
+  basicsP2Elimination: `<strong>في طريقة الجمع،</strong> تجمع أو تطرح المعادلتين بحيث يختفي أحد المتغيرين.`,
+  basicsExample2Label: `<strong>مثال خطوة بخطوة (طريقة الجمع):</strong> x + y = 10 وx − y = 2.`,
+  basicsExample2Steps: `1. اجمع المعادلتين: (x + y) + (x − y) = 10 + 2<br>2. تُلغى حدود y: 2x = 12<br>3. حل: x = 6<br>4. عوّض x في x + y = 10: y = 10 − 6 = 4`,
+  merkeTitle: `تذكّر`, merkeBody: `طريقة التعويض: استبدال متغير بالآخر.<br>طريقة الجمع: جمع أو طرح المعادلتين بحيث يختفي أحد المتغيرين.<br>في النهاية، عوّض دائمًا بالقيمة التي وجدتها في إحدى المعادلتين لتحديد المتغير الثاني.`,
+  taskWord: `تمرين`,
+  task1Question: `y = x + 3 و2x + y = 15. كم قيمة x؟`, task2Question: `y = x + 3 و2x + y = 15. كم قيمة y؟`, task3Question: `x + y = 10 وx − y = 2. كم قيمة x؟`, task4Question: `x + y = 10 وx − y = 2. كم قيمة y؟`, task5Question: `3x + y = 16 وy = x. كم قيمة x؟`, task6Question: `3x + y = 16 وy = x. كم قيمة y؟`,
+  task7Question: `مجموع عددين 20 والفرق بينهما 4. نظام المعادلات هو x + y = 20، x − y = 4. كم قيمة x؟`,
+  task8Question: `تكلفة تذكرة بالغ x يورو، وتذكرة طفل y يورو. x = 2y. تكلفة 3 بالغين وطفلين معًا 3x + 2y = 40 يورو. كم تكلفة تذكرة الطفل (y)؟`,
+  answerPlaceholder: `إجابتك`, checkButton: `تحقق`, solutionSummary: `عرض الحل`,
+  task1Result: `النتيجة: x = 4`, task2Result: `النتيجة: y = 7`, task3Result: `النتيجة: x = 6`, task4Result: `النتيجة: y = 4`, task5Result: `النتيجة: x = 4`, task6Result: `النتيجة: y = 4`, task7Result: `النتيجة: x = 12`, task8Result: `النتيجة: 5 يورو`,
+  task1Step1: `عوّض y في المعادلة الثانية: 2x + (x + 3) = 15.`, task1Step2: `اجمع: 3x + 3 = 15.`, task1Step3: `حل: 3x = 12، إذن x = 4.`,
+  task1Hint: `عند التعويض، ضع الطرف الأيمن كاملًا لـ y (أي x + 3) بين قوسين، وليس جزءًا منه فقط.`,
+  task2Step1: `من التمرين 1 نعرف: x = 4.`, task2Step2: `عوّض x في y = x + 3: y = 4 + 3.`, task2Step3: `النتيجة: y = 7.`,
+  task2Hint: `بعد إيجاد x، لا تنسَ حساب y فعليًا أيضًا.`,
+  task3Step1: `اجمع المعادلتين: (x + y) + (x − y) = 10 + 2.`, task3Step2: `تُلغى حدود y: 2x = 12.`, task3Step3: `حل: x = 6.`,
+  task3Hint: `عند الجمع، تُلغي +y و−y بعضهما البعض — لهذا تعمل طريقة الجمع جيدًا هنا.`,
+  task4Step1: `من التمرين 3 نعرف: x = 6.`, task4Step2: `عوّض x في x + y = 10: 6 + y = 10.`, task4Step3: `اطرح 6 من الطرفين: y = 4.`,
+  task4Hint: `يمكنك أيضًا تعويض x في المعادلة الثانية، وستبقى نتيجة y نفسها.`,
+  task5Step1: `عوّض y في المعادلة الأولى: 3x + x = 16.`, task5Step2: `اجمع: 4x = 16.`, task5Step3: `اقسم الطرفين على 4: x = 4.`,
+  task5Hint: `إذا كانت y = x، يمكنك استبدال y مباشرة بـ x، ويبقى لديك متغير واحد فقط.`,
+  task6Step1: `من التمرين 5 نعرف: x = 4.`, task6Step2: `بما أن y = x، فإن y تساوي أيضًا 4.`, task6Step3: `النتيجة: y = 4.`,
+  task6Hint: `إذا كان متغيران متساويين وفقًا للمسألة، فإنهما يحصلان في النهاية على نفس القيمة العددية.`,
+  task7Step1: `اجمع المعادلتين: (x + y) + (x − y) = 20 + 4.`, task7Step2: `تُلغى حدود y: 2x = 24.`, task7Step3: `اقسم الطرفين على 2: x = 12.`,
+  task7Hint: `في المسألة اللفظية، استنتج أولًا نظام المعادلات بشكل صحيح، ثم احسب بعد ذلك فقط.`,
+  task8Step1: `عوّض x = 2y في المعادلة الثانية: 3 · (2y) + 2y = 40.`, task8Step2: `اجمع: 6y + 2y = 40، إذن 8y = 40.`, task8Step3: `اقسم الطرفين على 8: y = 5.`,
+  task8Hint: `عند تعويض x = 2y، احسب بعناية 3 · 2y = 6y، وليس فقط 3 · 2.`,
+  hintLabel: `خطأ شائع:`, footerMessage: `احسب بهدوء وراجع الحل إذا احتجت إليه. أنت قادر على ذلك!`,
+  fbEmpty: `الرجاء إدخال رقم قبل التحقق.`, fbCorrect: `صحيح! أحسنت!`, fbIncorrect: `ليست صحيحة تمامًا بعد. راجع الحل أدناه وحاول مرة أخرى.`
+},
+zh: {
+  eyebrow: `路易森文理中学 · 八年级`, titleLine1: `一次`, titleAccent: `方程组`, backLink: `← 所有主题`, h2Basics: `基础知识`,
+  basicsP1: `一次方程组由两个含两个未知数（通常是 x 和 y）的方程组成。解是同时满足这两个方程的一对数——从几何上看，就是两条直线的交点。`,
+  systemAria: `两条相交的直线，交点是方程组的解`,
+  intersectionLabel: `解（交点）`,
+  basicsExample1Label: `<strong>分步示例（代入法）：</strong> y = x + 3 和 2x + y = 15。`,
+  basicsExample1Steps: `1. 把 y 代入第二个方程：2x + (x + 3) = 15<br>2. 合并：3x + 3 = 15<br>3. 求解：3x = 12，所以 x = 4<br>4. 把 x 代入 y = x + 3：y = 4 + 3 = 7`,
+  basicsP2Elimination: `<strong>用加减消元法时，</strong>把两个方程相加或相减，使一个变量消去。`,
+  basicsExample2Label: `<strong>分步示例（加减消元法）：</strong> x + y = 10 和 x − y = 2。`,
+  basicsExample2Steps: `1. 把两个方程相加：(x + y) + (x − y) = 10 + 2<br>2. y 项相消：2x = 12<br>3. 求解：x = 6<br>4. 把 x 代入 x + y = 10：y = 10 − 6 = 4`,
+  merkeTitle: `记住`, merkeBody: `代入法：用一个变量替换另一个。<br>加减消元法：把方程相加或相减，使一个变量消去。<br>最后一定要把求出的值代入其中一个方程，求出第二个变量。`,
+  taskWord: `练习`,
+  task1Question: `y = x + 3 和 2x + y = 15。x 是多少？`, task2Question: `y = x + 3 和 2x + y = 15。y 是多少？`, task3Question: `x + y = 10 和 x − y = 2。x 是多少？`, task4Question: `x + y = 10 和 x − y = 2。y 是多少？`, task5Question: `3x + y = 16 和 y = x。x 是多少？`, task6Question: `3x + y = 16 和 y = x。y 是多少？`,
+  task7Question: `两个数的和是 20，差是 4。方程组是 x + y = 20，x − y = 4。x 是多少？`,
+  task8Question: `一张成人票 x 欧元，一张儿童票 y 欧元。x = 2y。3 张成人票和 2 张儿童票共 3x + 2y = 40 欧元。一张儿童票（y）多少钱？`,
+  answerPlaceholder: `你的答案`, checkButton: `检查`, solutionSummary: `显示答案`,
+  task1Result: `结果：x = 4`, task2Result: `结果：y = 7`, task3Result: `结果：x = 6`, task4Result: `结果：y = 4`, task5Result: `结果：x = 4`, task6Result: `结果：y = 4`, task7Result: `结果：x = 12`, task8Result: `结果：5 欧元`,
+  task1Step1: `把 y 代入第二个方程：2x + (x + 3) = 15。`, task1Step2: `合并：3x + 3 = 15。`, task1Step3: `求解：3x = 12，所以 x = 4。`,
+  task1Hint: `代入时要把 y 的整个右边（即 x + 3）加上括号代入，而不是只代入一部分。`,
+  task2Step1: `由练习 1 可知：x = 4。`, task2Step2: `把 x 代入 y = x + 3：y = 4 + 3。`, task2Step3: `结果：y = 7。`,
+  task2Hint: `求出 x 后，别忘了也要真正算出 y。`,
+  task3Step1: `把两个方程相加：(x + y) + (x − y) = 10 + 2。`, task3Step2: `y 项相消：2x = 12。`, task3Step3: `求解：x = 6。`,
+  task3Hint: `相加时 +y 和 −y 会相互抵消——这就是为什么加减消元法在这里效果很好。`,
+  task4Step1: `由练习 3 可知：x = 6。`, task4Step2: `把 x 代入 x + y = 10：6 + y = 10。`, task4Step3: `两边都减去 6：y = 4。`,
+  task4Hint: `也可以把 x 代入第二个方程，y 的结果是一样的。`,
+  task5Step1: `把 y 代入第一个方程：3x + x = 16。`, task5Step2: `合并：4x = 16。`, task5Step3: `两边都除以 4：x = 4。`,
+  task5Hint: `如果 y = x，可以直接用 x 替换 y，这样就只剩一个变量了。`,
+  task6Step1: `由练习 5 可知：x = 4。`, task6Step2: `因为 y = x，所以 y 也是 4。`, task6Step3: `结果：y = 4。`,
+  task6Hint: `如果题目说两个变量相等，那么它们最终的数值也相同。`,
+  task7Step1: `把两个方程相加：(x + y) + (x − y) = 20 + 4。`, task7Step2: `y 项相消：2x = 24。`, task7Step3: `两边都除以 2：x = 12。`,
+  task7Hint: `在应用题中，先正确列出方程组，然后再计算。`,
+  task8Step1: `把 x = 2y 代入第二个方程：3 · (2y) + 2y = 40。`, task8Step2: `合并：6y + 2y = 40，即 8y = 40。`, task8Step3: `两边都除以 8：y = 5。`,
+  task8Hint: `代入 x = 2y 时要仔细计算 3 · 2y = 6y，而不只是 3 · 2。`,
+  hintLabel: `常见错误：`, footerMessage: `慢慢算，需要的话看看答案。你能做到！`,
+  fbEmpty: `请先输入一个数字再检查。`, fbCorrect: `正确！做得好！`, fbIncorrect: `还不完全正确。看看下面的答案，再试一次。`
+}
+};
+
+var currentLang = 'de';
+
+function setLanguage(lang){
+  var dict = TRANSLATIONS[lang] || TRANSLATIONS.de;
+  currentLang = TRANSLATIONS[lang] ? lang : 'de';
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = (currentLang === 'ar') ? 'rtl' : 'ltr';
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var key = el.getAttribute('data-i18n');
+    if(dict[key] !== undefined){ el.innerHTML = dict[key]; }
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-placeholder');
+    if(dict[key] !== undefined){ el.setAttribute('placeholder', dict[key]); }
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-aria');
+    if(dict[key] !== undefined){ el.setAttribute('aria-label', dict[key]); }
+  });
+  try{ localStorage.setItem('mathecoach_lang', currentLang); }catch(e){}
+  var sel = document.getElementById('langSelect');
+  if(sel) sel.value = currentLang;
+}
+
+function check(id, correct){
+  var dict = TRANSLATIONS[currentLang] || TRANSLATIONS.de;
+  var input = document.getElementById('input' + id);
+  var feedback = document.getElementById('feedback' + id);
+  var raw = input.value.trim();
+  var match = raw.match(/-?\d+/);
+  feedback.classList.remove('show', 'correct', 'incorrect');
+  if(!match){
+    feedback.textContent = dict.fbEmpty;
+    feedback.classList.add('show', 'incorrect');
+    return;
+  }
+  var value = parseInt(match[0], 10);
+  if(value === correct){
+    feedback.textContent = dict.fbCorrect;
+    feedback.classList.add('show', 'correct');
+  } else {
+    feedback.textContent = dict.fbIncorrect;
+    feedback.classList.add('show', 'incorrect');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var saved = 'de';
+  try{ saved = localStorage.getItem('mathecoach_lang') || 'de'; }catch(e){}
+  setLanguage(saved);
+});
+</script>
+
+</body>
+</html>

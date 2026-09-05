@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quadratische Gleichungen</title>
+<style>
+  :root{
+    --bg:#FAFAF9; --card:#FFFFFF; --ink:#241C1C; --ink-soft:#5C4F4C;
+    --red:#C41230; --gold:#E0A526; --blue:#2478B5;
+    --merke-bg:#FBF1DC; --merke-border:#E0A526;
+    --success:#1E8E5A; --success-bg:#E5F5EC; --error:#B3401D; --error-bg:#FBEDE6;
+    --font-display: ui-rounded, "SF Pro Rounded", "Segoe UI Rounded", "Nunito", system-ui, sans-serif;
+    --font-body: system-ui, "Segoe UI", Roboto, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:18px; line-height:1.5; padding-bottom:60px; }
+  .wrap{ max-width:640px; margin:0 auto; padding:0 20px; }
+  header{ background:var(--card); padding:30px 20px 0; text-align:center; position:relative; }
+  .header-inner{ padding-bottom:26px; }
+  .lang-switch{ display:flex; justify-content:center; margin-bottom:14px; }
+  #langSelect{ font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--ink); background:var(--card); border:2px solid #E3DFDA; border-radius:999px; padding:6px 14px; cursor:pointer; }
+  #langSelect:focus-visible{ outline:3px solid var(--blue); }
+  .back-link{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--blue); text-decoration:none; margin-bottom:16px; }
+  .eyebrow{ font-family:var(--font-display); font-weight:700; font-size:14px; letter-spacing:0.08em; text-transform:uppercase; color:var(--blue); margin-bottom:8px; }
+  h1{ font-family:var(--font-display); font-size:28px; font-weight:800; margin:0; line-height:1.25; }
+  h1 .accent{ color:var(--red); }
+  .wave{ display:block; width:100%; height:30px; }
+  section{ margin-top:32px; }
+  .card{ background:var(--card); border-radius:22px; padding:24px 22px; box-shadow:0 2px 14px rgba(36,28,28,0.07); }
+  h2{ font-family:var(--font-display); font-size:21px; font-weight:800; margin:0 0 14px; }
+  h2 .num{ display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:var(--blue); color:white; font-size:16px; margin-inline-end:10px; vertical-align:middle; }
+  p{ margin:0 0 14px; color:var(--ink-soft); }
+  .merke{ background:var(--merke-bg); border:2px solid var(--merke-border); border-radius:16px; padding:16px 18px; margin-top:16px; }
+  .merke-title{ font-family:var(--font-display); font-weight:800; color:#8A5A0F; font-size:15px; letter-spacing:0.04em; text-transform:uppercase; margin-bottom:6px; }
+  .merke-body{ color:#6B4A12; font-weight:600; margin:0; }
+  .pq-diagram{ width:100%; height:auto; margin:18px 0 6px; }
+  .task-card{ margin-top:18px; }
+  .task-question{ font-family:var(--font-display); font-weight:700; font-size:19px; margin-bottom:16px; }
+  .answer-row{ display:flex; gap:10px; margin-bottom:6px; }
+  input[type="text"]{ flex:1; font-size:18px; font-family:var(--font-body); padding:12px 14px; border-radius:12px; border:2px solid #E3DFDA; background:#FBFAF9; color:var(--ink); }
+  input[type="text"]:focus{ outline:3px solid #C9DCEA; border-color:var(--blue); }
+  button.check{ font-family:var(--font-display); font-weight:700; font-size:16px; color:white; background:var(--blue); border:none; border-radius:12px; padding:0 20px; cursor:pointer; }
+  button.check:active{ transform:translateY(1px); }
+  button.check:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
+  .feedback{ margin-top:10px; padding:12px 14px; border-radius:12px; font-weight:700; display:none; }
+  .feedback.show{ display:block; }
+  .feedback.correct{ background:var(--success-bg); color:var(--success); }
+  .feedback.incorrect{ background:var(--error-bg); color:var(--error); }
+  details{ margin-top:14px; border-top:2px dashed #E3DFDA; padding-top:12px; }
+  summary{ font-family:var(--font-display); font-weight:700; color:var(--blue); cursor:pointer; font-size:15px; }
+  .solution{ margin-top:12px; }
+  .solution ol{ margin:0 0 12px; padding-inline-start:22px; color:var(--ink-soft); }
+  .solution li{ margin-bottom:6px; }
+  .solution-result{ font-family:var(--font-display); font-weight:800; color:var(--ink); margin-bottom:12px; }
+  .hint-box{ background:#F1EFEC; border-radius:12px; padding:12px 14px; font-size:16px; color:var(--ink-soft); }
+  .hint-box strong{ color:var(--ink); }
+  footer{ text-align:center; margin-top:36px; padding:0 20px; }
+  footer p{ font-family:var(--font-display); font-weight:700; color:var(--ink); }
+  .footer-wave{ display:block; width:100%; max-width:280px; height:16px; margin:0 auto 18px; opacity:0.6; }
+  [dir="rtl"] .back-link{ flex-direction:row-reverse; }
+  @media (prefers-reduced-motion: no-preference){ button.check{ transition:transform 0.1s ease; } }
+  @media (max-width: 480px){ .answer-row{ flex-direction:column; } button.check{ width:100%; padding:14px 20px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="lang-switch">
+      <select id="langSelect" onchange="setLanguage(this.value)">
+        <option value="de">Deutsch</option><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="tr">Türkçe</option><option value="ru">Русский</option><option value="ar">العربية</option><option value="zh">中文</option>
+      </select>
+    </div>
+    <a class="back-link" href="index.html" data-i18n="backLink">← Alle Themen</a>
+    <div class="eyebrow" data-i18n="eyebrow">Luisen-Gymnasium · Klasse 9</div>
+    <h1><span data-i18n="titleLine1">Quadratische</span><br><span class="accent" data-i18n="titleAccent">Gleichungen</span></h1>
+  </div>
+  <svg class="wave" viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+    <path d="M -10 22 C 190 4, 390 40, 590 22 S 990 4, 1210 22" fill="none" stroke="#C41230" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 32 C 190 50, 390 14, 590 32 S 990 50, 1210 32" fill="none" stroke="#E0A526" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 42 C 190 24, 390 58, 590 42 S 990 24, 1210 42" fill="none" stroke="#2478B5" stroke-width="5" stroke-linecap="round"/>
+  </svg>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <div class="card">
+      <h2 data-i18n="h2Basics">Grundlagen</h2>
+      <p data-i18n="basicsP1">Eine quadratische Gleichung in Normalform sieht so aus: x² + px + q = 0. Mit der pq-Formel kannst du solche Gleichungen lösen. Es gibt meist zwei Lösungen (x₁ und x₂).</p>
+
+      <svg class="pq-diagram" viewBox="0 0 600 130" xmlns="http://www.w3.org/2000/svg" role="img" data-i18n-aria="pqAria" aria-label="pq-Formel: x gleich minus p halbe plus minus Wurzel aus p halbe zum Quadrat minus q">
+        <rect x="40" y="20" width="520" height="90" rx="14" fill="#2478B5" fill-opacity="0.1" stroke="#2478B5" stroke-width="2"/>
+        <text x="300" y="72" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="24" font-weight="800" fill="#2478B5">x = −p/2 ± √((p/2)² − q)</text>
+      </svg>
+
+      <p data-i18n="basicsExample1Label"><strong>Beispiel Schritt für Schritt:</strong> Löse x² − 5x + 6 = 0.</p>
+      <p data-i18n="basicsExample1Steps">1. Ablesen: p = −5, q = 6<br>2. Einsetzen: x = 5/2 ± √((5/2)² − 6)<br>3. Rechnen: (2,5)² − 6 = 6,25 − 6 = 0,25, und √0,25 = 0,5<br>4. Ergebnis: x = 2,5 ± 0,5, also x₁ = 3 und x₂ = 2</p>
+
+      <p data-i18n="basicsP2Pure"><strong>Reinquadratische Gleichungen</strong> (ohne x-Glied, also x² + q = 0 bzw. x² = a) löst du einfacher direkt durch Wurzelziehen.</p>
+
+      <p data-i18n="basicsExample2Label"><strong>Beispiel Schritt für Schritt:</strong> Löse x² − 9 = 0.</p>
+      <p data-i18n="basicsExample2Steps">1. Umstellen: x² = 9<br>2. Wurzel ziehen: x = ±√9<br>3. Ergebnis: x₁ = 3 und x₂ = −3</p>
+
+      <div class="merke">
+        <div class="merke-title" data-i18n="merkeTitle">Merke</div>
+        <p class="merke-body" data-i18n="merkeBody">Normalform: x² + px + q = 0.<br>pq-Formel: x = −p/2 ± √((p/2)² − q).<br>Bei reinquadratischen Gleichungen (x² = a) reicht direktes Wurzelziehen.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">1</span><span data-i18n="taskWord">Aufgabe</span> 1</h2>
+      <div class="task-question" data-i18n="task1Question">Löse x² − 5x + 6 = 0. Wie lautet die größere Lösung x₁?</div>
+      <div class="answer-row">
+        <input type="text" id="input1" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(1, 3)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback1"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task1Result">Ergebnis: x₁ = 3</div>
+          <ol>
+            <li data-i18n="task1Step1">Ablesen: p = −5, q = 6.</li>
+            <li data-i18n="task1Step2">Einsetzen: x = 2,5 ± √(6,25 − 6) = 2,5 ± 0,5.</li>
+            <li data-i18n="task1Step3">Größere Lösung: x₁ = 2,5 + 0,5 = 3.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task1Hint">Beim Ablesen von p und q auf das Vorzeichen achten: bei −5x ist p = −5, nicht 5.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">2</span><span data-i18n="taskWord">Aufgabe</span> 2</h2>
+      <div class="task-question" data-i18n="task2Question">Löse x² − 5x + 6 = 0. Wie lautet die kleinere Lösung x₂?</div>
+      <div class="answer-row">
+        <input type="text" id="input2" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(2, 2)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback2"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task2Result">Ergebnis: x₂ = 2</div>
+          <ol>
+            <li data-i18n="task2Step1">Ablesen: p = −5, q = 6.</li>
+            <li data-i18n="task2Step2">Einsetzen: x = 2,5 ± √(6,25 − 6) = 2,5 ± 0,5.</li>
+            <li data-i18n="task2Step3">Kleinere Lösung: x₂ = 2,5 − 0,5 = 2.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task2Hint">Bei ± muss man beide Rechnungen durchführen: einmal plus, einmal minus.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">3</span><span data-i18n="taskWord">Aufgabe</span> 3</h2>
+      <div class="task-question" data-i18n="task3Question">Löse x² − 3x − 10 = 0. Wie lautet die größere Lösung x₁?</div>
+      <div class="answer-row">
+        <input type="text" id="input3" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(3, 5)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback3"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task3Result">Ergebnis: x₁ = 5</div>
+          <ol>
+            <li data-i18n="task3Step1">Ablesen: p = −3, q = −10.</li>
+            <li data-i18n="task3Step2">Einsetzen: x = 1,5 ± √(2,25 − (−10)) = 1,5 ± √12,25 = 1,5 ± 3,5.</li>
+            <li data-i18n="task3Step3">Größere Lösung: x₁ = 1,5 + 3,5 = 5.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task3Hint">Minus q bedeutet bei negativem q: minus minus wird zu plus.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">4</span><span data-i18n="taskWord">Aufgabe</span> 4</h2>
+      <div class="task-question" data-i18n="task4Question">Löse x² − 3x − 10 = 0. Wie lautet die kleinere Lösung x₂?</div>
+      <div class="answer-row">
+        <input type="text" id="input4" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(4, -2)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback4"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task4Result">Ergebnis: x₂ = −2</div>
+          <ol>
+            <li data-i18n="task4Step1">Ablesen: p = −3, q = −10.</li>
+            <li data-i18n="task4Step2">Einsetzen: x = 1,5 ± √12,25 = 1,5 ± 3,5.</li>
+            <li data-i18n="task4Step3">Kleinere Lösung: x₂ = 1,5 − 3,5 = −2.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task4Hint">Eine Lösung kann durchaus negativ sein – das ist völlig normal.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">5</span><span data-i18n="taskWord">Aufgabe</span> 5</h2>
+      <div class="task-question" data-i18n="task5Question">Löse x² − 7x + 12 = 0. Wie lautet die größere Lösung x₁?</div>
+      <div class="answer-row">
+        <input type="text" id="input5" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(5, 4)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback5"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task5Result">Ergebnis: x₁ = 4</div>
+          <ol>
+            <li data-i18n="task5Step1">Ablesen: p = −7, q = 12.</li>
+            <li data-i18n="task5Step2">Einsetzen: x = 3,5 ± √(12,25 − 12) = 3,5 ± 0,5.</li>
+            <li data-i18n="task5Step3">Größere Lösung: x₁ = 3,5 + 0,5 = 4.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task5Hint">(p/2)² bedeutet, zuerst durch 2 teilen und dann quadrieren, nicht umgekehrt.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">6</span><span data-i18n="taskWord">Aufgabe</span> 6</h2>
+      <div class="task-question" data-i18n="task6Question">Löse x² − 7x + 12 = 0. Wie lautet die kleinere Lösung x₂?</div>
+      <div class="answer-row">
+        <input type="text" id="input6" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(6, 3)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback6"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task6Result">Ergebnis: x₂ = 3</div>
+          <ol>
+            <li data-i18n="task6Step1">Ablesen: p = −7, q = 12.</li>
+            <li data-i18n="task6Step2">Einsetzen: x = 3,5 ± 0,5.</li>
+            <li data-i18n="task6Step3">Kleinere Lösung: x₂ = 3,5 − 0,5 = 3.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task6Hint">Als Probe kannst du beide Lösungen in die Ausgangsgleichung einsetzen.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">7</span><span data-i18n="taskWord">Aufgabe</span> 7</h2>
+      <div class="task-question" data-i18n="task7Question">Ein Rechteck hat eine Fläche von 12 cm². Die Länge ist 1 cm länger als die Breite x. Die Gleichung lautet x² + x − 12 = 0. Wie groß ist x (die Breite, positive Lösung)?</div>
+      <div class="answer-row">
+        <input type="text" id="input7" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(7, 3)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback7"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task7Result">Ergebnis: x = 3 cm</div>
+          <ol>
+            <li data-i18n="task7Step1">Ablesen: p = 1, q = −12.</li>
+            <li data-i18n="task7Step2">Einsetzen: x = −0,5 ± √(0,25 − (−12)) = −0,5 ± √12,25 = −0,5 ± 3,5.</li>
+            <li data-i18n="task7Step3">Positive Lösung: x = −0,5 + 3,5 = 3.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task7Hint">Eine negative Breite ergibt geometrisch keinen Sinn – deshalb wird nur die positive Lösung verwendet.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">8</span><span data-i18n="taskWord">Aufgabe</span> 8</h2>
+      <div class="task-question" data-i18n="task8Question">Löse die reinquadratische Gleichung x² − 9 = 0. Wie lautet die positive Lösung?</div>
+      <div class="answer-row">
+        <input type="text" id="input8" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(8, 3)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback8"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task8Result">Ergebnis: x = 3</div>
+          <ol>
+            <li data-i18n="task8Step1">Umstellen: x² = 9.</li>
+            <li data-i18n="task8Step2">Wurzel ziehen: x = ±√9 = ±3.</li>
+            <li data-i18n="task8Step3">Positive Lösung: x = 3.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task8Hint">Bei einer reinquadratischen Gleichung braucht man die pq-Formel gar nicht – direktes Wurzelziehen reicht.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <footer>
+    <svg class="footer-wave" viewBox="0 0 280 16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+      <path d="M -5 8 C 40 1, 80 15, 140 8 S 240 1, 285 8" fill="none" stroke="#C41230" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M -5 8 C 40 15, 80 1, 140 8 S 240 15, 285 8" fill="none" stroke="#2478B5" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+    </svg>
+    <p id="footer-msg" data-i18n="footerMessage">Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!</p>
+  </footer>
+
+</div>
+
+<script>
+const TRANSLATIONS = {
+de: {
+  eyebrow: `Luisen-Gymnasium · Klasse 9`, titleLine1: `Quadratische`, titleAccent: `Gleichungen`, backLink: `← Alle Themen`, h2Basics: `Grundlagen`,
+  basicsP1: `Eine quadratische Gleichung in Normalform sieht so aus: x² + px + q = 0. Mit der pq-Formel kannst du solche Gleichungen lösen. Es gibt meist zwei Lösungen (x₁ und x₂).`,
+  pqAria: `pq-Formel: x gleich minus p halbe plus minus Wurzel aus p halbe zum Quadrat minus q`,
+  basicsExample1Label: `<strong>Beispiel Schritt für Schritt:</strong> Löse x² − 5x + 6 = 0.`,
+  basicsExample1Steps: `1. Ablesen: p = −5, q = 6<br>2. Einsetzen: x = 5/2 ± √((5/2)² − 6)<br>3. Rechnen: (2,5)² − 6 = 6,25 − 6 = 0,25, und √0,25 = 0,5<br>4. Ergebnis: x = 2,5 ± 0,5, also x₁ = 3 und x₂ = 2`,
+  basicsP2Pure: `<strong>Reinquadratische Gleichungen</strong> (ohne x-Glied, also x² + q = 0 bzw. x² = a) löst du einfacher direkt durch Wurzelziehen.`,
+  basicsExample2Label: `<strong>Beispiel Schritt für Schritt:</strong> Löse x² − 9 = 0.`,
+  basicsExample2Steps: `1. Umstellen: x² = 9<br>2. Wurzel ziehen: x = ±√9<br>3. Ergebnis: x₁ = 3 und x₂ = −3`,
+  merkeTitle: `Merke`, merkeBody: `Normalform: x² + px + q = 0.<br>pq-Formel: x = −p/2 ± √((p/2)² − q).<br>Bei reinquadratischen Gleichungen (x² = a) reicht direktes Wurzelziehen.`,
+  taskWord: `Aufgabe`,
+  task1Question: `Löse x² − 5x + 6 = 0. Wie lautet die größere Lösung x₁?`, task2Question: `Löse x² − 5x + 6 = 0. Wie lautet die kleinere Lösung x₂?`, task3Question: `Löse x² − 3x − 10 = 0. Wie lautet die größere Lösung x₁?`, task4Question: `Löse x² − 3x − 10 = 0. Wie lautet die kleinere Lösung x₂?`, task5Question: `Löse x² − 7x + 12 = 0. Wie lautet die größere Lösung x₁?`, task6Question: `Löse x² − 7x + 12 = 0. Wie lautet die kleinere Lösung x₂?`,
+  task7Question: `Ein Rechteck hat eine Fläche von 12 cm². Die Länge ist 1 cm länger als die Breite x. Die Gleichung lautet x² + x − 12 = 0. Wie groß ist x (die Breite, positive Lösung)?`,
+  task8Question: `Löse die reinquadratische Gleichung x² − 9 = 0. Wie lautet die positive Lösung?`,
+  answerPlaceholder: `Deine Antwort`, checkButton: `Prüfen`, solutionSummary: `Lösung anzeigen`,
+  task1Result: `Ergebnis: x₁ = 3`, task2Result: `Ergebnis: x₂ = 2`, task3Result: `Ergebnis: x₁ = 5`, task4Result: `Ergebnis: x₂ = −2`, task5Result: `Ergebnis: x₁ = 4`, task6Result: `Ergebnis: x₂ = 3`, task7Result: `Ergebnis: x = 3 cm`, task8Result: `Ergebnis: x = 3`,
+  task1Step1: `Ablesen: p = −5, q = 6.`, task1Step2: `Einsetzen: x = 2,5 ± √(6,25 − 6) = 2,5 ± 0,5.`, task1Step3: `Größere Lösung: x₁ = 2,5 + 0,5 = 3.`,
+  task1Hint: `Beim Ablesen von p und q auf das Vorzeichen achten: bei −5x ist p = −5, nicht 5.`,
+  task2Step1: `Ablesen: p = −5, q = 6.`, task2Step2: `Einsetzen: x = 2,5 ± √(6,25 − 6) = 2,5 ± 0,5.`, task2Step3: `Kleinere Lösung: x₂ = 2,5 − 0,5 = 2.`,
+  task2Hint: `Bei ± muss man beide Rechnungen durchführen: einmal plus, einmal minus.`,
+  task3Step1: `Ablesen: p = −3, q = −10.`, task3Step2: `Einsetzen: x = 1,5 ± √(2,25 − (−10)) = 1,5 ± √12,25 = 1,5 ± 3,5.`, task3Step3: `Größere Lösung: x₁ = 1,5 + 3,5 = 5.`,
+  task3Hint: `Minus q bedeutet bei negativem q: minus minus wird zu plus.`,
+  task4Step1: `Ablesen: p = −3, q = −10.`, task4Step2: `Einsetzen: x = 1,5 ± √12,25 = 1,5 ± 3,5.`, task4Step3: `Kleinere Lösung: x₂ = 1,5 − 3,5 = −2.`,
+  task4Hint: `Eine Lösung kann durchaus negativ sein – das ist völlig normal.`,
+  task5Step1: `Ablesen: p = −7, q = 12.`, task5Step2: `Einsetzen: x = 3,5 ± √(12,25 − 12) = 3,5 ± 0,5.`, task5Step3: `Größere Lösung: x₁ = 3,5 + 0,5 = 4.`,
+  task5Hint: `(p/2)² bedeutet, zuerst durch 2 teilen und dann quadrieren, nicht umgekehrt.`,
+  task6Step1: `Ablesen: p = −7, q = 12.`, task6Step2: `Einsetzen: x = 3,5 ± 0,5.`, task6Step3: `Kleinere Lösung: x₂ = 3,5 − 0,5 = 3.`,
+  task6Hint: `Als Probe kannst du beide Lösungen in die Ausgangsgleichung einsetzen.`,
+  task7Step1: `Ablesen: p = 1, q = −12.`, task7Step2: `Einsetzen: x = −0,5 ± √(0,25 − (−12)) = −0,5 ± √12,25 = −0,5 ± 3,5.`, task7Step3: `Positive Lösung: x = −0,5 + 3,5 = 3.`,
+  task7Hint: `Eine negative Breite ergibt geometrisch keinen Sinn – deshalb wird nur die positive Lösung verwendet.`,
+  task8Step1: `Umstellen: x² = 9.`, task8Step2: `Wurzel ziehen: x = ±√9 = ±3.`, task8Step3: `Positive Lösung: x = 3.`,
+  task8Hint: `Bei einer reinquadratischen Gleichung braucht man die pq-Formel gar nicht – direktes Wurzelziehen reicht.`,
+  hintLabel: `Typischer Fehler:`, footerMessage: `Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!`,
+  fbEmpty: `Trag bitte eine Zahl ein, bevor du prüfst.`, fbCorrect: `Richtig! Gut gemacht!`, fbIncorrect: `Noch nicht ganz richtig. Schau dir die Lösung weiter unten an und versuch es dann nochmal.`
+},
+en: {
+  eyebrow: `Luisen-Gymnasium · Grade 9`, titleLine1: `Quadratic`, titleAccent: `Equations`, backLink: `← All Topics`, h2Basics: `Basics`,
+  basicsP1: `A quadratic equation in standard form looks like this: x² + px + q = 0. You can solve such equations using the pq-formula. There are usually two solutions (x₁ and x₂).`,
+  pqAria: `pq-formula: x equals minus p over 2 plus or minus the square root of p over 2 squared minus q`,
+  basicsExample1Label: `<strong>Step-by-step example:</strong> Solve x² − 5x + 6 = 0.`,
+  basicsExample1Steps: `1. Read off: p = −5, q = 6<br>2. Substitute: x = 5/2 ± √((5/2)² − 6)<br>3. Calculate: (2.5)² − 6 = 6.25 − 6 = 0.25, and √0.25 = 0.5<br>4. Result: x = 2.5 ± 0.5, so x₁ = 3 and x₂ = 2`,
+  basicsP2Pure: `<strong>Pure quadratic equations</strong> (with no x term, i.e. x² + q = 0 or x² = a) are more easily solved directly by taking the square root.`,
+  basicsExample2Label: `<strong>Step-by-step example:</strong> Solve x² − 9 = 0.`,
+  basicsExample2Steps: `1. Rearrange: x² = 9<br>2. Take the square root: x = ±√9<br>3. Result: x₁ = 3 and x₂ = −3`,
+  merkeTitle: `Remember`, merkeBody: `Standard form: x² + px + q = 0.<br>pq-formula: x = −p/2 ± √((p/2)² − q).<br>For pure quadratic equations (x² = a), taking the square root directly is enough.`,
+  taskWord: `Exercise`,
+  task1Question: `Solve x² − 5x + 6 = 0. What's the larger solution x₁?`, task2Question: `Solve x² − 5x + 6 = 0. What's the smaller solution x₂?`, task3Question: `Solve x² − 3x − 10 = 0. What's the larger solution x₁?`, task4Question: `Solve x² − 3x − 10 = 0. What's the smaller solution x₂?`, task5Question: `Solve x² − 7x + 12 = 0. What's the larger solution x₁?`, task6Question: `Solve x² − 7x + 12 = 0. What's the smaller solution x₂?`,
+  task7Question: `A rectangle has an area of 12 cm². The length is 1 cm longer than the width x. The equation is x² + x − 12 = 0. What's x (the width, positive solution)?`,
+  task8Question: `Solve the pure quadratic equation x² − 9 = 0. What's the positive solution?`,
+  answerPlaceholder: `Your answer`, checkButton: `Check`, solutionSummary: `Show solution`,
+  task1Result: `Result: x₁ = 3`, task2Result: `Result: x₂ = 2`, task3Result: `Result: x₁ = 5`, task4Result: `Result: x₂ = −2`, task5Result: `Result: x₁ = 4`, task6Result: `Result: x₂ = 3`, task7Result: `Result: x = 3 cm`, task8Result: `Result: x = 3`,
+  task1Step1: `Read off: p = −5, q = 6.`, task1Step2: `Substitute: x = 2.5 ± √(6.25 − 6) = 2.5 ± 0.5.`, task1Step3: `Larger solution: x₁ = 2.5 + 0.5 = 3.`,
+  task1Hint: `When reading off p and q, watch the sign: with −5x, p = −5, not 5.`,
+  task2Step1: `Read off: p = −5, q = 6.`, task2Step2: `Substitute: x = 2.5 ± √(6.25 − 6) = 2.5 ± 0.5.`, task2Step3: `Smaller solution: x₂ = 2.5 − 0.5 = 2.`,
+  task2Hint: `With ±, you have to do both calculations: once plus, once minus.`,
+  task3Step1: `Read off: p = −3, q = −10.`, task3Step2: `Substitute: x = 1.5 ± √(2.25 − (−10)) = 1.5 ± √12.25 = 1.5 ± 3.5.`, task3Step3: `Larger solution: x₁ = 1.5 + 3.5 = 5.`,
+  task3Hint: `Minus q, when q is negative, means minus minus becomes plus.`,
+  task4Step1: `Read off: p = −3, q = −10.`, task4Step2: `Substitute: x = 1.5 ± √12.25 = 1.5 ± 3.5.`, task4Step3: `Smaller solution: x₂ = 1.5 − 3.5 = −2.`,
+  task4Hint: `A solution can definitely be negative — that's completely normal.`,
+  task5Step1: `Read off: p = −7, q = 12.`, task5Step2: `Substitute: x = 3.5 ± √(12.25 − 12) = 3.5 ± 0.5.`, task5Step3: `Larger solution: x₁ = 3.5 + 0.5 = 4.`,
+  task5Hint: `(p/2)² means dividing by 2 first, then squaring — not the other way round.`,
+  task6Step1: `Read off: p = −7, q = 12.`, task6Step2: `Substitute: x = 3.5 ± 0.5.`, task6Step3: `Smaller solution: x₂ = 3.5 − 0.5 = 3.`,
+  task6Hint: `As a check, you can substitute both solutions into the original equation.`,
+  task7Step1: `Read off: p = 1, q = −12.`, task7Step2: `Substitute: x = −0.5 ± √(0.25 − (−12)) = −0.5 ± √12.25 = −0.5 ± 3.5.`, task7Step3: `Positive solution: x = −0.5 + 3.5 = 3.`,
+  task7Hint: `A negative width doesn't make geometric sense — that's why only the positive solution is used.`,
+  task8Step1: `Rearrange: x² = 9.`, task8Step2: `Take the square root: x = ±√9 = ±3.`, task8Step3: `Positive solution: x = 3.`,
+  task8Hint: `For a pure quadratic equation, you don't need the pq-formula at all — taking the square root directly is enough.`,
+  hintLabel: `Common mistake:`, footerMessage: `Take your time and check the solution if you need to. You can do this!`,
+  fbEmpty: `Please enter a number before checking.`, fbCorrect: `Correct! Well done!`, fbIncorrect: `Not quite right yet. Check the solution below and try again.`
+},
+es: {
+  eyebrow: `Luisen-Gymnasium · 9.º curso`, titleLine1: `Ecuaciones`, titleAccent: `cuadráticas`, backLink: `← Todos los temas`, h2Basics: `Fundamentos`,
+  basicsP1: `Una ecuación cuadrática en forma normal se ve así: x² + px + q = 0. Con la fórmula pq puedes resolver estas ecuaciones. Normalmente hay dos soluciones (x₁ y x₂).`,
+  pqAria: `Fórmula pq: x igual a menos p entre 2 más menos raíz cuadrada de p entre 2 al cuadrado menos q`,
+  basicsExample1Label: `<strong>Ejemplo paso a paso:</strong> Resuelve x² − 5x + 6 = 0.`,
+  basicsExample1Steps: `1. Identifica: p = −5, q = 6<br>2. Sustituye: x = 5/2 ± √((5/2)² − 6)<br>3. Calcula: (2,5)² − 6 = 6,25 − 6 = 0,25, y √0,25 = 0,5<br>4. Resultado: x = 2,5 ± 0,5, así que x₁ = 3 y x₂ = 2`,
+  basicsP2Pure: `<strong>Las ecuaciones cuadráticas puras</strong> (sin término en x, es decir, x² + q = 0 o x² = a) se resuelven más fácilmente sacando raíz cuadrada directamente.`,
+  basicsExample2Label: `<strong>Ejemplo paso a paso:</strong> Resuelve x² − 9 = 0.`,
+  basicsExample2Steps: `1. Reordena: x² = 9<br>2. Saca la raíz cuadrada: x = ±√9<br>3. Resultado: x₁ = 3 y x₂ = −3`,
+  merkeTitle: `Recuerda`, merkeBody: `Forma normal: x² + px + q = 0.<br>Fórmula pq: x = −p/2 ± √((p/2)² − q).<br>En ecuaciones cuadráticas puras (x² = a), basta con sacar la raíz cuadrada directamente.`,
+  taskWord: `Ejercicio`,
+  task1Question: `Resuelve x² − 5x + 6 = 0. ¿Cuál es la solución mayor x₁?`, task2Question: `Resuelve x² − 5x + 6 = 0. ¿Cuál es la solución menor x₂?`, task3Question: `Resuelve x² − 3x − 10 = 0. ¿Cuál es la solución mayor x₁?`, task4Question: `Resuelve x² − 3x − 10 = 0. ¿Cuál es la solución menor x₂?`, task5Question: `Resuelve x² − 7x + 12 = 0. ¿Cuál es la solución mayor x₁?`, task6Question: `Resuelve x² − 7x + 12 = 0. ¿Cuál es la solución menor x₂?`,
+  task7Question: `Un rectángulo tiene un área de 12 cm². El largo es 1 cm más que el ancho x. La ecuación es x² + x − 12 = 0. ¿Cuánto vale x (el ancho, solución positiva)?`,
+  task8Question: `Resuelve la ecuación cuadrática pura x² − 9 = 0. ¿Cuál es la solución positiva?`,
+  answerPlaceholder: `Tu respuesta`, checkButton: `Comprobar`, solutionSummary: `Ver solución`,
+  task1Result: `Resultado: x₁ = 3`, task2Result: `Resultado: x₂ = 2`, task3Result: `Resultado: x₁ = 5`, task4Result: `Resultado: x₂ = −2`, task5Result: `Resultado: x₁ = 4`, task6Result: `Resultado: x₂ = 3`, task7Result: `Resultado: x = 3 cm`, task8Result: `Resultado: x = 3`,
+  task1Step1: `Identifica: p = −5, q = 6.`, task1Step2: `Sustituye: x = 2,5 ± √(6,25 − 6) = 2,5 ± 0,5.`, task1Step3: `Solución mayor: x₁ = 2,5 + 0,5 = 3.`,
+  task1Hint: `Al identificar p y q, cuidado con el signo: con −5x, p = −5, no 5.`,
+  task2Step1: `Identifica: p = −5, q = 6.`, task2Step2: `Sustituye: x = 2,5 ± √(6,25 − 6) = 2,5 ± 0,5.`, task2Step3: `Solución menor: x₂ = 2,5 − 0,5 = 2.`,
+  task2Hint: `Con ±, hay que hacer ambos cálculos: uno con más, otro con menos.`,
+  task3Step1: `Identifica: p = −3, q = −10.`, task3Step2: `Sustituye: x = 1,5 ± √(2,25 − (−10)) = 1,5 ± √12,25 = 1,5 ± 3,5.`, task3Step3: `Solución mayor: x₁ = 1,5 + 3,5 = 5.`,
+  task3Hint: `Menos q, con q negativo, significa que menos por menos se convierte en más.`,
+  task4Step1: `Identifica: p = −3, q = −10.`, task4Step2: `Sustituye: x = 1,5 ± √12,25 = 1,5 ± 3,5.`, task4Step3: `Solución menor: x₂ = 1,5 − 3,5 = −2.`,
+  task4Hint: `Una solución puede ser perfectamente negativa — eso es totalmente normal.`,
+  task5Step1: `Identifica: p = −7, q = 12.`, task5Step2: `Sustituye: x = 3,5 ± √(12,25 − 12) = 3,5 ± 0,5.`, task5Step3: `Solución mayor: x₁ = 3,5 + 0,5 = 4.`,
+  task5Hint: `(p/2)² significa dividir entre 2 primero y luego elevar al cuadrado, no al revés.`,
+  task6Step1: `Identifica: p = −7, q = 12.`, task6Step2: `Sustituye: x = 3,5 ± 0,5.`, task6Step3: `Solución menor: x₂ = 3,5 − 0,5 = 3.`,
+  task6Hint: `Como comprobación, puedes sustituir ambas soluciones en la ecuación original.`,
+  task7Step1: `Identifica: p = 1, q = −12.`, task7Step2: `Sustituye: x = −0,5 ± √(0,25 − (−12)) = −0,5 ± √12,25 = −0,5 ± 3,5.`, task7Step3: `Solución positiva: x = −0,5 + 3,5 = 3.`,
+  task7Hint: `Un ancho negativo no tiene sentido geométrico — por eso solo se usa la solución positiva.`,
+  task8Step1: `Reordena: x² = 9.`, task8Step2: `Saca la raíz cuadrada: x = ±√9 = ±3.`, task8Step3: `Solución positiva: x = 3.`,
+  task8Hint: `En una ecuación cuadrática pura no necesitas la fórmula pq en absoluto — basta con sacar la raíz directamente.`,
+  hintLabel: `Error típico:`, footerMessage: `Tómate tu tiempo y revisa la solución si la necesitas. ¡Tú puedes!`,
+  fbEmpty: `Introduce un número antes de comprobar.`, fbCorrect: `¡Correcto! ¡Muy bien!`, fbIncorrect: `Todavía no es correcto. Revisa la solución de abajo e inténtalo de nuevo.`
+},
+fr: {
+  eyebrow: `Luisen-Gymnasium · 3e`, titleLine1: `Équations du`, titleAccent: `second degré`, backLink: `← Tous les thèmes`, h2Basics: `Les bases`,
+  basicsP1: `Une équation du second degré sous forme normale ressemble à ceci : x² + px + q = 0. Tu peux résoudre ces équations avec la formule pq. Il y a généralement deux solutions (x₁ et x₂).`,
+  pqAria: `Formule pq : x égale moins p sur 2 plus ou moins racine carrée de p sur 2 au carré moins q`,
+  basicsExample1Label: `<strong>Exemple étape par étape :</strong> Résous x² − 5x + 6 = 0.`,
+  basicsExample1Steps: `1. Identifie : p = −5, q = 6<br>2. Substitue : x = 5/2 ± √((5/2)² − 6)<br>3. Calcule : (2,5)² − 6 = 6,25 − 6 = 0,25, et √0,25 = 0,5<br>4. Résultat : x = 2,5 ± 0,5, donc x₁ = 3 et x₂ = 2`,
+  basicsP2Pure: `<strong>Les équations du second degré pures</strong> (sans terme en x, c'est-à-dire x² + q = 0 ou x² = a) se résolvent plus simplement en extrayant directement la racine carrée.`,
+  basicsExample2Label: `<strong>Exemple étape par étape :</strong> Résous x² − 9 = 0.`,
+  basicsExample2Steps: `1. Réarrange : x² = 9<br>2. Extrais la racine carrée : x = ±√9<br>3. Résultat : x₁ = 3 et x₂ = −3`,
+  merkeTitle: `À retenir`, merkeBody: `Forme normale : x² + px + q = 0.<br>Formule pq : x = −p/2 ± √((p/2)² − q).<br>Pour les équations pures (x² = a), extraire directement la racine carrée suffit.`,
+  taskWord: `Exercice`,
+  task1Question: `Résous x² − 5x + 6 = 0. Quelle est la plus grande solution x₁ ?`, task2Question: `Résous x² − 5x + 6 = 0. Quelle est la plus petite solution x₂ ?`, task3Question: `Résous x² − 3x − 10 = 0. Quelle est la plus grande solution x₁ ?`, task4Question: `Résous x² − 3x − 10 = 0. Quelle est la plus petite solution x₂ ?`, task5Question: `Résous x² − 7x + 12 = 0. Quelle est la plus grande solution x₁ ?`, task6Question: `Résous x² − 7x + 12 = 0. Quelle est la plus petite solution x₂ ?`,
+  task7Question: `Un rectangle a une aire de 12 cm². La longueur est 1 cm de plus que la largeur x. L'équation est x² + x − 12 = 0. Combien vaut x (la largeur, solution positive) ?`,
+  task8Question: `Résous l'équation du second degré pure x² − 9 = 0. Quelle est la solution positive ?`,
+  answerPlaceholder: `Ta réponse`, checkButton: `Vérifier`, solutionSummary: `Voir la solution`,
+  task1Result: `Résultat : x₁ = 3`, task2Result: `Résultat : x₂ = 2`, task3Result: `Résultat : x₁ = 5`, task4Result: `Résultat : x₂ = −2`, task5Result: `Résultat : x₁ = 4`, task6Result: `Résultat : x₂ = 3`, task7Result: `Résultat : x = 3 cm`, task8Result: `Résultat : x = 3`,
+  task1Step1: `Identifie : p = −5, q = 6.`, task1Step2: `Substitue : x = 2,5 ± √(6,25 − 6) = 2,5 ± 0,5.`, task1Step3: `Plus grande solution : x₁ = 2,5 + 0,5 = 3.`,
+  task1Hint: `En identifiant p et q, fais attention au signe : avec −5x, p = −5, pas 5.`,
+  task2Step1: `Identifie : p = −5, q = 6.`, task2Step2: `Substitue : x = 2,5 ± √(6,25 − 6) = 2,5 ± 0,5.`, task2Step3: `Plus petite solution : x₂ = 2,5 − 0,5 = 2.`,
+  task2Hint: `Avec ±, il faut faire les deux calculs : une fois plus, une fois moins.`,
+  task3Step1: `Identifie : p = −3, q = −10.`, task3Step2: `Substitue : x = 1,5 ± √(2,25 − (−10)) = 1,5 ± √12,25 = 1,5 ± 3,5.`, task3Step3: `Plus grande solution : x₁ = 1,5 + 3,5 = 5.`,
+  task3Hint: `Moins q, avec q négatif, signifie que moins par moins donne plus.`,
+  task4Step1: `Identifie : p = −3, q = −10.`, task4Step2: `Substitue : x = 1,5 ± √12,25 = 1,5 ± 3,5.`, task4Step3: `Plus petite solution : x₂ = 1,5 − 3,5 = −2.`,
+  task4Hint: `Une solution peut tout à fait être négative — c'est parfaitement normal.`,
+  task5Step1: `Identifie : p = −7, q = 12.`, task5Step2: `Substitue : x = 3,5 ± √(12,25 − 12) = 3,5 ± 0,5.`, task5Step3: `Plus grande solution : x₁ = 3,5 + 0,5 = 4.`,
+  task5Hint: `(p/2)² signifie diviser par 2 d'abord, puis mettre au carré, pas l'inverse.`,
+  task6Step1: `Identifie : p = −7, q = 12.`, task6Step2: `Substitue : x = 3,5 ± 0,5.`, task6Step3: `Plus petite solution : x₂ = 3,5 − 0,5 = 3.`,
+  task6Hint: `Comme vérification, tu peux substituer les deux solutions dans l'équation de départ.`,
+  task7Step1: `Identifie : p = 1, q = −12.`, task7Step2: `Substitue : x = −0,5 ± √(0,25 − (−12)) = −0,5 ± √12,25 = −0,5 ± 3,5.`, task7Step3: `Solution positive : x = −0,5 + 3,5 = 3.`,
+  task7Hint: `Une largeur négative n'a pas de sens géométrique — c'est pourquoi seule la solution positive est utilisée.`,
+  task8Step1: `Réarrange : x² = 9.`, task8Step2: `Extrais la racine carrée : x = ±√9 = ±3.`, task8Step3: `Solution positive : x = 3.`,
+  task8Hint: `Pour une équation du second degré pure, tu n'as pas du tout besoin de la formule pq — extraire directement la racine carrée suffit.`,
+  hintLabel: `Erreur fréquente :`, footerMessage: `Prends ton temps et regarde la solution si besoin. Tu vas y arriver !`,
+  fbEmpty: `Merci d'indiquer un nombre avant de vérifier.`, fbCorrect: `Correct ! Bien joué !`, fbIncorrect: `Pas encore tout à fait juste. Regarde la solution ci-dessous et réessaie.`
+},
+tr: {
+  eyebrow: `Luisen-Gymnasium · 9. Sınıf`, titleLine1: `İkinci Dereceden`, titleAccent: `Denklemler`, backLink: `← Tüm Konular`, h2Basics: `Temel Bilgiler`,
+  basicsP1: `Normal biçimdeki ikinci dereceden bir denklem şöyle görünür: x² + px + q = 0. Bu tür denklemleri pq formülüyle çözebilirsin. Genellikle iki çözüm vardır (x₁ ve x₂).`,
+  pqAria: `pq formülü: x eşittir eksi p bölü 2 artı veya eksi p bölü 2'nin karesinin eksi q ile karekökü`,
+  basicsExample1Label: `<strong>Adım adım örnek:</strong> x² − 5x + 6 = 0 denklemini çöz.`,
+  basicsExample1Steps: `1. Oku: p = −5, q = 6<br>2. Yerine koy: x = 5/2 ± √((5/2)² − 6)<br>3. Hesapla: (2,5)² − 6 = 6,25 − 6 = 0,25, ve √0,25 = 0,5<br>4. Sonuç: x = 2,5 ± 0,5, yani x₁ = 3 ve x₂ = 2`,
+  basicsP2Pure: `<strong>Saf ikinci dereceden denklemler</strong> (x terimi olmadan, yani x² + q = 0 ya da x² = a) doğrudan karekök alarak daha kolay çözülür.`,
+  basicsExample2Label: `<strong>Adım adım örnek:</strong> x² − 9 = 0 denklemini çöz.`,
+  basicsExample2Steps: `1. Düzenle: x² = 9<br>2. Karekök al: x = ±√9<br>3. Sonuç: x₁ = 3 ve x₂ = −3`,
+  merkeTitle: `Unutma`, merkeBody: `Normal biçim: x² + px + q = 0.<br>pq formülü: x = −p/2 ± √((p/2)² − q).<br>Saf ikinci dereceden denklemlerde (x² = a) doğrudan karekök almak yeterlidir.`,
+  taskWord: `Alıştırma`,
+  task1Question: `x² − 5x + 6 = 0 denklemini çöz. Büyük çözüm x₁ kaçtır?`, task2Question: `x² − 5x + 6 = 0 denklemini çöz. Küçük çözüm x₂ kaçtır?`, task3Question: `x² − 3x − 10 = 0 denklemini çöz. Büyük çözüm x₁ kaçtır?`, task4Question: `x² − 3x − 10 = 0 denklemini çöz. Küçük çözüm x₂ kaçtır?`, task5Question: `x² − 7x + 12 = 0 denklemini çöz. Büyük çözüm x₁ kaçtır?`, task6Question: `x² − 7x + 12 = 0 denklemini çöz. Küçük çözüm x₂ kaçtır?`,
+  task7Question: `Bir dikdörtgenin alanı 12 cm²'dir. Uzunluk, genişlik x'ten 1 cm daha fazladır. Denklem x² + x − 12 = 0'dır. x (genişlik, pozitif çözüm) kaçtır?`,
+  task8Question: `Saf ikinci dereceden x² − 9 = 0 denklemini çöz. Pozitif çözüm nedir?`,
+  answerPlaceholder: `Cevabın`, checkButton: `Kontrol et`, solutionSummary: `Çözümü göster`,
+  task1Result: `Sonuç: x₁ = 3`, task2Result: `Sonuç: x₂ = 2`, task3Result: `Sonuç: x₁ = 5`, task4Result: `Sonuç: x₂ = −2`, task5Result: `Sonuç: x₁ = 4`, task6Result: `Sonuç: x₂ = 3`, task7Result: `Sonuç: x = 3 cm`, task8Result: `Sonuç: x = 3`,
+  task1Step1: `Oku: p = −5, q = 6.`, task1Step2: `Yerine koy: x = 2,5 ± √(6,25 − 6) = 2,5 ± 0,5.`, task1Step3: `Büyük çözüm: x₁ = 2,5 + 0,5 = 3.`,
+  task1Hint: `p ve q'yu okurken işarete dikkat et: −5x'te p = −5'tir, 5 değil.`,
+  task2Step1: `Oku: p = −5, q = 6.`, task2Step2: `Yerine koy: x = 2,5 ± √(6,25 − 6) = 2,5 ± 0,5.`, task2Step3: `Küçük çözüm: x₂ = 2,5 − 0,5 = 2.`,
+  task2Hint: `± ile her iki hesabı da yapmalısın: bir kez artı, bir kez eksi.`,
+  task3Step1: `Oku: p = −3, q = −10.`, task3Step2: `Yerine koy: x = 1,5 ± √(2,25 − (−10)) = 1,5 ± √12,25 = 1,5 ± 3,5.`, task3Step3: `Büyük çözüm: x₁ = 1,5 + 3,5 = 5.`,
+  task3Hint: `Negatif q'da eksi q, eksi eksi artı olur demektir.`,
+  task4Step1: `Oku: p = −3, q = −10.`, task4Step2: `Yerine koy: x = 1,5 ± √12,25 = 1,5 ± 3,5.`, task4Step3: `Küçük çözüm: x₂ = 1,5 − 3,5 = −2.`,
+  task4Hint: `Bir çözüm elbette negatif olabilir — bu tamamen normaldir.`,
+  task5Step1: `Oku: p = −7, q = 12.`, task5Step2: `Yerine koy: x = 3,5 ± √(12,25 − 12) = 3,5 ± 0,5.`, task5Step3: `Büyük çözüm: x₁ = 3,5 + 0,5 = 4.`,
+  task5Hint: `(p/2)², önce 2'ye bölüp sonra kareye almak demektir, tersi değil.`,
+  task6Step1: `Oku: p = −7, q = 12.`, task6Step2: `Yerine koy: x = 3,5 ± 0,5.`, task6Step3: `Küçük çözüm: x₂ = 3,5 − 0,5 = 3.`,
+  task6Hint: `Kontrol için her iki çözümü de orijinal denkleme yerine koyabilirsin.`,
+  task7Step1: `Oku: p = 1, q = −12.`, task7Step2: `Yerine koy: x = −0,5 ± √(0,25 − (−12)) = −0,5 ± √12,25 = −0,5 ± 3,5.`, task7Step3: `Pozitif çözüm: x = −0,5 + 3,5 = 3.`,
+  task7Hint: `Negatif bir genişlik geometrik olarak anlamsızdır — bu yüzden sadece pozitif çözüm kullanılır.`,
+  task8Step1: `Düzenle: x² = 9.`, task8Step2: `Karekök al: x = ±√9 = ±3.`, task8Step3: `Pozitif çözüm: x = 3.`,
+  task8Hint: `Saf ikinci dereceden bir denklemde pq formülüne hiç gerek yoktur — doğrudan karekök almak yeterlidir.`,
+  hintLabel: `Sık yapılan hata:`, footerMessage: `Sakin sakin hesapla, gerekirse çözüme bak. Bunu başarabilirsin!`,
+  fbEmpty: `Kontrol etmeden önce lütfen bir sayı gir.`, fbCorrect: `Doğru! Aferin!`, fbIncorrect: `Henüz tam doğru değil. Aşağıdaki çözüme bak ve tekrar dene.`
+},
+ru: {
+  eyebrow: `Luisen-Gymnasium · 9 класс`, titleLine1: `Квадратные`, titleAccent: `уравнения`, backLink: `← Все темы`, h2Basics: `Основы`,
+  basicsP1: `Квадратное уравнение в стандартной форме выглядит так: x² + px + q = 0. С помощью формулы можно решать такие уравнения. Обычно есть два решения (x₁ и x₂).`,
+  pqAria: `Формула: x равно минус p делить на 2 плюс минус корень из p делить на 2 в квадрате минус q`,
+  basicsExample1Label: `<strong>Пример по шагам:</strong> Реши x² − 5x + 6 = 0.`,
+  basicsExample1Steps: `1. Определи: p = −5, q = 6<br>2. Подставить: x = 5/2 ± √((5/2)² − 6)<br>3. Вычислить: (2,5)² − 6 = 6,25 − 6 = 0,25, и √0,25 = 0,5<br>4. Результат: x = 2,5 ± 0,5, значит x₁ = 3 и x₂ = 2`,
+  basicsP2Pure: `<strong>Чистые квадратные уравнения</strong> (без члена с x, то есть x² + q = 0 или x² = a) проще решать напрямую через извлечение корня.`,
+  basicsExample2Label: `<strong>Пример по шагам:</strong> Реши x² − 9 = 0.`,
+  basicsExample2Steps: `1. Преобразуй: x² = 9<br>2. Извлеки корень: x = ±√9<br>3. Результат: x₁ = 3 и x₂ = −3`,
+  merkeTitle: `Запомни`, merkeBody: `Стандартная форма: x² + px + q = 0.<br>Формула: x = −p/2 ± √((p/2)² − q).<br>В чистых квадратных уравнениях (x² = a) достаточно сразу извлечь корень.`,
+  taskWord: `Задание`,
+  task1Question: `Реши x² − 5x + 6 = 0. Чему равно большее решение x₁?`, task2Question: `Реши x² − 5x + 6 = 0. Чему равно меньшее решение x₂?`, task3Question: `Реши x² − 3x − 10 = 0. Чему равно большее решение x₁?`, task4Question: `Реши x² − 3x − 10 = 0. Чему равно меньшее решение x₂?`, task5Question: `Реши x² − 7x + 12 = 0. Чему равно большее решение x₁?`, task6Question: `Реши x² − 7x + 12 = 0. Чему равно меньшее решение x₂?`,
+  task7Question: `Площадь прямоугольника 12 см². Длина на 1 см больше ширины x. Уравнение: x² + x − 12 = 0. Чему равен x (ширина, положительное решение)?`,
+  task8Question: `Реши чистое квадратное уравнение x² − 9 = 0. Чему равно положительное решение?`,
+  answerPlaceholder: `Твой ответ`, checkButton: `Проверить`, solutionSummary: `Показать решение`,
+  task1Result: `Результат: x₁ = 3`, task2Result: `Результат: x₂ = 2`, task3Result: `Результат: x₁ = 5`, task4Result: `Результат: x₂ = −2`, task5Result: `Результат: x₁ = 4`, task6Result: `Результат: x₂ = 3`, task7Result: `Результат: x = 3 см`, task8Result: `Результат: x = 3`,
+  task1Step1: `Определи: p = −5, q = 6.`, task1Step2: `Подставить: x = 2,5 ± √(6,25 − 6) = 2,5 ± 0,5.`, task1Step3: `Большее решение: x₁ = 2,5 + 0,5 = 3.`,
+  task1Hint: `Определяя p и q, следи за знаком: при −5x, p = −5, а не 5.`,
+  task2Step1: `Определи: p = −5, q = 6.`, task2Step2: `Подставить: x = 2,5 ± √(6,25 − 6) = 2,5 ± 0,5.`, task2Step3: `Меньшее решение: x₂ = 2,5 − 0,5 = 2.`,
+  task2Hint: `При ± нужно выполнить оба вычисления: один раз плюс, один раз минус.`,
+  task3Step1: `Определи: p = −3, q = −10.`, task3Step2: `Подставить: x = 1,5 ± √(2,25 − (−10)) = 1,5 ± √12,25 = 1,5 ± 3,5.`, task3Step3: `Большее решение: x₁ = 1,5 + 3,5 = 5.`,
+  task3Hint: `Минус q, при отрицательном q, означает, что минус на минус даёт плюс.`,
+  task4Step1: `Определи: p = −3, q = −10.`, task4Step2: `Подставить: x = 1,5 ± √12,25 = 1,5 ± 3,5.`, task4Step3: `Меньшее решение: x₂ = 1,5 − 3,5 = −2.`,
+  task4Hint: `Решение вполне может быть отрицательным — это совершенно нормально.`,
+  task5Step1: `Определи: p = −7, q = 12.`, task5Step2: `Подставить: x = 3,5 ± √(12,25 − 12) = 3,5 ± 0,5.`, task5Step3: `Большее решение: x₁ = 3,5 + 0,5 = 4.`,
+  task5Hint: `(p/2)² означает сначала разделить на 2, потом возвести в квадрат, а не наоборот.`,
+  task6Step1: `Определи: p = −7, q = 12.`, task6Step2: `Подставить: x = 3,5 ± 0,5.`, task6Step3: `Меньшее решение: x₂ = 3,5 − 0,5 = 3.`,
+  task6Hint: `В качестве проверки можно подставить оба решения в исходное уравнение.`,
+  task7Step1: `Определи: p = 1, q = −12.`, task7Step2: `Подставить: x = −0,5 ± √(0,25 − (−12)) = −0,5 ± √12,25 = −0,5 ± 3,5.`, task7Step3: `Положительное решение: x = −0,5 + 3,5 = 3.`,
+  task7Hint: `Отрицательная ширина не имеет геометрического смысла — поэтому используют только положительное решение.`,
+  task8Step1: `Преобразуй: x² = 9.`, task8Step2: `Извлеки корень: x = ±√9 = ±3.`, task8Step3: `Положительное решение: x = 3.`,
+  task8Hint: `В чистом квадратном уравнении формула вообще не нужна — достаточно сразу извлечь корень.`,
+  hintLabel: `Типичная ошибка:`, footerMessage: `Считай спокойно и при необходимости смотри решение. У тебя получится!`,
+  fbEmpty: `Пожалуйста, введи число перед проверкой.`, fbCorrect: `Правильно! Отлично!`, fbIncorrect: `Пока не совсем верно. Посмотри решение ниже и попробуй ещё раз.`
+},
+ar: {
+  eyebrow: `مدرسة لويزن الثانوية · الصف التاسع`, titleLine1: `المعادلات`, titleAccent: `التربيعية`, backLink: `← جميع المواضيع`, h2Basics: `الأساسيات`,
+  basicsP1: `تبدو المعادلة التربيعية بالصورة القياسية هكذا: x² + px + q = 0. يمكنك حل هذه المعادلات باستخدام معادلة pq. عادة يوجد حلان (x₁ وx₂).`,
+  pqAria: `معادلة pq: x يساوي سالب p على 2 زائد أو ناقص الجذر التربيعي لـ p على 2 تربيع ناقص q`,
+  basicsExample1Label: `<strong>مثال خطوة بخطوة:</strong> حل x² − 5x + 6 = 0.`,
+  basicsExample1Steps: `1. حدد: p = −5، q = 6<br>2. عوّض: x = 5/2 ± √((5/2)² − 6)<br>3. احسب: (2.5)² − 6 = 6.25 − 6 = 0.25، و√0.25 = 0.5<br>4. النتيجة: x = 2.5 ± 0.5، إذن x₁ = 3 وx₂ = 2`,
+  basicsP2Pure: `<strong>المعادلات التربيعية الخالصة</strong> (دون حد x، أي x² + q = 0 أو x² = a) تُحل بسهولة أكبر مباشرة بأخذ الجذر التربيعي.`,
+  basicsExample2Label: `<strong>مثال خطوة بخطوة:</strong> حل x² − 9 = 0.`,
+  basicsExample2Steps: `1. أعد الترتيب: x² = 9<br>2. خذ الجذر التربيعي: x = ±√9<br>3. النتيجة: x₁ = 3 وx₂ = −3`,
+  merkeTitle: `تذكّر`, merkeBody: `الصورة القياسية: x² + px + q = 0.<br>معادلة pq: x = −p/2 ± √((p/2)² − q).<br>في المعادلات التربيعية الخالصة (x² = a)، يكفي أخذ الجذر التربيعي مباشرة.`,
+  taskWord: `تمرين`,
+  task1Question: `حل x² − 5x + 6 = 0. ما هو الحل الأكبر x₁؟`, task2Question: `حل x² − 5x + 6 = 0. ما هو الحل الأصغر x₂؟`, task3Question: `حل x² − 3x − 10 = 0. ما هو الحل الأكبر x₁؟`, task4Question: `حل x² − 3x − 10 = 0. ما هو الحل الأصغر x₂؟`, task5Question: `حل x² − 7x + 12 = 0. ما هو الحل الأكبر x₁؟`, task6Question: `حل x² − 7x + 12 = 0. ما هو الحل الأصغر x₂؟`,
+  task7Question: `مستطيل مساحته 12 سم². الطول أطول من العرض x بمقدار 1 سم. المعادلة هي x² + x − 12 = 0. كم قيمة x (العرض، الحل الموجب)؟`,
+  task8Question: `حل المعادلة التربيعية الخالصة x² − 9 = 0. ما هو الحل الموجب؟`,
+  answerPlaceholder: `إجابتك`, checkButton: `تحقق`, solutionSummary: `عرض الحل`,
+  task1Result: `النتيجة: x₁ = 3`, task2Result: `النتيجة: x₂ = 2`, task3Result: `النتيجة: x₁ = 5`, task4Result: `النتيجة: x₂ = −2`, task5Result: `النتيجة: x₁ = 4`, task6Result: `النتيجة: x₂ = 3`, task7Result: `النتيجة: x = 3 سم`, task8Result: `النتيجة: x = 3`,
+  task1Step1: `حدد: p = −5، q = 6.`, task1Step2: `عوّض: x = 2.5 ± √(6.25 − 6) = 2.5 ± 0.5.`, task1Step3: `الحل الأكبر: x₁ = 2.5 + 0.5 = 3.`,
+  task1Hint: `عند تحديد p وq، انتبه للإشارة: في −5x، تكون p = −5، وليست 5.`,
+  task2Step1: `حدد: p = −5، q = 6.`, task2Step2: `عوّض: x = 2.5 ± √(6.25 − 6) = 2.5 ± 0.5.`, task2Step3: `الحل الأصغر: x₂ = 2.5 − 0.5 = 2.`,
+  task2Hint: `مع ±، يجب إجراء كلا الحسابين: مرة بالجمع ومرة بالطرح.`,
+  task3Step1: `حدد: p = −3، q = −10.`, task3Step2: `عوّض: x = 1.5 ± √(2.25 − (−10)) = 1.5 ± √12.25 = 1.5 ± 3.5.`, task3Step3: `الحل الأكبر: x₁ = 1.5 + 3.5 = 5.`,
+  task3Hint: `عندما تكون q سالبة، فإن ناقص q يعني أن سالب في سالب يصبح موجبًا.`,
+  task4Step1: `حدد: p = −3، q = −10.`, task4Step2: `عوّض: x = 1.5 ± √12.25 = 1.5 ± 3.5.`, task4Step3: `الحل الأصغر: x₂ = 1.5 − 3.5 = −2.`,
+  task4Hint: `يمكن أن يكون الحل سالبًا بالتأكيد — هذا أمر طبيعي تمامًا.`,
+  task5Step1: `حدد: p = −7، q = 12.`, task5Step2: `عوّض: x = 3.5 ± √(12.25 − 12) = 3.5 ± 0.5.`, task5Step3: `الحل الأكبر: x₁ = 3.5 + 0.5 = 4.`,
+  task5Hint: `(p/2)² تعني القسمة على 2 أولًا، ثم التربيع، وليس العكس.`,
+  task6Step1: `حدد: p = −7، q = 12.`, task6Step2: `عوّض: x = 3.5 ± 0.5.`, task6Step3: `الحل الأصغر: x₂ = 3.5 − 0.5 = 3.`,
+  task6Hint: `للتحقق، يمكنك تعويض كلا الحلين في المعادلة الأصلية.`,
+  task7Step1: `حدد: p = 1، q = −12.`, task7Step2: `عوّض: x = −0.5 ± √(0.25 − (−12)) = −0.5 ± √12.25 = −0.5 ± 3.5.`, task7Step3: `الحل الموجب: x = −0.5 + 3.5 = 3.`,
+  task7Hint: `العرض السالب لا معنى له هندسيًا — لذلك يُستخدم الحل الموجب فقط.`,
+  task8Step1: `أعد الترتيب: x² = 9.`, task8Step2: `خذ الجذر التربيعي: x = ±√9 = ±3.`, task8Step3: `الحل الموجب: x = 3.`,
+  task8Hint: `في المعادلة التربيعية الخالصة، لا تحتاج إلى معادلة pq على الإطلاق — يكفي أخذ الجذر التربيعي مباشرة.`,
+  hintLabel: `خطأ شائع:`, footerMessage: `احسب بهدوء وراجع الحل إذا احتجت إليه. أنت قادر على ذلك!`,
+  fbEmpty: `الرجاء إدخال رقم قبل التحقق.`, fbCorrect: `صحيح! أحسنت!`, fbIncorrect: `ليست صحيحة تمامًا بعد. راجع الحل أدناه وحاول مرة أخرى.`
+},
+zh: {
+  eyebrow: `路易森文理中学 · 九年级`, titleLine1: `一元二次`, titleAccent: `方程`, backLink: `← 所有主题`, h2Basics: `基础知识`,
+  basicsP1: `标准形式的一元二次方程是这样的：x² + px + q = 0。你可以用求根公式来解这类方程。通常有两个解（x₁ 和 x₂）。`,
+  pqAria: `求根公式：x等于负p除以2加或减根号下p除以2的平方减q`,
+  basicsExample1Label: `<strong>分步示例：</strong> 解 x² − 5x + 6 = 0。`,
+  basicsExample1Steps: `1. 读出：p = −5，q = 6<br>2. 代入：x = 5/2 ± √((5/2)² − 6)<br>3. 计算：(2.5)² − 6 = 6.25 − 6 = 0.25，√0.25 = 0.5<br>4. 结果：x = 2.5 ± 0.5，所以 x₁ = 3，x₂ = 2`,
+  basicsP2Pure: `<strong>纯二次方程</strong>（没有 x 项，即 x² + q = 0 或 x² = a）直接开平方求解更简单。`,
+  basicsExample2Label: `<strong>分步示例：</strong> 解 x² − 9 = 0。`,
+  basicsExample2Steps: `1. 变形：x² = 9<br>2. 开平方：x = ±√9<br>3. 结果：x₁ = 3，x₂ = −3`,
+  merkeTitle: `记住`, merkeBody: `标准形式：x² + px + q = 0。<br>求根公式：x = −p/2 ± √((p/2)² − q)。<br>对于纯二次方程（x² = a），直接开平方就够了。`,
+  taskWord: `练习`,
+  task1Question: `解 x² − 5x + 6 = 0。较大的解 x₁ 是多少？`, task2Question: `解 x² − 5x + 6 = 0。较小的解 x₂ 是多少？`, task3Question: `解 x² − 3x − 10 = 0。较大的解 x₁ 是多少？`, task4Question: `解 x² − 3x − 10 = 0。较小的解 x₂ 是多少？`, task5Question: `解 x² − 7x + 12 = 0。较大的解 x₁ 是多少？`, task6Question: `解 x² − 7x + 12 = 0。较小的解 x₂ 是多少？`,
+  task7Question: `一个矩形的面积是 12 平方厘米。长比宽 x 多 1 厘米。方程是 x² + x − 12 = 0。x（宽，正解）是多少？`,
+  task8Question: `解纯二次方程 x² − 9 = 0。正解是多少？`,
+  answerPlaceholder: `你的答案`, checkButton: `检查`, solutionSummary: `显示答案`,
+  task1Result: `结果：x₁ = 3`, task2Result: `结果：x₂ = 2`, task3Result: `结果：x₁ = 5`, task4Result: `结果：x₂ = −2`, task5Result: `结果：x₁ = 4`, task6Result: `结果：x₂ = 3`, task7Result: `结果：x = 3 厘米`, task8Result: `结果：x = 3`,
+  task1Step1: `读出：p = −5，q = 6。`, task1Step2: `代入：x = 2.5 ± √(6.25 − 6) = 2.5 ± 0.5。`, task1Step3: `较大的解：x₁ = 2.5 + 0.5 = 3。`,
+  task1Hint: `读出 p 和 q 时要注意符号：对于 −5x，p = −5，不是 5。`,
+  task2Step1: `读出：p = −5，q = 6。`, task2Step2: `代入：x = 2.5 ± √(6.25 − 6) = 2.5 ± 0.5。`, task2Step3: `较小的解：x₂ = 2.5 − 0.5 = 2。`,
+  task2Hint: `遇到 ± 时要做两次计算：一次加，一次减。`,
+  task3Step1: `读出：p = −3，q = −10。`, task3Step2: `代入：x = 1.5 ± √(2.25 − (−10)) = 1.5 ± √12.25 = 1.5 ± 3.5。`, task3Step3: `较大的解：x₁ = 1.5 + 3.5 = 5。`,
+  task3Hint: `当 q 为负数时，减去 q 意味着负负得正。`,
+  task4Step1: `读出：p = −3，q = −10。`, task4Step2: `代入：x = 1.5 ± √12.25 = 1.5 ± 3.5。`, task4Step3: `较小的解：x₂ = 1.5 − 3.5 = −2。`,
+  task4Hint: `解完全可以是负数——这是完全正常的。`,
+  task5Step1: `读出：p = −7，q = 12。`, task5Step2: `代入：x = 3.5 ± √(12.25 − 12) = 3.5 ± 0.5。`, task5Step3: `较大的解：x₁ = 3.5 + 0.5 = 4。`,
+  task5Hint: `(p/2)² 是先除以 2，再平方，不是反过来。`,
+  task6Step1: `读出：p = −7，q = 12。`, task6Step2: `代入：x = 3.5 ± 0.5。`, task6Step3: `较小的解：x₂ = 3.5 − 0.5 = 3。`,
+  task6Hint: `作为验证，可以把两个解都代入原方程检验。`,
+  task7Step1: `读出：p = 1，q = −12。`, task7Step2: `代入：x = −0.5 ± √(0.25 − (−12)) = −0.5 ± √12.25 = −0.5 ± 3.5。`, task7Step3: `正解：x = −0.5 + 3.5 = 3。`,
+  task7Hint: `负的宽度在几何上没有意义——所以只取正解。`,
+  task8Step1: `变形：x² = 9。`, task8Step2: `开平方：x = ±√9 = ±3。`, task8Step3: `正解：x = 3。`,
+  task8Hint: `对于纯二次方程，根本不需要求根公式——直接开平方就够了。`,
+  hintLabel: `常见错误：`, footerMessage: `慢慢算，需要的话看看答案。你能做到！`,
+  fbEmpty: `请先输入一个数字再检查。`, fbCorrect: `正确！做得好！`, fbIncorrect: `还不完全正确。看看下面的答案，再试一次。`
+}
+};
+
+var currentLang = 'de';
+
+function setLanguage(lang){
+  var dict = TRANSLATIONS[lang] || TRANSLATIONS.de;
+  currentLang = TRANSLATIONS[lang] ? lang : 'de';
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = (currentLang === 'ar') ? 'rtl' : 'ltr';
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var key = el.getAttribute('data-i18n');
+    if(dict[key] !== undefined){ el.innerHTML = dict[key]; }
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-placeholder');
+    if(dict[key] !== undefined){ el.setAttribute('placeholder', dict[key]); }
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-aria');
+    if(dict[key] !== undefined){ el.setAttribute('aria-label', dict[key]); }
+  });
+  try{ localStorage.setItem('mathecoach_lang', currentLang); }catch(e){}
+  var sel = document.getElementById('langSelect');
+  if(sel) sel.value = currentLang;
+}
+
+function check(id, correct){
+  var dict = TRANSLATIONS[currentLang] || TRANSLATIONS.de;
+  var input = document.getElementById('input' + id);
+  var feedback = document.getElementById('feedback' + id);
+  var raw = input.value.trim();
+  var match = raw.match(/-?\d+/);
+  feedback.classList.remove('show', 'correct', 'incorrect');
+  if(!match){
+    feedback.textContent = dict.fbEmpty;
+    feedback.classList.add('show', 'incorrect');
+    return;
+  }
+  var value = parseInt(match[0], 10);
+  if(value === correct){
+    feedback.textContent = dict.fbCorrect;
+    feedback.classList.add('show', 'correct');
+  } else {
+    feedback.textContent = dict.fbIncorrect;
+    feedback.classList.add('show', 'incorrect');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var saved = 'de';
+  try{ saved = localStorage.getItem('mathecoach_lang') || 'de'; }catch(e){}
+  setLanguage(saved);
+});
+</script>
+
+</body>
+</html>
