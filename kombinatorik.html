@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kombinatorik</title>
+<style>
+  :root{
+    --bg:#FAFAF9; --card:#FFFFFF; --ink:#241C1C; --ink-soft:#5C4F4C;
+    --red:#C41230; --gold:#E0A526; --blue:#2478B5;
+    --merke-bg:#FBF1DC; --merke-border:#E0A526;
+    --success:#1E8E5A; --success-bg:#E5F5EC; --error:#B3401D; --error-bg:#FBEDE6;
+    --font-display: ui-rounded, "SF Pro Rounded", "Segoe UI Rounded", "Nunito", system-ui, sans-serif;
+    --font-body: system-ui, "Segoe UI", Roboto, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:18px; line-height:1.5; padding-bottom:60px; }
+  .wrap{ max-width:640px; margin:0 auto; padding:0 20px; }
+  header{ background:var(--card); padding:30px 20px 0; text-align:center; position:relative; }
+  .header-inner{ padding-bottom:26px; }
+  .lang-switch{ display:flex; justify-content:center; margin-bottom:14px; }
+  #langSelect{ font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--ink); background:var(--card); border:2px solid #E3DFDA; border-radius:999px; padding:6px 14px; cursor:pointer; }
+  #langSelect:focus-visible{ outline:3px solid var(--blue); }
+  .back-link{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--blue); text-decoration:none; margin-bottom:16px; }
+  .eyebrow{ font-family:var(--font-display); font-weight:700; font-size:14px; letter-spacing:0.08em; text-transform:uppercase; color:var(--blue); margin-bottom:8px; }
+  h1{ font-family:var(--font-display); font-size:28px; font-weight:800; margin:0; line-height:1.25; }
+  h1 .accent{ color:var(--red); }
+  .wave{ display:block; width:100%; height:30px; }
+  section{ margin-top:32px; }
+  .card{ background:var(--card); border-radius:22px; padding:24px 22px; box-shadow:0 2px 14px rgba(36,28,28,0.07); }
+  h2{ font-family:var(--font-display); font-size:21px; font-weight:800; margin:0 0 14px; }
+  h2 .num{ display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:var(--blue); color:white; font-size:16px; margin-inline-end:10px; vertical-align:middle; }
+  p{ margin:0 0 14px; color:var(--ink-soft); }
+  .merke{ background:var(--merke-bg); border:2px solid var(--merke-border); border-radius:16px; padding:16px 18px; margin-top:16px; }
+  .merke-title{ font-family:var(--font-display); font-weight:800; color:#8A5A0F; font-size:15px; letter-spacing:0.04em; text-transform:uppercase; margin-bottom:6px; }
+  .merke-body{ color:#6B4A12; font-weight:600; margin:0; }
+  .combi-diagram{ width:100%; height:auto; margin:18px 0 6px; }
+  .task-card{ margin-top:18px; }
+  .task-question{ font-family:var(--font-display); font-weight:700; font-size:19px; margin-bottom:16px; }
+  .answer-row{ display:flex; gap:10px; margin-bottom:6px; }
+  input[type="text"]{ flex:1; font-size:18px; font-family:var(--font-body); padding:12px 14px; border-radius:12px; border:2px solid #E3DFDA; background:#FBFAF9; color:var(--ink); }
+  input[type="text"]:focus{ outline:3px solid #C9DCEA; border-color:var(--blue); }
+  button.check{ font-family:var(--font-display); font-weight:700; font-size:16px; color:white; background:var(--blue); border:none; border-radius:12px; padding:0 20px; cursor:pointer; }
+  button.check:active{ transform:translateY(1px); }
+  button.check:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
+  .feedback{ margin-top:10px; padding:12px 14px; border-radius:12px; font-weight:700; display:none; }
+  .feedback.show{ display:block; }
+  .feedback.correct{ background:var(--success-bg); color:var(--success); }
+  .feedback.incorrect{ background:var(--error-bg); color:var(--error); }
+  details{ margin-top:14px; border-top:2px dashed #E3DFDA; padding-top:12px; }
+  summary{ font-family:var(--font-display); font-weight:700; color:var(--blue); cursor:pointer; font-size:15px; }
+  .solution{ margin-top:12px; }
+  .solution ol{ margin:0 0 12px; padding-inline-start:22px; color:var(--ink-soft); }
+  .solution li{ margin-bottom:6px; }
+  .solution-result{ font-family:var(--font-display); font-weight:800; color:var(--ink); margin-bottom:12px; }
+  .hint-box{ background:#F1EFEC; border-radius:12px; padding:12px 14px; font-size:16px; color:var(--ink-soft); }
+  .hint-box strong{ color:var(--ink); }
+  footer{ text-align:center; margin-top:36px; padding:0 20px; }
+  footer p{ font-family:var(--font-display); font-weight:700; color:var(--ink); }
+  .footer-wave{ display:block; width:100%; max-width:280px; height:16px; margin:0 auto 18px; opacity:0.6; }
+  [dir="rtl"] .back-link{ flex-direction:row-reverse; }
+  @media (prefers-reduced-motion: no-preference){ button.check{ transition:transform 0.1s ease; } }
+  @media (max-width: 480px){ .answer-row{ flex-direction:column; } button.check{ width:100%; padding:14px 20px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="lang-switch">
+      <select id="langSelect" onchange="setLanguage(this.value)">
+        <option value="de">Deutsch</option><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="tr">Türkçe</option><option value="ru">Русский</option><option value="ar">العربية</option><option value="zh">中文</option>
+      </select>
+    </div>
+    <a class="back-link" href="index.html" data-i18n="backLink">← Alle Themen</a>
+    <div class="eyebrow" data-i18n="eyebrow">Luisen-Gymnasium · Klasse 9</div>
+    <h1><span data-i18n="titleLine1">Kombi-</span><br><span class="accent" data-i18n="titleAccent">natorik</span></h1>
+  </div>
+  <svg class="wave" viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+    <path d="M -10 22 C 190 4, 390 40, 590 22 S 990 4, 1210 22" fill="none" stroke="#C41230" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 32 C 190 50, 390 14, 590 32 S 990 50, 1210 32" fill="none" stroke="#E0A526" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 42 C 190 24, 390 58, 590 42 S 990 24, 1210 42" fill="none" stroke="#2478B5" stroke-width="5" stroke-linecap="round"/>
+  </svg>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <div class="card">
+      <h2 data-i18n="h2Basics">Grundlagen</h2>
+      <p data-i18n="basicsP1">Die Kombinatorik untersucht, wie viele Möglichkeiten es gibt, Dinge anzuordnen oder auszuwählen. Wichtig ist dabei: Spielt die Reihenfolge eine Rolle oder nicht?</p>
+
+      <svg class="combi-diagram" viewBox="0 0 600 130" xmlns="http://www.w3.org/2000/svg" role="img" data-i18n-aria="combiAria" aria-label="Formel n Fakultät für Anordnungen und Formel n über k für Auswahl ohne Reihenfolge">
+        <rect x="30" y="20" width="250" height="90" rx="14" fill="#C41230" fill-opacity="0.1" stroke="#C41230" stroke-width="2"/>
+        <text x="155" y="60" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="22" font-weight="800" fill="#C41230">n!</text>
+        <text x="155" y="90" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="13" font-weight="700" fill="#8A5A0F" data-i18n="permLabel">Anordnungen (mit Reihenfolge)</text>
+        <rect x="320" y="20" width="250" height="90" rx="14" fill="#2478B5" fill-opacity="0.1" stroke="#2478B5" stroke-width="2"/>
+        <text x="445" y="60" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="22" font-weight="800" fill="#2478B5">n! : (k!(n−k)!)</text>
+        <text x="445" y="90" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="13" font-weight="700" fill="#2478B5" data-i18n="combLabel">Auswahl (ohne Reihenfolge)</text>
+      </svg>
+
+      <p data-i18n="basicsExample1Label"><strong>Beispiel Schritt für Schritt:</strong> Wie viele Möglichkeiten gibt es, 4 Bücher in ein Regal zu stellen?</p>
+      <p data-i18n="basicsExample1Steps">1. Formel: n! (Fakultät), hier n = 4<br>2. Rechnen: 4! = 4 · 3 · 2 · 1<br>3. Ergebnis: 24 Möglichkeiten</p>
+
+      <p data-i18n="basicsP2Choose"><strong>Wenn die Reihenfolge keine Rolle spielt</strong> (z.B. bei der Auswahl eines Teams), verwendet man den Binomialkoeffizienten "n über k" = n! : (k! · (n−k)!).</p>
+
+      <p data-i18n="basicsExample2Label"><strong>Beispiel Schritt für Schritt:</strong> Aus 5 Personen soll ein Team von 2 ausgewählt werden (Reihenfolge egal). Wie viele Möglichkeiten gibt es?</p>
+      <p data-i18n="basicsExample2Steps">1. Formel: n über k = n! : (k! · (n−k)!), hier n = 5, k = 2<br>2. Einsetzen: 5! : (2! · 3!)<br>3. Rechnen: 120 : (2 · 6) = 120 : 12<br>4. Ergebnis: 10 Möglichkeiten</p>
+
+      <div class="merke">
+        <div class="merke-title" data-i18n="merkeTitle">Merke</div>
+        <p class="merke-body" data-i18n="merkeBody">Anordnung aller n Objekte (mit Reihenfolge): n!.<br>Auswahl von k aus n Objekten (ohne Reihenfolge): n! : (k! · (n−k)!).<br>Bei Wiederholung erlaubt (z.B. Zahlenschloss): n hoch k.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">1</span><span data-i18n="taskWord">Aufgabe</span> 1</h2>
+      <div class="task-question" data-i18n="task1Question">Wie viele Möglichkeiten gibt es, 4 Personen in einer Reihe aufzustellen?</div>
+      <div class="answer-row">
+        <input type="text" id="input1" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(1, 24)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback1"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task1Result">Ergebnis: 24</div>
+          <ol>
+            <li data-i18n="task1Step1">Formel: n! (Fakultät), hier n = 4.</li>
+            <li data-i18n="task1Step2">Rechnen: 4! = 4 · 3 · 2 · 1.</li>
+            <li data-i18n="task1Step3">Ergebnis: 24.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task1Hint">n! bedeutet, alle Zahlen von n bis 1 zu multiplizieren, nicht nur n mit sich selbst.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">2</span><span data-i18n="taskWord">Aufgabe</span> 2</h2>
+      <div class="task-question" data-i18n="task2Question">Wie viele Möglichkeiten gibt es, 5 Bücher in ein Regal zu stellen?</div>
+      <div class="answer-row">
+        <input type="text" id="input2" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(2, 120)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback2"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task2Result">Ergebnis: 120</div>
+          <ol>
+            <li data-i18n="task2Step1">Formel: n!, hier n = 5.</li>
+            <li data-i18n="task2Step2">Rechnen: 5! = 5 · 4 · 3 · 2 · 1.</li>
+            <li data-i18n="task2Step3">Ergebnis: 120.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task2Hint">Bei jedem zusätzlichen Objekt wächst die Anzahl der Möglichkeiten sehr schnell.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">3</span><span data-i18n="taskWord">Aufgabe</span> 3</h2>
+      <div class="task-question" data-i18n="task3Question">Aus einer Gruppe von 6 Personen sollen 2 für ein Team ausgewählt werden (Reihenfolge egal). Wie viele Möglichkeiten gibt es?</div>
+      <div class="answer-row">
+        <input type="text" id="input3" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(3, 15)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback3"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task3Result">Ergebnis: 15</div>
+          <ol>
+            <li data-i18n="task3Step1">Formel: n über k = n! : (k! · (n−k)!), hier n = 6, k = 2.</li>
+            <li data-i18n="task3Step2">Einsetzen: 6! : (2! · 4!) = 720 : (2 · 24).</li>
+            <li data-i18n="task3Step3">Rechnen: 720 : 48 = 15.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task3Hint">Da die Reihenfolge im Team keine Rolle spielt, darf man nicht einfach n! : (n−k)! rechnen, sondern muss noch durch k! teilen.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">4</span><span data-i18n="taskWord">Aufgabe</span> 4</h2>
+      <div class="task-question" data-i18n="task4Question">Aus 5 Personen sollen 3 für ein Komitee ausgewählt werden (Reihenfolge egal). Wie viele Möglichkeiten gibt es?</div>
+      <div class="answer-row">
+        <input type="text" id="input4" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(4, 10)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback4"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task4Result">Ergebnis: 10</div>
+          <ol>
+            <li data-i18n="task4Step1">Formel: n über k = n! : (k! · (n−k)!), hier n = 5, k = 3.</li>
+            <li data-i18n="task4Step2">Einsetzen: 5! : (3! · 2!) = 120 : (6 · 2).</li>
+            <li data-i18n="task4Step3">Rechnen: 120 : 12 = 10.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task4Hint">n − k berechnen, bevor man dessen Fakultät bildet: hier 5 − 3 = 2, also 2!.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">5</span><span data-i18n="taskWord">Aufgabe</span> 5</h2>
+      <div class="task-question" data-i18n="task5Question">Ein Zahlenschloss hat 3 Stellen mit je 10 möglichen Ziffern (0 bis 9), Wiederholung erlaubt. Wie viele Kombinationen gibt es?</div>
+      <div class="answer-row">
+        <input type="text" id="input5" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(5, 1000)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback5"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task5Result">Ergebnis: 1000</div>
+          <ol>
+            <li data-i18n="task5Step1">Formel bei Wiederholung: n hoch k, hier n = 10, k = 3.</li>
+            <li data-i18n="task5Step2">Einsetzen: 10³ = 10 · 10 · 10.</li>
+            <li data-i18n="task5Step3">Ergebnis: 1000.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task5Hint">Da Wiederholung erlaubt ist (jede Ziffer kann mehrfach vorkommen), verwendet man n hoch k, nicht die Fakultät.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">6</span><span data-i18n="taskWord">Aufgabe</span> 6</h2>
+      <div class="task-question" data-i18n="task6Question">Ein Passwort besteht aus 2 Buchstaben aus einem Alphabet mit 5 möglichen Buchstaben, Wiederholung erlaubt. Wie viele Passwörter gibt es?</div>
+      <div class="answer-row">
+        <input type="text" id="input6" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(6, 25)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback6"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task6Result">Ergebnis: 25</div>
+          <ol>
+            <li data-i18n="task6Step1">Formel bei Wiederholung: n hoch k, hier n = 5, k = 2.</li>
+            <li data-i18n="task6Step2">Einsetzen: 5² = 5 · 5.</li>
+            <li data-i18n="task6Step3">Ergebnis: 25.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task6Hint">Bei 2 Stellen wird die Anzahl der Buchstaben zweimal mit sich selbst multipliziert, nicht verdoppelt.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">7</span><span data-i18n="taskWord">Aufgabe</span> 7</h2>
+      <div class="task-question" data-i18n="task7Question">Bei einem Wettrennen mit 4 Läufern: Wie viele Möglichkeiten gibt es für die Reihenfolge der ersten 3 Plätze?</div>
+      <div class="answer-row">
+        <input type="text" id="input7" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(7, 24)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback7"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task7Result">Ergebnis: 24</div>
+          <ol>
+            <li data-i18n="task7Step1">Für Platz 1 gibt es 4 mögliche Läufer.</li>
+            <li data-i18n="task7Step2">Für Platz 2 bleiben noch 3, für Platz 3 noch 2.</li>
+            <li data-i18n="task7Step3">Rechnen: 4 · 3 · 2 = 24.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task7Hint">Hier zählt die Reihenfolge (wer wird Erster, Zweiter, Dritter), deshalb wird nicht durch k! geteilt.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">8</span><span data-i18n="taskWord">Aufgabe</span> 8</h2>
+      <div class="task-question" data-i18n="task8Question">Aus einer Klasse von 20 Schülern werden 2 Klassensprecher gewählt (Reihenfolge egal). Wie viele Möglichkeiten gibt es?</div>
+      <div class="answer-row">
+        <input type="text" id="input8" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(8, 190)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback8"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task8Result">Ergebnis: 190</div>
+          <ol>
+            <li data-i18n="task8Step1">Formel: n über k = n! : (k! · (n−k)!), hier n = 20, k = 2.</li>
+            <li data-i18n="task8Step2">Vereinfacht: (20 · 19) : (2 · 1).</li>
+            <li data-i18n="task8Step3">Rechnen: 380 : 2 = 190.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task8Hint">Da beide Klassensprecher gleichberechtigt sind (keine Reihenfolge), zählt "Anna und Ben" genauso wie "Ben und Anna" nur einmal.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <footer>
+    <svg class="footer-wave" viewBox="0 0 280 16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+      <path d="M -5 8 C 40 1, 80 15, 140 8 S 240 1, 285 8" fill="none" stroke="#C41230" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M -5 8 C 40 15, 80 1, 140 8 S 240 15, 285 8" fill="none" stroke="#2478B5" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+    </svg>
+    <p id="footer-msg" data-i18n="footerMessage">Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!</p>
+  </footer>
+
+</div>
+
+<script>
+const TRANSLATIONS = {
+de: {
+  eyebrow: `Luisen-Gymnasium · Klasse 9`, titleLine1: `Kombi-`, titleAccent: `natorik`, backLink: `← Alle Themen`, h2Basics: `Grundlagen`,
+  basicsP1: `Die Kombinatorik untersucht, wie viele Möglichkeiten es gibt, Dinge anzuordnen oder auszuwählen. Wichtig ist dabei: Spielt die Reihenfolge eine Rolle oder nicht?`,
+  combiAria: `Formel n Fakultät für Anordnungen und Formel n über k für Auswahl ohne Reihenfolge`,
+  permLabel: `Anordnungen (mit Reihenfolge)`, combLabel: `Auswahl (ohne Reihenfolge)`,
+  basicsExample1Label: `<strong>Beispiel Schritt für Schritt:</strong> Wie viele Möglichkeiten gibt es, 4 Bücher in ein Regal zu stellen?`,
+  basicsExample1Steps: `1. Formel: n! (Fakultät), hier n = 4<br>2. Rechnen: 4! = 4 · 3 · 2 · 1<br>3. Ergebnis: 24 Möglichkeiten`,
+  basicsP2Choose: `<strong>Wenn die Reihenfolge keine Rolle spielt</strong> (z.B. bei der Auswahl eines Teams), verwendet man den Binomialkoeffizienten "n über k" = n! : (k! · (n−k)!).`,
+  basicsExample2Label: `<strong>Beispiel Schritt für Schritt:</strong> Aus 5 Personen soll ein Team von 2 ausgewählt werden (Reihenfolge egal). Wie viele Möglichkeiten gibt es?`,
+  basicsExample2Steps: `1. Formel: n über k = n! : (k! · (n−k)!), hier n = 5, k = 2<br>2. Einsetzen: 5! : (2! · 3!)<br>3. Rechnen: 120 : (2 · 6) = 120 : 12<br>4. Ergebnis: 10 Möglichkeiten`,
+  merkeTitle: `Merke`, merkeBody: `Anordnung aller n Objekte (mit Reihenfolge): n!.<br>Auswahl von k aus n Objekten (ohne Reihenfolge): n! : (k! · (n−k)!).<br>Bei Wiederholung erlaubt (z.B. Zahlenschloss): n hoch k.`,
+  taskWord: `Aufgabe`,
+  task1Question: `Wie viele Möglichkeiten gibt es, 4 Personen in einer Reihe aufzustellen?`, task2Question: `Wie viele Möglichkeiten gibt es, 5 Bücher in ein Regal zu stellen?`, task3Question: `Aus einer Gruppe von 6 Personen sollen 2 für ein Team ausgewählt werden (Reihenfolge egal). Wie viele Möglichkeiten gibt es?`, task4Question: `Aus 5 Personen sollen 3 für ein Komitee ausgewählt werden (Reihenfolge egal). Wie viele Möglichkeiten gibt es?`, task5Question: `Ein Zahlenschloss hat 3 Stellen mit je 10 möglichen Ziffern (0 bis 9), Wiederholung erlaubt. Wie viele Kombinationen gibt es?`, task6Question: `Ein Passwort besteht aus 2 Buchstaben aus einem Alphabet mit 5 möglichen Buchstaben, Wiederholung erlaubt. Wie viele Passwörter gibt es?`,
+  task7Question: `Bei einem Wettrennen mit 4 Läufern: Wie viele Möglichkeiten gibt es für die Reihenfolge der ersten 3 Plätze?`,
+  task8Question: `Aus einer Klasse von 20 Schülern werden 2 Klassensprecher gewählt (Reihenfolge egal). Wie viele Möglichkeiten gibt es?`,
+  answerPlaceholder: `Deine Antwort`, checkButton: `Prüfen`, solutionSummary: `Lösung anzeigen`,
+  task1Result: `Ergebnis: 24`, task2Result: `Ergebnis: 120`, task3Result: `Ergebnis: 15`, task4Result: `Ergebnis: 10`, task5Result: `Ergebnis: 1000`, task6Result: `Ergebnis: 25`, task7Result: `Ergebnis: 24`, task8Result: `Ergebnis: 190`,
+  task1Step1: `Formel: n! (Fakultät), hier n = 4.`, task1Step2: `Rechnen: 4! = 4 · 3 · 2 · 1.`, task1Step3: `Ergebnis: 24.`,
+  task1Hint: `n! bedeutet, alle Zahlen von n bis 1 zu multiplizieren, nicht nur n mit sich selbst.`,
+  task2Step1: `Formel: n!, hier n = 5.`, task2Step2: `Rechnen: 5! = 5 · 4 · 3 · 2 · 1.`, task2Step3: `Ergebnis: 120.`,
+  task2Hint: `Bei jedem zusätzlichen Objekt wächst die Anzahl der Möglichkeiten sehr schnell.`,
+  task3Step1: `Formel: n über k = n! : (k! · (n−k)!), hier n = 6, k = 2.`, task3Step2: `Einsetzen: 6! : (2! · 4!) = 720 : (2 · 24).`, task3Step3: `Rechnen: 720 : 48 = 15.`,
+  task3Hint: `Da die Reihenfolge im Team keine Rolle spielt, darf man nicht einfach n! : (n−k)! rechnen, sondern muss noch durch k! teilen.`,
+  task4Step1: `Formel: n über k = n! : (k! · (n−k)!), hier n = 5, k = 3.`, task4Step2: `Einsetzen: 5! : (3! · 2!) = 120 : (6 · 2).`, task4Step3: `Rechnen: 120 : 12 = 10.`,
+  task4Hint: `n − k berechnen, bevor man dessen Fakultät bildet: hier 5 − 3 = 2, also 2!.`,
+  task5Step1: `Formel bei Wiederholung: n hoch k, hier n = 10, k = 3.`, task5Step2: `Einsetzen: 10³ = 10 · 10 · 10.`, task5Step3: `Ergebnis: 1000.`,
+  task5Hint: `Da Wiederholung erlaubt ist (jede Ziffer kann mehrfach vorkommen), verwendet man n hoch k, nicht die Fakultät.`,
+  task6Step1: `Formel bei Wiederholung: n hoch k, hier n = 5, k = 2.`, task6Step2: `Einsetzen: 5² = 5 · 5.`, task6Step3: `Ergebnis: 25.`,
+  task6Hint: `Bei 2 Stellen wird die Anzahl der Buchstaben zweimal mit sich selbst multipliziert, nicht verdoppelt.`,
+  task7Step1: `Für Platz 1 gibt es 4 mögliche Läufer.`, task7Step2: `Für Platz 2 bleiben noch 3, für Platz 3 noch 2.`, task7Step3: `Rechnen: 4 · 3 · 2 = 24.`,
+  task7Hint: `Hier zählt die Reihenfolge (wer wird Erster, Zweiter, Dritter), deshalb wird nicht durch k! geteilt.`,
+  task8Step1: `Formel: n über k = n! : (k! · (n−k)!), hier n = 20, k = 2.`, task8Step2: `Vereinfacht: (20 · 19) : (2 · 1).`, task8Step3: `Rechnen: 380 : 2 = 190.`,
+  task8Hint: `Da beide Klassensprecher gleichberechtigt sind (keine Reihenfolge), zählt "Anna und Ben" genauso wie "Ben und Anna" nur einmal.`,
+  hintLabel: `Typischer Fehler:`, footerMessage: `Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!`,
+  fbEmpty: `Trag bitte eine Zahl ein, bevor du prüfst.`, fbCorrect: `Richtig! Gut gemacht!`, fbIncorrect: `Noch nicht ganz richtig. Schau dir die Lösung weiter unten an und versuch es dann nochmal.`
+},
+en: {
+  eyebrow: `Luisen-Gymnasium · Grade 9`, titleLine1: `Combi-`, titleAccent: `natorics`, backLink: `← All Topics`, h2Basics: `Basics`,
+  basicsP1: `Combinatorics examines how many ways there are to arrange or select things. What matters is: does the order matter or not?`,
+  combiAria: `Formula n factorial for arrangements and formula n choose k for selection without order`,
+  permLabel: `Arrangements (order matters)`, combLabel: `Selection (order doesn't matter)`,
+  basicsExample1Label: `<strong>Step-by-step example:</strong> How many ways are there to arrange 4 books on a shelf?`,
+  basicsExample1Steps: `1. Formula: n! (factorial), here n = 4<br>2. Calculate: 4! = 4 · 3 · 2 · 1<br>3. Result: 24 ways`,
+  basicsP2Choose: `<strong>When the order doesn't matter</strong> (e.g. choosing a team), you use the binomial coefficient "n choose k" = n! : (k! · (n−k)!).`,
+  basicsExample2Label: `<strong>Step-by-step example:</strong> A team of 2 is to be chosen from 5 people (order doesn't matter). How many ways are there?`,
+  basicsExample2Steps: `1. Formula: n choose k = n! : (k! · (n−k)!), here n = 5, k = 2<br>2. Substitute: 5! : (2! · 3!)<br>3. Calculate: 120 : (2 · 6) = 120 : 12<br>4. Result: 10 ways`,
+  merkeTitle: `Remember`, merkeBody: `Arranging all n objects (order matters): n!.<br>Choosing k out of n objects (order doesn't matter): n! : (k! · (n−k)!).<br>When repetition is allowed (e.g. combination lock): n to the power of k.`,
+  taskWord: `Exercise`,
+  task1Question: `How many ways are there to line up 4 people in a row?`, task2Question: `How many ways are there to arrange 5 books on a shelf?`, task3Question: `From a group of 6 people, 2 are to be chosen for a team (order doesn't matter). How many ways are there?`, task4Question: `From 5 people, 3 are to be chosen for a committee (order doesn't matter). How many ways are there?`, task5Question: `A combination lock has 3 dials with 10 possible digits each (0 to 9), repetition allowed. How many combinations are there?`, task6Question: `A password consists of 2 letters from an alphabet with 5 possible letters, repetition allowed. How many passwords are there?`,
+  task7Question: `In a race with 4 runners: how many ways are there for the order of the first 3 places?`,
+  task8Question: `From a class of 20 students, 2 class representatives are chosen (order doesn't matter). How many ways are there?`,
+  answerPlaceholder: `Your answer`, checkButton: `Check`, solutionSummary: `Show solution`,
+  task1Result: `Result: 24`, task2Result: `Result: 120`, task3Result: `Result: 15`, task4Result: `Result: 10`, task5Result: `Result: 1000`, task6Result: `Result: 25`, task7Result: `Result: 24`, task8Result: `Result: 190`,
+  task1Step1: `Formula: n! (factorial), here n = 4.`, task1Step2: `Calculate: 4! = 4 · 3 · 2 · 1.`, task1Step3: `Result: 24.`,
+  task1Hint: `n! means multiplying all numbers from n down to 1, not just n by itself.`,
+  task2Step1: `Formula: n!, here n = 5.`, task2Step2: `Calculate: 5! = 5 · 4 · 3 · 2 · 1.`, task2Step3: `Result: 120.`,
+  task2Hint: `The number of possibilities grows very quickly with each additional object.`,
+  task3Step1: `Formula: n choose k = n! : (k! · (n−k)!), here n = 6, k = 2.`, task3Step2: `Substitute: 6! : (2! · 4!) = 720 : (2 · 24).`, task3Step3: `Calculate: 720 : 48 = 15.`,
+  task3Hint: `Since order doesn't matter in the team, you can't just calculate n! : (n−k)! — you also have to divide by k!.`,
+  task4Step1: `Formula: n choose k = n! : (k! · (n−k)!), here n = 5, k = 3.`, task4Step2: `Substitute: 5! : (3! · 2!) = 120 : (6 · 2).`, task4Step3: `Calculate: 120 : 12 = 10.`,
+  task4Hint: `Calculate n − k before taking its factorial: here 5 − 3 = 2, so 2!.`,
+  task5Step1: `Formula with repetition: n to the power of k, here n = 10, k = 3.`, task5Step2: `Substitute: 10³ = 10 · 10 · 10.`, task5Step3: `Result: 1000.`,
+  task5Hint: `Since repetition is allowed (each digit can appear more than once), you use n to the power of k, not the factorial.`,
+  task6Step1: `Formula with repetition: n to the power of k, here n = 5, k = 2.`, task6Step2: `Substitute: 5² = 5 · 5.`, task6Step3: `Result: 25.`,
+  task6Hint: `With 2 positions, the number of letters is multiplied by itself, not doubled.`,
+  task7Step1: `There are 4 possible runners for 1st place.`, task7Step2: `There are still 3 left for 2nd place, and 2 for 3rd place.`, task7Step3: `Calculate: 4 · 3 · 2 = 24.`,
+  task7Hint: `Here order matters (who comes 1st, 2nd, 3rd), so you don't divide by k!.`,
+  task8Step1: `Formula: n choose k = n! : (k! · (n−k)!), here n = 20, k = 2.`, task8Step2: `Simplified: (20 · 19) : (2 · 1).`, task8Step3: `Calculate: 380 : 2 = 190.`,
+  task8Hint: `Since both class representatives are equal (no order), "Anna and Ben" counts the same as "Ben and Anna" — only once.`,
+  hintLabel: `Common mistake:`, footerMessage: `Take your time and check the solution if you need to. You can do this!`,
+  fbEmpty: `Please enter a number before checking.`, fbCorrect: `Correct! Well done!`, fbIncorrect: `Not quite right yet. Check the solution below and try again.`
+},
+es: {
+  eyebrow: `Luisen-Gymnasium · 9.º curso`, titleLine1: `Combi-`, titleAccent: `natoria`, backLink: `← Todos los temas`, h2Basics: `Fundamentos`,
+  basicsP1: `La combinatoria estudia cuántas formas hay de ordenar o elegir cosas. Lo importante es: ¿importa el orden o no?`,
+  combiAria: `Fórmula n factorial para ordenaciones y fórmula n sobre k para selección sin orden`,
+  permLabel: `Ordenaciones (importa el orden)`, combLabel: `Selección (no importa el orden)`,
+  basicsExample1Label: `<strong>Ejemplo paso a paso:</strong> ¿De cuántas formas se pueden colocar 4 libros en una estantería?`,
+  basicsExample1Steps: `1. Fórmula: n! (factorial), aquí n = 4<br>2. Calcula: 4! = 4 · 3 · 2 · 1<br>3. Resultado: 24 formas`,
+  basicsP2Choose: `<strong>Cuando el orden no importa</strong> (por ejemplo, al elegir un equipo), se usa el coeficiente binomial "n sobre k" = n! : (k! · (n−k)!).`,
+  basicsExample2Label: `<strong>Ejemplo paso a paso:</strong> Se debe elegir un equipo de 2 personas entre 5 (el orden no importa). ¿Cuántas formas hay?`,
+  basicsExample2Steps: `1. Fórmula: n sobre k = n! : (k! · (n−k)!), aquí n = 5, k = 2<br>2. Sustituye: 5! : (2! · 3!)<br>3. Calcula: 120 : (2 · 6) = 120 : 12<br>4. Resultado: 10 formas`,
+  merkeTitle: `Recuerda`, merkeBody: `Ordenar los n objetos (importa el orden): n!.<br>Elegir k de n objetos (no importa el orden): n! : (k! · (n−k)!).<br>Cuando se permite repetición (por ejemplo, una combinación numérica): n elevado a k.`,
+  taskWord: `Ejercicio`,
+  task1Question: `¿De cuántas formas se pueden colocar 4 personas en una fila?`, task2Question: `¿De cuántas formas se pueden colocar 5 libros en una estantería?`, task3Question: `De un grupo de 6 personas se deben elegir 2 para un equipo (el orden no importa). ¿Cuántas formas hay?`, task4Question: `De 5 personas se deben elegir 3 para un comité (el orden no importa). ¿Cuántas formas hay?`, task5Question: `Una cerradura de combinación tiene 3 discos con 10 dígitos posibles cada uno (0 a 9), se permite repetición. ¿Cuántas combinaciones hay?`, task6Question: `Una contraseña consta de 2 letras de un alfabeto con 5 letras posibles, se permite repetición. ¿Cuántas contraseñas hay?`,
+  task7Question: `En una carrera con 4 corredores: ¿de cuántas formas se pueden dar los tres primeros puestos?`,
+  task8Question: `De una clase de 20 alumnos se eligen 2 delegados (el orden no importa). ¿Cuántas formas hay?`,
+  answerPlaceholder: `Tu respuesta`, checkButton: `Comprobar`, solutionSummary: `Ver solución`,
+  task1Result: `Resultado: 24`, task2Result: `Resultado: 120`, task3Result: `Resultado: 15`, task4Result: `Resultado: 10`, task5Result: `Resultado: 1000`, task6Result: `Resultado: 25`, task7Result: `Resultado: 24`, task8Result: `Resultado: 190`,
+  task1Step1: `Fórmula: n! (factorial), aquí n = 4.`, task1Step2: `Calcula: 4! = 4 · 3 · 2 · 1.`, task1Step3: `Resultado: 24.`,
+  task1Hint: `n! significa multiplicar todos los números desde n hasta 1, no solo n por sí mismo.`,
+  task2Step1: `Fórmula: n!, aquí n = 5.`, task2Step2: `Calcula: 5! = 5 · 4 · 3 · 2 · 1.`, task2Step3: `Resultado: 120.`,
+  task2Hint: `El número de posibilidades crece muy rápido con cada objeto adicional.`,
+  task3Step1: `Fórmula: n sobre k = n! : (k! · (n−k)!), aquí n = 6, k = 2.`, task3Step2: `Sustituye: 6! : (2! · 4!) = 720 : (2 · 24).`, task3Step3: `Calcula: 720 : 48 = 15.`,
+  task3Hint: `Como el orden no importa en el equipo, no basta con calcular n! : (n−k)! — también hay que dividir entre k!.`,
+  task4Step1: `Fórmula: n sobre k = n! : (k! · (n−k)!), aquí n = 5, k = 3.`, task4Step2: `Sustituye: 5! : (3! · 2!) = 120 : (6 · 2).`, task4Step3: `Calcula: 120 : 12 = 10.`,
+  task4Hint: `Calcula n − k antes de hallar su factorial: aquí 5 − 3 = 2, así que 2!.`,
+  task5Step1: `Fórmula con repetición: n elevado a k, aquí n = 10, k = 3.`, task5Step2: `Sustituye: 10³ = 10 · 10 · 10.`, task5Step3: `Resultado: 1000.`,
+  task5Hint: `Como se permite repetición (cada dígito puede aparecer varias veces), se usa n elevado a k, no el factorial.`,
+  task6Step1: `Fórmula con repetición: n elevado a k, aquí n = 5, k = 2.`, task6Step2: `Sustituye: 5² = 5 · 5.`, task6Step3: `Resultado: 25.`,
+  task6Hint: `Con 2 posiciones, el número de letras se multiplica por sí mismo, no se duplica.`,
+  task7Step1: `Hay 4 corredores posibles para el 1er puesto.`, task7Step2: `Quedan 3 para el 2.º puesto y 2 para el 3.º.`, task7Step3: `Calcula: 4 · 3 · 2 = 24.`,
+  task7Hint: `Aquí el orden importa (quién queda 1.º, 2.º, 3.º), por eso no se divide entre k!.`,
+  task8Step1: `Fórmula: n sobre k = n! : (k! · (n−k)!), aquí n = 20, k = 2.`, task8Step2: `Simplificado: (20 · 19) : (2 · 1).`, task8Step3: `Calcula: 380 : 2 = 190.`,
+  task8Hint: `Como ambos delegados son iguales (sin orden), "Ana y Ben" cuenta igual que "Ben y Ana" — solo una vez.`,
+  hintLabel: `Error típico:`, footerMessage: `Tómate tu tiempo y revisa la solución si la necesitas. ¡Tú puedes!`,
+  fbEmpty: `Introduce un número antes de comprobar.`, fbCorrect: `¡Correcto! ¡Muy bien!`, fbIncorrect: `Todavía no es correcto. Revisa la solución de abajo e inténtalo de nuevo.`
+},
+fr: {
+  eyebrow: `Luisen-Gymnasium · 3e`, titleLine1: `Combi-`, titleAccent: `natoire`, backLink: `← Tous les thèmes`, h2Basics: `Les bases`,
+  basicsP1: `La combinatoire étudie le nombre de façons d'arranger ou de choisir des objets. Ce qui compte, c'est : l'ordre a-t-il de l'importance ou non ?`,
+  combiAria: `Formule n factorielle pour les arrangements et formule n parmi k pour la sélection sans ordre`,
+  permLabel: `Arrangements (l'ordre compte)`, combLabel: `Sélection (l'ordre ne compte pas)`,
+  basicsExample1Label: `<strong>Exemple étape par étape :</strong> Combien y a-t-il de façons de ranger 4 livres sur une étagère ?`,
+  basicsExample1Steps: `1. Formule : n! (factorielle), ici n = 4<br>2. Calcule : 4! = 4 · 3 · 2 · 1<br>3. Résultat : 24 façons`,
+  basicsP2Choose: `<strong>Quand l'ordre n'a pas d'importance</strong> (par exemple pour choisir une équipe), on utilise le coefficient binomial « n parmi k » = n! : (k! · (n−k)!).`,
+  basicsExample2Label: `<strong>Exemple étape par étape :</strong> Il faut choisir une équipe de 2 parmi 5 personnes (l'ordre ne compte pas). Combien y a-t-il de façons ?`,
+  basicsExample2Steps: `1. Formule : n parmi k = n! : (k! · (n−k)!), ici n = 5, k = 2<br>2. Substitue : 5! : (2! · 3!)<br>3. Calcule : 120 : (2 · 6) = 120 : 12<br>4. Résultat : 10 façons`,
+  merkeTitle: `À retenir`, merkeBody: `Arranger les n objets (l'ordre compte) : n!.<br>Choisir k parmi n objets (l'ordre ne compte pas) : n! : (k! · (n−k)!).<br>Avec répétition autorisée (par ex. un cadenas à combinaison) : n puissance k.`,
+  taskWord: `Exercice`,
+  task1Question: `Combien y a-t-il de façons d'aligner 4 personnes en rang ?`, task2Question: `Combien y a-t-il de façons de ranger 5 livres sur une étagère ?`, task3Question: `Dans un groupe de 6 personnes, 2 doivent être choisies pour une équipe (l'ordre ne compte pas). Combien y a-t-il de façons ?`, task4Question: `Parmi 5 personnes, 3 doivent être choisies pour un comité (l'ordre ne compte pas). Combien y a-t-il de façons ?`, task5Question: `Un cadenas à combinaison a 3 molettes avec 10 chiffres possibles chacune (0 à 9), la répétition est autorisée. Combien y a-t-il de combinaisons ?`, task6Question: `Un mot de passe est composé de 2 lettres parmi un alphabet de 5 lettres possibles, la répétition est autorisée. Combien y a-t-il de mots de passe ?`,
+  task7Question: `Dans une course avec 4 coureurs : combien y a-t-il de façons pour l'ordre des 3 premières places ?`,
+  task8Question: `Dans une classe de 20 élèves, 2 délégués de classe sont élus (l'ordre ne compte pas). Combien y a-t-il de façons ?`,
+  answerPlaceholder: `Ta réponse`, checkButton: `Vérifier`, solutionSummary: `Voir la solution`,
+  task1Result: `Résultat : 24`, task2Result: `Résultat : 120`, task3Result: `Résultat : 15`, task4Result: `Résultat : 10`, task5Result: `Résultat : 1000`, task6Result: `Résultat : 25`, task7Result: `Résultat : 24`, task8Result: `Résultat : 190`,
+  task1Step1: `Formule : n! (factorielle), ici n = 4.`, task1Step2: `Calcule : 4! = 4 · 3 · 2 · 1.`, task1Step3: `Résultat : 24.`,
+  task1Hint: `n! signifie multiplier tous les nombres de n jusqu'à 1, pas seulement n par lui-même.`,
+  task2Step1: `Formule : n!, ici n = 5.`, task2Step2: `Calcule : 5! = 5 · 4 · 3 · 2 · 1.`, task2Step3: `Résultat : 120.`,
+  task2Hint: `Le nombre de possibilités augmente très vite avec chaque objet supplémentaire.`,
+  task3Step1: `Formule : n parmi k = n! : (k! · (n−k)!), ici n = 6, k = 2.`, task3Step2: `Substitue : 6! : (2! · 4!) = 720 : (2 · 24).`, task3Step3: `Calcule : 720 : 48 = 15.`,
+  task3Hint: `Comme l'ordre ne compte pas dans l'équipe, on ne peut pas simplement calculer n! : (n−k)! — il faut aussi diviser par k!.`,
+  task4Step1: `Formule : n parmi k = n! : (k! · (n−k)!), ici n = 5, k = 3.`, task4Step2: `Substitue : 5! : (3! · 2!) = 120 : (6 · 2).`, task4Step3: `Calcule : 120 : 12 = 10.`,
+  task4Hint: `Calcule n − k avant d'en prendre la factorielle : ici 5 − 3 = 2, donc 2!.`,
+  task5Step1: `Formule avec répétition : n puissance k, ici n = 10, k = 3.`, task5Step2: `Substitue : 10³ = 10 · 10 · 10.`, task5Step3: `Résultat : 1000.`,
+  task5Hint: `Comme la répétition est autorisée (chaque chiffre peut apparaître plusieurs fois), on utilise n puissance k, pas la factorielle.`,
+  task6Step1: `Formule avec répétition : n puissance k, ici n = 5, k = 2.`, task6Step2: `Substitue : 5² = 5 · 5.`, task6Step3: `Résultat : 25.`,
+  task6Hint: `Avec 2 positions, le nombre de lettres est multiplié par lui-même, pas doublé.`,
+  task7Step1: `Il y a 4 coureurs possibles pour la 1re place.`, task7Step2: `Il en reste 3 pour la 2e place, et 2 pour la 3e.`, task7Step3: `Calcule : 4 · 3 · 2 = 24.`,
+  task7Hint: `Ici l'ordre compte (qui arrive 1er, 2e, 3e), donc on ne divise pas par k!.`,
+  task8Step1: `Formule : n parmi k = n! : (k! · (n−k)!), ici n = 20, k = 2.`, task8Step2: `Simplifié : (20 · 19) : (2 · 1).`, task8Step3: `Calcule : 380 : 2 = 190.`,
+  task8Hint: `Comme les deux délégués sont sur un pied d'égalité (pas d'ordre), « Anna et Ben » compte comme « Ben et Anna » — une seule fois.`,
+  hintLabel: `Erreur fréquente :`, footerMessage: `Prends ton temps et regarde la solution si besoin. Tu vas y arriver !`,
+  fbEmpty: `Merci d'indiquer un nombre avant de vérifier.`, fbCorrect: `Correct ! Bien joué !`, fbIncorrect: `Pas encore tout à fait juste. Regarde la solution ci-dessous et réessaie.`
+},
+tr: {
+  eyebrow: `Luisen-Gymnasium · 9. Sınıf`, titleLine1: `Kombina-`, titleAccent: `torik`, backLink: `← Tüm Konular`, h2Basics: `Temel Bilgiler`,
+  basicsP1: `Kombinatorik, nesneleri düzenlemenin veya seçmenin kaç yolu olduğunu inceler. Önemli olan şudur: sıra önemli mi, değil mi?`,
+  combiAria: `Diziliş için n faktöriyel formülü ve sırasız seçim için n üzerinden k formülü`,
+  permLabel: `Dizilişler (sıra önemli)`, combLabel: `Seçim (sıra önemli değil)`,
+  basicsExample1Label: `<strong>Adım adım örnek:</strong> 4 kitabı bir rafa dizmenin kaç yolu vardır?`,
+  basicsExample1Steps: `1. Formül: n! (faktöriyel), burada n = 4<br>2. Hesapla: 4! = 4 · 3 · 2 · 1<br>3. Sonuç: 24 yol`,
+  basicsP2Choose: `<strong>Sıra önemli değilse</strong> (örn. bir takım seçerken), "n üzerinden k" binom katsayısı kullanılır = n! : (k! · (n−k)!).`,
+  basicsExample2Label: `<strong>Adım adım örnek:</strong> 5 kişiden 2 kişilik bir takım seçilecek (sıra önemli değil). Kaç yol vardır?`,
+  basicsExample2Steps: `1. Formül: n üzerinden k = n! : (k! · (n−k)!), burada n = 5, k = 2<br>2. Yerine koy: 5! : (2! · 3!)<br>3. Hesapla: 120 : (2 · 6) = 120 : 12<br>4. Sonuç: 10 yol`,
+  merkeTitle: `Unutma`, merkeBody: `Tüm n nesnenin dizilişi (sıra önemli): n!.<br>n nesneden k tanesinin seçimi (sıra önemli değil): n! : (k! · (n−k)!).<br>Tekrara izin verildiğinde (örn. şifreli kilit): n üssü k.`,
+  taskWord: `Alıştırma`,
+  task1Question: `4 kişiyi bir sıraya dizmenin kaç yolu vardır?`, task2Question: `5 kitabı bir rafa dizmenin kaç yolu vardır?`, task3Question: `6 kişilik bir gruptan 2 kişi bir takım için seçilecek (sıra önemli değil). Kaç yol vardır?`, task4Question: `5 kişiden 3 kişi bir komite için seçilecek (sıra önemli değil). Kaç yol vardır?`, task5Question: `Şifreli bir kilitte her biri 10 olası rakamlı (0-9) 3 basamak var, tekrara izin veriliyor. Kaç kombinasyon vardır?`, task6Question: `Bir şifre, 5 olası harfli bir alfabeden 2 harften oluşuyor, tekrara izin veriliyor. Kaç şifre vardır?`,
+  task7Question: `4 koşucunun olduğu bir yarışta: ilk 3 sıranın düzeni için kaç olasılık vardır?`,
+  task8Question: `20 öğrencili bir sınıftan 2 sınıf temsilcisi seçiliyor (sıra önemli değil). Kaç yol vardır?`,
+  answerPlaceholder: `Cevabın`, checkButton: `Kontrol et`, solutionSummary: `Çözümü göster`,
+  task1Result: `Sonuç: 24`, task2Result: `Sonuç: 120`, task3Result: `Sonuç: 15`, task4Result: `Sonuç: 10`, task5Result: `Sonuç: 1000`, task6Result: `Sonuç: 25`, task7Result: `Sonuç: 24`, task8Result: `Sonuç: 190`,
+  task1Step1: `Formül: n! (faktöriyel), burada n = 4.`, task1Step2: `Hesapla: 4! = 4 · 3 · 2 · 1.`, task1Step3: `Sonuç: 24.`,
+  task1Hint: `n!, n'den 1'e kadar tüm sayıları çarpmak demektir, sadece n'yi kendisiyle çarpmak değil.`,
+  task2Step1: `Formül: n!, burada n = 5.`, task2Step2: `Hesapla: 5! = 5 · 4 · 3 · 2 · 1.`, task2Step3: `Sonuç: 120.`,
+  task2Hint: `Her ek nesneyle birlikte olasılık sayısı çok hızlı artar.`,
+  task3Step1: `Formül: n üzerinden k = n! : (k! · (n−k)!), burada n = 6, k = 2.`, task3Step2: `Yerine koy: 6! : (2! · 4!) = 720 : (2 · 24).`, task3Step3: `Hesapla: 720 : 48 = 15.`,
+  task3Hint: `Takımda sıra önemli olmadığından, sadece n! : (n−k)! hesaplamak yeterli değildir — ayrıca k!'ye de bölmek gerekir.`,
+  task4Step1: `Formül: n üzerinden k = n! : (k! · (n−k)!), burada n = 5, k = 3.`, task4Step2: `Yerine koy: 5! : (3! · 2!) = 120 : (6 · 2).`, task4Step3: `Hesapla: 120 : 12 = 10.`,
+  task4Hint: `Faktöriyelini almadan önce n − k'yı hesapla: burada 5 − 3 = 2, yani 2!.`,
+  task5Step1: `Tekrar ile formül: n üssü k, burada n = 10, k = 3.`, task5Step2: `Yerine koy: 10³ = 10 · 10 · 10.`, task5Step3: `Sonuç: 1000.`,
+  task5Hint: `Tekrara izin verildiğinden (her rakam birden fazla kez görünebilir), faktöriyel değil n üssü k kullanılır.`,
+  task6Step1: `Tekrar ile formül: n üssü k, burada n = 5, k = 2.`, task6Step2: `Yerine koy: 5² = 5 · 5.`, task6Step3: `Sonuç: 25.`,
+  task6Hint: `2 basamakta, harf sayısı kendisiyle çarpılır, ikiye katlanmaz.`,
+  task7Step1: `1. sıra için 4 olası koşucu vardır.`, task7Step2: `2. sıra için 3, 3. sıra için 2 kalır.`, task7Step3: `Hesapla: 4 · 3 · 2 = 24.`,
+  task7Hint: `Burada sıra önemlidir (kim 1., 2., 3. olur), bu yüzden k!'ye bölünmez.`,
+  task8Step1: `Formül: n üzerinden k = n! : (k! · (n−k)!), burada n = 20, k = 2.`, task8Step2: `Basitleştirilmiş: (20 · 19) : (2 · 1).`, task8Step3: `Hesapla: 380 : 2 = 190.`,
+  task8Hint: `Her iki sınıf temsilcisi de eşit olduğundan (sıra yok), "Anna ve Ben" ile "Ben ve Anna" aynı sayılır — sadece bir kez.`,
+  hintLabel: `Sık yapılan hata:`, footerMessage: `Sakin sakin hesapla, gerekirse çözüme bak. Bunu başarabilirsin!`,
+  fbEmpty: `Kontrol etmeden önce lütfen bir sayı gir.`, fbCorrect: `Doğru! Aferin!`, fbIncorrect: `Henüz tam doğru değil. Aşağıdaki çözüme bak ve tekrar dene.`
+},
+ru: {
+  eyebrow: `Luisen-Gymnasium · 9 класс`, titleLine1: `Комбина-`, titleAccent: `торика`, backLink: `← Все темы`, h2Basics: `Основы`,
+  basicsP1: `Комбинаторика изучает, сколько существует способов расположить или выбрать предметы. Важно: имеет ли значение порядок или нет?`,
+  combiAria: `Формула n факториал для перестановок и формула n по k для выбора без учёта порядка`,
+  permLabel: `Перестановки (порядок важен)`, combLabel: `Выбор (порядок не важен)`,
+  basicsExample1Label: `<strong>Пример по шагам:</strong> Сколько способов расставить 4 книги на полке?`,
+  basicsExample1Steps: `1. Формула: n! (факториал), здесь n = 4<br>2. Вычисли: 4! = 4 · 3 · 2 · 1<br>3. Результат: 24 способа`,
+  basicsP2Choose: `<strong>Когда порядок не важен</strong> (например, при выборе команды), используют биномиальный коэффициент «n по k» = n! : (k! · (n−k)!).`,
+  basicsExample2Label: `<strong>Пример по шагам:</strong> Из 5 человек нужно выбрать команду из 2 (порядок не важен). Сколько способов?`,
+  basicsExample2Steps: `1. Формула: n по k = n! : (k! · (n−k)!), здесь n = 5, k = 2<br>2. Подставить: 5! : (2! · 3!)<br>3. Вычислить: 120 : (2 · 6) = 120 : 12<br>4. Результат: 10 способов`,
+  merkeTitle: `Запомни`, merkeBody: `Расположение всех n объектов (порядок важен): n!.<br>Выбор k из n объектов (порядок не важен): n! : (k! · (n−k)!).<br>При разрешённом повторении (например, кодовый замок): n в степени k.`,
+  taskWord: `Задание`,
+  task1Question: `Сколько способов расставить 4 человек в ряд?`, task2Question: `Сколько способов расставить 5 книг на полке?`, task3Question: `Из группы в 6 человек нужно выбрать 2 для команды (порядок не важен). Сколько способов?`, task4Question: `Из 5 человек нужно выбрать 3 для комитета (порядок не важен). Сколько способов?`, task5Question: `Кодовый замок имеет 3 диска с 10 возможными цифрами каждый (от 0 до 9), повторение разрешено. Сколько комбинаций?`, task6Question: `Пароль состоит из 2 букв алфавита с 5 возможными буквами, повторение разрешено. Сколько паролей?`,
+  task7Question: `В гонке участвуют 4 бегуна: сколько существует порядков для первых 3 мест?`,
+  task8Question: `Из класса в 20 учеников выбирают 2 старост (порядок не важен). Сколько способов?`,
+  answerPlaceholder: `Твой ответ`, checkButton: `Проверить`, solutionSummary: `Показать решение`,
+  task1Result: `Результат: 24`, task2Result: `Результат: 120`, task3Result: `Результат: 15`, task4Result: `Результат: 10`, task5Result: `Результат: 1000`, task6Result: `Результат: 25`, task7Result: `Результат: 24`, task8Result: `Результат: 190`,
+  task1Step1: `Формула: n! (факториал), здесь n = 4.`, task1Step2: `Вычисли: 4! = 4 · 3 · 2 · 1.`, task1Step3: `Результат: 24.`,
+  task1Hint: `n! означает перемножение всех чисел от n до 1, а не просто n само на себя.`,
+  task2Step1: `Формула: n!, здесь n = 5.`, task2Step2: `Вычисли: 5! = 5 · 4 · 3 · 2 · 1.`, task2Step3: `Результат: 120.`,
+  task2Hint: `Число возможностей растёт очень быстро с каждым дополнительным объектом.`,
+  task3Step1: `Формула: n по k = n! : (k! · (n−k)!), здесь n = 6, k = 2.`, task3Step2: `Подставить: 6! : (2! · 4!) = 720 : (2 · 24).`, task3Step3: `Вычислить: 720 : 48 = 15.`,
+  task3Hint: `Так как порядок в команде не важен, нельзя просто вычислить n! : (n−k)! — нужно ещё разделить на k!.`,
+  task4Step1: `Формула: n по k = n! : (k! · (n−k)!), здесь n = 5, k = 3.`, task4Step2: `Подставить: 5! : (3! · 2!) = 120 : (6 · 2).`, task4Step3: `Вычислить: 120 : 12 = 10.`,
+  task4Hint: `Сначала вычисли n − k, прежде чем брать его факториал: здесь 5 − 3 = 2, значит 2!.`,
+  task5Step1: `Формула с повторением: n в степени k, здесь n = 10, k = 3.`, task5Step2: `Подставить: 10³ = 10 · 10 · 10.`, task5Step3: `Результат: 1000.`,
+  task5Hint: `Так как повторение разрешено (каждая цифра может встречаться несколько раз), используют n в степени k, а не факториал.`,
+  task6Step1: `Формула с повторением: n в степени k, здесь n = 5, k = 2.`, task6Step2: `Подставить: 5² = 5 · 5.`, task6Step3: `Результат: 25.`,
+  task6Hint: `При 2 позициях число букв умножается само на себя, а не удваивается.`,
+  task7Step1: `На 1-е место есть 4 возможных бегуна.`, task7Step2: `На 2-е место остаётся ещё 3, на 3-е — ещё 2.`, task7Step3: `Вычисли: 4 · 3 · 2 = 24.`,
+  task7Hint: `Здесь порядок важен (кто станет первым, вторым, третьим), поэтому на k! не делят.`,
+  task8Step1: `Формула: n по k = n! : (k! · (n−k)!), здесь n = 20, k = 2.`, task8Step2: `Упрощённо: (20 · 19) : (2 · 1).`, task8Step3: `Вычисли: 380 : 2 = 190.`,
+  task8Hint: `Так как оба старосты равноправны (без порядка), «Анна и Бен» считается так же, как «Бен и Анна» — только один раз.`,
+  hintLabel: `Типичная ошибка:`, footerMessage: `Считай спокойно и при необходимости смотри решение. У тебя получится!`,
+  fbEmpty: `Пожалуйста, введи число перед проверкой.`, fbCorrect: `Правильно! Отлично!`, fbIncorrect: `Пока не совсем верно. Посмотри решение ниже и попробуй ещё раз.`
+},
+ar: {
+  eyebrow: `مدرسة لويزن الثانوية · الصف التاسع`, titleLine1: `حساب`, titleAccent: `التوافيق`, backLink: `← جميع المواضيع`, h2Basics: `الأساسيات`,
+  basicsP1: `يدرس علم التوافيق عدد الطرق الممكنة لترتيب أو اختيار الأشياء. المهم هنا: هل يهم الترتيب أم لا؟`,
+  combiAria: `معادلة n مضروب للترتيبات ومعادلة n اختيار k للاختيار دون ترتيب`,
+  permLabel: `الترتيبات (الترتيب مهم)`, combLabel: `الاختيار (الترتيب غير مهم)`,
+  basicsExample1Label: `<strong>مثال خطوة بخطوة:</strong> كم عدد الطرق لترتيب 4 كتب على رف؟`,
+  basicsExample1Steps: `1. المعادلة: n! (المضروب)، هنا n = 4<br>2. احسب: 4! = 4 · 3 · 2 · 1<br>3. النتيجة: 24 طريقة`,
+  basicsP2Choose: `<strong>عندما لا يهم الترتيب</strong> (مثل اختيار فريق)، تُستخدم معادلة "n اختيار k" = n! ÷ (k! · (n−k)!).`,
+  basicsExample2Label: `<strong>مثال خطوة بخطوة:</strong> يجب اختيار فريق من شخصين من بين 5 أشخاص (الترتيب غير مهم). كم عدد الطرق؟`,
+  basicsExample2Steps: `1. المعادلة: n اختيار k = n! ÷ (k! · (n−k)!)، هنا n = 5، k = 2<br>2. عوّض: 5! ÷ (2! · 3!)<br>3. احسب: 120 ÷ (2 · 6) = 120 ÷ 12<br>4. النتيجة: 10 طرق`,
+  merkeTitle: `تذكّر`, merkeBody: `ترتيب جميع العناصر n (الترتيب مهم): n!.<br>اختيار k من n عنصر (الترتيب غير مهم): n! ÷ (k! · (n−k)!).<br>عند السماح بالتكرار (مثل قفل الأرقام): n أُس k.`,
+  taskWord: `تمرين`,
+  task1Question: `كم عدد الطرق لترتيب 4 أشخاص في صف؟`, task2Question: `كم عدد الطرق لترتيب 5 كتب على رف؟`, task3Question: `من مجموعة من 6 أشخاص، يجب اختيار 2 لفريق (الترتيب غير مهم). كم عدد الطرق؟`, task4Question: `من 5 أشخاص، يجب اختيار 3 للجنة (الترتيب غير مهم). كم عدد الطرق؟`, task5Question: `قفل أرقام له 3 خانات بكل منها 10 أرقام ممكنة (من 0 إلى 9)، والتكرار مسموح. كم عدد التركيبات؟`, task6Question: `كلمة مرور تتكون من حرفين من أبجدية بها 5 حروف ممكنة، والتكرار مسموح. كم عدد كلمات المرور؟`,
+  task7Question: `في سباق بأربعة عدائين: كم عدد الطرق الممكنة لترتيب المراكز الثلاثة الأولى؟`,
+  task8Question: `من فصل مكون من 20 طالبًا، يُنتخب 2 كممثلين للفصل (الترتيب غير مهم). كم عدد الطرق؟`,
+  answerPlaceholder: `إجابتك`, checkButton: `تحقق`, solutionSummary: `عرض الحل`,
+  task1Result: `النتيجة: 24`, task2Result: `النتيجة: 120`, task3Result: `النتيجة: 15`, task4Result: `النتيجة: 10`, task5Result: `النتيجة: 1000`, task6Result: `النتيجة: 25`, task7Result: `النتيجة: 24`, task8Result: `النتيجة: 190`,
+  task1Step1: `المعادلة: n! (المضروب)، هنا n = 4.`, task1Step2: `احسب: 4! = 4 · 3 · 2 · 1.`, task1Step3: `النتيجة: 24.`,
+  task1Hint: `n! تعني ضرب جميع الأعداد من n إلى 1، وليس ضرب n في نفسه فقط.`,
+  task2Step1: `المعادلة: n!، هنا n = 5.`, task2Step2: `احسب: 5! = 5 · 4 · 3 · 2 · 1.`, task2Step3: `النتيجة: 120.`,
+  task2Hint: `يزداد عدد الاحتمالات بسرعة كبيرة مع كل عنصر إضافي.`,
+  task3Step1: `المعادلة: n اختيار k = n! ÷ (k! · (n−k)!)، هنا n = 6، k = 2.`, task3Step2: `عوّض: 6! ÷ (2! · 4!) = 720 ÷ (2 · 24).`, task3Step3: `احسب: 720 ÷ 48 = 15.`,
+  task3Hint: `بما أن الترتيب غير مهم في الفريق، لا يكفي حساب n! ÷ (n−k)! فقط — يجب أيضًا القسمة على k!.`,
+  task4Step1: `المعادلة: n اختيار k = n! ÷ (k! · (n−k)!)، هنا n = 5، k = 3.`, task4Step2: `عوّض: 5! ÷ (3! · 2!) = 120 ÷ (6 · 2).`, task4Step3: `احسب: 120 ÷ 12 = 10.`,
+  task4Hint: `احسب n − k قبل أخذ مضروبها: هنا 5 − 3 = 2، إذن 2!.`,
+  task5Step1: `معادلة التكرار: n أُس k، هنا n = 10، k = 3.`, task5Step2: `عوّض: 10³ = 10 · 10 · 10.`, task5Step3: `النتيجة: 1000.`,
+  task5Hint: `بما أن التكرار مسموح (يمكن تكرار كل رقم عدة مرات)، تُستخدم n أُس k وليس المضروب.`,
+  task6Step1: `معادلة التكرار: n أُس k، هنا n = 5، k = 2.`, task6Step2: `عوّض: 5² = 5 · 5.`, task6Step3: `النتيجة: 25.`,
+  task6Hint: `مع خانتين، يُضرَب عدد الحروف في نفسه، لا يُضاعَف.`,
+  task7Step1: `يوجد 4 عدائين محتملين للمركز الأول.`, task7Step2: `يبقى 3 للمركز الثاني، و2 للمركز الثالث.`, task7Step3: `احسب: 4 · 3 · 2 = 24.`,
+  task7Hint: `هنا الترتيب مهم (من يحصل على المركز الأول، الثاني، الثالث)، لذلك لا تُقسَم على k!.`,
+  task8Step1: `المعادلة: n اختيار k = n! ÷ (k! · (n−k)!)، هنا n = 20، k = 2.`, task8Step2: `مبسّطة: (20 · 19) ÷ (2 · 1).`, task8Step3: `احسب: 380 ÷ 2 = 190.`,
+  task8Hint: `بما أن كلا ممثلي الفصل متساويان (بلا ترتيب)، فإن "آنا وبن" تُحسَب مثل "بن وآنا" — مرة واحدة فقط.`,
+  hintLabel: `خطأ شائع:`, footerMessage: `احسب بهدوء وراجع الحل إذا احتجت إليه. أنت قادر على ذلك!`,
+  fbEmpty: `الرجاء إدخال رقم قبل التحقق.`, fbCorrect: `صحيح! أحسنت!`, fbIncorrect: `ليست صحيحة تمامًا بعد. راجع الحل أدناه وحاول مرة أخرى.`
+},
+zh: {
+  eyebrow: `路易森文理中学 · 九年级`, titleLine1: `组合`, titleAccent: `数学`, backLink: `← 所有主题`, h2Basics: `基础知识`,
+  basicsP1: `组合数学研究排列或选择事物的方式有多少种。重要的是：顺序是否重要？`,
+  combiAria: `排列用n阶乘公式，不考虑顺序的选择用n选k公式`,
+  permLabel: `排列（顺序重要）`, combLabel: `选择（顺序不重要）`,
+  basicsExample1Label: `<strong>分步示例：</strong> 把 4 本书放到书架上有多少种方式？`,
+  basicsExample1Steps: `1. 公式：n!（阶乘），这里 n = 4<br>2. 计算：4! = 4 · 3 · 2 · 1<br>3. 结果：24 种方式`,
+  basicsP2Choose: `<strong>当顺序不重要时</strong>（例如选择一个团队），使用二项式系数"n 选 k" = n! ÷ (k! · (n−k)!)。`,
+  basicsExample2Label: `<strong>分步示例：</strong> 从 5 人中选出 2 人组成团队（顺序不重要）。有多少种方式？`,
+  basicsExample2Steps: `1. 公式：n 选 k = n! ÷ (k! · (n−k)!)，这里 n = 5，k = 2<br>2. 代入：5! ÷ (2! · 3!)<br>3. 计算：120 ÷ (2 · 6) = 120 ÷ 12<br>4. 结果：10 种方式`,
+  merkeTitle: `记住`, merkeBody: `排列所有 n 个物体（顺序重要）：n!。<br>从 n 个物体中选 k 个（顺序不重要）：n! ÷ (k! · (n−k)!)。<br>允许重复时（例如密码锁）：n 的 k 次方。`,
+  taskWord: `练习`,
+  task1Question: `把 4 个人排成一排有多少种方式？`, task2Question: `把 5 本书放到书架上有多少种方式？`, task3Question: `从 6 人的小组中选出 2 人组成团队（顺序不重要）。有多少种方式？`, task4Question: `从 5 人中选出 3 人组成委员会（顺序不重要）。有多少种方式？`, task5Question: `一个密码锁有 3 位，每位有 10 个可能数字（0 到 9），允许重复。有多少种组合？`, task6Question: `一个密码由 2 个字母组成，来自一个有 5 个可能字母的字母表，允许重复。有多少种密码？`,
+  task7Question: `在一场有 4 名选手的比赛中：前 3 名的排列方式有多少种？`,
+  task8Question: `从一个 20 人的班级中选出 2 名班长（顺序不重要）。有多少种方式？`,
+  answerPlaceholder: `你的答案`, checkButton: `检查`, solutionSummary: `显示答案`,
+  task1Result: `结果：24`, task2Result: `结果：120`, task3Result: `结果：15`, task4Result: `结果：10`, task5Result: `结果：1000`, task6Result: `结果：25`, task7Result: `结果：24`, task8Result: `结果：190`,
+  task1Step1: `公式：n!（阶乘），这里 n = 4。`, task1Step2: `计算：4! = 4 · 3 · 2 · 1。`, task1Step3: `结果：24。`,
+  task1Hint: `n! 表示把 n 到 1 的所有数字相乘，而不只是 n 自己乘自己。`,
+  task2Step1: `公式：n!，这里 n = 5。`, task2Step2: `计算：5! = 5 · 4 · 3 · 2 · 1。`, task2Step3: `结果：120。`,
+  task2Hint: `每增加一个物体，可能性的数量会增长得非常快。`,
+  task3Step1: `公式：n 选 k = n! ÷ (k! · (n−k)!)，这里 n = 6，k = 2。`, task3Step2: `代入：6! ÷ (2! · 4!) = 720 ÷ (2 · 24)。`, task3Step3: `计算：720 ÷ 48 = 15。`,
+  task3Hint: `因为团队里顺序不重要，不能只计算 n! ÷ (n−k)!——还必须除以 k!。`,
+  task4Step1: `公式：n 选 k = n! ÷ (k! · (n−k)!)，这里 n = 5，k = 3。`, task4Step2: `代入：5! ÷ (3! · 2!) = 120 ÷ (6 · 2)。`, task4Step3: `计算：120 ÷ 12 = 10。`,
+  task4Hint: `先算出 n − k，再求它的阶乘：这里 5 − 3 = 2，所以是 2!。`,
+  task5Step1: `允许重复时的公式：n 的 k 次方，这里 n = 10，k = 3。`, task5Step2: `代入：10³ = 10 · 10 · 10。`, task5Step3: `结果：1000。`,
+  task5Hint: `因为允许重复（每个数字可以出现多次），要用 n 的 k 次方，而不是阶乘。`,
+  task6Step1: `允许重复时的公式：n 的 k 次方，这里 n = 5，k = 2。`, task6Step2: `代入：5² = 5 · 5。`, task6Step3: `结果：25。`,
+  task6Hint: `有 2 个位置时，字母数要自乘，而不是翻倍。`,
+  task7Step1: `第一名有 4 种可能的选手。`, task7Step2: `第二名还剩 3 种，第三名还剩 2 种。`, task7Step3: `计算：4 · 3 · 2 = 24。`,
+  task7Hint: `这里顺序很重要（谁是第一、第二、第三名），所以不除以 k!。`,
+  task8Step1: `公式：n 选 k = n! ÷ (k! · (n−k)!)，这里 n = 20，k = 2。`, task8Step2: `化简：(20 · 19) ÷ (2 · 1)。`, task8Step3: `计算：380 ÷ 2 = 190。`,
+  task8Hint: `因为两位班长地位相同（无顺序），"安娜和本"和"本和安娜"算作同一种情况——只算一次。`,
+  hintLabel: `常见错误：`, footerMessage: `慢慢算，需要的话看看答案。你能做到！`,
+  fbEmpty: `请先输入一个数字再检查。`, fbCorrect: `正确！做得好！`, fbIncorrect: `还不完全正确。看看下面的答案，再试一次。`
+}
+};
+
+var currentLang = 'de';
+
+function setLanguage(lang){
+  var dict = TRANSLATIONS[lang] || TRANSLATIONS.de;
+  currentLang = TRANSLATIONS[lang] ? lang : 'de';
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = (currentLang === 'ar') ? 'rtl' : 'ltr';
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var key = el.getAttribute('data-i18n');
+    if(dict[key] !== undefined){ el.innerHTML = dict[key]; }
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-placeholder');
+    if(dict[key] !== undefined){ el.setAttribute('placeholder', dict[key]); }
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-aria');
+    if(dict[key] !== undefined){ el.setAttribute('aria-label', dict[key]); }
+  });
+  try{ localStorage.setItem('mathecoach_lang', currentLang); }catch(e){}
+  var sel = document.getElementById('langSelect');
+  if(sel) sel.value = currentLang;
+}
+
+function check(id, correct){
+  var dict = TRANSLATIONS[currentLang] || TRANSLATIONS.de;
+  var input = document.getElementById('input' + id);
+  var feedback = document.getElementById('feedback' + id);
+  var raw = input.value.trim();
+  var match = raw.match(/-?\d+/);
+  feedback.classList.remove('show', 'correct', 'incorrect');
+  if(!match){
+    feedback.textContent = dict.fbEmpty;
+    feedback.classList.add('show', 'incorrect');
+    return;
+  }
+  var value = parseInt(match[0], 10);
+  if(value === correct){
+    feedback.textContent = dict.fbCorrect;
+    feedback.classList.add('show', 'correct');
+  } else {
+    feedback.textContent = dict.fbIncorrect;
+    feedback.classList.add('show', 'incorrect');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var saved = 'de';
+  try{ saved = localStorage.getItem('mathecoach_lang') || 'de'; }catch(e){}
+  setLanguage(saved);
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wahrscheinlichkeitsrechnung</title>
+<style>
+  :root{
+    --bg:#FAFAF9; --card:#FFFFFF; --ink:#241C1C; --ink-soft:#5C4F4C;
+    --red:#C41230; --gold:#E0A526; --blue:#2478B5;
+    --merke-bg:#FBF1DC; --merke-border:#E0A526;
+    --success:#1E8E5A; --success-bg:#E5F5EC; --error:#B3401D; --error-bg:#FBEDE6;
+    --font-display: ui-rounded, "SF Pro Rounded", "Segoe UI Rounded", "Nunito", system-ui, sans-serif;
+    --font-body: system-ui, "Segoe UI", Roboto, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:18px; line-height:1.5; padding-bottom:60px; }
+  .wrap{ max-width:640px; margin:0 auto; padding:0 20px; }
+  header{ background:var(--card); padding:30px 20px 0; text-align:center; position:relative; }
+  .header-inner{ padding-bottom:26px; }
+  .lang-switch{ display:flex; justify-content:center; margin-bottom:14px; }
+  #langSelect{ font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--ink); background:var(--card); border:2px solid #E3DFDA; border-radius:999px; padding:6px 14px; cursor:pointer; }
+  #langSelect:focus-visible{ outline:3px solid var(--blue); }
+  .back-link{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--blue); text-decoration:none; margin-bottom:16px; }
+  .eyebrow{ font-family:var(--font-display); font-weight:700; font-size:14px; letter-spacing:0.08em; text-transform:uppercase; color:var(--blue); margin-bottom:8px; }
+  h1{ font-family:var(--font-display); font-size:28px; font-weight:800; margin:0; line-height:1.25; }
+  h1 .accent{ color:var(--red); }
+  .wave{ display:block; width:100%; height:30px; }
+  section{ margin-top:32px; }
+  .card{ background:var(--card); border-radius:22px; padding:24px 22px; box-shadow:0 2px 14px rgba(36,28,28,0.07); }
+  h2{ font-family:var(--font-display); font-size:21px; font-weight:800; margin:0 0 14px; }
+  h2 .num{ display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:var(--blue); color:white; font-size:16px; margin-inline-end:10px; vertical-align:middle; }
+  p{ margin:0 0 14px; color:var(--ink-soft); }
+  .merke{ background:var(--merke-bg); border:2px solid var(--merke-border); border-radius:16px; padding:16px 18px; margin-top:16px; }
+  .merke-title{ font-family:var(--font-display); font-weight:800; color:#8A5A0F; font-size:15px; letter-spacing:0.04em; text-transform:uppercase; margin-bottom:6px; }
+  .merke-body{ color:#6B4A12; font-weight:600; margin:0; }
+  .prob-diagram{ width:100%; height:auto; margin:18px 0 6px; }
+  .task-card{ margin-top:18px; }
+  .task-question{ font-family:var(--font-display); font-weight:700; font-size:19px; margin-bottom:16px; }
+  .answer-row{ display:flex; gap:10px; margin-bottom:6px; }
+  input[type="text"]{ flex:1; font-size:18px; font-family:var(--font-body); padding:12px 14px; border-radius:12px; border:2px solid #E3DFDA; background:#FBFAF9; color:var(--ink); }
+  input[type="text"]:focus{ outline:3px solid #C9DCEA; border-color:var(--blue); }
+  button.check{ font-family:var(--font-display); font-weight:700; font-size:16px; color:white; background:var(--blue); border:none; border-radius:12px; padding:0 20px; cursor:pointer; }
+  button.check:active{ transform:translateY(1px); }
+  button.check:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
+  .feedback{ margin-top:10px; padding:12px 14px; border-radius:12px; font-weight:700; display:none; }
+  .feedback.show{ display:block; }
+  .feedback.correct{ background:var(--success-bg); color:var(--success); }
+  .feedback.incorrect{ background:var(--error-bg); color:var(--error); }
+  details{ margin-top:14px; border-top:2px dashed #E3DFDA; padding-top:12px; }
+  summary{ font-family:var(--font-display); font-weight:700; color:var(--blue); cursor:pointer; font-size:15px; }
+  .solution{ margin-top:12px; }
+  .solution ol{ margin:0 0 12px; padding-inline-start:22px; color:var(--ink-soft); }
+  .solution li{ margin-bottom:6px; }
+  .solution-result{ font-family:var(--font-display); font-weight:800; color:var(--ink); margin-bottom:12px; }
+  .hint-box{ background:#F1EFEC; border-radius:12px; padding:12px 14px; font-size:16px; color:var(--ink-soft); }
+  .hint-box strong{ color:var(--ink); }
+  footer{ text-align:center; margin-top:36px; padding:0 20px; }
+  footer p{ font-family:var(--font-display); font-weight:700; color:var(--ink); }
+  .footer-wave{ display:block; width:100%; max-width:280px; height:16px; margin:0 auto 18px; opacity:0.6; }
+  [dir="rtl"] .back-link{ flex-direction:row-reverse; }
+  @media (prefers-reduced-motion: no-preference){ button.check{ transition:transform 0.1s ease; } }
+  @media (max-width: 480px){ .answer-row{ flex-direction:column; } button.check{ width:100%; padding:14px 20px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="lang-switch">
+      <select id="langSelect" onchange="setLanguage(this.value)">
+        <option value="de">Deutsch</option><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="tr">Türkçe</option><option value="ru">Русский</option><option value="ar">العربية</option><option value="zh">中文</option>
+      </select>
+    </div>
+    <a class="back-link" href="index.html" data-i18n="backLink">← Alle Themen</a>
+    <div class="eyebrow" data-i18n="eyebrow">Luisen-Gymnasium · Klasse 9</div>
+    <h1><span data-i18n="titleLine1">Wahrscheinlich-</span><br><span class="accent" data-i18n="titleAccent">keitsrechnung</span></h1>
+  </div>
+  <svg class="wave" viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+    <path d="M -10 22 C 190 4, 390 40, 590 22 S 990 4, 1210 22" fill="none" stroke="#C41230" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 32 C 190 50, 390 14, 590 32 S 990 50, 1210 32" fill="none" stroke="#E0A526" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 42 C 190 24, 390 58, 590 42 S 990 24, 1210 42" fill="none" stroke="#2478B5" stroke-width="5" stroke-linecap="round"/>
+  </svg>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <div class="card">
+      <h2 data-i18n="h2Basics">Grundlagen</h2>
+      <p data-i18n="basicsP1">Die Wahrscheinlichkeit eines Ereignisses E berechnet sich (wenn alle Ergebnisse gleich wahrscheinlich sind) mit P(E) = günstige Ergebnisse : mögliche Ergebnisse. P liegt immer zwischen 0 (unmöglich) und 1 (sicher), oft angegeben als Prozentzahl zwischen 0 % und 100 %.</p>
+
+      <svg class="prob-diagram" viewBox="0 0 600 100" xmlns="http://www.w3.org/2000/svg" role="img" data-i18n-aria="probAria" aria-label="Wahrscheinlichkeitsskala von 0 (unmöglich) bis 1 (sicher)">
+        <line x1="50" y1="50" x2="550" y2="50" stroke="#241C1C" stroke-width="3"/>
+        <circle cx="50" cy="50" r="6" fill="#C41230"/>
+        <circle cx="300" cy="50" r="6" fill="#E0A526"/>
+        <circle cx="550" cy="50" r="6" fill="#1E8E5A"/>
+        <text x="50" y="80" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="14" font-weight="700" fill="#C41230" data-i18n="probImpossible">0 = unmöglich</text>
+        <text x="300" y="80" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="14" font-weight="700" fill="#8A5A0F">0,5 = 50 %</text>
+        <text x="550" y="80" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="14" font-weight="700" fill="#1E8E5A" data-i18n="probCertain">1 = sicher</text>
+      </svg>
+
+      <p data-i18n="basicsExample1Label"><strong>Beispiel Schritt für Schritt:</strong> Wie groß ist die Wahrscheinlichkeit, mit einem Würfel eine Zahl größer als 3 zu würfeln?</p>
+      <p data-i18n="basicsExample1Steps">1. Günstige Ergebnisse zählen: 4, 5, 6 → 3 Ergebnisse<br>2. Mögliche Ergebnisse: 6<br>3. Formel: P = 3 : 6 = 0,5<br>4. Ergebnis: 50 %</p>
+
+      <p data-i18n="basicsP2Independent"><strong>Bei unabhängigen Ereignissen</strong> (z.B. zwei Würfe nacheinander) multipliziert man die Einzelwahrscheinlichkeiten. Die Gegenwahrscheinlichkeit ist P(nicht E) = 1 − P(E), also 100 % − P(E).</p>
+
+      <p data-i18n="basicsExample2Label"><strong>Beispiel Schritt für Schritt:</strong> Eine Münze wird zweimal geworfen. Wie groß ist die Wahrscheinlichkeit für zweimal Kopf?</p>
+      <p data-i18n="basicsExample2Steps">1. P(Kopf) bei einem Wurf: 0,5<br>2. Bei zwei unabhängigen Würfen multiplizieren: 0,5 · 0,5<br>3. Rechnen: 0,5 · 0,5 = 0,25<br>4. Ergebnis: 25 %</p>
+
+      <div class="merke">
+        <div class="merke-title" data-i18n="merkeTitle">Merke</div>
+        <p class="merke-body" data-i18n="merkeBody">P(E) = günstige Ergebnisse : mögliche Ergebnisse.<br>Gegenwahrscheinlichkeit: P(nicht E) = 100 % − P(E).<br>Bei unabhängigen Ereignissen nacheinander: Wahrscheinlichkeiten multiplizieren.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">1</span><span data-i18n="taskWord">Aufgabe</span> 1</h2>
+      <div class="task-question" data-i18n="task1Question">Ein Würfel wird geworfen. Wie viele der 6 möglichen Ergebnisse sind größer als 4 (also 5 oder 6)?</div>
+      <div class="answer-row">
+        <input type="text" id="input1" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(1, 2)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback1"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task1Result">Ergebnis: 2</div>
+          <ol>
+            <li data-i18n="task1Step1">Zahlen größer als 4: 5 und 6.</li>
+            <li data-i18n="task1Step2">Das sind 2 Ergebnisse.</li>
+            <li data-i18n="task1Step3">Ergebnis: 2 günstige Ergebnisse.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task1Hint">"Größer als 4" schließt die 4 selbst nicht mit ein.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">2</span><span data-i18n="taskWord">Aufgabe</span> 2</h2>
+      <div class="task-question" data-i18n="task2Question">Wie groß ist die Wahrscheinlichkeit, mit einem Würfel eine Zahl größer als 3 zu würfeln (in %)?</div>
+      <div class="answer-row">
+        <input type="text" id="input2" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(2, 50)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback2"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task2Result">Ergebnis: 50 %</div>
+          <ol>
+            <li data-i18n="task2Step1">Günstige Ergebnisse: 4, 5, 6 → 3 Ergebnisse.</li>
+            <li data-i18n="task2Step2">Formel: P = 3 : 6 = 0,5.</li>
+            <li data-i18n="task2Step3">Ergebnis: 50 %.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task2Hint">Nicht vergessen, das Ergebnis am Ende mit 100 zu multiplizieren, um Prozent zu erhalten.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">3</span><span data-i18n="taskWord">Aufgabe</span> 3</h2>
+      <div class="task-question" data-i18n="task3Question">In einer Urne sind 4 rote und 6 blaue Kugeln. Wie groß ist die Wahrscheinlichkeit, eine rote Kugel zu ziehen (in %)?</div>
+      <div class="answer-row">
+        <input type="text" id="input3" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(3, 40)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback3"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task3Result">Ergebnis: 40 %</div>
+          <ol>
+            <li data-i18n="task3Step1">Insgesamt sind es 4 + 6 = 10 Kugeln.</li>
+            <li data-i18n="task3Step2">Formel: P = 4 : 10 = 0,4.</li>
+            <li data-i18n="task3Step3">Ergebnis: 40 %.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task3Hint">Als Nenner immer die Gesamtzahl aller Kugeln verwenden, nicht nur die blauen.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">4</span><span data-i18n="taskWord">Aufgabe</span> 4</h2>
+      <div class="task-question" data-i18n="task4Question">Gleiche Urne (4 rote, 6 blaue Kugeln). Wie groß ist die Gegenwahrscheinlichkeit (keine rote Kugel zu ziehen), in %?</div>
+      <div class="answer-row">
+        <input type="text" id="input4" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(4, 60)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback4"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task4Result">Ergebnis: 60 %</div>
+          <ol>
+            <li data-i18n="task4Step1">P(rot) = 40 % (aus Aufgabe 3).</li>
+            <li data-i18n="task4Step2">Formel: P(nicht rot) = 100 % − P(rot).</li>
+            <li data-i18n="task4Step3">Ergebnis: 100 % − 40 % = 60 %.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task4Hint">Die Gegenwahrscheinlichkeit lässt sich einfach aus 100 % minus der bekannten Wahrscheinlichkeit berechnen, ohne neu zu zählen.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">5</span><span data-i18n="taskWord">Aufgabe</span> 5</h2>
+      <div class="task-question" data-i18n="task5Question">Eine Münze wird zweimal geworfen. Wie groß ist die Wahrscheinlichkeit für zweimal Kopf (in %)?</div>
+      <div class="answer-row">
+        <input type="text" id="input5" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(5, 25)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback5"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task5Result">Ergebnis: 25 %</div>
+          <ol>
+            <li data-i18n="task5Step1">P(Kopf) bei einem Wurf: 0,5.</li>
+            <li data-i18n="task5Step2">Beide Würfe sind unabhängig, also multiplizieren: 0,5 · 0,5.</li>
+            <li data-i18n="task5Step3">Rechnen: 0,5 · 0,5 = 0,25, also 25 %.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task5Hint">Bei "nacheinander und unabhängig" werden die Wahrscheinlichkeiten multipliziert, nicht addiert.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">6</span><span data-i18n="taskWord">Aufgabe</span> 6</h2>
+      <div class="task-question" data-i18n="task6Question">Zwei Würfel werden geworfen. Wie viele der 36 möglichen Ergebnisse zeigen bei beiden Würfeln eine 6?</div>
+      <div class="answer-row">
+        <input type="text" id="input6" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(6, 1)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback6"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task6Result">Ergebnis: 1</div>
+          <ol>
+            <li data-i18n="task6Step1">Es gibt nur eine Kombination, bei der beide Würfel eine 6 zeigen: (6, 6).</li>
+            <li data-i18n="task6Step2">Das entspricht 1 von 36 möglichen Ergebnissen.</li>
+            <li data-i18n="task6Step3">Ergebnis: 1 günstiges Ergebnis.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task6Hint">Bei zwei Würfeln gibt es insgesamt 6 · 6 = 36 mögliche Ergebnisse, nicht nur 6.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">7</span><span data-i18n="taskWord">Aufgabe</span> 7</h2>
+      <div class="task-question" data-i18n="task7Question">In einer Klasse mit 25 Schülern haben 15 blaue Augen. Wie groß ist die Wahrscheinlichkeit, dass ein zufällig ausgewählter Schüler blaue Augen hat (in %)?</div>
+      <div class="answer-row">
+        <input type="text" id="input7" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(7, 60)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback7"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task7Result">Ergebnis: 60 %</div>
+          <ol>
+            <li data-i18n="task7Step1">Formel: P = 15 : 25.</li>
+            <li data-i18n="task7Step2">Rechnen: 15 : 25 = 0,6.</li>
+            <li data-i18n="task7Step3">Ergebnis: 60 %.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task7Hint">Die Gesamtzahl der Schüler (25) ist der Nenner, nicht irgendeine andere Zahl.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">8</span><span data-i18n="taskWord">Aufgabe</span> 8</h2>
+      <div class="task-question" data-i18n="task8Question">Ein Glücksrad hat 8 gleich große Felder, davon sind 2 grün. Wie groß ist die Wahrscheinlichkeit, grün zu drehen (in %)?</div>
+      <div class="answer-row">
+        <input type="text" id="input8" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(8, 25)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback8"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task8Result">Ergebnis: 25 %</div>
+          <ol>
+            <li data-i18n="task8Step1">Formel: P = 2 : 8.</li>
+            <li data-i18n="task8Step2">Rechnen: 2 : 8 = 0,25.</li>
+            <li data-i18n="task8Step3">Ergebnis: 25 %.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task8Hint">Alle 8 Felder sind gleich groß, deshalb ist die Gesamtzahl der Felder der Nenner.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <footer>
+    <svg class="footer-wave" viewBox="0 0 280 16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+      <path d="M -5 8 C 40 1, 80 15, 140 8 S 240 1, 285 8" fill="none" stroke="#C41230" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M -5 8 C 40 15, 80 1, 140 8 S 240 15, 285 8" fill="none" stroke="#2478B5" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+    </svg>
+    <p id="footer-msg" data-i18n="footerMessage">Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!</p>
+  </footer>
+
+</div>
+
+<script>
+const TRANSLATIONS = {
+de: {
+  eyebrow: `Luisen-Gymnasium · Klasse 9`, titleLine1: `Wahrscheinlich-`, titleAccent: `keitsrechnung`, backLink: `← Alle Themen`, h2Basics: `Grundlagen`,
+  basicsP1: `Die Wahrscheinlichkeit eines Ereignisses E berechnet sich (wenn alle Ergebnisse gleich wahrscheinlich sind) mit P(E) = günstige Ergebnisse : mögliche Ergebnisse. P liegt immer zwischen 0 (unmöglich) und 1 (sicher), oft angegeben als Prozentzahl zwischen 0 % und 100 %.`,
+  probAria: `Wahrscheinlichkeitsskala von 0 (unmöglich) bis 1 (sicher)`,
+  probImpossible: `0 = unmöglich`, probCertain: `1 = sicher`,
+  basicsExample1Label: `<strong>Beispiel Schritt für Schritt:</strong> Wie groß ist die Wahrscheinlichkeit, mit einem Würfel eine Zahl größer als 3 zu würfeln?`,
+  basicsExample1Steps: `1. Günstige Ergebnisse zählen: 4, 5, 6 → 3 Ergebnisse<br>2. Mögliche Ergebnisse: 6<br>3. Formel: P = 3 : 6 = 0,5<br>4. Ergebnis: 50 %`,
+  basicsP2Independent: `<strong>Bei unabhängigen Ereignissen</strong> (z.B. zwei Würfe nacheinander) multipliziert man die Einzelwahrscheinlichkeiten. Die Gegenwahrscheinlichkeit ist P(nicht E) = 1 − P(E), also 100 % − P(E).`,
+  basicsExample2Label: `<strong>Beispiel Schritt für Schritt:</strong> Eine Münze wird zweimal geworfen. Wie groß ist die Wahrscheinlichkeit für zweimal Kopf?`,
+  basicsExample2Steps: `1. P(Kopf) bei einem Wurf: 0,5<br>2. Bei zwei unabhängigen Würfen multiplizieren: 0,5 · 0,5<br>3. Rechnen: 0,5 · 0,5 = 0,25<br>4. Ergebnis: 25 %`,
+  merkeTitle: `Merke`, merkeBody: `P(E) = günstige Ergebnisse : mögliche Ergebnisse.<br>Gegenwahrscheinlichkeit: P(nicht E) = 100 % − P(E).<br>Bei unabhängigen Ereignissen nacheinander: Wahrscheinlichkeiten multiplizieren.`,
+  taskWord: `Aufgabe`,
+  task1Question: `Ein Würfel wird geworfen. Wie viele der 6 möglichen Ergebnisse sind größer als 4 (also 5 oder 6)?`, task2Question: `Wie groß ist die Wahrscheinlichkeit, mit einem Würfel eine Zahl größer als 3 zu würfeln (in %)?`, task3Question: `In einer Urne sind 4 rote und 6 blaue Kugeln. Wie groß ist die Wahrscheinlichkeit, eine rote Kugel zu ziehen (in %)?`, task4Question: `Gleiche Urne (4 rote, 6 blaue Kugeln). Wie groß ist die Gegenwahrscheinlichkeit (keine rote Kugel zu ziehen), in %?`, task5Question: `Eine Münze wird zweimal geworfen. Wie groß ist die Wahrscheinlichkeit für zweimal Kopf (in %)?`, task6Question: `Zwei Würfel werden geworfen. Wie viele der 36 möglichen Ergebnisse zeigen bei beiden Würfeln eine 6?`,
+  task7Question: `In einer Klasse mit 25 Schülern haben 15 blaue Augen. Wie groß ist die Wahrscheinlichkeit, dass ein zufällig ausgewählter Schüler blaue Augen hat (in %)?`,
+  task8Question: `Ein Glücksrad hat 8 gleich große Felder, davon sind 2 grün. Wie groß ist die Wahrscheinlichkeit, grün zu drehen (in %)?`,
+  answerPlaceholder: `Deine Antwort`, checkButton: `Prüfen`, solutionSummary: `Lösung anzeigen`,
+  task1Result: `Ergebnis: 2`, task2Result: `Ergebnis: 50 %`, task3Result: `Ergebnis: 40 %`, task4Result: `Ergebnis: 60 %`, task5Result: `Ergebnis: 25 %`, task6Result: `Ergebnis: 1`, task7Result: `Ergebnis: 60 %`, task8Result: `Ergebnis: 25 %`,
+  task1Step1: `Zahlen größer als 4: 5 und 6.`, task1Step2: `Das sind 2 Ergebnisse.`, task1Step3: `Ergebnis: 2 günstige Ergebnisse.`,
+  task1Hint: `"Größer als 4" schließt die 4 selbst nicht mit ein.`,
+  task2Step1: `Günstige Ergebnisse: 4, 5, 6 → 3 Ergebnisse.`, task2Step2: `Formel: P = 3 : 6 = 0,5.`, task2Step3: `Ergebnis: 50 %.`,
+  task2Hint: `Nicht vergessen, das Ergebnis am Ende mit 100 zu multiplizieren, um Prozent zu erhalten.`,
+  task3Step1: `Insgesamt sind es 4 + 6 = 10 Kugeln.`, task3Step2: `Formel: P = 4 : 10 = 0,4.`, task3Step3: `Ergebnis: 40 %.`,
+  task3Hint: `Als Nenner immer die Gesamtzahl aller Kugeln verwenden, nicht nur die blauen.`,
+  task4Step1: `P(rot) = 40 % (aus Aufgabe 3).`, task4Step2: `Formel: P(nicht rot) = 100 % − P(rot).`, task4Step3: `Ergebnis: 100 % − 40 % = 60 %.`,
+  task4Hint: `Die Gegenwahrscheinlichkeit lässt sich einfach aus 100 % minus der bekannten Wahrscheinlichkeit berechnen, ohne neu zu zählen.`,
+  task5Step1: `P(Kopf) bei einem Wurf: 0,5.`, task5Step2: `Beide Würfe sind unabhängig, also multiplizieren: 0,5 · 0,5.`, task5Step3: `Rechnen: 0,5 · 0,5 = 0,25, also 25 %.`,
+  task5Hint: `Bei "nacheinander und unabhängig" werden die Wahrscheinlichkeiten multipliziert, nicht addiert.`,
+  task6Step1: `Es gibt nur eine Kombination, bei der beide Würfel eine 6 zeigen: (6, 6).`, task6Step2: `Das entspricht 1 von 36 möglichen Ergebnissen.`, task6Step3: `Ergebnis: 1 günstiges Ergebnis.`,
+  task6Hint: `Bei zwei Würfeln gibt es insgesamt 6 · 6 = 36 mögliche Ergebnisse, nicht nur 6.`,
+  task7Step1: `Formel: P = 15 : 25.`, task7Step2: `Rechnen: 15 : 25 = 0,6.`, task7Step3: `Ergebnis: 60 %.`,
+  task7Hint: `Die Gesamtzahl der Schüler (25) ist der Nenner, nicht irgendeine andere Zahl.`,
+  task8Step1: `Formel: P = 2 : 8.`, task8Step2: `Rechnen: 2 : 8 = 0,25.`, task8Step3: `Ergebnis: 25 %.`,
+  task8Hint: `Alle 8 Felder sind gleich groß, deshalb ist die Gesamtzahl der Felder der Nenner.`,
+  hintLabel: `Typischer Fehler:`, footerMessage: `Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!`,
+  fbEmpty: `Trag bitte eine Zahl ein, bevor du prüfst.`, fbCorrect: `Richtig! Gut gemacht!`, fbIncorrect: `Noch nicht ganz richtig. Schau dir die Lösung weiter unten an und versuch es dann nochmal.`
+},
+en: {
+  eyebrow: `Luisen-Gymnasium · Grade 9`, titleLine1: `Probability`, titleAccent: `Theory`, backLink: `← All Topics`, h2Basics: `Basics`,
+  basicsP1: `The probability of an event E is calculated (when all outcomes are equally likely) as P(E) = favorable outcomes : possible outcomes. P is always between 0 (impossible) and 1 (certain), often given as a percentage between 0% and 100%.`,
+  probAria: `Probability scale from 0 (impossible) to 1 (certain)`,
+  probImpossible: `0 = impossible`, probCertain: `1 = certain`,
+  basicsExample1Label: `<strong>Step-by-step example:</strong> What's the probability of rolling a number greater than 3 with a die?`,
+  basicsExample1Steps: `1. Count favorable outcomes: 4, 5, 6 → 3 outcomes<br>2. Possible outcomes: 6<br>3. Formula: P = 3 : 6 = 0.5<br>4. Result: 50%`,
+  basicsP2Independent: `<strong>For independent events</strong> (e.g. two rolls in a row), you multiply the individual probabilities. The complementary probability is P(not E) = 1 − P(E), i.e. 100% − P(E).`,
+  basicsExample2Label: `<strong>Step-by-step example:</strong> A coin is flipped twice. What's the probability of getting heads both times?`,
+  basicsExample2Steps: `1. P(heads) for one flip: 0.5<br>2. Multiply for two independent flips: 0.5 · 0.5<br>3. Calculate: 0.5 · 0.5 = 0.25<br>4. Result: 25%`,
+  merkeTitle: `Remember`, merkeBody: `P(E) = favorable outcomes : possible outcomes.<br>Complementary probability: P(not E) = 100% − P(E).<br>For independent events in a row: multiply the probabilities.`,
+  taskWord: `Exercise`,
+  task1Question: `A die is rolled. How many of the 6 possible outcomes are greater than 4 (i.e. 5 or 6)?`, task2Question: `What's the probability of rolling a number greater than 3 with a die (in %)?`, task3Question: `An urn contains 4 red and 6 blue balls. What's the probability of drawing a red ball (in %)?`, task4Question: `Same urn (4 red, 6 blue balls). What's the complementary probability (not drawing a red ball), in %?`, task5Question: `A coin is flipped twice. What's the probability of getting heads both times (in %)?`, task6Question: `Two dice are rolled. How many of the 36 possible outcomes show a 6 on both dice?`,
+  task7Question: `In a class of 25 students, 15 have blue eyes. What's the probability that a randomly chosen student has blue eyes (in %)?`,
+  task8Question: `A spinner has 8 equal-sized sections, 2 of which are green. What's the probability of landing on green (in %)?`,
+  answerPlaceholder: `Your answer`, checkButton: `Check`, solutionSummary: `Show solution`,
+  task1Result: `Result: 2`, task2Result: `Result: 50%`, task3Result: `Result: 40%`, task4Result: `Result: 60%`, task5Result: `Result: 25%`, task6Result: `Result: 1`, task7Result: `Result: 60%`, task8Result: `Result: 25%`,
+  task1Step1: `Numbers greater than 4: 5 and 6.`, task1Step2: `That's 2 outcomes.`, task1Step3: `Result: 2 favorable outcomes.`,
+  task1Hint: `"Greater than 4" doesn't include 4 itself.`,
+  task2Step1: `Favorable outcomes: 4, 5, 6 → 3 outcomes.`, task2Step2: `Formula: P = 3 : 6 = 0.5.`, task2Step3: `Result: 50%.`,
+  task2Hint: `Don't forget to multiply the result by 100 at the end to get a percentage.`,
+  task3Step1: `There are 4 + 6 = 10 balls in total.`, task3Step2: `Formula: P = 4 : 10 = 0.4.`, task3Step3: `Result: 40%.`,
+  task3Hint: `Always use the total number of balls as the denominator, not just the blue ones.`,
+  task4Step1: `P(red) = 40% (from exercise 3).`, task4Step2: `Formula: P(not red) = 100% − P(red).`, task4Step3: `Result: 100% − 40% = 60%.`,
+  task4Hint: `The complementary probability can simply be calculated as 100% minus the known probability, without recounting.`,
+  task5Step1: `P(heads) for one flip: 0.5.`, task5Step2: `Both flips are independent, so multiply: 0.5 · 0.5.`, task5Step3: `Calculate: 0.5 · 0.5 = 0.25, i.e. 25%.`,
+  task5Hint: `For "in a row and independent", the probabilities are multiplied, not added.`,
+  task6Step1: `There's only one combination where both dice show a 6: (6, 6).`, task6Step2: `That corresponds to 1 out of 36 possible outcomes.`, task6Step3: `Result: 1 favorable outcome.`,
+  task6Hint: `With two dice, there are 6 · 6 = 36 possible outcomes in total, not just 6.`,
+  task7Step1: `Formula: P = 15 : 25.`, task7Step2: `Calculate: 15 : 25 = 0.6.`, task7Step3: `Result: 60%.`,
+  task7Hint: `The total number of students (25) is the denominator, not any other number.`,
+  task8Step1: `Formula: P = 2 : 8.`, task8Step2: `Calculate: 2 : 8 = 0.25.`, task8Step3: `Result: 25%.`,
+  task8Hint: `All 8 sections are the same size, so the total number of sections is the denominator.`,
+  hintLabel: `Common mistake:`, footerMessage: `Take your time and check the solution if you need to. You can do this!`,
+  fbEmpty: `Please enter a number before checking.`, fbCorrect: `Correct! Well done!`, fbIncorrect: `Not quite right yet. Check the solution below and try again.`
+},
+es: {
+  eyebrow: `Luisen-Gymnasium · 9.º curso`, titleLine1: `Cálculo de`, titleAccent: `probabilidades`, backLink: `← Todos los temas`, h2Basics: `Fundamentos`,
+  basicsP1: `La probabilidad de un suceso E se calcula (cuando todos los resultados son igualmente probables) como P(E) = resultados favorables : resultados posibles. P siempre está entre 0 (imposible) y 1 (seguro), a menudo expresada como porcentaje entre 0 % y 100 %.`,
+  probAria: `Escala de probabilidad de 0 (imposible) a 1 (seguro)`,
+  probImpossible: `0 = imposible`, probCertain: `1 = seguro`,
+  basicsExample1Label: `<strong>Ejemplo paso a paso:</strong> ¿Cuál es la probabilidad de sacar un número mayor que 3 con un dado?`,
+  basicsExample1Steps: `1. Cuenta los resultados favorables: 4, 5, 6 → 3 resultados<br>2. Resultados posibles: 6<br>3. Fórmula: P = 3 : 6 = 0,5<br>4. Resultado: 50 %`,
+  basicsP2Independent: `<strong>En sucesos independientes</strong> (por ejemplo, dos lanzamientos seguidos) se multiplican las probabilidades individuales. La probabilidad contraria es P(no E) = 1 − P(E), es decir, 100 % − P(E).`,
+  basicsExample2Label: `<strong>Ejemplo paso a paso:</strong> Se lanza una moneda dos veces. ¿Cuál es la probabilidad de obtener cara las dos veces?`,
+  basicsExample2Steps: `1. P(cara) en un lanzamiento: 0,5<br>2. Multiplica para dos lanzamientos independientes: 0,5 · 0,5<br>3. Calcula: 0,5 · 0,5 = 0,25<br>4. Resultado: 25 %`,
+  merkeTitle: `Recuerda`, merkeBody: `P(E) = resultados favorables : resultados posibles.<br>Probabilidad contraria: P(no E) = 100 % − P(E).<br>En sucesos independientes seguidos: multiplica las probabilidades.`,
+  taskWord: `Ejercicio`,
+  task1Question: `Se lanza un dado. ¿Cuántos de los 6 resultados posibles son mayores que 4 (es decir, 5 o 6)?`, task2Question: `¿Cuál es la probabilidad de sacar un número mayor que 3 con un dado (en %)?`, task3Question: `En una urna hay 4 bolas rojas y 6 azules. ¿Cuál es la probabilidad de sacar una bola roja (en %)?`, task4Question: `Misma urna (4 rojas, 6 azules). ¿Cuál es la probabilidad contraria (no sacar una bola roja), en %?`, task5Question: `Se lanza una moneda dos veces. ¿Cuál es la probabilidad de obtener cara las dos veces (en %)?`, task6Question: `Se lanzan dos dados. ¿Cuántos de los 36 resultados posibles muestran un 6 en ambos dados?`,
+  task7Question: `En una clase de 25 alumnos, 15 tienen ojos azules. ¿Cuál es la probabilidad de que un alumno elegido al azar tenga ojos azules (en %)?`,
+  task8Question: `Una ruleta tiene 8 secciones del mismo tamaño, 2 de las cuales son verdes. ¿Cuál es la probabilidad de caer en verde (en %)?`,
+  answerPlaceholder: `Tu respuesta`, checkButton: `Comprobar`, solutionSummary: `Ver solución`,
+  task1Result: `Resultado: 2`, task2Result: `Resultado: 50 %`, task3Result: `Resultado: 40 %`, task4Result: `Resultado: 60 %`, task5Result: `Resultado: 25 %`, task6Result: `Resultado: 1`, task7Result: `Resultado: 60 %`, task8Result: `Resultado: 25 %`,
+  task1Step1: `Números mayores que 4: 5 y 6.`, task1Step2: `Son 2 resultados.`, task1Step3: `Resultado: 2 resultados favorables.`,
+  task1Hint: `"Mayor que 4" no incluye el propio 4.`,
+  task2Step1: `Resultados favorables: 4, 5, 6 → 3 resultados.`, task2Step2: `Fórmula: P = 3 : 6 = 0,5.`, task2Step3: `Resultado: 50 %.`,
+  task2Hint: `No olvides multiplicar el resultado por 100 al final para obtener el porcentaje.`,
+  task3Step1: `En total hay 4 + 6 = 10 bolas.`, task3Step2: `Fórmula: P = 4 : 10 = 0,4.`, task3Step3: `Resultado: 40 %.`,
+  task3Hint: `Usa siempre el número total de bolas como denominador, no solo las azules.`,
+  task4Step1: `P(roja) = 40 % (del ejercicio 3).`, task4Step2: `Fórmula: P(no roja) = 100 % − P(roja).`, task4Step3: `Resultado: 100 % − 40 % = 60 %.`,
+  task4Hint: `La probabilidad contraria se calcula simplemente como 100 % menos la probabilidad conocida, sin volver a contar.`,
+  task5Step1: `P(cara) en un lanzamiento: 0,5.`, task5Step2: `Ambos lanzamientos son independientes, así que multiplica: 0,5 · 0,5.`, task5Step3: `Calcula: 0,5 · 0,5 = 0,25, es decir, 25 %.`,
+  task5Hint: `Cuando son "seguidos e independientes", las probabilidades se multiplican, no se suman.`,
+  task6Step1: `Solo hay una combinación en la que ambos dados muestran un 6: (6, 6).`, task6Step2: `Eso corresponde a 1 de 36 resultados posibles.`, task6Step3: `Resultado: 1 resultado favorable.`,
+  task6Hint: `Con dos dados hay 6 · 6 = 36 resultados posibles en total, no solo 6.`,
+  task7Step1: `Fórmula: P = 15 : 25.`, task7Step2: `Calcula: 15 : 25 = 0,6.`, task7Step3: `Resultado: 60 %.`,
+  task7Hint: `El número total de alumnos (25) es el denominador, no otro número.`,
+  task8Step1: `Fórmula: P = 2 : 8.`, task8Step2: `Calcula: 2 : 8 = 0,25.`, task8Step3: `Resultado: 25 %.`,
+  task8Hint: `Las 8 secciones tienen el mismo tamaño, por eso el número total de secciones es el denominador.`,
+  hintLabel: `Error típico:`, footerMessage: `Tómate tu tiempo y revisa la solución si la necesitas. ¡Tú puedes!`,
+  fbEmpty: `Introduce un número antes de comprobar.`, fbCorrect: `¡Correcto! ¡Muy bien!`, fbIncorrect: `Todavía no es correcto. Revisa la solución de abajo e inténtalo de nuevo.`
+},
+fr: {
+  eyebrow: `Luisen-Gymnasium · 3e`, titleLine1: `Calcul des`, titleAccent: `probabilités`, backLink: `← Tous les thèmes`, h2Basics: `Les bases`,
+  basicsP1: `La probabilité d'un événement E se calcule (quand tous les résultats sont équiprobables) par P(E) = résultats favorables : résultats possibles. P est toujours compris entre 0 (impossible) et 1 (certain), souvent exprimé en pourcentage entre 0 % et 100 %.`,
+  probAria: `Échelle de probabilité de 0 (impossible) à 1 (certain)`,
+  probImpossible: `0 = impossible`, probCertain: `1 = certain`,
+  basicsExample1Label: `<strong>Exemple étape par étape :</strong> Quelle est la probabilité d'obtenir un nombre supérieur à 3 avec un dé ?`,
+  basicsExample1Steps: `1. Compte les résultats favorables : 4, 5, 6 → 3 résultats<br>2. Résultats possibles : 6<br>3. Formule : P = 3 : 6 = 0,5<br>4. Résultat : 50 %`,
+  basicsP2Independent: `<strong>Pour des événements indépendants</strong> (par exemple deux lancers successifs), on multiplie les probabilités individuelles. La probabilité contraire est P(non E) = 1 − P(E), soit 100 % − P(E).`,
+  basicsExample2Label: `<strong>Exemple étape par étape :</strong> On lance une pièce deux fois. Quelle est la probabilité d'obtenir face les deux fois ?`,
+  basicsExample2Steps: `1. P(face) pour un lancer : 0,5<br>2. Multiplie pour deux lancers indépendants : 0,5 · 0,5<br>3. Calcule : 0,5 · 0,5 = 0,25<br>4. Résultat : 25 %`,
+  merkeTitle: `À retenir`, merkeBody: `P(E) = résultats favorables : résultats possibles.<br>Probabilité contraire : P(non E) = 100 % − P(E).<br>Pour des événements indépendants successifs : multiplie les probabilités.`,
+  taskWord: `Exercice`,
+  task1Question: `On lance un dé. Combien des 6 résultats possibles sont supérieurs à 4 (soit 5 ou 6) ?`, task2Question: `Quelle est la probabilité d'obtenir un nombre supérieur à 3 avec un dé (en %) ?`, task3Question: `Une urne contient 4 boules rouges et 6 bleues. Quelle est la probabilité de tirer une boule rouge (en %) ?`, task4Question: `Même urne (4 rouges, 6 bleues). Quelle est la probabilité contraire (ne pas tirer de boule rouge), en % ?`, task5Question: `On lance une pièce deux fois. Quelle est la probabilité d'obtenir face les deux fois (en %) ?`, task6Question: `On lance deux dés. Combien des 36 résultats possibles montrent un 6 sur les deux dés ?`,
+  task7Question: `Dans une classe de 25 élèves, 15 ont les yeux bleus. Quelle est la probabilité qu'un élève choisi au hasard ait les yeux bleus (en %) ?`,
+  task8Question: `Une roue de la fortune a 8 sections de même taille, dont 2 sont vertes. Quelle est la probabilité de tomber sur le vert (en %) ?`,
+  answerPlaceholder: `Ta réponse`, checkButton: `Vérifier`, solutionSummary: `Voir la solution`,
+  task1Result: `Résultat : 2`, task2Result: `Résultat : 50 %`, task3Result: `Résultat : 40 %`, task4Result: `Résultat : 60 %`, task5Result: `Résultat : 25 %`, task6Result: `Résultat : 1`, task7Result: `Résultat : 60 %`, task8Result: `Résultat : 25 %`,
+  task1Step1: `Nombres supérieurs à 4 : 5 et 6.`, task1Step2: `Cela fait 2 résultats.`, task1Step3: `Résultat : 2 résultats favorables.`,
+  task1Hint: `« Supérieur à 4 » n'inclut pas le 4 lui-même.`,
+  task2Step1: `Résultats favorables : 4, 5, 6 → 3 résultats.`, task2Step2: `Formule : P = 3 : 6 = 0,5.`, task2Step3: `Résultat : 50 %.`,
+  task2Hint: `N'oublie pas de multiplier le résultat par 100 à la fin pour obtenir un pourcentage.`,
+  task3Step1: `Il y a au total 4 + 6 = 10 boules.`, task3Step2: `Formule : P = 4 : 10 = 0,4.`, task3Step3: `Résultat : 40 %.`,
+  task3Hint: `Utilise toujours le nombre total de boules comme dénominateur, pas seulement les bleues.`,
+  task4Step1: `P(rouge) = 40 % (de l'exercice 3).`, task4Step2: `Formule : P(pas rouge) = 100 % − P(rouge).`, task4Step3: `Résultat : 100 % − 40 % = 60 %.`,
+  task4Hint: `La probabilité contraire se calcule simplement en faisant 100 % moins la probabilité connue, sans recompter.`,
+  task5Step1: `P(face) pour un lancer : 0,5.`, task5Step2: `Les deux lancers sont indépendants, donc multiplie : 0,5 · 0,5.`, task5Step3: `Calcule : 0,5 · 0,5 = 0,25, soit 25 %.`,
+  task5Hint: `Pour des événements « successifs et indépendants », les probabilités se multiplient, elles ne s'additionnent pas.`,
+  task6Step1: `Il n'y a qu'une seule combinaison où les deux dés montrent un 6 : (6, 6).`, task6Step2: `Cela correspond à 1 résultat sur 36 possibles.`, task6Step3: `Résultat : 1 résultat favorable.`,
+  task6Hint: `Avec deux dés, il y a 6 · 6 = 36 résultats possibles au total, pas seulement 6.`,
+  task7Step1: `Formule : P = 15 : 25.`, task7Step2: `Calcule : 15 : 25 = 0,6.`, task7Step3: `Résultat : 60 %.`,
+  task7Hint: `Le nombre total d'élèves (25) est le dénominateur, pas un autre nombre.`,
+  task8Step1: `Formule : P = 2 : 8.`, task8Step2: `Calcule : 2 : 8 = 0,25.`, task8Step3: `Résultat : 25 %.`,
+  task8Hint: `Les 8 sections ont la même taille, donc le nombre total de sections est le dénominateur.`,
+  hintLabel: `Erreur fréquente :`, footerMessage: `Prends ton temps et regarde la solution si besoin. Tu vas y arriver !`,
+  fbEmpty: `Merci d'indiquer un nombre avant de vérifier.`, fbCorrect: `Correct ! Bien joué !`, fbIncorrect: `Pas encore tout à fait juste. Regarde la solution ci-dessous et réessaie.`
+},
+tr: {
+  eyebrow: `Luisen-Gymnasium · 9. Sınıf`, titleLine1: `Olasılık`, titleAccent: `Hesabı`, backLink: `← Tüm Konular`, h2Basics: `Temel Bilgiler`,
+  basicsP1: `Bir E olayının olasılığı (tüm sonuçlar eşit olasılıklıysa) P(E) = uygun sonuçlar : mümkün sonuçlar ile hesaplanır. P her zaman 0 (imkansız) ile 1 (kesin) arasındadır, genellikle %0 ile %100 arasında yüzde olarak verilir.`,
+  probAria: `0'dan (imkansız) 1'e (kesin) olasılık ölçeği`,
+  probImpossible: `0 = imkansız`, probCertain: `1 = kesin`,
+  basicsExample1Label: `<strong>Adım adım örnek:</strong> Bir zar ile 3'ten büyük bir sayı gelme olasılığı nedir?`,
+  basicsExample1Steps: `1. Uygun sonuçları say: 4, 5, 6 → 3 sonuç<br>2. Mümkün sonuçlar: 6<br>3. Formül: P = 3 : 6 = 0,5<br>4. Sonuç: %50`,
+  basicsP2Independent: `<strong>Bağımsız olaylarda</strong> (örn. art arda iki atış) tek tek olasılıklar çarpılır. Tümleyen olasılık P(E değil) = 1 − P(E), yani %100 − P(E)'dir.`,
+  basicsExample2Label: `<strong>Adım adım örnek:</strong> Bir madeni para iki kez atılıyor. İki kez de yazı gelme olasılığı nedir?`,
+  basicsExample2Steps: `1. Bir atışta P(yazı): 0,5<br>2. İki bağımsız atış için çarp: 0,5 · 0,5<br>3. Hesapla: 0,5 · 0,5 = 0,25<br>4. Sonuç: %25`,
+  merkeTitle: `Unutma`, merkeBody: `P(E) = uygun sonuçlar : mümkün sonuçlar.<br>Tümleyen olasılık: P(E değil) = %100 − P(E).<br>Art arda bağımsız olaylarda: olasılıkları çarp.`,
+  taskWord: `Alıştırma`,
+  task1Question: `Bir zar atılıyor. 6 mümkün sonuçtan kaç tanesi 4'ten büyüktür (yani 5 veya 6)?`, task2Question: `Bir zar ile 3'ten büyük bir sayı gelme olasılığı nedir (%)?`, task3Question: `Bir kavanozda 4 kırmızı ve 6 mavi bilye vardır. Kırmızı bilye çekme olasılığı nedir (%)?`, task4Question: `Aynı kavanoz (4 kırmızı, 6 mavi bilye). Tümleyen olasılık (kırmızı bilye çekmeme) kaçtır (%)?`, task5Question: `Bir madeni para iki kez atılıyor. İki kez de yazı gelme olasılığı nedir (%)?`, task6Question: `İki zar atılıyor. 36 mümkün sonuçtan kaç tanesi her iki zarda da 6 gösterir?`,
+  task7Question: `25 öğrencili bir sınıfta 15 öğrencinin gözü mavidir. Rastgele seçilen bir öğrencinin gözünün mavi olma olasılığı nedir (%)?`,
+  task8Question: `Bir çarkta 8 eşit büyüklükte bölüm vardır, bunlardan 2'si yeşildir. Yeşile denk gelme olasılığı nedir (%)?`,
+  answerPlaceholder: `Cevabın`, checkButton: `Kontrol et`, solutionSummary: `Çözümü göster`,
+  task1Result: `Sonuç: 2`, task2Result: `Sonuç: %50`, task3Result: `Sonuç: %40`, task4Result: `Sonuç: %60`, task5Result: `Sonuç: %25`, task6Result: `Sonuç: 1`, task7Result: `Sonuç: %60`, task8Result: `Sonuç: %25`,
+  task1Step1: `4'ten büyük sayılar: 5 ve 6.`, task1Step2: `Bu 2 sonuçtur.`, task1Step3: `Sonuç: 2 uygun sonuç.`,
+  task1Hint: `"4'ten büyük" 4'ün kendisini içermez.`,
+  task2Step1: `Uygun sonuçlar: 4, 5, 6 → 3 sonuç.`, task2Step2: `Formül: P = 3 : 6 = 0,5.`, task2Step3: `Sonuç: %50.`,
+  task2Hint: `Sonunda yüzde elde etmek için sonucu 100 ile çarpmayı unutma.`,
+  task3Step1: `Toplamda 4 + 6 = 10 bilye vardır.`, task3Step2: `Formül: P = 4 : 10 = 0,4.`, task3Step3: `Sonuç: %40.`,
+  task3Hint: `Payda olarak her zaman tüm bilyelerin toplam sayısını kullan, sadece mavileri değil.`,
+  task4Step1: `P(kırmızı) = %40 (3. alıştırmadan).`, task4Step2: `Formül: P(kırmızı değil) = %100 − P(kırmızı).`, task4Step3: `Sonuç: %100 − %40 = %60.`,
+  task4Hint: `Tümleyen olasılık, yeniden saymadan basitçe %100'den bilinen olasılığı çıkararak hesaplanabilir.`,
+  task5Step1: `Bir atışta P(yazı): 0,5.`, task5Step2: `Her iki atış da bağımsızdır, yani çarp: 0,5 · 0,5.`, task5Step3: `Hesapla: 0,5 · 0,5 = 0,25, yani %25.`,
+  task5Hint: `"Art arda ve bağımsız" durumunda olasılıklar toplanmaz, çarpılır.`,
+  task6Step1: `Her iki zarın da 6 gösterdiği sadece bir kombinasyon vardır: (6, 6).`, task6Step2: `Bu, 36 mümkün sonuçtan 1'ine karşılık gelir.`, task6Step3: `Sonuç: 1 uygun sonuç.`,
+  task6Hint: `İki zarda toplamda sadece 6 değil, 6 · 6 = 36 mümkün sonuç vardır.`,
+  task7Step1: `Formül: P = 15 : 25.`, task7Step2: `Hesapla: 15 : 25 = 0,6.`, task7Step3: `Sonuç: %60.`,
+  task7Hint: `Toplam öğrenci sayısı (25) paydadır, başka bir sayı değil.`,
+  task8Step1: `Formül: P = 2 : 8.`, task8Step2: `Hesapla: 2 : 8 = 0,25.`, task8Step3: `Sonuç: %25.`,
+  task8Hint: `Tüm 8 bölüm aynı büyüklüktedir, bu yüzden toplam bölüm sayısı paydadır.`,
+  hintLabel: `Sık yapılan hata:`, footerMessage: `Sakin sakin hesapla, gerekirse çözüme bak. Bunu başarabilirsin!`,
+  fbEmpty: `Kontrol etmeden önce lütfen bir sayı gir.`, fbCorrect: `Doğru! Aferin!`, fbIncorrect: `Henüz tam doğru değil. Aşağıdaki çözüme bak ve tekrar dene.`
+},
+ru: {
+  eyebrow: `Luisen-Gymnasium · 9 класс`, titleLine1: `Теория`, titleAccent: `вероятностей`, backLink: `← Все темы`, h2Basics: `Основы`,
+  basicsP1: `Вероятность события E вычисляется (если все исходы равновероятны) по формуле P(E) = благоприятные исходы : возможные исходы. P всегда находится между 0 (невозможно) и 1 (достоверно), часто выражается в процентах от 0 % до 100 %.`,
+  probAria: `Шкала вероятности от 0 (невозможно) до 1 (достоверно)`,
+  probImpossible: `0 = невозможно`, probCertain: `1 = достоверно`,
+  basicsExample1Label: `<strong>Пример по шагам:</strong> Какова вероятность выбросить на кубике число больше 3?`,
+  basicsExample1Steps: `1. Посчитай благоприятные исходы: 4, 5, 6 → 3 исхода<br>2. Возможные исходы: 6<br>3. Формула: P = 3 : 6 = 0,5<br>4. Результат: 50 %`,
+  basicsP2Independent: `<strong>Для независимых событий</strong> (например, два броска подряд) перемножают отдельные вероятности. Противоположная вероятность: P(не E) = 1 − P(E), то есть 100 % − P(E).`,
+  basicsExample2Label: `<strong>Пример по шагам:</strong> Монету подбрасывают дважды. Какова вероятность выпадения орла оба раза?`,
+  basicsExample2Steps: `1. P(орёл) при одном броске: 0,5<br>2. Для двух независимых бросков перемножь: 0,5 · 0,5<br>3. Вычисли: 0,5 · 0,5 = 0,25<br>4. Результат: 25 %`,
+  merkeTitle: `Запомни`, merkeBody: `P(E) = благоприятные исходы : возможные исходы.<br>Противоположная вероятность: P(не E) = 100 % − P(E).<br>Для независимых событий подряд: перемножай вероятности.`,
+  taskWord: `Задание`,
+  task1Question: `Бросают кубик. Сколько из 6 возможных исходов больше 4 (то есть 5 или 6)?`, task2Question: `Какова вероятность выбросить на кубике число больше 3 (в %)?`, task3Question: `В урне 4 красных и 6 синих шаров. Какова вероятность вытащить красный шар (в %)?`, task4Question: `Та же урна (4 красных, 6 синих шаров). Какова противоположная вероятность (не вытащить красный шар), в %?`, task5Question: `Монету подбрасывают дважды. Какова вероятность выпадения орла оба раза (в %)?`, task6Question: `Бросают два кубика. Сколько из 36 возможных исходов показывают 6 на обоих кубиках?`,
+  task7Question: `В классе из 25 учеников у 15 голубые глаза. Какова вероятность того, что случайно выбранный ученик имеет голубые глаза (в %)?`,
+  task8Question: `Колесо фортуны имеет 8 одинаковых секторов, из которых 2 зелёные. Какова вероятность попасть на зелёный (в %)?`,
+  answerPlaceholder: `Твой ответ`, checkButton: `Проверить`, solutionSummary: `Показать решение`,
+  task1Result: `Результат: 2`, task2Result: `Результат: 50 %`, task3Result: `Результат: 40 %`, task4Result: `Результат: 60 %`, task5Result: `Результат: 25 %`, task6Result: `Результат: 1`, task7Result: `Результат: 60 %`, task8Result: `Результат: 25 %`,
+  task1Step1: `Числа больше 4: 5 и 6.`, task1Step2: `Это 2 исхода.`, task1Step3: `Результат: 2 благоприятных исхода.`,
+  task1Hint: `«Больше 4» не включает саму 4.`,
+  task2Step1: `Благоприятные исходы: 4, 5, 6 → 3 исхода.`, task2Step2: `Формула: P = 3 : 6 = 0,5.`, task2Step3: `Результат: 50 %.`,
+  task2Hint: `Не забудь умножить результат на 100 в конце, чтобы получить проценты.`,
+  task3Step1: `Всего 4 + 6 = 10 шаров.`, task3Step2: `Формула: P = 4 : 10 = 0,4.`, task3Step3: `Результат: 40 %.`,
+  task3Hint: `В знаменателе всегда используй общее число шаров, а не только синих.`,
+  task4Step1: `P(красный) = 40 % (из задания 3).`, task4Step2: `Формула: P(не красный) = 100 % − P(красный).`, task4Step3: `Результат: 100 % − 40 % = 60 %.`,
+  task4Hint: `Противоположную вероятность можно просто вычислить как 100 % минус известную вероятность, не пересчитывая заново.`,
+  task5Step1: `P(орёл) при одном броске: 0,5.`, task5Step2: `Оба броска независимы, поэтому перемножь: 0,5 · 0,5.`, task5Step3: `Вычисли: 0,5 · 0,5 = 0,25, то есть 25 %.`,
+  task5Hint: `При «подряд и независимо» вероятности перемножают, а не складывают.`,
+  task6Step1: `Есть только одна комбинация, где оба кубика показывают 6: (6, 6).`, task6Step2: `Это соответствует 1 из 36 возможных исходов.`, task6Step3: `Результат: 1 благоприятный исход.`,
+  task6Hint: `С двумя кубиками всего 6 · 6 = 36 возможных исходов, а не только 6.`,
+  task7Step1: `Формула: P = 15 : 25.`, task7Step2: `Вычисли: 15 : 25 = 0,6.`, task7Step3: `Результат: 60 %.`,
+  task7Hint: `Общее число учеников (25) — это знаменатель, а не какое-то другое число.`,
+  task8Step1: `Формула: P = 2 : 8.`, task8Step2: `Вычисли: 2 : 8 = 0,25.`, task8Step3: `Результат: 25 %.`,
+  task8Hint: `Все 8 секторов одинакового размера, поэтому общее число секторов — это знаменатель.`,
+  hintLabel: `Типичная ошибка:`, footerMessage: `Считай спокойно и при необходимости смотри решение. У тебя получится!`,
+  fbEmpty: `Пожалуйста, введи число перед проверкой.`, fbCorrect: `Правильно! Отлично!`, fbIncorrect: `Пока не совсем верно. Посмотри решение ниже и попробуй ещё раз.`
+},
+ar: {
+  eyebrow: `مدرسة لويزن الثانوية · الصف التاسع`, titleLine1: `حساب`, titleAccent: `الاحتمالات`, backLink: `← جميع المواضيع`, h2Basics: `الأساسيات`,
+  basicsP1: `يُحسَب احتمال حدث E (عندما تكون جميع النتائج متساوية الاحتمال) بالمعادلة P(E) = النتائج المواتية ÷ النتائج الممكنة. تقع P دائمًا بين 0 (مستحيل) و1 (مؤكد)، وغالبًا ما تُعطى كنسبة مئوية بين 0% و100%.`,
+  probAria: `مقياس الاحتمال من 0 (مستحيل) إلى 1 (مؤكد)`,
+  probImpossible: `0 = مستحيل`, probCertain: `1 = مؤكد`,
+  basicsExample1Label: `<strong>مثال خطوة بخطوة:</strong> ما احتمال الحصول على رقم أكبر من 3 عند رمي حجر نرد؟`,
+  basicsExample1Steps: `1. عدّ النتائج المواتية: 4، 5، 6 ← 3 نتائج<br>2. النتائج الممكنة: 6<br>3. المعادلة: P = 3 ÷ 6 = 0.5<br>4. النتيجة: 50%`,
+  basicsP2Independent: `<strong>في الأحداث المستقلة</strong> (مثل رميتين متتاليتين) تُضرَب الاحتمالات الفردية معًا. الاحتمال المتمم هو P(ليس E) = 1 − P(E)، أي 100% − P(E).`,
+  basicsExample2Label: `<strong>مثال خطوة بخطوة:</strong> تُرمى قطعة نقود مرتين. ما احتمال ظهور الصورة في المرتين؟`,
+  basicsExample2Steps: `1. P(صورة) في رمية واحدة: 0.5<br>2. اضرب لرميتين مستقلتين: 0.5 · 0.5<br>3. احسب: 0.5 · 0.5 = 0.25<br>4. النتيجة: 25%`,
+  merkeTitle: `تذكّر`, merkeBody: `P(E) = النتائج المواتية ÷ النتائج الممكنة.<br>الاحتمال المتمم: P(ليس E) = 100% − P(E).<br>في الأحداث المستقلة المتتالية: اضرب الاحتمالات.`,
+  taskWord: `تمرين`,
+  task1Question: `يُرمى حجر نرد. كم من النتائج الست الممكنة أكبر من 4 (أي 5 أو 6)؟`, task2Question: `ما احتمال الحصول على رقم أكبر من 3 عند رمي حجر نرد (بالنسبة المئوية)؟`, task3Question: `يوجد في إناء 4 كرات حمراء و6 زرقاء. ما احتمال سحب كرة حمراء (بالنسبة المئوية)؟`, task4Question: `نفس الإناء (4 حمراء، 6 زرقاء). ما الاحتمال المتمم (عدم سحب كرة حمراء)، بالنسبة المئوية؟`, task5Question: `تُرمى قطعة نقود مرتين. ما احتمال ظهور الصورة في المرتين (بالنسبة المئوية)؟`, task6Question: `يُرمى حجرا نرد. كم من النتائج الـ36 الممكنة تُظهر 6 على كلا الحجرين؟`,
+  task7Question: `في فصل من 25 طالبًا، لدى 15 طالبًا عيون زرقاء. ما احتمال أن يكون لدى طالب يُختار عشوائيًا عيون زرقاء (بالنسبة المئوية)؟`,
+  task8Question: `عجلة حظ بها 8 أقسام متساوية الحجم، منها 2 أخضر. ما احتمال التوقف عند اللون الأخضر (بالنسبة المئوية)؟`,
+  answerPlaceholder: `إجابتك`, checkButton: `تحقق`, solutionSummary: `عرض الحل`,
+  task1Result: `النتيجة: 2`, task2Result: `النتيجة: 50%`, task3Result: `النتيجة: 40%`, task4Result: `النتيجة: 60%`, task5Result: `النتيجة: 25%`, task6Result: `النتيجة: 1`, task7Result: `النتيجة: 60%`, task8Result: `النتيجة: 25%`,
+  task1Step1: `الأعداد الأكبر من 4: 5 و6.`, task1Step2: `هذان نتيجتان.`, task1Step3: `النتيجة: نتيجتان مواتيتان.`,
+  task1Hint: `"أكبر من 4" لا تشمل الرقم 4 نفسه.`,
+  task2Step1: `النتائج المواتية: 4، 5، 6 ← 3 نتائج.`, task2Step2: `المعادلة: P = 3 ÷ 6 = 0.5.`, task2Step3: `النتيجة: 50%.`,
+  task2Hint: `لا تنسَ ضرب النتيجة في 100 في النهاية للحصول على النسبة المئوية.`,
+  task3Step1: `المجموع هو 4 + 6 = 10 كرات.`, task3Step2: `المعادلة: P = 4 ÷ 10 = 0.4.`, task3Step3: `النتيجة: 40%.`,
+  task3Hint: `استخدم دائمًا العدد الإجمالي لجميع الكرات كمقام، وليس الزرقاء فقط.`,
+  task4Step1: `P(أحمر) = 40% (من التمرين 3).`, task4Step2: `المعادلة: P(ليس أحمر) = 100% − P(أحمر).`, task4Step3: `النتيجة: 100% − 40% = 60%.`,
+  task4Hint: `يمكن حساب الاحتمال المتمم ببساطة بطرح الاحتمال المعروف من 100%، دون إعادة العد.`,
+  task5Step1: `P(صورة) في رمية واحدة: 0.5.`, task5Step2: `الرميتان مستقلتان، لذا اضرب: 0.5 · 0.5.`, task5Step3: `احسب: 0.5 · 0.5 = 0.25، أي 25%.`,
+  task5Hint: `في حالة "متتالٍ ومستقل"، تُضرَب الاحتمالات ولا تُجمَع.`,
+  task6Step1: `توجد تركيبة واحدة فقط يظهر فيها 6 على كلا الحجرين: (6, 6).`, task6Step2: `هذا يقابل 1 من 36 نتيجة ممكنة.`, task6Step3: `النتيجة: نتيجة مواتية واحدة.`,
+  task6Hint: `مع حجري نرد، يوجد إجمالي 6 · 6 = 36 نتيجة ممكنة، وليس 6 فقط.`,
+  task7Step1: `المعادلة: P = 15 ÷ 25.`, task7Step2: `احسب: 15 ÷ 25 = 0.6.`, task7Step3: `النتيجة: 60%.`,
+  task7Hint: `العدد الإجمالي للطلاب (25) هو المقام، وليس أي رقم آخر.`,
+  task8Step1: `المعادلة: P = 2 ÷ 8.`, task8Step2: `احسب: 2 ÷ 8 = 0.25.`, task8Step3: `النتيجة: 25%.`,
+  task8Hint: `جميع الأقسام الثمانية متساوية الحجم، لذلك يكون العدد الإجمالي للأقسام هو المقام.`,
+  hintLabel: `خطأ شائع:`, footerMessage: `احسب بهدوء وراجع الحل إذا احتجت إليه. أنت قادر على ذلك!`,
+  fbEmpty: `الرجاء إدخال رقم قبل التحقق.`, fbCorrect: `صحيح! أحسنت!`, fbIncorrect: `ليست صحيحة تمامًا بعد. راجع الحل أدناه وحاول مرة أخرى.`
+},
+zh: {
+  eyebrow: `路易森文理中学 · 九年级`, titleLine1: `概率`, titleAccent: `计算`, backLink: `← 所有主题`, h2Basics: `基础知识`,
+  basicsP1: `事件 E 的概率（当所有结果等可能时）计算方法为 P(E) = 有利结果数 ÷ 可能结果数。P 总是在 0（不可能）和 1（一定）之间，通常用 0% 到 100% 之间的百分比表示。`,
+  probAria: `从0（不可能）到1（一定）的概率刻度`,
+  probImpossible: `0 = 不可能`, probCertain: `1 = 一定`,
+  basicsExample1Label: `<strong>分步示例：</strong> 掷骰子掷出大于 3 的数字的概率是多少？`,
+  basicsExample1Steps: `1. 数出有利结果：4、5、6 → 3 个结果<br>2. 可能结果：6<br>3. 公式：P = 3 ÷ 6 = 0.5<br>4. 结果：50%`,
+  basicsP2Independent: `<strong>对于独立事件</strong>（例如连续两次投掷），要把各自的概率相乘。对立概率是 P(非E) = 1 − P(E)，即 100% − P(E)。`,
+  basicsExample2Label: `<strong>分步示例：</strong> 抛硬币两次。两次都是正面的概率是多少？`,
+  basicsExample2Steps: `1. 一次抛掷的 P(正面)：0.5<br>2. 两次独立抛掷相乘：0.5 · 0.5<br>3. 计算：0.5 · 0.5 = 0.25<br>4. 结果：25%`,
+  merkeTitle: `记住`, merkeBody: `P(E) = 有利结果数 ÷ 可能结果数。<br>对立概率：P(非E) = 100% − P(E)。<br>连续的独立事件：把概率相乘。`,
+  taskWord: `练习`,
+  task1Question: `掷一个骰子。6 种可能结果中有多少种大于 4（即 5 或 6）？`, task2Question: `掷骰子掷出大于 3 的数字的概率是多少（百分比）？`, task3Question: `一个罐子里有 4 个红球和 6 个蓝球。抽到红球的概率是多少（百分比）？`, task4Question: `同一个罐子（4 红，6 蓝）。对立概率（没抽到红球）是多少（百分比）？`, task5Question: `抛硬币两次。两次都是正面的概率是多少（百分比）？`, task6Question: `掷两个骰子。36 种可能结果中有多少种两个骰子都是 6？`,
+  task7Question: `一个班级有 25 名学生，其中 15 人是蓝眼睛。随机选一名学生是蓝眼睛的概率是多少（百分比）？`,
+  task8Question: `一个转盘有 8 个大小相同的区域，其中 2 个是绿色。转到绿色的概率是多少（百分比）？`,
+  answerPlaceholder: `你的答案`, checkButton: `检查`, solutionSummary: `显示答案`,
+  task1Result: `结果：2`, task2Result: `结果：50%`, task3Result: `结果：40%`, task4Result: `结果：60%`, task5Result: `结果：25%`, task6Result: `结果：1`, task7Result: `结果：60%`, task8Result: `结果：25%`,
+  task1Step1: `大于 4 的数字：5 和 6。`, task1Step2: `这是 2 个结果。`, task1Step3: `结果：2 个有利结果。`,
+  task1Hint: `"大于 4"不包括 4 本身。`,
+  task2Step1: `有利结果：4、5、6 → 3 个结果。`, task2Step2: `公式：P = 3 ÷ 6 = 0.5。`, task2Step3: `结果：50%。`,
+  task2Hint: `别忘了最后把结果乘以 100 得到百分比。`,
+  task3Step1: `一共有 4 + 6 = 10 个球。`, task3Step2: `公式：P = 4 ÷ 10 = 0.4。`, task3Step3: `结果：40%。`,
+  task3Hint: `分母始终用球的总数，而不只是蓝球的数量。`,
+  task4Step1: `P(红) = 40%（来自练习 3）。`, task4Step2: `公式：P(非红) = 100% − P(红)。`, task4Step3: `结果：100% − 40% = 60%。`,
+  task4Hint: `对立概率可以简单地用 100% 减去已知概率算出，不需要重新计数。`,
+  task5Step1: `一次抛掷的 P(正面)：0.5。`, task5Step2: `两次抛掷是独立的，所以要相乘：0.5 · 0.5。`, task5Step3: `计算：0.5 · 0.5 = 0.25，即 25%。`,
+  task5Hint: `对于"连续且独立"的情况，概率是相乘而不是相加。`,
+  task6Step1: `只有一种组合两个骰子都显示 6：(6, 6)。`, task6Step2: `这对应 36 种可能结果中的 1 种。`, task6Step3: `结果：1 个有利结果。`,
+  task6Hint: `两个骰子总共有 6 · 6 = 36 种可能结果，不只是 6 种。`,
+  task7Step1: `公式：P = 15 ÷ 25。`, task7Step2: `计算：15 ÷ 25 = 0.6。`, task7Step3: `结果：60%。`,
+  task7Hint: `学生总数（25）是分母，不是其他数字。`,
+  task8Step1: `公式：P = 2 ÷ 8。`, task8Step2: `计算：2 ÷ 8 = 0.25。`, task8Step3: `结果：25%。`,
+  task8Hint: `8 个区域大小都相同，所以区域总数就是分母。`,
+  hintLabel: `常见错误：`, footerMessage: `慢慢算，需要的话看看答案。你能做到！`,
+  fbEmpty: `请先输入一个数字再检查。`, fbCorrect: `正确！做得好！`, fbIncorrect: `还不完全正确。看看下面的答案，再试一次。`
+}
+};
+
+var currentLang = 'de';
+
+function setLanguage(lang){
+  var dict = TRANSLATIONS[lang] || TRANSLATIONS.de;
+  currentLang = TRANSLATIONS[lang] ? lang : 'de';
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = (currentLang === 'ar') ? 'rtl' : 'ltr';
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var key = el.getAttribute('data-i18n');
+    if(dict[key] !== undefined){ el.innerHTML = dict[key]; }
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-placeholder');
+    if(dict[key] !== undefined){ el.setAttribute('placeholder', dict[key]); }
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-aria');
+    if(dict[key] !== undefined){ el.setAttribute('aria-label', dict[key]); }
+  });
+  try{ localStorage.setItem('mathecoach_lang', currentLang); }catch(e){}
+  var sel = document.getElementById('langSelect');
+  if(sel) sel.value = currentLang;
+}
+
+function check(id, correct){
+  var dict = TRANSLATIONS[currentLang] || TRANSLATIONS.de;
+  var input = document.getElementById('input' + id);
+  var feedback = document.getElementById('feedback' + id);
+  var raw = input.value.trim();
+  var match = raw.match(/-?\d+/);
+  feedback.classList.remove('show', 'correct', 'incorrect');
+  if(!match){
+    feedback.textContent = dict.fbEmpty;
+    feedback.classList.add('show', 'incorrect');
+    return;
+  }
+  var value = parseInt(match[0], 10);
+  if(value === correct){
+    feedback.textContent = dict.fbCorrect;
+    feedback.classList.add('show', 'correct');
+  } else {
+    feedback.textContent = dict.fbIncorrect;
+    feedback.classList.add('show', 'incorrect');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var saved = 'de';
+  try{ saved = localStorage.getItem('mathecoach_lang') || 'de'; }catch(e){}
+  setLanguage(saved);
+});
+</script>
+
+</body>
+</html>
