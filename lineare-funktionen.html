@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lineare Funktionen</title>
+<style>
+  :root{
+    --bg:#FAFAF9; --card:#FFFFFF; --ink:#241C1C; --ink-soft:#5C4F4C;
+    --red:#C41230; --gold:#E0A526; --blue:#2478B5;
+    --merke-bg:#FBF1DC; --merke-border:#E0A526;
+    --success:#1E8E5A; --success-bg:#E5F5EC; --error:#B3401D; --error-bg:#FBEDE6;
+    --font-display: ui-rounded, "SF Pro Rounded", "Segoe UI Rounded", "Nunito", system-ui, sans-serif;
+    --font-body: system-ui, "Segoe UI", Roboto, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:18px; line-height:1.5; padding-bottom:60px; }
+  .wrap{ max-width:640px; margin:0 auto; padding:0 20px; }
+  header{ background:var(--card); padding:30px 20px 0; text-align:center; position:relative; }
+  .header-inner{ padding-bottom:26px; }
+  .lang-switch{ display:flex; justify-content:center; margin-bottom:14px; }
+  #langSelect{ font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--ink); background:var(--card); border:2px solid #E3DFDA; border-radius:999px; padding:6px 14px; cursor:pointer; }
+  #langSelect:focus-visible{ outline:3px solid var(--blue); }
+  .back-link{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--blue); text-decoration:none; margin-bottom:16px; }
+  .eyebrow{ font-family:var(--font-display); font-weight:700; font-size:14px; letter-spacing:0.08em; text-transform:uppercase; color:var(--blue); margin-bottom:8px; }
+  h1{ font-family:var(--font-display); font-size:28px; font-weight:800; margin:0; line-height:1.25; }
+  h1 .accent{ color:var(--red); }
+  .wave{ display:block; width:100%; height:30px; }
+  section{ margin-top:32px; }
+  .card{ background:var(--card); border-radius:22px; padding:24px 22px; box-shadow:0 2px 14px rgba(36,28,28,0.07); }
+  h2{ font-family:var(--font-display); font-size:21px; font-weight:800; margin:0 0 14px; }
+  h2 .num{ display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:var(--blue); color:white; font-size:16px; margin-inline-end:10px; vertical-align:middle; }
+  p{ margin:0 0 14px; color:var(--ink-soft); }
+  .merke{ background:var(--merke-bg); border:2px solid var(--merke-border); border-radius:16px; padding:16px 18px; margin-top:16px; }
+  .merke-title{ font-family:var(--font-display); font-weight:800; color:#8A5A0F; font-size:15px; letter-spacing:0.04em; text-transform:uppercase; margin-bottom:6px; }
+  .merke-body{ color:#6B4A12; font-weight:600; margin:0; }
+  .func-diagram{ width:100%; height:auto; margin:18px 0 6px; }
+  .task-card{ margin-top:18px; }
+  .task-question{ font-family:var(--font-display); font-weight:700; font-size:19px; margin-bottom:16px; }
+  .answer-row{ display:flex; gap:10px; margin-bottom:6px; }
+  input[type="text"]{ flex:1; font-size:18px; font-family:var(--font-body); padding:12px 14px; border-radius:12px; border:2px solid #E3DFDA; background:#FBFAF9; color:var(--ink); }
+  input[type="text"]:focus{ outline:3px solid #C9DCEA; border-color:var(--blue); }
+  button.check{ font-family:var(--font-display); font-weight:700; font-size:16px; color:white; background:var(--blue); border:none; border-radius:12px; padding:0 20px; cursor:pointer; }
+  button.check:active{ transform:translateY(1px); }
+  button.check:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
+  .feedback{ margin-top:10px; padding:12px 14px; border-radius:12px; font-weight:700; display:none; }
+  .feedback.show{ display:block; }
+  .feedback.correct{ background:var(--success-bg); color:var(--success); }
+  .feedback.incorrect{ background:var(--error-bg); color:var(--error); }
+  details{ margin-top:14px; border-top:2px dashed #E3DFDA; padding-top:12px; }
+  summary{ font-family:var(--font-display); font-weight:700; color:var(--blue); cursor:pointer; font-size:15px; }
+  .solution{ margin-top:12px; }
+  .solution ol{ margin:0 0 12px; padding-inline-start:22px; color:var(--ink-soft); }
+  .solution li{ margin-bottom:6px; }
+  .solution-result{ font-family:var(--font-display); font-weight:800; color:var(--ink); margin-bottom:12px; }
+  .hint-box{ background:#F1EFEC; border-radius:12px; padding:12px 14px; font-size:16px; color:var(--ink-soft); }
+  .hint-box strong{ color:var(--ink); }
+  footer{ text-align:center; margin-top:36px; padding:0 20px; }
+  footer p{ font-family:var(--font-display); font-weight:700; color:var(--ink); }
+  .footer-wave{ display:block; width:100%; max-width:280px; height:16px; margin:0 auto 18px; opacity:0.6; }
+  [dir="rtl"] .back-link{ flex-direction:row-reverse; }
+  @media (prefers-reduced-motion: no-preference){ button.check{ transition:transform 0.1s ease; } }
+  @media (max-width: 480px){ .answer-row{ flex-direction:column; } button.check{ width:100%; padding:14px 20px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="lang-switch">
+      <select id="langSelect" onchange="setLanguage(this.value)">
+        <option value="de">Deutsch</option><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="tr">Türkçe</option><option value="ru">Русский</option><option value="ar">العربية</option><option value="zh">中文</option>
+      </select>
+    </div>
+    <a class="back-link" href="index.html" data-i18n="backLink">← Alle Themen</a>
+    <div class="eyebrow" data-i18n="eyebrow">Luisen-Gymnasium · Klasse 8</div>
+    <h1><span data-i18n="titleLine1">Lineare</span><br><span class="accent" data-i18n="titleAccent">Funktionen</span></h1>
+  </div>
+  <svg class="wave" viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+    <path d="M -10 22 C 190 4, 390 40, 590 22 S 990 4, 1210 22" fill="none" stroke="#C41230" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 32 C 190 50, 390 14, 590 32 S 990 50, 1210 32" fill="none" stroke="#E0A526" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 42 C 190 24, 390 58, 590 42 S 990 24, 1210 42" fill="none" stroke="#2478B5" stroke-width="5" stroke-linecap="round"/>
+  </svg>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <div class="card">
+      <h2 data-i18n="h2Basics">Grundlagen</h2>
+      <p data-i18n="basicsP1">Eine lineare Funktion hat die Form y = m · x + b. Dabei ist m die Steigung (wie steil die Gerade verläuft) und b der y-Achsenabschnitt (der Punkt, an dem die Gerade die y-Achse schneidet, bei x = 0).</p>
+
+      <svg class="func-diagram" viewBox="0 0 600 220" xmlns="http://www.w3.org/2000/svg" role="img" data-i18n-aria="funcAria" aria-label="Koordinatensystem mit einer Geraden, Steigungsdreieck zeigt delta y über delta x, y-Achsenabschnitt b markiert auf der y-Achse">
+        <defs>
+          <marker id="arrFx" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#241C1C"/></marker>
+          <marker id="arrFy" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#241C1C"/></marker>
+        </defs>
+        <line x1="30" y1="190" x2="570" y2="190" stroke="#241C1C" stroke-width="2" marker-end="url(#arrFx)"/>
+        <line x1="80" y1="210" x2="80" y2="15" stroke="#241C1C" stroke-width="2" marker-end="url(#arrFy)"/>
+        <line x1="80" y1="150" x2="480" y2="30" stroke="#2478B5" stroke-width="3"/>
+        <circle cx="80" cy="150" r="4" fill="#C41230"/>
+        <text x="55" y="155" text-anchor="end" font-family="ui-rounded, system-ui, sans-serif" font-size="15" font-weight="800" fill="#C41230">b</text>
+        <line x1="280" y1="90" x2="360" y2="90" stroke="#E0A526" stroke-width="2.5" stroke-dasharray="4,3"/>
+        <line x1="360" y1="90" x2="360" y2="60" stroke="#E0A526" stroke-width="2.5" stroke-dasharray="4,3"/>
+        <text x="320" y="108" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="14" font-weight="800" fill="#8A5A0F">Δx</text>
+        <text x="378" y="78" text-anchor="start" font-family="ui-rounded, system-ui, sans-serif" font-size="14" font-weight="800" fill="#8A5A0F">Δy</text>
+        <text x="480" y="20" text-anchor="start" font-family="ui-rounded, system-ui, sans-serif" font-size="16" font-weight="800" fill="#2478B5">y = m · x + b</text>
+      </svg>
+
+      <p data-i18n="basicsExample1Label"><strong>Beispiel Schritt für Schritt:</strong> y = 2x + 3. Berechne y für x = 4.</p>
+      <p data-i18n="basicsExample1Steps">1. x = 4 einsetzen: y = 2 · 4 + 3<br>2. Rechnen: 2 · 4 = 8, dann 8 + 3 = 11<br>3. Ergebnis: y = 11</p>
+
+      <p data-i18n="basicsP2Slope"><strong>Die Steigung m</strong> berechnest du aus zwei Punkten mit m = (y₂ − y₁) : (x₂ − x₁).</p>
+
+      <p data-i18n="basicsExample2Label"><strong>Beispiel Schritt für Schritt:</strong> Eine Gerade geht durch A(1|3) und B(3|7). Berechne die Steigung.</p>
+      <p data-i18n="basicsExample2Steps">1. Formel: m = (y₂ − y₁) : (x₂ − x₁)<br>2. Einsetzen: m = (7 − 3) : (3 − 1)<br>3. Rechnen: 4 : 2 = 2<br>4. Ergebnis: m = 2</p>
+
+      <div class="merke">
+        <div class="merke-title" data-i18n="merkeTitle">Merke</div>
+        <p class="merke-body" data-i18n="merkeBody">Form: y = m · x + b.<br>m = Steigung, b = y-Achsenabschnitt (Wert von y bei x = 0).<br>Steigung aus zwei Punkten: m = (y₂ − y₁) : (x₂ − x₁).</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">1</span><span data-i18n="taskWord">Aufgabe</span> 1</h2>
+      <div class="task-question" data-i18n="task1Question">y = 3x + 2. Berechne y für x = 4.</div>
+      <div class="answer-row">
+        <input type="text" id="input1" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(1, 14)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback1"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task1Result">Ergebnis: 14</div>
+          <ol>
+            <li data-i18n="task1Step1">x = 4 einsetzen: y = 3 · 4 + 2.</li>
+            <li data-i18n="task1Step2">Rechnen: 3 · 4 = 12, dann 12 + 2 = 14.</li>
+            <li data-i18n="task1Step3">Ergebnis: y = 14.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task1Hint">Punkt vor Strich beachten: erst multiplizieren, dann addieren.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">2</span><span data-i18n="taskWord">Aufgabe</span> 2</h2>
+      <div class="task-question" data-i18n="task2Question">y = −2x + 5. Berechne y für x = 3.</div>
+      <div class="answer-row">
+        <input type="text" id="input2" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(2, -1)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback2"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task2Result">Ergebnis: −1</div>
+          <ol>
+            <li data-i18n="task2Step1">x = 3 einsetzen: y = −2 · 3 + 5.</li>
+            <li data-i18n="task2Step2">Rechnen: −2 · 3 = −6, dann −6 + 5 = −1.</li>
+            <li data-i18n="task2Step3">Ergebnis: y = −1.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task2Hint">Bei negativer Steigung auf das Vorzeichen achten: −2 · 3 ist negativ.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">3</span><span data-i18n="taskWord">Aufgabe</span> 3</h2>
+      <div class="task-question" data-i18n="task3Question">Eine Gerade geht durch A(1|2) und B(3|8). Wie groß ist die Steigung m?</div>
+      <div class="answer-row">
+        <input type="text" id="input3" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(3, 3)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback3"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task3Result">Ergebnis: m = 3</div>
+          <ol>
+            <li data-i18n="task3Step1">Formel: m = (y₂ − y₁) : (x₂ − x₁).</li>
+            <li data-i18n="task3Step2">Einsetzen: (8 − 2) : (3 − 1) = 6 : 2.</li>
+            <li data-i18n="task3Step3">Rechnen: 6 : 2 = 3.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task3Hint">Die Reihenfolge bei beiden Differenzen muss gleich sein: entweder beide B minus A oder beide A minus B.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">4</span><span data-i18n="taskWord">Aufgabe</span> 4</h2>
+      <div class="task-question" data-i18n="task4Question">Eine Gerade geht durch A(0|5) und B(4|13). Wie groß ist die Steigung m?</div>
+      <div class="answer-row">
+        <input type="text" id="input4" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(4, 2)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback4"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task4Result">Ergebnis: m = 2</div>
+          <ol>
+            <li data-i18n="task4Step1">Formel: m = (y₂ − y₁) : (x₂ − x₁).</li>
+            <li data-i18n="task4Step2">Einsetzen: (13 − 5) : (4 − 0) = 8 : 4.</li>
+            <li data-i18n="task4Step3">Rechnen: 8 : 4 = 2.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task4Hint">Wenn ein Punkt bei x = 0 liegt, ist der y-Wert dort direkt der y-Achsenabschnitt b.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">5</span><span data-i18n="taskWord">Aufgabe</span> 5</h2>
+      <div class="task-question" data-i18n="task5Question">Bei y = 5x − 3, wie lautet der y-Achsenabschnitt b?</div>
+      <div class="answer-row">
+        <input type="text" id="input5" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(5, -3)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback5"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task5Result">Ergebnis: b = −3</div>
+          <ol>
+            <li data-i18n="task5Step1">Die Funktion hat die Form y = m · x + b.</li>
+            <li data-i18n="task5Step2">Bei y = 5x − 3 ist die Konstante am Ende der y-Achsenabschnitt.</li>
+            <li data-i18n="task5Step3">b = −3.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task5Hint">Das Vorzeichen vor der Zahl gehört mit zur Zahl dazu: hier ist es −3, nicht 3.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">6</span><span data-i18n="taskWord">Aufgabe</span> 6</h2>
+      <div class="task-question" data-i18n="task6Question">Bei y = −4x + 7, wie lautet die Steigung m?</div>
+      <div class="answer-row">
+        <input type="text" id="input6" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(6, -4)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback6"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task6Result">Ergebnis: m = −4</div>
+          <ol>
+            <li data-i18n="task6Step1">Die Funktion hat die Form y = m · x + b.</li>
+            <li data-i18n="task6Step2">Bei y = −4x + 7 ist die Zahl vor dem x die Steigung.</li>
+            <li data-i18n="task6Step3">m = −4.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task6Hint">Eine negative Steigung bedeutet, dass die Gerade von links oben nach rechts unten fällt.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">7</span><span data-i18n="taskWord">Aufgabe</span> 7</h2>
+      <div class="task-question" data-i18n="task7Question">Ein Taxi kostet 3 € Grundgebühr plus 2 € pro km. Die Funktion lautet Preis = 2x + 3. Wie viel kostet eine Fahrt von 6 km (in €)?</div>
+      <div class="answer-row">
+        <input type="text" id="input7" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(7, 15)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback7"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task7Result">Ergebnis: 15 €</div>
+          <ol>
+            <li data-i18n="task7Step1">x = 6 einsetzen: Preis = 2 · 6 + 3.</li>
+            <li data-i18n="task7Step2">Rechnen: 2 · 6 = 12, dann 12 + 3 = 15.</li>
+            <li data-i18n="task7Step3">Ergebnis: 15 €.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task7Hint">Die 3 € Grundgebühr fallen immer an, unabhängig von der gefahrenen Strecke.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">8</span><span data-i18n="taskWord">Aufgabe</span> 8</h2>
+      <div class="task-question" data-i18n="task8Question">Ein Wasserbehälter enthält zu Beginn 20 Liter und wird mit 5 Liter pro Minute befüllt. Die Gleichung lautet 5x + 20 = 45. Nach wie vielen Minuten sind 45 Liter im Behälter?</div>
+      <div class="answer-row">
+        <input type="text" id="input8" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(8, 5)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback8"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task8Result">Ergebnis: 5 Minuten</div>
+          <ol>
+            <li data-i18n="task8Step1">Gleichung: 5x + 20 = 45.</li>
+            <li data-i18n="task8Step2">Auf beiden Seiten 20 abziehen: 5x = 25.</li>
+            <li data-i18n="task8Step3">Auf beiden Seiten durch 5 teilen: x = 5.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task8Hint">Die 20 Liter Anfangsfüllung sind der y-Achsenabschnitt b, die 5 Liter pro Minute die Steigung m.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <footer>
+    <svg class="footer-wave" viewBox="0 0 280 16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+      <path d="M -5 8 C 40 1, 80 15, 140 8 S 240 1, 285 8" fill="none" stroke="#C41230" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M -5 8 C 40 15, 80 1, 140 8 S 240 15, 285 8" fill="none" stroke="#2478B5" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+    </svg>
+    <p id="footer-msg" data-i18n="footerMessage">Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!</p>
+  </footer>
+
+</div>
+
+<script>
+const TRANSLATIONS = {
+de: {
+  eyebrow: `Luisen-Gymnasium · Klasse 8`, titleLine1: `Lineare`, titleAccent: `Funktionen`, backLink: `← Alle Themen`, h2Basics: `Grundlagen`,
+  basicsP1: `Eine lineare Funktion hat die Form y = m · x + b. Dabei ist m die Steigung (wie steil die Gerade verläuft) und b der y-Achsenabschnitt (der Punkt, an dem die Gerade die y-Achse schneidet, bei x = 0).`,
+  funcAria: `Koordinatensystem mit einer Geraden, Steigungsdreieck zeigt delta y über delta x, y-Achsenabschnitt b markiert auf der y-Achse`,
+  basicsExample1Label: `<strong>Beispiel Schritt für Schritt:</strong> y = 2x + 3. Berechne y für x = 4.`,
+  basicsExample1Steps: `1. x = 4 einsetzen: y = 2 · 4 + 3<br>2. Rechnen: 2 · 4 = 8, dann 8 + 3 = 11<br>3. Ergebnis: y = 11`,
+  basicsP2Slope: `<strong>Die Steigung m</strong> berechnest du aus zwei Punkten mit m = (y₂ − y₁) : (x₂ − x₁).`,
+  basicsExample2Label: `<strong>Beispiel Schritt für Schritt:</strong> Eine Gerade geht durch A(1|3) und B(3|7). Berechne die Steigung.`,
+  basicsExample2Steps: `1. Formel: m = (y₂ − y₁) : (x₂ − x₁)<br>2. Einsetzen: m = (7 − 3) : (3 − 1)<br>3. Rechnen: 4 : 2 = 2<br>4. Ergebnis: m = 2`,
+  merkeTitle: `Merke`, merkeBody: `Form: y = m · x + b.<br>m = Steigung, b = y-Achsenabschnitt (Wert von y bei x = 0).<br>Steigung aus zwei Punkten: m = (y₂ − y₁) : (x₂ − x₁).`,
+  taskWord: `Aufgabe`,
+  task1Question: `y = 3x + 2. Berechne y für x = 4.`, task2Question: `y = −2x + 5. Berechne y für x = 3.`, task3Question: `Eine Gerade geht durch A(1|2) und B(3|8). Wie groß ist die Steigung m?`, task4Question: `Eine Gerade geht durch A(0|5) und B(4|13). Wie groß ist die Steigung m?`, task5Question: `Bei y = 5x − 3, wie lautet der y-Achsenabschnitt b?`, task6Question: `Bei y = −4x + 7, wie lautet die Steigung m?`,
+  task7Question: `Ein Taxi kostet 3 € Grundgebühr plus 2 € pro km. Die Funktion lautet Preis = 2x + 3. Wie viel kostet eine Fahrt von 6 km (in €)?`,
+  task8Question: `Ein Wasserbehälter enthält zu Beginn 20 Liter und wird mit 5 Liter pro Minute befüllt. Die Gleichung lautet 5x + 20 = 45. Nach wie vielen Minuten sind 45 Liter im Behälter?`,
+  answerPlaceholder: `Deine Antwort`, checkButton: `Prüfen`, solutionSummary: `Lösung anzeigen`,
+  task1Result: `Ergebnis: 14`, task2Result: `Ergebnis: −1`, task3Result: `Ergebnis: m = 3`, task4Result: `Ergebnis: m = 2`, task5Result: `Ergebnis: b = −3`, task6Result: `Ergebnis: m = −4`, task7Result: `Ergebnis: 15 €`, task8Result: `Ergebnis: 5 Minuten`,
+  task1Step1: `x = 4 einsetzen: y = 3 · 4 + 2.`, task1Step2: `Rechnen: 3 · 4 = 12, dann 12 + 2 = 14.`, task1Step3: `Ergebnis: y = 14.`,
+  task1Hint: `Punkt vor Strich beachten: erst multiplizieren, dann addieren.`,
+  task2Step1: `x = 3 einsetzen: y = −2 · 3 + 5.`, task2Step2: `Rechnen: −2 · 3 = −6, dann −6 + 5 = −1.`, task2Step3: `Ergebnis: y = −1.`,
+  task2Hint: `Bei negativer Steigung auf das Vorzeichen achten: −2 · 3 ist negativ.`,
+  task3Step1: `Formel: m = (y₂ − y₁) : (x₂ − x₁).`, task3Step2: `Einsetzen: (8 − 2) : (3 − 1) = 6 : 2.`, task3Step3: `Rechnen: 6 : 2 = 3.`,
+  task3Hint: `Die Reihenfolge bei beiden Differenzen muss gleich sein: entweder beide B minus A oder beide A minus B.`,
+  task4Step1: `Formel: m = (y₂ − y₁) : (x₂ − x₁).`, task4Step2: `Einsetzen: (13 − 5) : (4 − 0) = 8 : 4.`, task4Step3: `Rechnen: 8 : 4 = 2.`,
+  task4Hint: `Wenn ein Punkt bei x = 0 liegt, ist der y-Wert dort direkt der y-Achsenabschnitt b.`,
+  task5Step1: `Die Funktion hat die Form y = m · x + b.`, task5Step2: `Bei y = 5x − 3 ist die Konstante am Ende der y-Achsenabschnitt.`, task5Step3: `b = −3.`,
+  task5Hint: `Das Vorzeichen vor der Zahl gehört mit zur Zahl dazu: hier ist es −3, nicht 3.`,
+  task6Step1: `Die Funktion hat die Form y = m · x + b.`, task6Step2: `Bei y = −4x + 7 ist die Zahl vor dem x die Steigung.`, task6Step3: `m = −4.`,
+  task6Hint: `Eine negative Steigung bedeutet, dass die Gerade von links oben nach rechts unten fällt.`,
+  task7Step1: `x = 6 einsetzen: Preis = 2 · 6 + 3.`, task7Step2: `Rechnen: 2 · 6 = 12, dann 12 + 3 = 15.`, task7Step3: `Ergebnis: 15 €.`,
+  task7Hint: `Die 3 € Grundgebühr fallen immer an, unabhängig von der gefahrenen Strecke.`,
+  task8Step1: `Gleichung: 5x + 20 = 45.`, task8Step2: `Auf beiden Seiten 20 abziehen: 5x = 25.`, task8Step3: `Auf beiden Seiten durch 5 teilen: x = 5.`,
+  task8Hint: `Die 20 Liter Anfangsfüllung sind der y-Achsenabschnitt b, die 5 Liter pro Minute die Steigung m.`,
+  hintLabel: `Typischer Fehler:`, footerMessage: `Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!`,
+  fbEmpty: `Trag bitte eine Zahl ein, bevor du prüfst.`, fbCorrect: `Richtig! Gut gemacht!`, fbIncorrect: `Noch nicht ganz richtig. Schau dir die Lösung weiter unten an und versuch es dann nochmal.`
+},
+en: {
+  eyebrow: `Luisen-Gymnasium · Grade 8`, titleLine1: `Linear`, titleAccent: `Functions`, backLink: `← All Topics`, h2Basics: `Basics`,
+  basicsP1: `A linear function has the form y = m · x + b. Here m is the slope (how steep the line is) and b is the y-intercept (the point where the line crosses the y-axis, at x = 0).`,
+  funcAria: `Coordinate system with a line, a slope triangle showing delta y over delta x, y-intercept b marked on the y-axis`,
+  basicsExample1Label: `<strong>Step-by-step example:</strong> y = 2x + 3. Calculate y for x = 4.`,
+  basicsExample1Steps: `1. Substitute x = 4: y = 2 · 4 + 3<br>2. Calculate: 2 · 4 = 8, then 8 + 3 = 11<br>3. Result: y = 11`,
+  basicsP2Slope: `<strong>You calculate the slope m</strong> from two points using m = (y₂ − y₁) : (x₂ − x₁).`,
+  basicsExample2Label: `<strong>Step-by-step example:</strong> A line goes through A(1|3) and B(3|7). Calculate the slope.`,
+  basicsExample2Steps: `1. Formula: m = (y₂ − y₁) : (x₂ − x₁)<br>2. Substitute: m = (7 − 3) : (3 − 1)<br>3. Calculate: 4 : 2 = 2<br>4. Result: m = 2`,
+  merkeTitle: `Remember`, merkeBody: `Form: y = m · x + b.<br>m = slope, b = y-intercept (value of y when x = 0).<br>Slope from two points: m = (y₂ − y₁) : (x₂ − x₁).`,
+  taskWord: `Exercise`,
+  task1Question: `y = 3x + 2. Calculate y for x = 4.`, task2Question: `y = −2x + 5. Calculate y for x = 3.`, task3Question: `A line goes through A(1|2) and B(3|8). What's the slope m?`, task4Question: `A line goes through A(0|5) and B(4|13). What's the slope m?`, task5Question: `For y = 5x − 3, what's the y-intercept b?`, task6Question: `For y = −4x + 7, what's the slope m?`,
+  task7Question: `A taxi costs a base fee of 3 € plus 2 € per km. The function is price = 2x + 3. How much does a 6 km ride cost (in €)?`,
+  task8Question: `A water tank starts with 20 liters and is filled at 5 liters per minute. The equation is 5x + 20 = 45. After how many minutes are there 45 liters in the tank?`,
+  answerPlaceholder: `Your answer`, checkButton: `Check`, solutionSummary: `Show solution`,
+  task1Result: `Result: 14`, task2Result: `Result: −1`, task3Result: `Result: m = 3`, task4Result: `Result: m = 2`, task5Result: `Result: b = −3`, task6Result: `Result: m = −4`, task7Result: `Result: 15 €`, task8Result: `Result: 5 minutes`,
+  task1Step1: `Substitute x = 4: y = 3 · 4 + 2.`, task1Step2: `Calculate: 3 · 4 = 12, then 12 + 2 = 14.`, task1Step3: `Result: y = 14.`,
+  task1Hint: `Follow order of operations: multiply first, then add.`,
+  task2Step1: `Substitute x = 3: y = −2 · 3 + 5.`, task2Step2: `Calculate: −2 · 3 = −6, then −6 + 5 = −1.`, task2Step3: `Result: y = −1.`,
+  task2Hint: `With a negative slope, watch the sign: −2 · 3 is negative.`,
+  task3Step1: `Formula: m = (y₂ − y₁) : (x₂ − x₁).`, task3Step2: `Substitute: (8 − 2) : (3 − 1) = 6 : 2.`, task3Step3: `Calculate: 6 : 2 = 3.`,
+  task3Hint: `The order in both differences must match: either both B minus A, or both A minus B.`,
+  task4Step1: `Formula: m = (y₂ − y₁) : (x₂ − x₁).`, task4Step2: `Substitute: (13 − 5) : (4 − 0) = 8 : 4.`, task4Step3: `Calculate: 8 : 4 = 2.`,
+  task4Hint: `If a point is at x = 0, its y-value is directly the y-intercept b.`,
+  task5Step1: `The function has the form y = m · x + b.`, task5Step2: `In y = 5x − 3, the constant at the end is the y-intercept.`, task5Step3: `b = −3.`,
+  task5Hint: `The sign in front of the number belongs to it: here it's −3, not 3.`,
+  task6Step1: `The function has the form y = m · x + b.`, task6Step2: `In y = −4x + 7, the number in front of x is the slope.`, task6Step3: `m = −4.`,
+  task6Hint: `A negative slope means the line falls from top left to bottom right.`,
+  task7Step1: `Substitute x = 6: price = 2 · 6 + 3.`, task7Step2: `Calculate: 2 · 6 = 12, then 12 + 3 = 15.`, task7Step3: `Result: 15 €.`,
+  task7Hint: `The 3 € base fee always applies, regardless of the distance driven.`,
+  task8Step1: `Equation: 5x + 20 = 45.`, task8Step2: `Subtract 20 on both sides: 5x = 25.`, task8Step3: `Divide both sides by 5: x = 5.`,
+  task8Hint: `The 20 liters starting amount is the y-intercept b, the 5 liters per minute is the slope m.`,
+  hintLabel: `Common mistake:`, footerMessage: `Take your time and check the solution if you need to. You can do this!`,
+  fbEmpty: `Please enter a number before checking.`, fbCorrect: `Correct! Well done!`, fbIncorrect: `Not quite right yet. Check the solution below and try again.`
+},
+es: {
+  eyebrow: `Luisen-Gymnasium · 8.º curso`, titleLine1: `Funciones`, titleAccent: `lineales`, backLink: `← Todos los temas`, h2Basics: `Fundamentos`,
+  basicsP1: `Una función lineal tiene la forma y = m · x + b. Aquí m es la pendiente (lo inclinada que es la recta) y b es la ordenada en el origen (el punto donde la recta cruza el eje y, en x = 0).`,
+  funcAria: `Sistema de coordenadas con una recta, un triángulo de pendiente que muestra delta y sobre delta x, ordenada en el origen b marcada en el eje y`,
+  basicsExample1Label: `<strong>Ejemplo paso a paso:</strong> y = 2x + 3. Calcula y para x = 4.`,
+  basicsExample1Steps: `1. Sustituye x = 4: y = 2 · 4 + 3<br>2. Calcula: 2 · 4 = 8, luego 8 + 3 = 11<br>3. Resultado: y = 11`,
+  basicsP2Slope: `<strong>Calculas la pendiente m</strong> a partir de dos puntos con m = (y₂ − y₁) : (x₂ − x₁).`,
+  basicsExample2Label: `<strong>Ejemplo paso a paso:</strong> Una recta pasa por A(1|3) y B(3|7). Calcula la pendiente.`,
+  basicsExample2Steps: `1. Fórmula: m = (y₂ − y₁) : (x₂ − x₁)<br>2. Sustituye: m = (7 − 3) : (3 − 1)<br>3. Calcula: 4 : 2 = 2<br>4. Resultado: m = 2`,
+  merkeTitle: `Recuerda`, merkeBody: `Forma: y = m · x + b.<br>m = pendiente, b = ordenada en el origen (valor de y cuando x = 0).<br>Pendiente a partir de dos puntos: m = (y₂ − y₁) : (x₂ − x₁).`,
+  taskWord: `Ejercicio`,
+  task1Question: `y = 3x + 2. Calcula y para x = 4.`, task2Question: `y = −2x + 5. Calcula y para x = 3.`, task3Question: `Una recta pasa por A(1|2) y B(3|8). ¿Cuál es la pendiente m?`, task4Question: `Una recta pasa por A(0|5) y B(4|13). ¿Cuál es la pendiente m?`, task5Question: `En y = 5x − 3, ¿cuál es la ordenada en el origen b?`, task6Question: `En y = −4x + 7, ¿cuál es la pendiente m?`,
+  task7Question: `Un taxi cuesta una tarifa base de 3 € más 2 € por km. La función es precio = 2x + 3. ¿Cuánto cuesta un trayecto de 6 km (en €)?`,
+  task8Question: `Un depósito de agua empieza con 20 litros y se llena a 5 litros por minuto. La ecuación es 5x + 20 = 45. ¿Después de cuántos minutos hay 45 litros en el depósito?`,
+  answerPlaceholder: `Tu respuesta`, checkButton: `Comprobar`, solutionSummary: `Ver solución`,
+  task1Result: `Resultado: 14`, task2Result: `Resultado: −1`, task3Result: `Resultado: m = 3`, task4Result: `Resultado: m = 2`, task5Result: `Resultado: b = −3`, task6Result: `Resultado: m = −4`, task7Result: `Resultado: 15 €`, task8Result: `Resultado: 5 minutos`,
+  task1Step1: `Sustituye x = 4: y = 3 · 4 + 2.`, task1Step2: `Calcula: 3 · 4 = 12, luego 12 + 2 = 14.`, task1Step3: `Resultado: y = 14.`,
+  task1Hint: `Respeta el orden de las operaciones: primero multiplica, luego suma.`,
+  task2Step1: `Sustituye x = 3: y = −2 · 3 + 5.`, task2Step2: `Calcula: −2 · 3 = −6, luego −6 + 5 = −1.`, task2Step3: `Resultado: y = −1.`,
+  task2Hint: `Con pendiente negativa, cuidado con el signo: −2 · 3 es negativo.`,
+  task3Step1: `Fórmula: m = (y₂ − y₁) : (x₂ − x₁).`, task3Step2: `Sustituye: (8 − 2) : (3 − 1) = 6 : 2.`, task3Step3: `Calcula: 6 : 2 = 3.`,
+  task3Hint: `El orden en ambas diferencias debe coincidir: o bien ambas B menos A, o ambas A menos B.`,
+  task4Step1: `Fórmula: m = (y₂ − y₁) : (x₂ − x₁).`, task4Step2: `Sustituye: (13 − 5) : (4 − 0) = 8 : 4.`, task4Step3: `Calcula: 8 : 4 = 2.`,
+  task4Hint: `Si un punto está en x = 0, su valor de y es directamente la ordenada en el origen b.`,
+  task5Step1: `La función tiene la forma y = m · x + b.`, task5Step2: `En y = 5x − 3, la constante al final es la ordenada en el origen.`, task5Step3: `b = −3.`,
+  task5Hint: `El signo delante del número forma parte de él: aquí es −3, no 3.`,
+  task6Step1: `La función tiene la forma y = m · x + b.`, task6Step2: `En y = −4x + 7, el número delante de x es la pendiente.`, task6Step3: `m = −4.`,
+  task6Hint: `Una pendiente negativa significa que la recta baja de arriba a la izquierda hacia abajo a la derecha.`,
+  task7Step1: `Sustituye x = 6: precio = 2 · 6 + 3.`, task7Step2: `Calcula: 2 · 6 = 12, luego 12 + 3 = 15.`, task7Step3: `Resultado: 15 €.`,
+  task7Hint: `La tarifa base de 3 € se aplica siempre, sin importar la distancia recorrida.`,
+  task8Step1: `Ecuación: 5x + 20 = 45.`, task8Step2: `Resta 20 en ambos lados: 5x = 25.`, task8Step3: `Divide ambos lados entre 5: x = 5.`,
+  task8Hint: `Los 20 litros iniciales son la ordenada en el origen b, los 5 litros por minuto son la pendiente m.`,
+  hintLabel: `Error típico:`, footerMessage: `Tómate tu tiempo y revisa la solución si la necesitas. ¡Tú puedes!`,
+  fbEmpty: `Introduce un número antes de comprobar.`, fbCorrect: `¡Correcto! ¡Muy bien!`, fbIncorrect: `Todavía no es correcto. Revisa la solución de abajo e inténtalo de nuevo.`
+},
+fr: {
+  eyebrow: `Luisen-Gymnasium · 4e`, titleLine1: `Fonctions`, titleAccent: `linéaires`, backLink: `← Tous les thèmes`, h2Basics: `Les bases`,
+  basicsP1: `Une fonction linéaire a la forme y = m · x + b. Ici m est le coefficient directeur (la pente de la droite) et b est l'ordonnée à l'origine (le point où la droite coupe l'axe des y, en x = 0).`,
+  funcAria: `Système de coordonnées avec une droite, un triangle de pente montrant delta y sur delta x, ordonnée à l'origine b marquée sur l'axe des y`,
+  basicsExample1Label: `<strong>Exemple étape par étape :</strong> y = 2x + 3. Calcule y pour x = 4.`,
+  basicsExample1Steps: `1. Substitue x = 4 : y = 2 · 4 + 3<br>2. Calcule : 2 · 4 = 8, puis 8 + 3 = 11<br>3. Résultat : y = 11`,
+  basicsP2Slope: `<strong>Tu calcules le coefficient directeur m</strong> à partir de deux points avec m = (y₂ − y₁) : (x₂ − x₁).`,
+  basicsExample2Label: `<strong>Exemple étape par étape :</strong> Une droite passe par A(1|3) et B(3|7). Calcule le coefficient directeur.`,
+  basicsExample2Steps: `1. Formule : m = (y₂ − y₁) : (x₂ − x₁)<br>2. Substitue : m = (7 − 3) : (3 − 1)<br>3. Calcule : 4 : 2 = 2<br>4. Résultat : m = 2`,
+  merkeTitle: `À retenir`, merkeBody: `Forme : y = m · x + b.<br>m = coefficient directeur, b = ordonnée à l'origine (valeur de y quand x = 0).<br>Coefficient directeur à partir de deux points : m = (y₂ − y₁) : (x₂ − x₁).`,
+  taskWord: `Exercice`,
+  task1Question: `y = 3x + 2. Calcule y pour x = 4.`, task2Question: `y = −2x + 5. Calcule y pour x = 3.`, task3Question: `Une droite passe par A(1|2) et B(3|8). Quel est le coefficient directeur m ?`, task4Question: `Une droite passe par A(0|5) et B(4|13). Quel est le coefficient directeur m ?`, task5Question: `Pour y = 5x − 3, quelle est l'ordonnée à l'origine b ?`, task6Question: `Pour y = −4x + 7, quel est le coefficient directeur m ?`,
+  task7Question: `Un taxi coûte 3 € de prise en charge plus 2 € par km. La fonction est prix = 2x + 3. Combien coûte une course de 6 km (en €) ?`,
+  task8Question: `Un réservoir d'eau commence avec 20 litres et se remplit à raison de 5 litres par minute. L'équation est 5x + 20 = 45. Après combien de minutes y a-t-il 45 litres dans le réservoir ?`,
+  answerPlaceholder: `Ta réponse`, checkButton: `Vérifier`, solutionSummary: `Voir la solution`,
+  task1Result: `Résultat : 14`, task2Result: `Résultat : −1`, task3Result: `Résultat : m = 3`, task4Result: `Résultat : m = 2`, task5Result: `Résultat : b = −3`, task6Result: `Résultat : m = −4`, task7Result: `Résultat : 15 €`, task8Result: `Résultat : 5 minutes`,
+  task1Step1: `Substitue x = 4 : y = 3 · 4 + 2.`, task1Step2: `Calcule : 3 · 4 = 12, puis 12 + 2 = 14.`, task1Step3: `Résultat : y = 14.`,
+  task1Hint: `Respecte la priorité des opérations : multiplie d'abord, puis additionne.`,
+  task2Step1: `Substitue x = 3 : y = −2 · 3 + 5.`, task2Step2: `Calcule : −2 · 3 = −6, puis −6 + 5 = −1.`, task2Step3: `Résultat : y = −1.`,
+  task2Hint: `Avec une pente négative, fais attention au signe : −2 · 3 est négatif.`,
+  task3Step1: `Formule : m = (y₂ − y₁) : (x₂ − x₁).`, task3Step2: `Substitue : (8 − 2) : (3 − 1) = 6 : 2.`, task3Step3: `Calcule : 6 : 2 = 3.`,
+  task3Hint: `L'ordre dans les deux différences doit être le même : soit les deux B moins A, soit les deux A moins B.`,
+  task4Step1: `Formule : m = (y₂ − y₁) : (x₂ − x₁).`, task4Step2: `Substitue : (13 − 5) : (4 − 0) = 8 : 4.`, task4Step3: `Calcule : 8 : 4 = 2.`,
+  task4Hint: `Si un point est en x = 0, sa valeur y est directement l'ordonnée à l'origine b.`,
+  task5Step1: `La fonction a la forme y = m · x + b.`, task5Step2: `Dans y = 5x − 3, la constante à la fin est l'ordonnée à l'origine.`, task5Step3: `b = −3.`,
+  task5Hint: `Le signe devant le nombre lui appartient : ici c'est −3, pas 3.`,
+  task6Step1: `La fonction a la forme y = m · x + b.`, task6Step2: `Dans y = −4x + 7, le nombre devant x est le coefficient directeur.`, task6Step3: `m = −4.`,
+  task6Hint: `Un coefficient directeur négatif signifie que la droite descend de la gauche vers la droite.`,
+  task7Step1: `Substitue x = 6 : prix = 2 · 6 + 3.`, task7Step2: `Calcule : 2 · 6 = 12, puis 12 + 3 = 15.`, task7Step3: `Résultat : 15 €.`,
+  task7Hint: `Les 3 € de prise en charge s'appliquent toujours, quelle que soit la distance parcourue.`,
+  task8Step1: `Équation : 5x + 20 = 45.`, task8Step2: `Soustrais 20 des deux côtés : 5x = 25.`, task8Step3: `Divise les deux côtés par 5 : x = 5.`,
+  task8Hint: `Les 20 litres de départ sont l'ordonnée à l'origine b, les 5 litres par minute sont le coefficient directeur m.`,
+  hintLabel: `Erreur fréquente :`, footerMessage: `Prends ton temps et regarde la solution si besoin. Tu vas y arriver !`,
+  fbEmpty: `Merci d'indiquer un nombre avant de vérifier.`, fbCorrect: `Correct ! Bien joué !`, fbIncorrect: `Pas encore tout à fait juste. Regarde la solution ci-dessous et réessaie.`
+},
+tr: {
+  eyebrow: `Luisen-Gymnasium · 8. Sınıf`, titleLine1: `Doğrusal`, titleAccent: `Fonksiyonlar`, backLink: `← Tüm Konular`, h2Basics: `Temel Bilgiler`,
+  basicsP1: `Doğrusal bir fonksiyon y = m · x + b şeklindedir. Burada m eğim (doğrunun ne kadar dik olduğu), b ise y-ekseni kesim noktasıdır (doğrunun y eksenini kestiği nokta, x = 0'da).`,
+  funcAria: `Bir doğru içeren koordinat sistemi, delta y bölü delta x gösteren eğim üçgeni, y ekseninde işaretlenmiş y-ekseni kesim noktası b`,
+  basicsExample1Label: `<strong>Adım adım örnek:</strong> y = 2x + 3. x = 4 için y'yi hesapla.`,
+  basicsExample1Steps: `1. x = 4'ü yerine koy: y = 2 · 4 + 3<br>2. Hesapla: 2 · 4 = 8, sonra 8 + 3 = 11<br>3. Sonuç: y = 11`,
+  basicsP2Slope: `<strong>Eğim m'yi</strong> m = (y₂ − y₁) : (x₂ − x₁) formülüyle iki noktadan hesaplarsın.`,
+  basicsExample2Label: `<strong>Adım adım örnek:</strong> Bir doğru A(1|3) ve B(3|7)'den geçiyor. Eğimi hesapla.`,
+  basicsExample2Steps: `1. Formül: m = (y₂ − y₁) : (x₂ − x₁)<br>2. Yerine koy: m = (7 − 3) : (3 − 1)<br>3. Hesapla: 4 : 2 = 2<br>4. Sonuç: m = 2`,
+  merkeTitle: `Unutma`, merkeBody: `Biçim: y = m · x + b.<br>m = eğim, b = y-ekseni kesim noktası (x = 0'da y'nin değeri).<br>İki noktadan eğim: m = (y₂ − y₁) : (x₂ − x₁).`,
+  taskWord: `Alıştırma`,
+  task1Question: `y = 3x + 2. x = 4 için y'yi hesapla.`, task2Question: `y = −2x + 5. x = 3 için y'yi hesapla.`, task3Question: `Bir doğru A(1|2) ve B(3|8)'den geçiyor. Eğim m kaçtır?`, task4Question: `Bir doğru A(0|5) ve B(4|13)'ten geçiyor. Eğim m kaçtır?`, task5Question: `y = 5x − 3'te, y-ekseni kesim noktası b nedir?`, task6Question: `y = −4x + 7'de, eğim m nedir?`,
+  task7Question: `Bir taksi 3 € açılış ücreti artı km başına 2 € tutar. Fonksiyon fiyat = 2x + 3'tür. 6 km'lik bir yolculuk kaç € tutar?`,
+  task8Question: `Bir su deposu 20 litreyle başlıyor ve dakikada 5 litre doluyor. Denklem 5x + 20 = 45'tir. Depoda 45 litre olması kaç dakika sürer?`,
+  answerPlaceholder: `Cevabın`, checkButton: `Kontrol et`, solutionSummary: `Çözümü göster`,
+  task1Result: `Sonuç: 14`, task2Result: `Sonuç: −1`, task3Result: `Sonuç: m = 3`, task4Result: `Sonuç: m = 2`, task5Result: `Sonuç: b = −3`, task6Result: `Sonuç: m = −4`, task7Result: `Sonuç: 15 €`, task8Result: `Sonuç: 5 dakika`,
+  task1Step1: `x = 4'ü yerine koy: y = 3 · 4 + 2.`, task1Step2: `Hesapla: 3 · 4 = 12, sonra 12 + 2 = 14.`, task1Step3: `Sonuç: y = 14.`,
+  task1Hint: `İşlem sırasına dikkat et: önce çarp, sonra topla.`,
+  task2Step1: `x = 3'ü yerine koy: y = −2 · 3 + 5.`, task2Step2: `Hesapla: −2 · 3 = −6, sonra −6 + 5 = −1.`, task2Step3: `Sonuç: y = −1.`,
+  task2Hint: `Negatif eğimde işarete dikkat et: −2 · 3 negatiftir.`,
+  task3Step1: `Formül: m = (y₂ − y₁) : (x₂ − x₁).`, task3Step2: `Yerine koy: (8 − 2) : (3 − 1) = 6 : 2.`, task3Step3: `Hesapla: 6 : 2 = 3.`,
+  task3Hint: `Her iki farkın sırası aynı olmalıdır: ya her ikisi de B eksi A, ya da her ikisi de A eksi B.`,
+  task4Step1: `Formül: m = (y₂ − y₁) : (x₂ − x₁).`, task4Step2: `Yerine koy: (13 − 5) : (4 − 0) = 8 : 4.`, task4Step3: `Hesapla: 8 : 4 = 2.`,
+  task4Hint: `Bir nokta x = 0'daysa, oradaki y değeri doğrudan y-ekseni kesim noktası b'dir.`,
+  task5Step1: `Fonksiyon y = m · x + b biçimindedir.`, task5Step2: `y = 5x − 3'te sondaki sabit y-ekseni kesim noktasıdır.`, task5Step3: `b = −3.`,
+  task5Hint: `Sayının önündeki işaret sayıya aittir: burada −3'tür, 3 değil.`,
+  task6Step1: `Fonksiyon y = m · x + b biçimindedir.`, task6Step2: `y = −4x + 7'de x'in önündeki sayı eğimdir.`, task6Step3: `m = −4.`,
+  task6Hint: `Negatif eğim, doğrunun sol üstten sağ alta doğru indiği anlamına gelir.`,
+  task7Step1: `x = 6'yı yerine koy: fiyat = 2 · 6 + 3.`, task7Step2: `Hesapla: 2 · 6 = 12, sonra 12 + 3 = 15.`, task7Step3: `Sonuç: 15 €.`,
+  task7Hint: `3 € açılış ücreti, gidilen mesafeden bağımsız olarak her zaman uygulanır.`,
+  task8Step1: `Denklem: 5x + 20 = 45.`, task8Step2: `Her iki taraftan 20 çıkar: 5x = 25.`, task8Step3: `Her iki tarafı 5'e böl: x = 5.`,
+  task8Hint: `20 litrelik başlangıç miktarı y-ekseni kesim noktası b'dir, dakikada 5 litre ise eğim m'dir.`,
+  hintLabel: `Sık yapılan hata:`, footerMessage: `Sakin sakin hesapla, gerekirse çözüme bak. Bunu başarabilirsin!`,
+  fbEmpty: `Kontrol etmeden önce lütfen bir sayı gir.`, fbCorrect: `Doğru! Aferin!`, fbIncorrect: `Henüz tam doğru değil. Aşağıdaki çözüme bak ve tekrar dene.`
+},
+ru: {
+  eyebrow: `Luisen-Gymnasium · 8 класс`, titleLine1: `Линейные`, titleAccent: `функции`, backLink: `← Все темы`, h2Basics: `Основы`,
+  basicsP1: `Линейная функция имеет вид y = m · x + b. Здесь m — угловой коэффициент (насколько круто идёт прямая), а b — точка пересечения с осью y (точка, где прямая пересекает ось y, при x = 0).`,
+  funcAria: `Система координат с прямой, треугольник наклона показывает дельту y на дельту x, точка пересечения с осью y обозначена b`,
+  basicsExample1Label: `<strong>Пример по шагам:</strong> y = 2x + 3. Вычисли y для x = 4.`,
+  basicsExample1Steps: `1. Подставь x = 4: y = 2 · 4 + 3<br>2. Вычисли: 2 · 4 = 8, затем 8 + 3 = 11<br>3. Результат: y = 11`,
+  basicsP2Slope: `<strong>Угловой коэффициент m</strong> вычисляют по двум точкам по формуле m = (y₂ − y₁) : (x₂ − x₁).`,
+  basicsExample2Label: `<strong>Пример по шагам:</strong> Прямая проходит через A(1|3) и B(3|7). Вычисли угловой коэффициент.`,
+  basicsExample2Steps: `1. Формула: m = (y₂ − y₁) : (x₂ − x₁)<br>2. Подставить: m = (7 − 3) : (3 − 1)<br>3. Вычислить: 4 : 2 = 2<br>4. Результат: m = 2`,
+  merkeTitle: `Запомни`, merkeBody: `Форма: y = m · x + b.<br>m = угловой коэффициент, b = точка пересечения с осью y (значение y при x = 0).<br>Угловой коэффициент по двум точкам: m = (y₂ − y₁) : (x₂ − x₁).`,
+  taskWord: `Задание`,
+  task1Question: `y = 3x + 2. Вычисли y для x = 4.`, task2Question: `y = −2x + 5. Вычисли y для x = 3.`, task3Question: `Прямая проходит через A(1|2) и B(3|8). Чему равен угловой коэффициент m?`, task4Question: `Прямая проходит через A(0|5) и B(4|13). Чему равен угловой коэффициент m?`, task5Question: `Для y = 5x − 3, чему равна точка пересечения с осью y — b?`, task6Question: `Для y = −4x + 7, чему равен угловой коэффициент m?`,
+  task7Question: `Такси стоит 3 € базового тарифа плюс 2 € за км. Функция: цена = 2x + 3. Сколько стоит поездка на 6 км (в €)?`,
+  task8Question: `Резервуар с водой изначально содержит 20 литров и заполняется со скоростью 5 литров в минуту. Уравнение: 5x + 20 = 45. Через сколько минут в резервуаре будет 45 литров?`,
+  answerPlaceholder: `Твой ответ`, checkButton: `Проверить`, solutionSummary: `Показать решение`,
+  task1Result: `Результат: 14`, task2Result: `Результат: −1`, task3Result: `Результат: m = 3`, task4Result: `Результат: m = 2`, task5Result: `Результат: b = −3`, task6Result: `Результат: m = −4`, task7Result: `Результат: 15 €`, task8Result: `Результат: 5 минут`,
+  task1Step1: `Подставь x = 4: y = 3 · 4 + 2.`, task1Step2: `Вычисли: 3 · 4 = 12, затем 12 + 2 = 14.`, task1Step3: `Результат: y = 14.`,
+  task1Hint: `Соблюдай порядок действий: сначала умножь, потом сложи.`,
+  task2Step1: `Подставь x = 3: y = −2 · 3 + 5.`, task2Step2: `Вычисли: −2 · 3 = −6, затем −6 + 5 = −1.`, task2Step3: `Результат: y = −1.`,
+  task2Hint: `При отрицательном угловом коэффициенте следи за знаком: −2 · 3 отрицательно.`,
+  task3Step1: `Формула: m = (y₂ − y₁) : (x₂ − x₁).`, task3Step2: `Подставить: (8 − 2) : (3 − 1) = 6 : 2.`, task3Step3: `Вычислить: 6 : 2 = 3.`,
+  task3Hint: `Порядок в обеих разностях должен совпадать: либо обе B минус A, либо обе A минус B.`,
+  task4Step1: `Формула: m = (y₂ − y₁) : (x₂ − x₁).`, task4Step2: `Подставить: (13 − 5) : (4 − 0) = 8 : 4.`, task4Step3: `Вычислить: 8 : 4 = 2.`,
+  task4Hint: `Если точка находится при x = 0, её значение y — это сразу точка пересечения с осью y, b.`,
+  task5Step1: `Функция имеет вид y = m · x + b.`, task5Step2: `В y = 5x − 3 константа в конце — это точка пересечения с осью y.`, task5Step3: `b = −3.`,
+  task5Hint: `Знак перед числом относится к самому числу: здесь это −3, а не 3.`,
+  task6Step1: `Функция имеет вид y = m · x + b.`, task6Step2: `В y = −4x + 7 число перед x — это угловой коэффициент.`, task6Step3: `m = −4.`,
+  task6Hint: `Отрицательный угловой коэффициент означает, что прямая идёт вниз слева направо.`,
+  task7Step1: `Подставь x = 6: цена = 2 · 6 + 3.`, task7Step2: `Вычисли: 2 · 6 = 12, затем 12 + 3 = 15.`, task7Step3: `Результат: 15 €.`,
+  task7Hint: `Базовый тариф 3 € взимается всегда, независимо от пройденного расстояния.`,
+  task8Step1: `Уравнение: 5x + 20 = 45.`, task8Step2: `Вычти 20 с обеих сторон: 5x = 25.`, task8Step3: `Раздели обе стороны на 5: x = 5.`,
+  task8Hint: `Начальные 20 литров — это точка пересечения с осью y, b, а 5 литров в минуту — угловой коэффициент m.`,
+  hintLabel: `Типичная ошибка:`, footerMessage: `Считай спокойно и при необходимости смотри решение. У тебя получится!`,
+  fbEmpty: `Пожалуйста, введи число перед проверкой.`, fbCorrect: `Правильно! Отлично!`, fbIncorrect: `Пока не совсем верно. Посмотри решение ниже и попробуй ещё раз.`
+},
+ar: {
+  eyebrow: `مدرسة لويزن الثانوية · الصف الثامن`, titleLine1: `الدوال`, titleAccent: `الخطية`, backLink: `← جميع المواضيع`, h2Basics: `الأساسيات`,
+  basicsP1: `الدالة الخطية لها الصيغة y = m · x + b. حيث m هو الميل (مدى انحدار الخط المستقيم) وb هو نقطة تقاطع y (النقطة التي يقطع فيها الخط المستقيم محور y، عند x = 0).`,
+  funcAria: `نظام إحداثيات بخط مستقيم، مثلث الميل يوضح دلتا y على دلتا x، نقطة تقاطع y المسماة b موضحة على محور y`,
+  basicsExample1Label: `<strong>مثال خطوة بخطوة:</strong> y = 2x + 3. احسب y عندما x = 4.`,
+  basicsExample1Steps: `1. عوّض x = 4: y = 2 · 4 + 3<br>2. احسب: 2 · 4 = 8، ثم 8 + 3 = 11<br>3. النتيجة: y = 11`,
+  basicsP2Slope: `<strong>تحسب الميل m</strong> من نقطتين باستخدام m = (y₂ − y₁) ÷ (x₂ − x₁).`,
+  basicsExample2Label: `<strong>مثال خطوة بخطوة:</strong> يمر خط مستقيم بالنقطتين A(1|3) وB(3|7). احسب الميل.`,
+  basicsExample2Steps: `1. المعادلة: m = (y₂ − y₁) ÷ (x₂ − x₁)<br>2. عوّض: m = (7 − 3) ÷ (3 − 1)<br>3. احسب: 4 ÷ 2 = 2<br>4. النتيجة: m = 2`,
+  merkeTitle: `تذكّر`, merkeBody: `الصيغة: y = m · x + b.<br>m = الميل، b = نقطة تقاطع y (قيمة y عند x = 0).<br>الميل من نقطتين: m = (y₂ − y₁) ÷ (x₂ − x₁).`,
+  taskWord: `تمرين`,
+  task1Question: `y = 3x + 2. احسب y عندما x = 4.`, task2Question: `y = −2x + 5. احسب y عندما x = 3.`, task3Question: `يمر خط مستقيم بالنقطتين A(1|2) وB(3|8). كم يساوي الميل m؟`, task4Question: `يمر خط مستقيم بالنقطتين A(0|5) وB(4|13). كم يساوي الميل m؟`, task5Question: `في y = 5x − 3، ما هي نقطة تقاطع y، b؟`, task6Question: `في y = −4x + 7، ما هو الميل m؟`,
+  task7Question: `تكلف سيارة أجرة 3 يورو رسم أساسي زائد 2 يورو لكل كم. الدالة هي السعر = 2x + 3. كم تكلف رحلة 6 كم (باليورو)؟`,
+  task8Question: `يبدأ خزان ماء بـ 20 لترًا ويُملأ بمعدل 5 لترات في الدقيقة. المعادلة هي 5x + 20 = 45. بعد كم دقيقة سيكون هناك 45 لترًا في الخزان؟`,
+  answerPlaceholder: `إجابتك`, checkButton: `تحقق`, solutionSummary: `عرض الحل`,
+  task1Result: `النتيجة: 14`, task2Result: `النتيجة: −1`, task3Result: `النتيجة: m = 3`, task4Result: `النتيجة: m = 2`, task5Result: `النتيجة: b = −3`, task6Result: `النتيجة: m = −4`, task7Result: `النتيجة: 15 يورو`, task8Result: `النتيجة: 5 دقائق`,
+  task1Step1: `عوّض x = 4: y = 3 · 4 + 2.`, task1Step2: `احسب: 3 · 4 = 12، ثم 12 + 2 = 14.`, task1Step3: `النتيجة: y = 14.`,
+  task1Hint: `راعِ ترتيب العمليات: اضرب أولًا، ثم اجمع.`,
+  task2Step1: `عوّض x = 3: y = −2 · 3 + 5.`, task2Step2: `احسب: −2 · 3 = −6، ثم −6 + 5 = −1.`, task2Step3: `النتيجة: y = −1.`,
+  task2Hint: `مع الميل السالب، انتبه للإشارة: −2 · 3 سالبة.`,
+  task3Step1: `المعادلة: m = (y₂ − y₁) ÷ (x₂ − x₁).`, task3Step2: `عوّض: (8 − 2) ÷ (3 − 1) = 6 ÷ 2.`, task3Step3: `احسب: 6 ÷ 2 = 3.`,
+  task3Hint: `يجب أن يتطابق ترتيب الفرقين: إما كلاهما B ناقص A، أو كلاهما A ناقص B.`,
+  task4Step1: `المعادلة: m = (y₂ − y₁) ÷ (x₂ − x₁).`, task4Step2: `عوّض: (13 − 5) ÷ (4 − 0) = 8 ÷ 4.`, task4Step3: `احسب: 8 ÷ 4 = 2.`,
+  task4Hint: `إذا كانت نقطة عند x = 0، فقيمة y عندها هي مباشرة نقطة تقاطع y، وهي b.`,
+  task5Step1: `الدالة لها الصيغة y = m · x + b.`, task5Step2: `في y = 5x − 3، الثابت في النهاية هو نقطة تقاطع y.`, task5Step3: `b = −3.`,
+  task5Hint: `الإشارة أمام الرقم جزء منه: هنا هي −3، وليست 3.`,
+  task6Step1: `الدالة لها الصيغة y = m · x + b.`, task6Step2: `في y = −4x + 7، الرقم أمام x هو الميل.`, task6Step3: `m = −4.`,
+  task6Hint: `الميل السالب يعني أن الخط ينحدر من أعلى اليسار إلى أسفل اليمين.`,
+  task7Step1: `عوّض x = 6: السعر = 2 · 6 + 3.`, task7Step2: `احسب: 2 · 6 = 12، ثم 12 + 3 = 15.`, task7Step3: `النتيجة: 15 يورو.`,
+  task7Hint: `الرسم الأساسي 3 يورو يُطبَّق دائمًا، بغض النظر عن المسافة المقطوعة.`,
+  task8Step1: `المعادلة: 5x + 20 = 45.`, task8Step2: `اطرح 20 من الطرفين: 5x = 25.`, task8Step3: `اقسم الطرفين على 5: x = 5.`,
+  task8Hint: `الكمية الابتدائية 20 لترًا هي نقطة تقاطع y، وهي b، بينما 5 لترات في الدقيقة هي الميل m.`,
+  hintLabel: `خطأ شائع:`, footerMessage: `احسب بهدوء وراجع الحل إذا احتجت إليه. أنت قادر على ذلك!`,
+  fbEmpty: `الرجاء إدخال رقم قبل التحقق.`, fbCorrect: `صحيح! أحسنت!`, fbIncorrect: `ليست صحيحة تمامًا بعد. راجع الحل أدناه وحاول مرة أخرى.`
+},
+zh: {
+  eyebrow: `路易森文理中学 · 八年级`, titleLine1: `一次`, titleAccent: `函数`, backLink: `← 所有主题`, h2Basics: `基础知识`,
+  basicsP1: `一次函数的形式是 y = m · x + b。这里 m 是斜率（直线的陡峭程度），b 是 y 轴截距（直线与 y 轴相交的点，即 x = 0 时）。`,
+  funcAria: `带有一条直线的坐标系，斜率三角形显示delta y除以delta x，y轴截距b标注在y轴上`,
+  basicsExample1Label: `<strong>分步示例：</strong> y = 2x + 3。计算 x = 4 时的 y。`,
+  basicsExample1Steps: `1. 代入 x = 4：y = 2 · 4 + 3<br>2. 计算：2 · 4 = 8，然后 8 + 3 = 11<br>3. 结果：y = 11`,
+  basicsP2Slope: `<strong>斜率 m</strong> 可以用两点通过公式 m = (y₂ − y₁) ÷ (x₂ − x₁) 计算得出。`,
+  basicsExample2Label: `<strong>分步示例：</strong> 一条直线经过 A(1|3) 和 B(3|7)。计算斜率。`,
+  basicsExample2Steps: `1. 公式：m = (y₂ − y₁) ÷ (x₂ − x₁)<br>2. 代入：m = (7 − 3) ÷ (3 − 1)<br>3. 计算：4 ÷ 2 = 2<br>4. 结果：m = 2`,
+  merkeTitle: `记住`, merkeBody: `形式：y = m · x + b。<br>m = 斜率，b = y 轴截距（x = 0 时 y 的值）。<br>由两点求斜率：m = (y₂ − y₁) ÷ (x₂ − x₁)。`,
+  taskWord: `练习`,
+  task1Question: `y = 3x + 2。计算 x = 4 时的 y。`, task2Question: `y = −2x + 5。计算 x = 3 时的 y。`, task3Question: `一条直线经过 A(1|2) 和 B(3|8)。斜率 m 是多少？`, task4Question: `一条直线经过 A(0|5) 和 B(4|13)。斜率 m 是多少？`, task5Question: `对于 y = 5x − 3，y 轴截距 b 是多少？`, task6Question: `对于 y = −4x + 7，斜率 m 是多少？`,
+  task7Question: `一辆出租车起步价 3 欧元，每公里 2 欧元。函数是价格 = 2x + 3。行驶 6 公里要多少欧元？`,
+  task8Question: `一个水箱开始时有 20 升水，以每分钟 5 升的速度注水。方程是 5x + 20 = 45。经过多少分钟水箱里会有 45 升水？`,
+  answerPlaceholder: `你的答案`, checkButton: `检查`, solutionSummary: `显示答案`,
+  task1Result: `结果：14`, task2Result: `结果：−1`, task3Result: `结果：m = 3`, task4Result: `结果：m = 2`, task5Result: `结果：b = −3`, task6Result: `结果：m = −4`, task7Result: `结果：15 欧元`, task8Result: `结果：5 分钟`,
+  task1Step1: `代入 x = 4：y = 3 · 4 + 2。`, task1Step2: `计算：3 · 4 = 12，然后 12 + 2 = 14。`, task1Step3: `结果：y = 14。`,
+  task1Hint: `注意运算顺序：先乘，再加。`,
+  task2Step1: `代入 x = 3：y = −2 · 3 + 5。`, task2Step2: `计算：−2 · 3 = −6，然后 −6 + 5 = −1。`, task2Step3: `结果：y = −1。`,
+  task2Hint: `斜率为负时要注意符号：−2 · 3 是负数。`,
+  task3Step1: `公式：m = (y₂ − y₁) ÷ (x₂ − x₁)。`, task3Step2: `代入：(8 − 2) ÷ (3 − 1) = 6 ÷ 2。`, task3Step3: `计算：6 ÷ 2 = 3。`,
+  task3Hint: `两个差值的顺序必须一致：要么都是 B 减 A，要么都是 A 减 B。`,
+  task4Step1: `公式：m = (y₂ − y₁) ÷ (x₂ − x₁)。`, task4Step2: `代入：(13 − 5) ÷ (4 − 0) = 8 ÷ 4。`, task4Step3: `计算：8 ÷ 4 = 2。`,
+  task4Hint: `如果一个点在 x = 0 处，那它的 y 值就是 y 轴截距 b。`,
+  task5Step1: `函数形式是 y = m · x + b。`, task5Step2: `在 y = 5x − 3 中，末尾的常数就是 y 轴截距。`, task5Step3: `b = −3。`,
+  task5Hint: `数字前面的符号是数字的一部分：这里是 −3，不是 3。`,
+  task6Step1: `函数形式是 y = m · x + b。`, task6Step2: `在 y = −4x + 7 中，x 前面的数字就是斜率。`, task6Step3: `m = −4。`,
+  task6Hint: `负斜率意味着直线从左上方向右下方倾斜。`,
+  task7Step1: `代入 x = 6：价格 = 2 · 6 + 3。`, task7Step2: `计算：2 · 6 = 12，然后 12 + 3 = 15。`, task7Step3: `结果：15 欧元。`,
+  task7Hint: `3 欧元起步价始终适用，与行驶距离无关。`,
+  task8Step1: `方程：5x + 20 = 45。`, task8Step2: `两边都减去 20：5x = 25。`, task8Step3: `两边都除以 5：x = 5。`,
+  task8Hint: `20 升的初始量是 y 轴截距 b，每分钟 5 升是斜率 m。`,
+  hintLabel: `常见错误：`, footerMessage: `慢慢算，需要的话看看答案。你能做到！`,
+  fbEmpty: `请先输入一个数字再检查。`, fbCorrect: `正确！做得好！`, fbIncorrect: `还不完全正确。看看下面的答案，再试一次。`
+}
+};
+
+var currentLang = 'de';
+
+function setLanguage(lang){
+  var dict = TRANSLATIONS[lang] || TRANSLATIONS.de;
+  currentLang = TRANSLATIONS[lang] ? lang : 'de';
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = (currentLang === 'ar') ? 'rtl' : 'ltr';
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var key = el.getAttribute('data-i18n');
+    if(dict[key] !== undefined){ el.innerHTML = dict[key]; }
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-placeholder');
+    if(dict[key] !== undefined){ el.setAttribute('placeholder', dict[key]); }
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-aria');
+    if(dict[key] !== undefined){ el.setAttribute('aria-label', dict[key]); }
+  });
+  try{ localStorage.setItem('mathecoach_lang', currentLang); }catch(e){}
+  var sel = document.getElementById('langSelect');
+  if(sel) sel.value = currentLang;
+}
+
+function check(id, correct){
+  var dict = TRANSLATIONS[currentLang] || TRANSLATIONS.de;
+  var input = document.getElementById('input' + id);
+  var feedback = document.getElementById('feedback' + id);
+  var raw = input.value.trim();
+  var match = raw.match(/-?\d+/);
+  feedback.classList.remove('show', 'correct', 'incorrect');
+  if(!match){
+    feedback.textContent = dict.fbEmpty;
+    feedback.classList.add('show', 'incorrect');
+    return;
+  }
+  var value = parseInt(match[0], 10);
+  if(value === correct){
+    feedback.textContent = dict.fbCorrect;
+    feedback.classList.add('show', 'correct');
+  } else {
+    feedback.textContent = dict.fbIncorrect;
+    feedback.classList.add('show', 'incorrect');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var saved = 'de';
+  try{ saved = localStorage.getItem('mathecoach_lang') || 'de'; }catch(e){}
+  setLanguage(saved);
+});
+</script>
+
+</body>
+</html>
