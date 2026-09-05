@@ -126,19 +126,19 @@
   <section>
     <div class="card task-card">
       <h2><span class="num">1</span><span data-i18n="taskWord">Aufgabe</span> 1</h2>
-      <div class="task-question" data-i18n="task1Question">1/2 · 1/3 = ? Wie lautet der Zähler des Ergebnisses (vor dem Kürzen)?</div>
+      <div class="task-question" data-i18n="task1Question">1/2 · 1/3 = ? Gib das Ergebnis als vollständig gekürzten Bruch an (z.B. 1/6).</div>
       <div class="answer-row">
-        <input type="text" id="input1" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
-        <button class="check" data-i18n="checkButton" onclick="check(1, 1)">Prüfen</button>
+        <input type="text" id="input1" data-i18n-placeholder="answerPlaceholder" placeholder="z.B. 1/6" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(1, 1, 6)">Prüfen</button>
       </div>
       <div class="feedback" id="feedback1"></div>
       <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
         <div class="solution">
-          <div class="solution-result" data-i18n="task1Result">Ergebnis: 1</div>
+          <div class="solution-result" data-i18n="task1Result">Ergebnis: 1/6</div>
           <ol>
             <li data-i18n="task1Step1">Zähler mal Zähler: 1 · 1 = 1.</li>
             <li data-i18n="task1Step2">Nenner mal Nenner: 2 · 3 = 6.</li>
-            <li data-i18n="task1Step3">Ergebnis vor dem Kürzen: 1/6, der Zähler ist 1.</li>
+            <li data-i18n="task1Step3">Ergebnis: 1/6 (bereits vollständig gekürzt).</li>
           </ol>
           <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task1Hint">Bei der Multiplikation von Brüchen bildet man keinen gemeinsamen Nenner wie bei der Addition – man multipliziert einfach direkt.</span></div>
         </div>
@@ -149,21 +149,21 @@
   <section>
     <div class="card task-card">
       <h2><span class="num">2</span><span data-i18n="taskWord">Aufgabe</span> 2</h2>
-      <div class="task-question" data-i18n="task2Question">1/2 · 1/3 = ? Wie lautet der Nenner des Ergebnisses (vor dem Kürzen)?</div>
+      <div class="task-question" data-i18n="task2Question">3/5 · 2/7 = ? Gib das Ergebnis als vollständig gekürzten Bruch an.</div>
       <div class="answer-row">
-        <input type="text" id="input2" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
-        <button class="check" data-i18n="checkButton" onclick="check(2, 6)">Prüfen</button>
+        <input type="text" id="input2" data-i18n-placeholder="answerPlaceholder" placeholder="z.B. 1/6" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(2, 6, 35)">Prüfen</button>
       </div>
       <div class="feedback" id="feedback2"></div>
       <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
         <div class="solution">
-          <div class="solution-result" data-i18n="task2Result">Ergebnis: 6</div>
+          <div class="solution-result" data-i18n="task2Result">Ergebnis: 6/35</div>
           <ol>
-            <li data-i18n="task2Step1">Zähler mal Zähler: 1 · 1 = 1.</li>
-            <li data-i18n="task2Step2">Nenner mal Nenner: 2 · 3 = 6.</li>
-            <li data-i18n="task2Step3">Ergebnis: 1/6, der Nenner ist 6.</li>
+            <li data-i18n="task2Step1">Zähler mal Zähler: 3 · 2 = 6.</li>
+            <li data-i18n="task2Step2">Nenner mal Nenner: 5 · 7 = 35.</li>
+            <li data-i18n="task2Step3">Ergebnis: 6/35 (schon vollständig gekürzt, da ggT(6, 35) = 1).</li>
           </ol>
-          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task2Hint">Manche addieren aus Gewohnheit die Nenner (2+3=5) statt sie zu multiplizieren.</span></div>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task2Hint">Prüfe am Ende immer, ob sich der Bruch noch kürzen lässt.</span></div>
         </div>
       </details>
     </div>
@@ -172,19 +172,19 @@
   <section>
     <div class="card task-card">
       <h2><span class="num">3</span><span data-i18n="taskWord">Aufgabe</span> 3</h2>
-      <div class="task-question" data-i18n="task3Question">2/5 · 3/4 = ? Wie lautet der Zähler des Ergebnisses (vor dem Kürzen)?</div>
+      <div class="task-question" data-i18n="task3Question">2/5 · 3/4 = ? Gib das Ergebnis als vollständig gekürzten Bruch an.</div>
       <div class="answer-row">
-        <input type="text" id="input3" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
-        <button class="check" data-i18n="checkButton" onclick="check(3, 6)">Prüfen</button>
+        <input type="text" id="input3" data-i18n-placeholder="answerPlaceholder" placeholder="z.B. 1/6" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(3, 3, 10)">Prüfen</button>
       </div>
       <div class="feedback" id="feedback3"></div>
       <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
         <div class="solution">
-          <div class="solution-result" data-i18n="task3Result">Ergebnis: 6</div>
+          <div class="solution-result" data-i18n="task3Result">Ergebnis: 3/10</div>
           <ol>
             <li data-i18n="task3Step1">Zähler mal Zähler: 2 · 3 = 6.</li>
             <li data-i18n="task3Step2">Nenner mal Nenner: 5 · 4 = 20.</li>
-            <li data-i18n="task3Step3">Ergebnis vor dem Kürzen: 6/20, der Zähler ist 6.</li>
+            <li data-i18n="task3Step3">Kürzen (ggT von 6 und 20 ist 2): 6/20 = 3/10.</li>
           </ol>
           <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task3Hint">Man kann vor dem Multiplizieren manchmal schon kürzen (über Kreuz), aber das ist nicht Pflicht – am Ende reicht es auch, das Ergebnis zu kürzen.</span></div>
         </div>
@@ -195,19 +195,19 @@
   <section>
     <div class="card task-card">
       <h2><span class="num">4</span><span data-i18n="taskWord">Aufgabe</span> 4</h2>
-      <div class="task-question" data-i18n="task4Question">Wie lautet der Zähler des Kehrwerts von 3/7?</div>
+      <div class="task-question" data-i18n="task4Question">Wie lautet der Kehrwert von 3/7?</div>
       <div class="answer-row">
-        <input type="text" id="input4" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
-        <button class="check" data-i18n="checkButton" onclick="check(4, 7)">Prüfen</button>
+        <input type="text" id="input4" data-i18n-placeholder="answerPlaceholder" placeholder="z.B. 1/6" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(4, 7, 3)">Prüfen</button>
       </div>
       <div class="feedback" id="feedback4"></div>
       <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
         <div class="solution">
-          <div class="solution-result" data-i18n="task4Result">Ergebnis: 7</div>
+          <div class="solution-result" data-i18n="task4Result">Ergebnis: 7/3</div>
           <ol>
             <li data-i18n="task4Step1">Beim Kehrwert werden Zähler und Nenner vertauscht.</li>
             <li data-i18n="task4Step2">Aus 3/7 wird 7/3.</li>
-            <li data-i18n="task4Step3">Der neue Zähler ist 7.</li>
+            <li data-i18n="task4Step3">Der Kehrwert ist 7/3.</li>
           </ol>
           <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task4Hint">Der Kehrwert ist nicht dasselbe wie das Gegenteil (negative Zahl) – es geht rein um das Vertauschen von Zähler und Nenner.</span></div>
         </div>
@@ -218,19 +218,19 @@
   <section>
     <div class="card task-card">
       <h2><span class="num">5</span><span data-i18n="taskWord">Aufgabe</span> 5</h2>
-      <div class="task-question" data-i18n="task5Question">3/4 : 2/3 = ? Wie lautet der Zähler des Ergebnisses (vor dem Kürzen)?</div>
+      <div class="task-question" data-i18n="task5Question">3/4 : 2/3 = ? Gib das Ergebnis als vollständig gekürzten Bruch an.</div>
       <div class="answer-row">
-        <input type="text" id="input5" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
-        <button class="check" data-i18n="checkButton" onclick="check(5, 9)">Prüfen</button>
+        <input type="text" id="input5" data-i18n-placeholder="answerPlaceholder" placeholder="z.B. 1/6" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(5, 9, 8)">Prüfen</button>
       </div>
       <div class="feedback" id="feedback5"></div>
       <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
         <div class="solution">
-          <div class="solution-result" data-i18n="task5Result">Ergebnis: 9</div>
+          <div class="solution-result" data-i18n="task5Result">Ergebnis: 9/8</div>
           <ol>
             <li data-i18n="task5Step1">Kehrwert von 2/3 bilden: 3/2.</li>
             <li data-i18n="task5Step2">Multiplizieren statt dividieren: 3/4 · 3/2.</li>
-            <li data-i18n="task5Step3">Zähler mal Zähler: 3 · 3 = 9. Ergebnis vor dem Kürzen: 9/8.</li>
+            <li data-i18n="task5Step3">Rechnen: 3 · 3 = 9 und 4 · 2 = 8. Ergebnis: 9/8 (bereits vollständig gekürzt).</li>
           </ol>
           <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task5Hint">Man dreht immer den zweiten Bruch (den Divisor) um, nicht den ersten.</span></div>
         </div>
@@ -241,19 +241,19 @@
   <section>
     <div class="card task-card">
       <h2><span class="num">6</span><span data-i18n="taskWord">Aufgabe</span> 6</h2>
-      <div class="task-question" data-i18n="task6Question">5/6 : 5/9 = ? Wie lautet der Nenner des vollständig gekürzten Ergebnisses?</div>
+      <div class="task-question" data-i18n="task6Question">5/6 : 5/9 = ? Gib das Ergebnis als vollständig gekürzten Bruch an.</div>
       <div class="answer-row">
-        <input type="text" id="input6" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
-        <button class="check" data-i18n="checkButton" onclick="check(6, 2)">Prüfen</button>
+        <input type="text" id="input6" data-i18n-placeholder="answerPlaceholder" placeholder="z.B. 1/6" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(6, 3, 2)">Prüfen</button>
       </div>
       <div class="feedback" id="feedback6"></div>
       <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
         <div class="solution">
-          <div class="solution-result" data-i18n="task6Result">Ergebnis: 2</div>
+          <div class="solution-result" data-i18n="task6Result">Ergebnis: 3/2</div>
           <ol>
             <li data-i18n="task6Step1">Kehrwert von 5/9 bilden: 9/5.</li>
             <li data-i18n="task6Step2">Multiplizieren: 5/6 · 9/5 = 45/30.</li>
-            <li data-i18n="task6Step3">Vollständig kürzen (ggT von 45 und 30 ist 15): 45/30 = 3/2, der Nenner ist 2.</li>
+            <li data-i18n="task6Step3">Vollständig kürzen (ggT von 45 und 30 ist 15): 45/30 = 3/2.</li>
           </ol>
           <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task6Hint">Nach dem Multiplizieren nicht vergessen, das Ergebnis noch vollständig zu kürzen.</span></div>
         </div>
@@ -264,19 +264,19 @@
   <section>
     <div class="card task-card">
       <h2><span class="num">7</span><span data-i18n="taskWord">Aufgabe</span> 7</h2>
-      <div class="task-question" data-i18n="task7Question">Ein Rezept braucht 2/3 Tasse Zucker. Du machst nur die Hälfte des Rezepts. Der Zuckerbedarf ist dann 2/3 · 1/2. Wie lautet der Zähler des Ergebnisses (vor dem Kürzen)?</div>
+      <div class="task-question" data-i18n="task7Question">Ein Rezept braucht 2/3 Tasse Zucker. Du machst nur die Hälfte des Rezepts. Wie viel Zucker brauchst du (als vollständig gekürzter Bruch)?</div>
       <div class="answer-row">
-        <input type="text" id="input7" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
-        <button class="check" data-i18n="checkButton" onclick="check(7, 2)">Prüfen</button>
+        <input type="text" id="input7" data-i18n-placeholder="answerPlaceholder" placeholder="z.B. 1/6" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(7, 1, 3)">Prüfen</button>
       </div>
       <div class="feedback" id="feedback7"></div>
       <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
         <div class="solution">
-          <div class="solution-result" data-i18n="task7Result">Ergebnis: 2</div>
+          <div class="solution-result" data-i18n="task7Result">Ergebnis: 1/3</div>
           <ol>
-            <li data-i18n="task7Step1">Zähler mal Zähler: 2 · 1 = 2.</li>
-            <li data-i18n="task7Step2">Nenner mal Nenner: 3 · 2 = 6.</li>
-            <li data-i18n="task7Step3">Ergebnis vor dem Kürzen: 2/6, der Zähler ist 2.</li>
+            <li data-i18n="task7Step1">Rechnung: 2/3 · 1/2.</li>
+            <li data-i18n="task7Step2">Zähler mal Zähler: 2 · 1 = 2. Nenner mal Nenner: 3 · 2 = 6.</li>
+            <li data-i18n="task7Step3">Kürzen (ggT von 2 und 6 ist 2): 2/6 = 1/3.</li>
           </ol>
           <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task7Hint">"Die Hälfte von etwas" bedeutet, mit 1/2 zu multiplizieren, nicht durch 2 zu addieren oder zu subtrahieren.</span></div>
         </div>
@@ -287,19 +287,19 @@
   <section>
     <div class="card task-card">
       <h2><span class="num">8</span><span data-i18n="taskWord">Aufgabe</span> 8</h2>
-      <div class="task-question" data-i18n="task8Question">Du hast 3/4 Liter Saft und verteilst ihn gleichmäßig auf 3 Gläser. Die Rechnung dafür ist 3/4 : 3. Wie lautet der Nenner des vollständig gekürzten Ergebnisses?</div>
+      <div class="task-question" data-i18n="task8Question">Du hast 3/4 Liter Saft und verteilst ihn gleichmäßig auf 3 Gläser. Wie viel Liter kommt in jedes Glas (als vollständig gekürzter Bruch)?</div>
       <div class="answer-row">
-        <input type="text" id="input8" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
-        <button class="check" data-i18n="checkButton" onclick="check(8, 4)">Prüfen</button>
+        <input type="text" id="input8" data-i18n-placeholder="answerPlaceholder" placeholder="z.B. 1/6" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(8, 1, 4)">Prüfen</button>
       </div>
       <div class="feedback" id="feedback8"></div>
       <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
         <div class="solution">
-          <div class="solution-result" data-i18n="task8Result">Ergebnis: 4</div>
+          <div class="solution-result" data-i18n="task8Result">Ergebnis: 1/4</div>
           <ol>
             <li data-i18n="task8Step1">3 als Bruch schreiben: 3/1. Kehrwert davon: 1/3.</li>
             <li data-i18n="task8Step2">Multiplizieren: 3/4 · 1/3 = 3/12.</li>
-            <li data-i18n="task8Step3">Vollständig kürzen (ggT von 3 und 12 ist 3): 3/12 = 1/4, der Nenner ist 4.</li>
+            <li data-i18n="task8Step3">Vollständig kürzen (ggT von 3 und 12 ist 3): 3/12 = 1/4.</li>
           </ol>
           <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task8Hint">Eine ganze Zahl wie 3 kann man immer als Bruch 3/1 schreiben, um damit wie gewohnt zu rechnen.</span></div>
         </div>
@@ -331,11 +331,11 @@ de: {
   basicsExample2Steps: `1. Kehrwert des zweiten Bruchs bilden: 4/5 wird zu 5/4<br>2. Aus der Division wird eine Multiplikation: <span style="white-space:nowrap">2/3 · 5/4</span><br>3. Rechnen: 2 · 5 = 10 und 3 · 4 = 12 → 10/12, gekürzt: <span style="white-space:nowrap">5/6</span>`,
   merkeTitle: `Merke`, merkeBody: `Multiplizieren: Zähler mal Zähler, Nenner mal Nenner.<br>Dividieren: mit dem Kehrwert des zweiten Bruchs multiplizieren.<br>Am Ende immer kürzen, wenn möglich.`,
   taskWord: `Aufgabe`,
-  task1Question: `1/2 · 1/3 = ? Wie lautet der Zähler des Ergebnisses (vor dem Kürzen)?`, task2Question: `1/2 · 1/3 = ? Wie lautet der Nenner des Ergebnisses (vor dem Kürzen)?`, task3Question: `2/5 · 3/4 = ? Wie lautet der Zähler des Ergebnisses (vor dem Kürzen)?`, task4Question: `Wie lautet der Zähler des Kehrwerts von 3/7?`, task5Question: `3/4 : 2/3 = ? Wie lautet der Zähler des Ergebnisses (vor dem Kürzen)?`, task6Question: `5/6 : 5/9 = ? Wie lautet der Nenner des vollständig gekürzten Ergebnisses?`,
-  task7Question: `Ein Rezept braucht 2/3 Tasse Zucker. Du machst nur die Hälfte des Rezepts. Der Zuckerbedarf ist dann 2/3 · 1/2. Wie lautet der Zähler des Ergebnisses (vor dem Kürzen)?`,
-  task8Question: `Du hast 3/4 Liter Saft und verteilst ihn gleichmäßig auf 3 Gläser. Die Rechnung dafür ist 3/4 : 3. Wie lautet der Nenner des vollständig gekürzten Ergebnisses?`,
+  task1Question: `1/2 · 1/3 = ? Gib das Ergebnis als vollständig gekürzten Bruch an (z.B. 1/6).`, task2Question: `3/5 · 2/7 = ? Gib das Ergebnis als vollständig gekürzten Bruch an.`, task3Question: `2/5 · 3/4 = ? Gib das Ergebnis als vollständig gekürzten Bruch an.`, task4Question: `Wie lautet der Kehrwert von 3/7?`, task5Question: `3/4 : 2/3 = ? Gib das Ergebnis als vollständig gekürzten Bruch an.`, task6Question: `5/6 : 5/9 = ? Gib das Ergebnis als vollständig gekürzten Bruch an.`,
+  task7Question: `Ein Rezept braucht 2/3 Tasse Zucker. Du machst nur die Hälfte des Rezepts. Wie viel Zucker brauchst du (als vollständig gekürzter Bruch)?`,
+  task8Question: `Du hast 3/4 Liter Saft und verteilst ihn gleichmäßig auf 3 Gläser. Wie viel Liter kommt in jedes Glas (als vollständig gekürzter Bruch)?`,
   answerPlaceholder: `Deine Antwort`, checkButton: `Prüfen`, solutionSummary: `Lösung anzeigen`,
-  task1Result: `<span style="white-space:nowrap">Ergebnis: 1</span>`, task2Result: `<span style="white-space:nowrap">Ergebnis: 6</span>`, task3Result: `<span style="white-space:nowrap">Ergebnis: 6</span>`, task4Result: `<span style="white-space:nowrap">Ergebnis: 7</span>`, task5Result: `<span style="white-space:nowrap">Ergebnis: 9</span>`, task6Result: `<span style="white-space:nowrap">Ergebnis: 2</span>`, task7Result: `<span style="white-space:nowrap">Ergebnis: 2</span>`, task8Result: `<span style="white-space:nowrap">Ergebnis: 4</span>`,
+  task1Result: `<span style="white-space:nowrap">Ergebnis: 1/6</span>`, task2Result: `<span style="white-space:nowrap">Ergebnis: 6/35</span>`, task3Result: `<span style="white-space:nowrap">Ergebnis: 3/10</span>`, task4Result: `<span style="white-space:nowrap">Ergebnis: 7/3</span>`, task5Result: `<span style="white-space:nowrap">Ergebnis: 9/8</span>`, task6Result: `<span style="white-space:nowrap">Ergebnis: 3/2</span>`, task7Result: `<span style="white-space:nowrap">Ergebnis: 1/3</span>`, task8Result: `<span style="white-space:nowrap">Ergebnis: 1/4</span>`,
   task1Step1: `Zähler mal Zähler: 1 · 1 = 1.`, task1Step2: `Nenner mal Nenner: 2 · 3 = 6.`, task1Step3: `Ergebnis vor dem Kürzen: 1/6, der Zähler ist 1.`,
   task1Hint: `Bei der Multiplikation von Brüchen bildet man keinen gemeinsamen Nenner wie bei der Addition – man multipliziert einfach direkt.`,
   task2Step1: `Zähler mal Zähler: 1 · 1 = 1.`, task2Step2: `Nenner mal Nenner: 2 · 3 = 6.`, task2Step3: `Ergebnis: 1/6, der Nenner ist 6.`,
@@ -367,11 +367,11 @@ en: {
   basicsExample2Steps: `1. Take the reciprocal of the second fraction: 4/5 becomes 5/4<br>2. The division becomes a multiplication: <span style="white-space:nowrap">2/3 · 5/4</span><br>3. Calculate: 2 · 5 = 10 and 3 · 4 = 12 → 10/12, reduced: <span style="white-space:nowrap">5/6</span>`,
   merkeTitle: `Remember`, merkeBody: `Multiplying: numerator times numerator, denominator times denominator.<br>Dividing: multiply by the reciprocal of the second fraction.<br>Always reduce the result at the end if possible.`,
   taskWord: `Exercise`,
-  task1Question: `1/2 · 1/3 = ? What's the numerator of the result (before reducing)?`, task2Question: `1/2 · 1/3 = ? What's the denominator of the result (before reducing)?`, task3Question: `2/5 · 3/4 = ? What's the numerator of the result (before reducing)?`, task4Question: `What's the numerator of the reciprocal of 3/7?`, task5Question: `3/4 : 2/3 = ? What's the numerator of the result (before reducing)?`, task6Question: `5/6 : 5/9 = ? What's the denominator of the fully reduced result?`,
-  task7Question: `A recipe needs 2/3 cup of sugar. You only make half the recipe. The sugar needed is then 2/3 · 1/2. What's the numerator of the result (before reducing)?`,
-  task8Question: `You have 3/4 liter of juice and split it evenly into 3 glasses. The calculation is 3/4 : 3. What's the denominator of the fully reduced result?`,
+  task1Question: `1/2 · 1/3 = ? Give the result as a fully reduced fraction (e.g. 1/6).`, task2Question: `3/5 · 2/7 = ? Give the result as a fully reduced fraction.`, task3Question: `2/5 · 3/4 = ? Give the result as a fully reduced fraction.`, task4Question: `What's the reciprocal of 3/7?`, task5Question: `3/4 : 2/3 = ? Give the result as a fully reduced fraction.`, task6Question: `5/6 : 5/9 = ? Give the result as a fully reduced fraction.`,
+  task7Question: `A recipe needs 2/3 cup of sugar. You're only making half the recipe. How much sugar do you need (as a fully reduced fraction)?`,
+  task8Question: `You have 3/4 liter of juice and split it evenly between 3 glasses. How much goes into each glass (as a fully reduced fraction)?`,
   answerPlaceholder: `Your answer`, checkButton: `Check`, solutionSummary: `Show solution`,
-  task1Result: `<span style="white-space:nowrap">Result: 1</span>`, task2Result: `<span style="white-space:nowrap">Result: 6</span>`, task3Result: `<span style="white-space:nowrap">Result: 6</span>`, task4Result: `<span style="white-space:nowrap">Result: 7</span>`, task5Result: `<span style="white-space:nowrap">Result: 9</span>`, task6Result: `<span style="white-space:nowrap">Result: 2</span>`, task7Result: `<span style="white-space:nowrap">Result: 2</span>`, task8Result: `<span style="white-space:nowrap">Result: 4</span>`,
+  task1Result: `<span style="white-space:nowrap">Result: 1/6</span>`, task2Result: `<span style="white-space:nowrap">Result: 6/35</span>`, task3Result: `<span style="white-space:nowrap">Result: 3/10</span>`, task4Result: `<span style="white-space:nowrap">Result: 7/3</span>`, task5Result: `<span style="white-space:nowrap">Result: 9/8</span>`, task6Result: `<span style="white-space:nowrap">Result: 3/2</span>`, task7Result: `<span style="white-space:nowrap">Result: 1/3</span>`, task8Result: `<span style="white-space:nowrap">Result: 1/4</span>`,
   task1Step1: `Numerator times numerator: 1 · 1 = 1.`, task1Step2: `Denominator times denominator: 2 · 3 = 6.`, task1Step3: `Result before reducing: 1/6, the numerator is 1.`,
   task1Hint: `When multiplying fractions, you don't find a common denominator like with addition — you multiply directly.`,
   task2Step1: `Numerator times numerator: 1 · 1 = 1.`, task2Step2: `Denominator times denominator: 2 · 3 = 6.`, task2Step3: `Result: 1/6, the denominator is 6.`,
@@ -403,11 +403,11 @@ es: {
   basicsExample2Steps: `1. Calcula el recíproco de la segunda fracción: 4/5 se convierte en 5/4<br>2. La división se convierte en multiplicación: <span style="white-space:nowrap">2/3 · 5/4</span><br>3. Calcula: 2 · 5 = 10 y 3 · 4 = 12 → 10/12, simplificado: <span style="white-space:nowrap">5/6</span>`,
   merkeTitle: `Recuerda`, merkeBody: `Multiplicar: numerador por numerador, denominador por denominador.<br>Dividir: multiplicar por el recíproco de la segunda fracción.<br>Al final, siempre simplifica el resultado si es posible.`,
   taskWord: `Ejercicio`,
-  task1Question: `1/2 · 1/3 = ? ¿Cuál es el numerador del resultado (antes de simplificar)?`, task2Question: `1/2 · 1/3 = ? ¿Cuál es el denominador del resultado (antes de simplificar)?`, task3Question: `2/5 · 3/4 = ? ¿Cuál es el numerador del resultado (antes de simplificar)?`, task4Question: `¿Cuál es el numerador del recíproco de 3/7?`, task5Question: `3/4 : 2/3 = ? ¿Cuál es el numerador del resultado (antes de simplificar)?`, task6Question: `5/6 : 5/9 = ? ¿Cuál es el denominador del resultado totalmente simplificado?`,
-  task7Question: `Una receta necesita 2/3 de taza de azúcar. Solo haces la mitad de la receta. El azúcar necesario es entonces 2/3 · 1/2. ¿Cuál es el numerador del resultado (antes de simplificar)?`,
-  task8Question: `Tienes 3/4 de litro de zumo y lo repartes en partes iguales en 3 vasos. El cálculo es 3/4 : 3. ¿Cuál es el denominador del resultado totalmente simplificado?`,
+  task1Question: `1/2 · 1/3 = ? Da el resultado como fracción totalmente simplificada (p. ej. 1/6).`, task2Question: `3/5 · 2/7 = ? Da el resultado como fracción totalmente simplificada.`, task3Question: `2/5 · 3/4 = ? Da el resultado como fracción totalmente simplificada.`, task4Question: `¿Cuál es el recíproco de 3/7?`, task5Question: `3/4 : 2/3 = ? Da el resultado como fracción totalmente simplificada.`, task6Question: `5/6 : 5/9 = ? Da el resultado como fracción totalmente simplificada.`,
+  task7Question: `Una receta necesita 2/3 de taza de azúcar. Solo haces la mitad de la receta. ¿Cuánta azúcar necesitas (como fracción totalmente simplificada)?`,
+  task8Question: `Tienes 3/4 de litro de zumo y lo repartes equitativamente en 3 vasos. ¿Cuánto va en cada vaso (como fracción totalmente simplificada)?`,
   answerPlaceholder: `Tu respuesta`, checkButton: `Comprobar`, solutionSummary: `Ver solución`,
-  task1Result: `<span style="white-space:nowrap">Resultado: 1</span>`, task2Result: `<span style="white-space:nowrap">Resultado: 6</span>`, task3Result: `<span style="white-space:nowrap">Resultado: 6</span>`, task4Result: `<span style="white-space:nowrap">Resultado: 7</span>`, task5Result: `<span style="white-space:nowrap">Resultado: 9</span>`, task6Result: `<span style="white-space:nowrap">Resultado: 2</span>`, task7Result: `<span style="white-space:nowrap">Resultado: 2</span>`, task8Result: `<span style="white-space:nowrap">Resultado: 4</span>`,
+  task1Result: `<span style="white-space:nowrap">Resultado: 1/6</span>`, task2Result: `<span style="white-space:nowrap">Resultado: 6/35</span>`, task3Result: `<span style="white-space:nowrap">Resultado: 3/10</span>`, task4Result: `<span style="white-space:nowrap">Resultado: 7/3</span>`, task5Result: `<span style="white-space:nowrap">Resultado: 9/8</span>`, task6Result: `<span style="white-space:nowrap">Resultado: 3/2</span>`, task7Result: `<span style="white-space:nowrap">Resultado: 1/3</span>`, task8Result: `<span style="white-space:nowrap">Resultado: 1/4</span>`,
   task1Step1: `Numerador por numerador: 1 · 1 = 1.`, task1Step2: `Denominador por denominador: 2 · 3 = 6.`, task1Step3: `Resultado antes de simplificar: 1/6, el numerador es 1.`,
   task1Hint: `Al multiplicar fracciones no se busca un denominador común como en la suma — se multiplica directamente.`,
   task2Step1: `Numerador por numerador: 1 · 1 = 1.`, task2Step2: `Denominador por denominador: 2 · 3 = 6.`, task2Step3: `Resultado: 1/6, el denominador es 6.`,
@@ -439,11 +439,11 @@ fr: {
   basicsExample2Steps: `1. Prends l'inverse de la deuxième fraction : 4/5 devient 5/4<br>2. La division devient une multiplication : <span style="white-space:nowrap">2/3 · 5/4</span><br>3. Calcule : 2 · 5 = 10 et 3 · 4 = 12 → 10/12, simplifié : <span style="white-space:nowrap">5/6</span>`,
   merkeTitle: `À retenir`, merkeBody: `Multiplier : numérateur fois numérateur, dénominateur fois dénominateur.<br>Diviser : multiplier par l'inverse de la deuxième fraction.<br>Toujours simplifier le résultat à la fin si possible.`,
   taskWord: `Exercice`,
-  task1Question: `1/2 · 1/3 = ? Quel est le numérateur du résultat (avant simplification) ?`, task2Question: `1/2 · 1/3 = ? Quel est le dénominateur du résultat (avant simplification) ?`, task3Question: `2/5 · 3/4 = ? Quel est le numérateur du résultat (avant simplification) ?`, task4Question: `Quel est le numérateur de l'inverse de 3/7 ?`, task5Question: `3/4 : 2/3 = ? Quel est le numérateur du résultat (avant simplification) ?`, task6Question: `5/6 : 5/9 = ? Quel est le dénominateur du résultat entièrement simplifié ?`,
-  task7Question: `Une recette demande 2/3 de tasse de sucre. Tu ne fais que la moitié de la recette. Le sucre nécessaire est alors 2/3 · 1/2. Quel est le numérateur du résultat (avant simplification) ?`,
-  task8Question: `Tu as 3/4 de litre de jus et tu le répartis également dans 3 verres. Le calcul est 3/4 : 3. Quel est le dénominateur du résultat entièrement simplifié ?`,
+  task1Question: `1/2 · 1/3 = ? Donne le résultat sous forme de fraction entièrement simplifiée (par ex. 1/6).`, task2Question: `3/5 · 2/7 = ? Donne le résultat sous forme de fraction entièrement simplifiée.`, task3Question: `2/5 · 3/4 = ? Donne le résultat sous forme de fraction entièrement simplifiée.`, task4Question: `Quel est l'inverse de 3/7 ?`, task5Question: `3/4 : 2/3 = ? Donne le résultat sous forme de fraction entièrement simplifiée.`, task6Question: `5/6 : 5/9 = ? Donne le résultat sous forme de fraction entièrement simplifiée.`,
+  task7Question: `Une recette nécessite 2/3 de tasse de sucre. Tu ne fais que la moitié de la recette. Combien de sucre te faut-il (sous forme de fraction entièrement simplifiée) ?`,
+  task8Question: `Tu as 3/4 de litre de jus que tu répartis également dans 3 verres. Combien y a-t-il dans chaque verre (sous forme de fraction entièrement simplifiée) ?`,
   answerPlaceholder: `Ta réponse`, checkButton: `Vérifier`, solutionSummary: `Voir la solution`,
-  task1Result: `<span style="white-space:nowrap">Résultat : 1</span>`, task2Result: `<span style="white-space:nowrap">Résultat : 6</span>`, task3Result: `<span style="white-space:nowrap">Résultat : 6</span>`, task4Result: `<span style="white-space:nowrap">Résultat : 7</span>`, task5Result: `<span style="white-space:nowrap">Résultat : 9</span>`, task6Result: `<span style="white-space:nowrap">Résultat : 2</span>`, task7Result: `<span style="white-space:nowrap">Résultat : 2</span>`, task8Result: `<span style="white-space:nowrap">Résultat : 4</span>`,
+  task1Result: `<span style="white-space:nowrap">Résultat: 1/6</span>`, task2Result: `<span style="white-space:nowrap">Résultat: 6/35</span>`, task3Result: `<span style="white-space:nowrap">Résultat: 3/10</span>`, task4Result: `<span style="white-space:nowrap">Résultat: 7/3</span>`, task5Result: `<span style="white-space:nowrap">Résultat: 9/8</span>`, task6Result: `<span style="white-space:nowrap">Résultat: 3/2</span>`, task7Result: `<span style="white-space:nowrap">Résultat: 1/3</span>`, task8Result: `<span style="white-space:nowrap">Résultat: 1/4</span>`,
   task1Step1: `Numérateur fois numérateur : 1 · 1 = 1.`, task1Step2: `Dénominateur fois dénominateur : 2 · 3 = 6.`, task1Step3: `Résultat avant simplification : 1/6, le numérateur est 1.`,
   task1Hint: `En multipliant des fractions, on ne cherche pas un dénominateur commun comme pour l'addition — on multiplie directement.`,
   task2Step1: `Numérateur fois numérateur : 1 · 1 = 1.`, task2Step2: `Dénominateur fois dénominateur : 2 · 3 = 6.`, task2Step3: `Résultat : 1/6, le dénominateur est 6.`,
@@ -475,11 +475,11 @@ tr: {
   basicsExample2Steps: `1. İkinci kesrin tersini al: 4/5, 5/4 olur<br>2. Bölme işlemi çarpmaya dönüşür: <span style="white-space:nowrap">2/3 · 5/4</span><br>3. Hesapla: 2 · 5 = 10 ve 3 · 4 = 12 → 10/12, sadeleştirilmiş: <span style="white-space:nowrap">5/6</span>`,
   merkeTitle: `Unutma`, merkeBody: `Çarpma: pay çarpı pay, payda çarpı payda.<br>Bölme: ikinci kesrin tersiyle çarp.<br>Sonunda mümkünse her zaman sadeleştir.`,
   taskWord: `Alıştırma`,
-  task1Question: `1/2 · 1/3 = ? Sonucun payı nedir (sadeleştirmeden önce)?`, task2Question: `1/2 · 1/3 = ? Sonucun paydası nedir (sadeleştirmeden önce)?`, task3Question: `2/5 · 3/4 = ? Sonucun payı nedir (sadeleştirmeden önce)?`, task4Question: `3/7'nin tersinin payı nedir?`, task5Question: `3/4 : 2/3 = ? Sonucun payı nedir (sadeleştirmeden önce)?`, task6Question: `5/6 : 5/9 = ? Tamamen sadeleştirilmiş sonucun paydası nedir?`,
-  task7Question: `Bir tarif 2/3 su bardağı şeker gerektiriyor. Sen tarifin sadece yarısını yapıyorsun. Gereken şeker miktarı o zaman 2/3 · 1/2'dir. Sonucun payı nedir (sadeleştirmeden önce)?`,
-  task8Question: `3/4 litre meyve suyun var ve bunu eşit olarak 3 bardağa paylaştırıyorsun. Bunun hesabı 3/4 : 3'tür. Tamamen sadeleştirilmiş sonucun paydası nedir?`,
+  task1Question: `1/2 · 1/3 = ? Sonucu tamamen sadeleştirilmiş bir kesir olarak ver (örn. 1/6).`, task2Question: `3/5 · 2/7 = ? Sonucu tamamen sadeleştirilmiş bir kesir olarak ver.`, task3Question: `2/5 · 3/4 = ? Sonucu tamamen sadeleştirilmiş bir kesir olarak ver.`, task4Question: `3/7'nin tersi nedir?`, task5Question: `3/4 : 2/3 = ? Sonucu tamamen sadeleştirilmiş bir kesir olarak ver.`, task6Question: `5/6 : 5/9 = ? Sonucu tamamen sadeleştirilmiş bir kesir olarak ver.`,
+  task7Question: `Bir tarif 2/3 su bardağı şeker gerektiriyor. Sadece tarifin yarısını yapıyorsun. Ne kadar şeker gerekir (tamamen sadeleştirilmiş kesir olarak)?`,
+  task8Question: `3/4 litre meyve suyun var ve bunu 3 bardağa eşit olarak paylaştırıyorsun. Her bardağa ne kadar gelir (tamamen sadeleştirilmiş kesir olarak)?`,
   answerPlaceholder: `Cevabın`, checkButton: `Kontrol et`, solutionSummary: `Çözümü göster`,
-  task1Result: `<span style="white-space:nowrap">Sonuç: 1</span>`, task2Result: `<span style="white-space:nowrap">Sonuç: 6</span>`, task3Result: `<span style="white-space:nowrap">Sonuç: 6</span>`, task4Result: `<span style="white-space:nowrap">Sonuç: 7</span>`, task5Result: `<span style="white-space:nowrap">Sonuç: 9</span>`, task6Result: `<span style="white-space:nowrap">Sonuç: 2</span>`, task7Result: `<span style="white-space:nowrap">Sonuç: 2</span>`, task8Result: `<span style="white-space:nowrap">Sonuç: 4</span>`,
+  task1Result: `<span style="white-space:nowrap">Sonuç: 1/6</span>`, task2Result: `<span style="white-space:nowrap">Sonuç: 6/35</span>`, task3Result: `<span style="white-space:nowrap">Sonuç: 3/10</span>`, task4Result: `<span style="white-space:nowrap">Sonuç: 7/3</span>`, task5Result: `<span style="white-space:nowrap">Sonuç: 9/8</span>`, task6Result: `<span style="white-space:nowrap">Sonuç: 3/2</span>`, task7Result: `<span style="white-space:nowrap">Sonuç: 1/3</span>`, task8Result: `<span style="white-space:nowrap">Sonuç: 1/4</span>`,
   task1Step1: `Pay çarpı pay: 1 · 1 = 1.`, task1Step2: `Payda çarpı payda: 2 · 3 = 6.`, task1Step3: `Sadeleştirmeden önceki sonuç: 1/6, pay 1'dir.`,
   task1Hint: `Kesirleri çarparken toplama işlemindeki gibi ortak payda bulunmaz — doğrudan çarpılır.`,
   task2Step1: `Pay çarpı pay: 1 · 1 = 1.`, task2Step2: `Payda çarpı payda: 2 · 3 = 6.`, task2Step3: `Sonuç: 1/6, payda 6'dır.`,
@@ -511,11 +511,11 @@ ru: {
   basicsExample2Steps: `1. Найди обратную дробь второй дроби: 4/5 становится 5/4<br>2. Деление превращается в умножение: <span style="white-space:nowrap">2/3 · 5/4</span><br>3. Вычисли: 2 · 5 = 10 и 3 · 4 = 12 → 10/12, сокращённо: <span style="white-space:nowrap">5/6</span>`,
   merkeTitle: `Запомни`, merkeBody: `Умножение: числитель на числитель, знаменатель на знаменатель.<br>Деление: умножить на обратную дробь второй дроби.<br>В конце всегда сокращай результат, если возможно.`,
   taskWord: `Задание`,
-  task1Question: `1/2 · 1/3 = ? Чему равен числитель результата (до сокращения)?`, task2Question: `1/2 · 1/3 = ? Чему равен знаменатель результата (до сокращения)?`, task3Question: `2/5 · 3/4 = ? Чему равен числитель результата (до сокращения)?`, task4Question: `Чему равен числитель обратной дроби для 3/7?`, task5Question: `3/4 : 2/3 = ? Чему равен числитель результата (до сокращения)?`, task6Question: `5/6 : 5/9 = ? Чему равен знаменатель полностью сокращённого результата?`,
-  task7Question: `Рецепту нужно 2/3 чашки сахара. Ты готовишь только половину рецепта. Тогда нужно сахара 2/3 · 1/2. Чему равен числитель результата (до сокращения)?`,
-  task8Question: `У тебя есть 3/4 литра сока, и ты разливаешь его поровну в 3 стакана. Вычисление: 3/4 : 3. Чему равен знаменатель полностью сокращённого результата?`,
+  task1Question: `1/2 · 1/3 = ? Дай ответ в виде полностью сокращённой дроби (например, 1/6).`, task2Question: `3/5 · 2/7 = ? Дай ответ в виде полностью сокращённой дроби.`, task3Question: `2/5 · 3/4 = ? Дай ответ в виде полностью сокращённой дроби.`, task4Question: `Чему равна обратная дробь для 3/7?`, task5Question: `3/4 : 2/3 = ? Дай ответ в виде полностью сокращённой дроби.`, task6Question: `5/6 : 5/9 = ? Дай ответ в виде полностью сокращённой дроби.`,
+  task7Question: `Для рецепта нужно 2/3 чашки сахара. Ты готовишь только половину рецепта. Сколько сахара тебе нужно (в виде полностью сокращённой дроби)?`,
+  task8Question: `У тебя есть 3/4 литра сока, и ты разливаешь его поровну в 3 стакана. Сколько попадёт в каждый стакан (в виде полностью сокращённой дроби)?`,
   answerPlaceholder: `Твой ответ`, checkButton: `Проверить`, solutionSummary: `Показать решение`,
-  task1Result: `<span style="white-space:nowrap">Результат: 1</span>`, task2Result: `<span style="white-space:nowrap">Результат: 6</span>`, task3Result: `<span style="white-space:nowrap">Результат: 6</span>`, task4Result: `<span style="white-space:nowrap">Результат: 7</span>`, task5Result: `<span style="white-space:nowrap">Результат: 9</span>`, task6Result: `<span style="white-space:nowrap">Результат: 2</span>`, task7Result: `<span style="white-space:nowrap">Результат: 2</span>`, task8Result: `<span style="white-space:nowrap">Результат: 4</span>`,
+  task1Result: `<span style="white-space:nowrap">Результат: 1/6</span>`, task2Result: `<span style="white-space:nowrap">Результат: 6/35</span>`, task3Result: `<span style="white-space:nowrap">Результат: 3/10</span>`, task4Result: `<span style="white-space:nowrap">Результат: 7/3</span>`, task5Result: `<span style="white-space:nowrap">Результат: 9/8</span>`, task6Result: `<span style="white-space:nowrap">Результат: 3/2</span>`, task7Result: `<span style="white-space:nowrap">Результат: 1/3</span>`, task8Result: `<span style="white-space:nowrap">Результат: 1/4</span>`,
   task1Step1: `Числитель на числитель: 1 · 1 = 1.`, task1Step2: `Знаменатель на знаменатель: 2 · 3 = 6.`, task1Step3: `Результат до сокращения: 1/6, числитель равен 1.`,
   task1Hint: `При умножении дробей общий знаменатель не ищут, как при сложении — умножают напрямую.`,
   task2Step1: `Числитель на числитель: 1 · 1 = 1.`, task2Step2: `Знаменатель на знаменатель: 2 · 3 = 6.`, task2Step3: `Результат: 1/6, знаменатель равен 6.`,
@@ -547,11 +547,11 @@ ar: {
   basicsExample2Steps: `1. أوجد مقلوب الكسر الثاني: 4/5 يصبح 5/4<br>2. تتحول القسمة إلى ضرب: <span style="white-space:nowrap">2/3 · 5/4</span><br>3. احسب: 2 · 5 = 10 و 3 · 4 = 12 ← 10/12، مختزلة: <span style="white-space:nowrap">5/6</span>`,
   merkeTitle: `تذكّر`, merkeBody: `الضرب: البسط × البسط، المقام × المقام.<br>القسمة: اضرب في مقلوب الكسر الثاني.<br>اختزل الناتج دائمًا في النهاية إن أمكن.`,
   taskWord: `تمرين`,
-  task1Question: `1/2 · 1/3 = ؟ ما هو بسط الناتج (قبل الاختزال)؟`, task2Question: `1/2 · 1/3 = ؟ ما هو مقام الناتج (قبل الاختزال)؟`, task3Question: `2/5 · 3/4 = ؟ ما هو بسط الناتج (قبل الاختزال)؟`, task4Question: `ما هو بسط مقلوب 3/7؟`, task5Question: `3/4 : 2/3 = ؟ ما هو بسط الناتج (قبل الاختزال)؟`, task6Question: `5/6 : 5/9 = ؟ ما هو مقام الناتج بعد الاختزال الكامل؟`,
-  task7Question: `تحتاج وصفة إلى 2/3 كوب سكر. تحضّر نصف الوصفة فقط. تصبح كمية السكر المطلوبة 2/3 · 1/2. ما هو بسط الناتج (قبل الاختزال)؟`,
-  task8Question: `لديك 3/4 لتر من العصير وتوزعه بالتساوي على 3 أكواب. الحساب هو 3/4 : 3. ما هو مقام الناتج بعد الاختزال الكامل؟`,
+  task1Question: `1/2 · 1/3 = ؟ اكتب الناتج كسرًا مختزلًا بالكامل (مثل 1/6).`, task2Question: `3/5 · 2/7 = ؟ اكتب الناتج كسرًا مختزلًا بالكامل.`, task3Question: `2/5 · 3/4 = ؟ اكتب الناتج كسرًا مختزلًا بالكامل.`, task4Question: `ما هو مقلوب 3/7؟`, task5Question: `3/4 : 2/3 = ؟ اكتب الناتج كسرًا مختزلًا بالكامل.`, task6Question: `5/6 : 5/9 = ؟ اكتب الناتج كسرًا مختزلًا بالكامل.`,
+  task7Question: `تحتاج وصفة إلى 2/3 كوب سكر. أنت تحضّر نصف الوصفة فقط. كم كمية السكر التي تحتاجها (ككسر مختزل بالكامل)؟`,
+  task8Question: `لديك 3/4 لتر من العصير وتوزعه بالتساوي على 3 أكواب. كم يوضع في كل كوب (ككسر مختزل بالكامل)؟`,
   answerPlaceholder: `إجابتك`, checkButton: `تحقق`, solutionSummary: `عرض الحل`,
-  task1Result: `<span style="white-space:nowrap">النتيجة: 1</span>`, task2Result: `<span style="white-space:nowrap">النتيجة: 6</span>`, task3Result: `<span style="white-space:nowrap">النتيجة: 6</span>`, task4Result: `<span style="white-space:nowrap">النتيجة: 7</span>`, task5Result: `<span style="white-space:nowrap">النتيجة: 9</span>`, task6Result: `<span style="white-space:nowrap">النتيجة: 2</span>`, task7Result: `<span style="white-space:nowrap">النتيجة: 2</span>`, task8Result: `<span style="white-space:nowrap">النتيجة: 4</span>`,
+  task1Result: `<span style="white-space:nowrap">النتيجة: 1/6</span>`, task2Result: `<span style="white-space:nowrap">النتيجة: 6/35</span>`, task3Result: `<span style="white-space:nowrap">النتيجة: 3/10</span>`, task4Result: `<span style="white-space:nowrap">النتيجة: 7/3</span>`, task5Result: `<span style="white-space:nowrap">النتيجة: 9/8</span>`, task6Result: `<span style="white-space:nowrap">النتيجة: 3/2</span>`, task7Result: `<span style="white-space:nowrap">النتيجة: 1/3</span>`, task8Result: `<span style="white-space:nowrap">النتيجة: 1/4</span>`,
   task1Step1: `البسط × البسط: 1 · 1 = 1.`, task1Step2: `المقام × المقام: 2 · 3 = 6.`, task1Step3: `الناتج قبل الاختزال: 1/6، البسط هو 1.`,
   task1Hint: `عند ضرب الكسور لا يُبحث عن مقام مشترك كما في الجمع — بل يُضرَب مباشرة.`,
   task2Step1: `البسط × البسط: 1 · 1 = 1.`, task2Step2: `المقام × المقام: 2 · 3 = 6.`, task2Step3: `النتيجة: 1/6، المقام هو 6.`,
@@ -583,11 +583,11 @@ zh: {
   basicsExample2Steps: `1. 求第二个分数的倒数：4/5 变成 5/4<br>2. 除法变成乘法：<span style="white-space:nowrap">2/3 · 5/4</span><br>3. 计算：2 · 5 = 10，3 · 4 = 12 → 10/12，约分后：<span style="white-space:nowrap">5/6</span>`,
   merkeTitle: `记住`, merkeBody: `乘法：分子乘分子，分母乘分母。<br>除法：乘以第二个分数的倒数。<br>最后如果可以的话一定要约分。`,
   taskWord: `练习`,
-  task1Question: `1/2 · 1/3 = ? 结果（约分前）的分子是多少？`, task2Question: `1/2 · 1/3 = ? 结果（约分前）的分母是多少？`, task3Question: `2/5 · 3/4 = ? 结果（约分前）的分子是多少？`, task4Question: `3/7 的倒数的分子是多少？`, task5Question: `3/4 : 2/3 = ? 结果（约分前）的分子是多少？`, task6Question: `5/6 : 5/9 = ? 完全约分后结果的分母是多少？`,
-  task7Question: `一个食谱需要 2/3 杯糖。你只做食谱的一半。那么需要的糖是 2/3 · 1/2。结果（约分前）的分子是多少？`,
-  task8Question: `你有 3/4 升果汁，平均分到 3 个杯子里。计算式是 3/4 : 3。完全约分后结果的分母是多少？`,
+  task1Question: `1/2 · 1/3 = ? 把结果写成最简分数（例如 1/6）。`, task2Question: `3/5 · 2/7 = ? 把结果写成最简分数。`, task3Question: `2/5 · 3/4 = ? 把结果写成最简分数。`, task4Question: `3/7 的倒数是多少？`, task5Question: `3/4 : 2/3 = ? 把结果写成最简分数。`, task6Question: `5/6 : 5/9 = ? 把结果写成最简分数。`,
+  task7Question: `一个食谱需要 2/3 杯糖。你只做食谱的一半。你需要多少糖（写成最简分数）？`,
+  task8Question: `你有 3/4 升果汁，平均分到 3 个杯子里。每个杯子里有多少（写成最简分数）？`,
   answerPlaceholder: `你的答案`, checkButton: `检查`, solutionSummary: `显示答案`,
-  task1Result: `<span style="white-space:nowrap">结果：1</span>`, task2Result: `<span style="white-space:nowrap">结果：6</span>`, task3Result: `<span style="white-space:nowrap">结果：6</span>`, task4Result: `<span style="white-space:nowrap">结果：7</span>`, task5Result: `<span style="white-space:nowrap">结果：9</span>`, task6Result: `<span style="white-space:nowrap">结果：2</span>`, task7Result: `<span style="white-space:nowrap">结果：2</span>`, task8Result: `<span style="white-space:nowrap">结果：4</span>`,
+  task1Result: `<span style="white-space:nowrap">结果：1/6</span>`, task2Result: `<span style="white-space:nowrap">结果：6/35</span>`, task3Result: `<span style="white-space:nowrap">结果：3/10</span>`, task4Result: `<span style="white-space:nowrap">结果：7/3</span>`, task5Result: `<span style="white-space:nowrap">结果：9/8</span>`, task6Result: `<span style="white-space:nowrap">结果：3/2</span>`, task7Result: `<span style="white-space:nowrap">结果：1/3</span>`, task8Result: `<span style="white-space:nowrap">结果：1/4</span>`,
   task1Step1: `分子乘分子：1 · 1 = 1。`, task1Step2: `分母乘分母：2 · 3 = 6。`, task1Step3: `约分前的结果：1/6，分子是 1。`,
   task1Hint: `分数相乘时不像加法那样要找公分母——直接相乘即可。`,
   task2Step1: `分子乘分子：1 · 1 = 1。`, task2Step2: `分母乘分母：2 · 3 = 6。`, task2Step3: `结果：1/6，分母是 6。`,
@@ -633,20 +633,26 @@ function setLanguage(lang){
   if(sel) sel.value = currentLang;
 }
 
-function check(id, correct){
+function check(id, correctNum, correctDen){
   var dict = TRANSLATIONS[currentLang] || TRANSLATIONS.de;
   var input = document.getElementById('input' + id);
   var feedback = document.getElementById('feedback' + id);
   var raw = input.value.trim();
-  var match = raw.match(/-?\d+/);
+  var match = raw.match(/(-?\d+)\s*\/\s*(-?\d+)/);
   feedback.classList.remove('show', 'correct', 'incorrect');
-  if(!match){
+  if(!match || parseInt(match[2], 10) === 0){
     feedback.textContent = dict.fbEmpty;
     feedback.classList.add('show', 'incorrect');
     return;
   }
-  var value = parseInt(match[0], 10);
-  if(value === correct){
+  var num = parseInt(match[1], 10);
+  var den = parseInt(match[2], 10);
+  function gcd(a, b){ a = Math.abs(a); b = Math.abs(b); while(b){ var t = b; b = a % b; a = t; } return a || 1; }
+  var g = gcd(num, den);
+  var rNum = num / g;
+  var rDen = den / g;
+  if(rDen < 0){ rNum = -rNum; rDen = -rDen; }
+  if(rNum === correctNum && rDen === correctDen){
     feedback.textContent = dict.fbCorrect;
     feedback.classList.add('show', 'correct');
   } else {

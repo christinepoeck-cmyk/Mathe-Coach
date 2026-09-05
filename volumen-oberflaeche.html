@@ -113,9 +113,25 @@
       <p data-i18n="basicsExample2Label"><strong>Beispiel Schritt für Schritt:</strong> Quader mit a = 5 cm, b = 3 cm, c = 4 cm. Berechne das Volumen.</p>
       <p data-i18n="basicsExample2Steps">1. Formel: V = a · b · c<br>2. Einsetzen: V = 5 · 3 · 4<br>3. Rechnen: 5 · 3 = 15, dann 15 · 4 = 60<br>4. Ergebnis: V = 60 cm³</p>
 
+      <p data-i18n="basicsP3Prism"><strong>Das Prinzip "Grundfläche mal Höhe"</strong> gilt nicht nur für Quader und Würfel, sondern für jedes Prisma – also auch für ein Dreiecksprisma oder einen Zylinder, der wie ein "rundes Prisma" funktioniert.</p>
+
+      <svg class="prism-diagram" viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg" role="img" data-i18n-aria="prismAria" aria-label="Dreiecksprisma mit Formel Grundfläche mal Prismahöhe, und Zylinder mit Formel Pi mal Radius Quadrat mal Höhe">
+        <polygon points="60,160 140,160 100,95" fill="#E0A526" fill-opacity="0.2" stroke="#8A5A0F" stroke-width="2"/>
+        <polygon points="100,130 180,130 140,65" fill="#E0A526" fill-opacity="0.12" stroke="#8A5A0F" stroke-width="1.5"/>
+        <line x1="60" y1="160" x2="100" y2="130" stroke="#8A5A0F" stroke-width="1.5"/>
+        <line x1="140" y1="160" x2="180" y2="130" stroke="#8A5A0F" stroke-width="1.5"/>
+        <line x1="100" y1="95" x2="140" y2="65" stroke="#8A5A0F" stroke-width="1.5"/>
+        <text x="120" y="188" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="15" font-weight="800" fill="#8A5A0F">V = (g·h):2 · H</text>
+        <ellipse cx="450" cy="65" rx="65" ry="18" fill="#2478B5" fill-opacity="0.12" stroke="#2478B5" stroke-width="2"/>
+        <line x1="385" y1="65" x2="385" y2="150" stroke="#2478B5" stroke-width="2"/>
+        <line x1="515" y1="65" x2="515" y2="150" stroke="#2478B5" stroke-width="2"/>
+        <path d="M385,150 A65,18 0 0 0 515,150" fill="none" stroke="#2478B5" stroke-width="2"/>
+        <text x="450" y="188" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="15" font-weight="800" fill="#2478B5">V = π · r² · h</text>
+      </svg>
+
       <div class="merke">
         <div class="merke-title" data-i18n="merkeTitle">Merke</div>
-        <p class="merke-body" data-i18n="merkeBody">Würfel: V = a³, O = 6a².<br>Quader: V = a · b · c, O = 2(ab + ac + bc).<br>Volumen wird in Kubikeinheiten (z.B. cm³) angegeben, Oberfläche in Flächeneinheiten (z.B. cm²).</p>
+        <p class="merke-body" data-i18n="merkeBody">Würfel: V = a³, O = 6a².<br>Quader: V = a · b · c, O = 2(ab + ac + bc).<br>Dreiecksprisma: V = (g · h) : 2 · H.<br>Zylinder: V = π · r² · h.<br>Volumen wird in Kubikeinheiten (z.B. cm³) angegeben, Oberfläche in Flächeneinheiten (z.B. cm²).</p>
       </div>
     </div>
   </section>
@@ -146,21 +162,21 @@
   <section>
     <div class="card task-card">
       <h2><span class="num">2</span><span data-i18n="taskWord">Aufgabe</span> 2</h2>
-      <div class="task-question" data-i18n="task2Question">Ein Würfel hat a = 5 cm. Wie groß ist das Volumen (in cm³)?</div>
+      <div class="task-question" data-i18n="task2Question">Ein Dreiecksprisma hat eine dreieckige Grundfläche mit g = 6 cm und h = 4 cm sowie eine Prismahöhe von H = 10 cm. Wie groß ist das Volumen (in cm³)?</div>
       <div class="answer-row">
         <input type="text" id="input2" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
-        <button class="check" data-i18n="checkButton" onclick="check(2, 125)">Prüfen</button>
+        <button class="check" data-i18n="checkButton" onclick="check(2, 120)">Prüfen</button>
       </div>
       <div class="feedback" id="feedback2"></div>
       <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
         <div class="solution">
-          <div class="solution-result" data-i18n="task2Result">Ergebnis: 125 cm³</div>
+          <div class="solution-result" data-i18n="task2Result">Ergebnis: 120 cm³</div>
           <ol>
-            <li data-i18n="task2Step1">Formel: V = a³.</li>
-            <li data-i18n="task2Step2">Einsetzen: 5 · 5 · 5.</li>
-            <li data-i18n="task2Step3">Rechnen: 5 · 5 = 25, dann 25 · 5 = 125.</li>
+            <li data-i18n="task2Step1">Grundfläche berechnen: G = g · h : 2 = 6 · 4 : 2 = 12 cm².</li>
+            <li data-i18n="task2Step2">Volumen berechnen: V = G · H = 12 · 10.</li>
+            <li data-i18n="task2Step3">Ergebnis: V = 120 cm³.</li>
           </ol>
-          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task2Hint">Bei einem Würfel sind alle drei Kanten gleich lang, also einfach dreimal dieselbe Zahl multiplizieren.</span></div>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task2Hint">Zuerst immer die Grundfläche des Dreiecks berechnen, erst danach mit der Prismahöhe multiplizieren.</span></div>
         </div>
       </details>
     </div>
@@ -215,21 +231,21 @@
   <section>
     <div class="card task-card">
       <h2><span class="num">5</span><span data-i18n="taskWord">Aufgabe</span> 5</h2>
-      <div class="task-question" data-i18n="task5Question">Ein Quader hat a = 6 cm, b = 2 cm und c = 3 cm. Wie groß ist das Volumen (in cm³)?</div>
+      <div class="task-question" data-i18n="task5Question">Ein Zylinder hat einen Radius von r = 5 cm und eine Höhe von h = 2 cm. Wie groß ist das Volumen (in cm³, mit π ≈ 3,14)?</div>
       <div class="answer-row">
         <input type="text" id="input5" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
-        <button class="check" data-i18n="checkButton" onclick="check(5, 36)">Prüfen</button>
+        <button class="check" data-i18n="checkButton" onclick="check(5, 157)">Prüfen</button>
       </div>
       <div class="feedback" id="feedback5"></div>
       <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
         <div class="solution">
-          <div class="solution-result" data-i18n="task5Result">Ergebnis: 36 cm³</div>
+          <div class="solution-result" data-i18n="task5Result">Ergebnis: 157 cm³</div>
           <ol>
-            <li data-i18n="task5Step1">Formel: V = a · b · c.</li>
-            <li data-i18n="task5Step2">Einsetzen: 6 · 2 · 3.</li>
-            <li data-i18n="task5Step3">Rechnen: 6 · 2 = 12, dann 12 · 3 = 36.</li>
+            <li data-i18n="task5Step1">Formel: V = π · r² · h.</li>
+            <li data-i18n="task5Step2">Einsetzen: V = 3,14 · 5² · 2 = 3,14 · 25 · 2.</li>
+            <li data-i18n="task5Step3">Rechnen: 3,14 · 25 = 78,5, dann 78,5 · 2 = 157.</li>
           </ol>
-          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task5Hint">Die Reihenfolge der Multiplikation spielt keine Rolle, das Ergebnis bleibt gleich.</span></div>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task5Hint">Der Zylinder verhält sich wie ein "rundes Prisma": Kreisfläche mal Höhe.</span></div>
         </div>
       </details>
     </div>
@@ -326,23 +342,25 @@ de: {
   basicsP2Cuboid: `<strong>Beim Quader</strong> werden alle drei unterschiedlichen Kanten miteinander multipliziert, um das Volumen zu erhalten.`,
   basicsExample2Label: `<strong>Beispiel Schritt für Schritt:</strong> Quader mit a = 5 cm, b = 3 cm, c = 4 cm. Berechne das Volumen.`,
   basicsExample2Steps: `1. Formel: V = a · b · c<br>2. Einsetzen: V = 5 · 3 · 4<br>3. Rechnen: 5 · 3 = 15, dann 15 · 4 = 60<br>4. Ergebnis: V = 60 cm³`,
-  merkeTitle: `Merke`, merkeBody: `Würfel: V = a³, O = 6a².<br>Quader: V = a · b · c, O = 2(ab + ac + bc).<br>Volumen wird in Kubikeinheiten (z.B. cm³) angegeben, Oberfläche in Flächeneinheiten (z.B. cm²).`,
+  basicsP3Prism: `<strong>Das Prinzip "Grundfläche mal Höhe"</strong> gilt nicht nur für Quader und Würfel, sondern für jedes Prisma – also auch für ein Dreiecksprisma oder einen Zylinder, der wie ein "rundes Prisma" funktioniert.`,
+  prismAria: `Dreiecksprisma mit Formel Grundfläche mal Prismahöhe, und Zylinder mit Formel Pi mal Radius Quadrat mal Höhe`,
+  merkeTitle: `Merke`, merkeBody: `Würfel: V = a³, O = 6a².<br>Quader: V = a · b · c, O = 2(ab + ac + bc).<br>Dreiecksprisma: V = (g · h) : 2 · H.<br>Zylinder: V = π · r² · h.<br>Volumen wird in Kubikeinheiten (z.B. cm³) angegeben, Oberfläche in Flächeneinheiten (z.B. cm²).`,
   taskWord: `Aufgabe`,
-  task1Question: `Ein Würfel hat a = 4 cm. Wie groß ist das Volumen (in cm³)?`, task2Question: `Ein Würfel hat a = 5 cm. Wie groß ist das Volumen (in cm³)?`, task3Question: `Ein Würfel hat a = 3 cm. Wie groß ist die Oberfläche (in cm²)?`, task4Question: `Ein Quader hat a = 5 cm, b = 3 cm und c = 4 cm. Wie groß ist das Volumen (in cm³)?`, task5Question: `Ein Quader hat a = 6 cm, b = 2 cm und c = 3 cm. Wie groß ist das Volumen (in cm³)?`, task6Question: `Ein Quader hat a = 4 cm, b = 3 cm und c = 2 cm. Wie groß ist die Oberfläche (in cm²)?`,
+  task1Question: `Ein Würfel hat a = 4 cm. Wie groß ist das Volumen (in cm³)?`, task2Question: `Ein Dreiecksprisma hat eine dreieckige Grundfläche mit g = 6 cm und h = 4 cm sowie eine Prismahöhe von H = 10 cm. Wie groß ist das Volumen (in cm³)?`, task3Question: `Ein Würfel hat a = 3 cm. Wie groß ist die Oberfläche (in cm²)?`, task4Question: `Ein Quader hat a = 5 cm, b = 3 cm und c = 4 cm. Wie groß ist das Volumen (in cm³)?`, task5Question: `Ein Zylinder hat einen Radius von r = 5 cm und eine Höhe von h = 2 cm. Wie groß ist das Volumen (in cm³, mit π ≈ 3,14)?`, task6Question: `Ein Quader hat a = 4 cm, b = 3 cm und c = 2 cm. Wie groß ist die Oberfläche (in cm²)?`,
   task7Question: `Ein Aquarium ist 40 cm lang, 25 cm breit und 30 cm hoch. Wie viele Liter Wasser passen hinein (1 Liter = 1000 cm³)?`,
   task8Question: `Eine Geschenkbox ist ein Würfel mit einer Kantenlänge von 6 cm. Wie viel Geschenkpapier wird mindestens benötigt, um die Box zu bedecken (in cm²)?`,
   answerPlaceholder: `Deine Antwort`, checkButton: `Prüfen`, solutionSummary: `Lösung anzeigen`,
-  task1Result: `Ergebnis: 64 cm³`, task2Result: `Ergebnis: 125 cm³`, task3Result: `Ergebnis: 54 cm²`, task4Result: `Ergebnis: 60 cm³`, task5Result: `Ergebnis: 36 cm³`, task6Result: `Ergebnis: 52 cm²`, task7Result: `Ergebnis: 30 Liter`, task8Result: `Ergebnis: 216 cm²`,
+  task1Result: `Ergebnis: 64 cm³`, task2Result: `Ergebnis: 120 cm³`, task3Result: `Ergebnis: 54 cm²`, task4Result: `Ergebnis: 60 cm³`, task5Result: `Ergebnis: 157 cm³`, task6Result: `Ergebnis: 52 cm²`, task7Result: `Ergebnis: 30 Liter`, task8Result: `Ergebnis: 216 cm²`,
   task1Step1: `Formel: V = a³.`, task1Step2: `Einsetzen: 4 · 4 · 4.`, task1Step3: `Rechnen: 4 · 4 = 16, dann 16 · 4 = 64.`,
   task1Hint: `a³ bedeutet a · a · a (dreimal multipliziert), nicht a · 3.`,
-  task2Step1: `Formel: V = a³.`, task2Step2: `Einsetzen: 5 · 5 · 5.`, task2Step3: `Rechnen: 5 · 5 = 25, dann 25 · 5 = 125.`,
-  task2Hint: `Bei einem Würfel sind alle drei Kanten gleich lang, also einfach dreimal dieselbe Zahl multiplizieren.`,
+  task2Step1: `Grundfläche berechnen: G = g · h : 2 = 6 · 4 : 2 = 12 cm².`, task2Step2: `Volumen berechnen: V = G · H = 12 · 10.`, task2Step3: `Ergebnis: V = 120 cm³.`,
+  task2Hint: `Zuerst immer die Grundfläche des Dreiecks berechnen, erst danach mit der Prismahöhe multiplizieren.`,
   task3Step1: `Formel: O = 6a².`, task3Step2: `Einsetzen: 6 · 3².`, task3Step3: `Rechnen: 3² = 9, dann 6 · 9 = 54.`,
   task3Hint: `Ein Würfel hat 6 gleich große quadratische Seitenflächen, deshalb wird mit 6 multipliziert.`,
   task4Step1: `Formel: V = a · b · c.`, task4Step2: `Einsetzen: 5 · 3 · 4.`, task4Step3: `Rechnen: 5 · 3 = 15, dann 15 · 4 = 60.`,
   task4Hint: `Alle drei Kantenlängen müssen miteinander multipliziert werden, nicht nur zwei.`,
-  task5Step1: `Formel: V = a · b · c.`, task5Step2: `Einsetzen: 6 · 2 · 3.`, task5Step3: `Rechnen: 6 · 2 = 12, dann 12 · 3 = 36.`,
-  task5Hint: `Die Reihenfolge der Multiplikation spielt keine Rolle, das Ergebnis bleibt gleich.`,
+  task5Step1: `Formel: V = π · r² · h.`, task5Step2: `Einsetzen: V = 3,14 · 5² · 2 = 3,14 · 25 · 2.`, task5Step3: `Rechnen: 3,14 · 25 = 78,5, dann 78,5 · 2 = 157.`,
+  task5Hint: `Der Zylinder verhält sich wie ein "rundes Prisma": Kreisfläche mal Höhe.`,
   task6Step1: `Formel: O = 2(ab + ac + bc).`, task6Step2: `Einsetzen: 2 · (4·3 + 4·2 + 3·2) = 2 · (12 + 8 + 6).`, task6Step3: `Rechnen: 12 + 8 + 6 = 26, dann 2 · 26 = 52.`,
   task6Hint: `Ein Quader hat 6 Seitenflächen, aber immer 2 gleich große gegenüberliegende – deshalb rechnet man 3 Produkte mal 2.`,
   task7Step1: `Volumen berechnen: V = 40 · 25 · 30 = 30.000 cm³.`, task7Step2: `In Liter umrechnen: 30.000 : 1000 = 30.`, task7Step3: `Ergebnis: 30 Liter.`,
@@ -362,23 +380,25 @@ en: {
   basicsP2Cuboid: `<strong>For a cuboid,</strong> all three different edges are multiplied together to get the volume.`,
   basicsExample2Label: `<strong>Step-by-step example:</strong> Cuboid with a = 5 cm, b = 3 cm, c = 4 cm. Calculate the volume.`,
   basicsExample2Steps: `1. Formula: V = a · b · c<br>2. Substitute: V = 5 · 3 · 4<br>3. Calculate: 5 · 3 = 15, then 15 · 4 = 60<br>4. Result: V = 60 cm³`,
-  merkeTitle: `Remember`, merkeBody: `Cube: V = a³, S = 6a².<br>Cuboid: V = a · b · c, S = 2(ab + ac + bc).<br>Volume is given in cubic units (e.g. cm³), surface area in square units (e.g. cm²).`,
+  basicsP3Prism: `<strong>The principle "base area times height"</strong> doesn't just apply to cuboids and cubes, but to every prism — including a triangular prism or a cylinder, which works like a "round prism".`,
+  prismAria: `Triangular prism with formula base area times prism height, and cylinder with formula pi times radius squared times height`,
+  merkeTitle: `Remember`, merkeBody: `Cube: V = a³, S = 6a².<br>Cuboid: V = a · b · c, S = 2(ab + ac + bc).<br>Triangular prism: V = (g · h) : 2 · H.<br>Cylinder: V = π · r² · h.<br>Volume is given in cubic units (e.g. cm³), surface area in square units (e.g. cm²).`,
   taskWord: `Exercise`,
-  task1Question: `A cube has a = 4 cm. What's the volume (in cm³)?`, task2Question: `A cube has a = 5 cm. What's the volume (in cm³)?`, task3Question: `A cube has a = 3 cm. What's the surface area (in cm²)?`, task4Question: `A cuboid has a = 5 cm, b = 3 cm and c = 4 cm. What's the volume (in cm³)?`, task5Question: `A cuboid has a = 6 cm, b = 2 cm and c = 3 cm. What's the volume (in cm³)?`, task6Question: `A cuboid has a = 4 cm, b = 3 cm and c = 2 cm. What's the surface area (in cm²)?`,
+  task1Question: `A cube has a = 4 cm. What's the volume (in cm³)?`, task2Question: `A triangular prism has a triangular base with g = 6 cm and h = 4 cm, and a prism height of H = 10 cm. What's the volume (in cm³)?`, task3Question: `A cube has a = 3 cm. What's the surface area (in cm²)?`, task4Question: `A cuboid has a = 5 cm, b = 3 cm and c = 4 cm. What's the volume (in cm³)?`, task5Question: `A cylinder has a radius of r = 5 cm and a height of h = 2 cm. What's the volume (in cm³, with π ≈ 3.14)?`, task6Question: `A cuboid has a = 4 cm, b = 3 cm and c = 2 cm. What's the surface area (in cm²)?`,
   task7Question: `An aquarium is 40 cm long, 25 cm wide and 30 cm high. How many liters of water fit inside (1 liter = 1000 cm³)?`,
   task8Question: `A gift box is a cube with an edge length of 6 cm. What's the minimum amount of wrapping paper needed to cover the box (in cm²)?`,
   answerPlaceholder: `Your answer`, checkButton: `Check`, solutionSummary: `Show solution`,
-  task1Result: `Result: 64 cm³`, task2Result: `Result: 125 cm³`, task3Result: `Result: 54 cm²`, task4Result: `Result: 60 cm³`, task5Result: `Result: 36 cm³`, task6Result: `Result: 52 cm²`, task7Result: `Result: 30 liters`, task8Result: `Result: 216 cm²`,
+  task1Result: `Result: 64 cm³`, task2Result: `Result: 120 cm³`, task3Result: `Result: 54 cm²`, task4Result: `Result: 60 cm³`, task5Result: `Result: 157 cm³`, task6Result: `Result: 52 cm²`, task7Result: `Result: 30 liters`, task8Result: `Result: 216 cm²`,
   task1Step1: `Formula: V = a³.`, task1Step2: `Substitute: 4 · 4 · 4.`, task1Step3: `Calculate: 4 · 4 = 16, then 16 · 4 = 64.`,
   task1Hint: `a³ means a · a · a (multiplied three times), not a · 3.`,
-  task2Step1: `Formula: V = a³.`, task2Step2: `Substitute: 5 · 5 · 5.`, task2Step3: `Calculate: 5 · 5 = 25, then 25 · 5 = 125.`,
-  task2Hint: `For a cube, all three edges are the same length, so just multiply the same number three times.`,
+  task2Step1: `Calculate the base area: G = g · h : 2 = 6 · 4 : 2 = 12 cm².`, task2Step2: `Calculate the volume: V = G · H = 12 · 10.`, task2Step3: `Result: V = 120 cm³.`,
+  task2Hint: `Always calculate the triangle's base area first, only then multiply by the prism height.`,
   task3Step1: `Formula: S = 6a².`, task3Step2: `Substitute: 6 · 3².`, task3Step3: `Calculate: 3² = 9, then 6 · 9 = 54.`,
   task3Hint: `A cube has 6 equal-sized square faces, so you multiply by 6.`,
   task4Step1: `Formula: V = a · b · c.`, task4Step2: `Substitute: 5 · 3 · 4.`, task4Step3: `Calculate: 5 · 3 = 15, then 15 · 4 = 60.`,
   task4Hint: `All three edge lengths need to be multiplied together, not just two.`,
-  task5Step1: `Formula: V = a · b · c.`, task5Step2: `Substitute: 6 · 2 · 3.`, task5Step3: `Calculate: 6 · 2 = 12, then 12 · 3 = 36.`,
-  task5Hint: `The order of multiplication doesn't matter, the result stays the same.`,
+  task5Step1: `Formula: V = π · r² · h.`, task5Step2: `Substitute: V = 3.14 · 5² · 2 = 3.14 · 25 · 2.`, task5Step3: `Calculate: 3.14 · 25 = 78.5, then 78.5 · 2 = 157.`,
+  task5Hint: `A cylinder behaves like a "round prism": circular area times height.`,
   task6Step1: `Formula: S = 2(ab + ac + bc).`, task6Step2: `Substitute: 2 · (4·3 + 4·2 + 3·2) = 2 · (12 + 8 + 6).`, task6Step3: `Calculate: 12 + 8 + 6 = 26, then 2 · 26 = 52.`,
   task6Hint: `A cuboid has 6 faces, but always 2 equal-sized opposite ones — that's why you calculate 3 products times 2.`,
   task7Step1: `Calculate the volume: V = 40 · 25 · 30 = 30,000 cm³.`, task7Step2: `Convert to liters: 30,000 : 1000 = 30.`, task7Step3: `Result: 30 liters.`,
@@ -398,23 +418,25 @@ es: {
   basicsP2Cuboid: `<strong>En el prisma rectangular,</strong> se multiplican entre sí las tres aristas diferentes para obtener el volumen.`,
   basicsExample2Label: `<strong>Ejemplo paso a paso:</strong> Prisma con a = 5 cm, b = 3 cm, c = 4 cm. Calcula el volumen.`,
   basicsExample2Steps: `1. Fórmula: V = a · b · c<br>2. Sustituye: V = 5 · 3 · 4<br>3. Calcula: 5 · 3 = 15, luego 15 · 4 = 60<br>4. Resultado: V = 60 cm³`,
-  merkeTitle: `Recuerda`, merkeBody: `Cubo: V = a³, S = 6a².<br>Prisma rectangular: V = a · b · c, S = 2(ab + ac + bc).<br>El volumen se da en unidades cúbicas (por ejemplo, cm³), la superficie en unidades cuadradas (por ejemplo, cm²).`,
+  basicsP3Prism: `<strong>El principio "área de la base por la altura"</strong> no solo se aplica a prismas rectangulares y cubos, sino a cualquier prisma — incluido un prisma triangular o un cilindro, que funciona como un "prisma redondo".`,
+  prismAria: `Prisma triangular con la fórmula área de la base por la altura del prisma, y cilindro con la fórmula pi por el radio al cuadrado por la altura`,
+  merkeTitle: `Recuerda`, merkeBody: `Cubo: V = a³, S = 6a².<br>Prisma rectangular: V = a · b · c, S = 2(ab + ac + bc).<br>Prisma triangular: V = (g · h) : 2 · H.<br>Cilindro: V = π · r² · h.<br>El volumen se da en unidades cúbicas (por ejemplo, cm³), la superficie en unidades cuadradas (por ejemplo, cm²).`,
   taskWord: `Ejercicio`,
-  task1Question: `Un cubo tiene a = 4 cm. ¿Cuál es el volumen (en cm³)?`, task2Question: `Un cubo tiene a = 5 cm. ¿Cuál es el volumen (en cm³)?`, task3Question: `Un cubo tiene a = 3 cm. ¿Cuál es la superficie (en cm²)?`, task4Question: `Un prisma tiene a = 5 cm, b = 3 cm y c = 4 cm. ¿Cuál es el volumen (en cm³)?`, task5Question: `Un prisma tiene a = 6 cm, b = 2 cm y c = 3 cm. ¿Cuál es el volumen (en cm³)?`, task6Question: `Un prisma tiene a = 4 cm, b = 3 cm y c = 2 cm. ¿Cuál es la superficie (en cm²)?`,
+  task1Question: `Un cubo tiene a = 4 cm. ¿Cuál es el volumen (en cm³)?`, task2Question: `Un prisma triangular tiene una base triangular con g = 6 cm y h = 4 cm, y una altura de prisma de H = 10 cm. ¿Cuál es el volumen (en cm³)?`, task3Question: `Un cubo tiene a = 3 cm. ¿Cuál es la superficie (en cm²)?`, task4Question: `Un prisma tiene a = 5 cm, b = 3 cm y c = 4 cm. ¿Cuál es el volumen (en cm³)?`, task5Question: `Un cilindro tiene un radio de r = 5 cm y una altura de h = 2 cm. ¿Cuál es el volumen (en cm³, con π ≈ 3,14)?`, task6Question: `Un prisma tiene a = 4 cm, b = 3 cm y c = 2 cm. ¿Cuál es la superficie (en cm²)?`,
   task7Question: `Un acuario mide 40 cm de largo, 25 cm de ancho y 30 cm de alto. ¿Cuántos litros de agua caben (1 litro = 1000 cm³)?`,
   task8Question: `Una caja de regalo es un cubo con una arista de 6 cm. ¿Cuánto papel de regalo se necesita como mínimo para cubrirla (en cm²)?`,
   answerPlaceholder: `Tu respuesta`, checkButton: `Comprobar`, solutionSummary: `Ver solución`,
-  task1Result: `Resultado: 64 cm³`, task2Result: `Resultado: 125 cm³`, task3Result: `Resultado: 54 cm²`, task4Result: `Resultado: 60 cm³`, task5Result: `Resultado: 36 cm³`, task6Result: `Resultado: 52 cm²`, task7Result: `Resultado: 30 litros`, task8Result: `Resultado: 216 cm²`,
+  task1Result: `Resultado: 64 cm³`, task2Result: `Resultado: 120 cm³`, task3Result: `Resultado: 54 cm²`, task4Result: `Resultado: 60 cm³`, task5Result: `Resultado: 157 cm³`, task6Result: `Resultado: 52 cm²`, task7Result: `Resultado: 30 litros`, task8Result: `Resultado: 216 cm²`,
   task1Step1: `Fórmula: V = a³.`, task1Step2: `Sustituye: 4 · 4 · 4.`, task1Step3: `Calcula: 4 · 4 = 16, luego 16 · 4 = 64.`,
   task1Hint: `a³ significa a · a · a (multiplicado tres veces), no a · 3.`,
-  task2Step1: `Fórmula: V = a³.`, task2Step2: `Sustituye: 5 · 5 · 5.`, task2Step3: `Calcula: 5 · 5 = 25, luego 25 · 5 = 125.`,
-  task2Hint: `En un cubo, las tres aristas tienen la misma longitud, así que simplemente multiplica el mismo número tres veces.`,
+  task2Step1: `Calcula el área de la base: G = g · h : 2 = 6 · 4 : 2 = 12 cm².`, task2Step2: `Calcula el volumen: V = G · H = 12 · 10.`, task2Step3: `Resultado: V = 120 cm³.`,
+  task2Hint: `Calcula siempre primero el área de la base del triángulo, y solo después multiplica por la altura del prisma.`,
   task3Step1: `Fórmula: S = 6a².`, task3Step2: `Sustituye: 6 · 3².`, task3Step3: `Calcula: 3² = 9, luego 6 · 9 = 54.`,
   task3Hint: `Un cubo tiene 6 caras cuadradas del mismo tamaño, por eso se multiplica por 6.`,
   task4Step1: `Fórmula: V = a · b · c.`, task4Step2: `Sustituye: 5 · 3 · 4.`, task4Step3: `Calcula: 5 · 3 = 15, luego 15 · 4 = 60.`,
   task4Hint: `Las tres longitudes de arista deben multiplicarse entre sí, no solo dos.`,
-  task5Step1: `Fórmula: V = a · b · c.`, task5Step2: `Sustituye: 6 · 2 · 3.`, task5Step3: `Calcula: 6 · 2 = 12, luego 12 · 3 = 36.`,
-  task5Hint: `El orden de la multiplicación no importa, el resultado es el mismo.`,
+  task5Step1: `Fórmula: V = π · r² · h.`, task5Step2: `Sustituye: V = 3,14 · 5² · 2 = 3,14 · 25 · 2.`, task5Step3: `Calcula: 3,14 · 25 = 78,5, luego 78,5 · 2 = 157.`,
+  task5Hint: `Un cilindro se comporta como un "prisma redondo": área del círculo por la altura.`,
   task6Step1: `Fórmula: S = 2(ab + ac + bc).`, task6Step2: `Sustituye: 2 · (4·3 + 4·2 + 3·2) = 2 · (12 + 8 + 6).`, task6Step3: `Calcula: 12 + 8 + 6 = 26, luego 2 · 26 = 52.`,
   task6Hint: `Un prisma tiene 6 caras, pero siempre 2 opuestas del mismo tamaño — por eso se calculan 3 productos por 2.`,
   task7Step1: `Calcula el volumen: V = 40 · 25 · 30 = 30.000 cm³.`, task7Step2: `Convierte a litros: 30.000 : 1000 = 30.`, task7Step3: `Resultado: 30 litros.`,
@@ -434,23 +456,25 @@ fr: {
   basicsP2Cuboid: `<strong>Pour le pavé droit,</strong> les trois arêtes différentes sont multipliées entre elles pour obtenir le volume.`,
   basicsExample2Label: `<strong>Exemple étape par étape :</strong> Pavé droit avec a = 5 cm, b = 3 cm, c = 4 cm. Calcule le volume.`,
   basicsExample2Steps: `1. Formule : V = a · b · c<br>2. Substitue : V = 5 · 3 · 4<br>3. Calcule : 5 · 3 = 15, puis 15 · 4 = 60<br>4. Résultat : V = 60 cm³`,
-  merkeTitle: `À retenir`, merkeBody: `Cube : V = a³, S = 6a².<br>Pavé droit : V = a · b · c, S = 2(ab + ac + bc).<br>Le volume s'exprime en unités cubiques (par ex. cm³), la surface en unités carrées (par ex. cm²).`,
+  basicsP3Prism: `<strong>Le principe « aire de la base fois hauteur »</strong> ne s'applique pas seulement aux pavés droits et aux cubes, mais à tout prisme — y compris un prisme triangulaire ou un cylindre, qui fonctionne comme un « prisme rond ».`,
+  prismAria: `Prisme triangulaire avec la formule aire de la base fois hauteur du prisme, et cylindre avec la formule pi fois rayon au carré fois hauteur`,
+  merkeTitle: `À retenir`, merkeBody: `Cube : V = a³, S = 6a².<br>Pavé droit : V = a · b · c, S = 2(ab + ac + bc).<br>Prisme triangulaire : V = (g · h) : 2 · H.<br>Cylindre : V = π · r² · h.<br>Le volume s'exprime en unités cubiques (par ex. cm³), la surface en unités carrées (par ex. cm²).`,
   taskWord: `Exercice`,
-  task1Question: `Un cube a a = 4 cm. Quel est le volume (en cm³) ?`, task2Question: `Un cube a a = 5 cm. Quel est le volume (en cm³) ?`, task3Question: `Un cube a a = 3 cm. Quelle est la surface (en cm²) ?`, task4Question: `Un pavé droit a a = 5 cm, b = 3 cm et c = 4 cm. Quel est le volume (en cm³) ?`, task5Question: `Un pavé droit a a = 6 cm, b = 2 cm et c = 3 cm. Quel est le volume (en cm³) ?`, task6Question: `Un pavé droit a a = 4 cm, b = 3 cm et c = 2 cm. Quelle est la surface (en cm²) ?`,
+  task1Question: `Un cube a a = 4 cm. Quel est le volume (en cm³) ?`, task2Question: `Un prisme triangulaire a une base triangulaire avec g = 6 cm et h = 4 cm, et une hauteur de prisme de H = 10 cm. Quel est le volume (en cm³) ?`, task3Question: `Un cube a a = 3 cm. Quelle est la surface (en cm²) ?`, task4Question: `Un pavé droit a a = 5 cm, b = 3 cm et c = 4 cm. Quel est le volume (en cm³) ?`, task5Question: `Un cylindre a un rayon de r = 5 cm et une hauteur de h = 2 cm. Quel est le volume (en cm³, avec π ≈ 3,14) ?`, task6Question: `Un pavé droit a a = 4 cm, b = 3 cm et c = 2 cm. Quelle est la surface (en cm²) ?`,
   task7Question: `Un aquarium mesure 40 cm de long, 25 cm de large et 30 cm de haut. Combien de litres d'eau tient-il (1 litre = 1000 cm³) ?`,
   task8Question: `Une boîte-cadeau est un cube d'une arête de 6 cm. Quelle quantité minimale de papier cadeau faut-il pour la recouvrir (en cm²) ?`,
   answerPlaceholder: `Ta réponse`, checkButton: `Vérifier`, solutionSummary: `Voir la solution`,
-  task1Result: `Résultat : 64 cm³`, task2Result: `Résultat : 125 cm³`, task3Result: `Résultat : 54 cm²`, task4Result: `Résultat : 60 cm³`, task5Result: `Résultat : 36 cm³`, task6Result: `Résultat : 52 cm²`, task7Result: `Résultat : 30 litres`, task8Result: `Résultat : 216 cm²`,
+  task1Result: `Résultat : 64 cm³`, task2Result: `Résultat : 120 cm³`, task3Result: `Résultat : 54 cm²`, task4Result: `Résultat : 60 cm³`, task5Result: `Résultat : 157 cm³`, task6Result: `Résultat : 52 cm²`, task7Result: `Résultat : 30 litres`, task8Result: `Résultat : 216 cm²`,
   task1Step1: `Formule : V = a³.`, task1Step2: `Substitue : 4 · 4 · 4.`, task1Step3: `Calcule : 4 · 4 = 16, puis 16 · 4 = 64.`,
   task1Hint: `a³ signifie a · a · a (multiplié trois fois), pas a · 3.`,
-  task2Step1: `Formule : V = a³.`, task2Step2: `Substitue : 5 · 5 · 5.`, task2Step3: `Calcule : 5 · 5 = 25, puis 25 · 5 = 125.`,
-  task2Hint: `Pour un cube, les trois arêtes ont la même longueur, donc multiplie simplement le même nombre trois fois.`,
+  task2Step1: `Calcule l'aire de la base : G = g · h : 2 = 6 · 4 : 2 = 12 cm².`, task2Step2: `Calcule le volume : V = G · H = 12 · 10.`, task2Step3: `Résultat : V = 120 cm³.`,
+  task2Hint: `Calcule toujours d'abord l'aire de la base du triangle, puis multiplie seulement après par la hauteur du prisme.`,
   task3Step1: `Formule : S = 6a².`, task3Step2: `Substitue : 6 · 3².`, task3Step3: `Calcule : 3² = 9, puis 6 · 9 = 54.`,
   task3Hint: `Un cube a 6 faces carrées de même taille, c'est pourquoi on multiplie par 6.`,
   task4Step1: `Formule : V = a · b · c.`, task4Step2: `Substitue : 5 · 3 · 4.`, task4Step3: `Calcule : 5 · 3 = 15, puis 15 · 4 = 60.`,
   task4Hint: `Les trois longueurs d'arête doivent être multipliées entre elles, pas seulement deux.`,
-  task5Step1: `Formule : V = a · b · c.`, task5Step2: `Substitue : 6 · 2 · 3.`, task5Step3: `Calcule : 6 · 2 = 12, puis 12 · 3 = 36.`,
-  task5Hint: `L'ordre de la multiplication n'a pas d'importance, le résultat reste le même.`,
+  task5Step1: `Formule : V = π · r² · h.`, task5Step2: `Substitue : V = 3,14 · 5² · 2 = 3,14 · 25 · 2.`, task5Step3: `Calcule : 3,14 · 25 = 78,5, puis 78,5 · 2 = 157.`,
+  task5Hint: `Un cylindre se comporte comme un « prisme rond » : aire du cercle fois hauteur.`,
   task6Step1: `Formule : S = 2(ab + ac + bc).`, task6Step2: `Substitue : 2 · (4·3 + 4·2 + 3·2) = 2 · (12 + 8 + 6).`, task6Step3: `Calcule : 12 + 8 + 6 = 26, puis 2 · 26 = 52.`,
   task6Hint: `Un pavé droit a 6 faces, mais toujours 2 opposées de même taille — c'est pourquoi on calcule 3 produits fois 2.`,
   task7Step1: `Calcule le volume : V = 40 · 25 · 30 = 30 000 cm³.`, task7Step2: `Convertis en litres : 30 000 : 1000 = 30.`, task7Step3: `Résultat : 30 litres.`,
@@ -470,23 +494,25 @@ tr: {
   basicsP2Cuboid: `<strong>Dikdörtgen prizmada</strong> hacmi bulmak için üç farklı kenar birbiriyle çarpılır.`,
   basicsExample2Label: `<strong>Adım adım örnek:</strong> a = 5 cm, b = 3 cm, c = 4 cm olan bir prizma. Hacmi hesapla.`,
   basicsExample2Steps: `1. Formül: V = a · b · c<br>2. Yerine koy: V = 5 · 3 · 4<br>3. Hesapla: 5 · 3 = 15, sonra 15 · 4 = 60<br>4. Sonuç: V = 60 cm³`,
-  merkeTitle: `Unutma`, merkeBody: `Küp: V = a³, Y = 6a².<br>Dikdörtgen prizma: V = a · b · c, Y = 2(ab + ac + bc).<br>Hacim kübik birimlerle (örn. cm³), yüzey alanı ise alan birimleriyle (örn. cm²) ifade edilir.`,
+  basicsP3Prism: `<strong>"Taban alanı çarpı yükseklik" ilkesi</strong> sadece dikdörtgen prizma ve küp için değil, her prizma için geçerlidir — "yuvarlak bir prizma" gibi çalışan bir üçgen prizma veya silindir için de.`,
+  prismAria: `Taban alanı çarpı prizma yüksekliği formülüyle üçgen prizma, ve pi çarpı yarıçap kare çarpı yükseklik formülüyle silindir`,
+  merkeTitle: `Unutma`, merkeBody: `Küp: V = a³, Y = 6a².<br>Dikdörtgen prizma: V = a · b · c, Y = 2(ab + ac + bc).<br>Üçgen prizma: V = (g · h) : 2 · H.<br>Silindir: V = π · r² · h.<br>Hacim kübik birimlerle (örn. cm³), yüzey alanı ise alan birimleriyle (örn. cm²) ifade edilir.`,
   taskWord: `Alıştırma`,
-  task1Question: `Bir küpün a = 4 cm'dir. Hacmi kaç cm³'tür?`, task2Question: `Bir küpün a = 5 cm'dir. Hacmi kaç cm³'tür?`, task3Question: `Bir küpün a = 3 cm'dir. Yüzey alanı kaç cm²'dir?`, task4Question: `Bir prizmanın a = 5 cm, b = 3 cm ve c = 4 cm'dir. Hacmi kaç cm³'tür?`, task5Question: `Bir prizmanın a = 6 cm, b = 2 cm ve c = 3 cm'dir. Hacmi kaç cm³'tür?`, task6Question: `Bir prizmanın a = 4 cm, b = 3 cm ve c = 2 cm'dir. Yüzey alanı kaç cm²'dir?`,
+  task1Question: `Bir küpün a = 4 cm'dir. Hacmi kaç cm³'tür?`, task2Question: `Bir üçgen prizmanın üçgen tabanı g = 6 cm ve h = 4 cm'dir, prizma yüksekliği H = 10 cm'dir. Hacim kaç cm³'tür?`, task3Question: `Bir küpün a = 3 cm'dir. Yüzey alanı kaç cm²'dir?`, task4Question: `Bir prizmanın a = 5 cm, b = 3 cm ve c = 4 cm'dir. Hacmi kaç cm³'tür?`, task5Question: `Bir silindirin yarıçapı r = 5 cm ve yüksekliği h = 2 cm'dir. Hacim kaç cm³'tür (π ≈ 3,14 ile)?`, task6Question: `Bir prizmanın a = 4 cm, b = 3 cm ve c = 2 cm'dir. Yüzey alanı kaç cm²'dir?`,
   task7Question: `Bir akvaryum 40 cm uzunluğunda, 25 cm genişliğinde ve 30 cm yüksekliğindedir. İçine kaç litre su sığar (1 litre = 1000 cm³)?`,
   task8Question: `Bir hediye kutusu, kenar uzunluğu 6 cm olan bir küptür. Kutuyu kaplamak için en az kaç cm² hediye kağıdı gerekir?`,
   answerPlaceholder: `Cevabın`, checkButton: `Kontrol et`, solutionSummary: `Çözümü göster`,
-  task1Result: `Sonuç: 64 cm³`, task2Result: `Sonuç: 125 cm³`, task3Result: `Sonuç: 54 cm²`, task4Result: `Sonuç: 60 cm³`, task5Result: `Sonuç: 36 cm³`, task6Result: `Sonuç: 52 cm²`, task7Result: `Sonuç: 30 litre`, task8Result: `Sonuç: 216 cm²`,
+  task1Result: `Sonuç: 64 cm³`, task2Result: `Sonuç: 120 cm³`, task3Result: `Sonuç: 54 cm²`, task4Result: `Sonuç: 60 cm³`, task5Result: `Sonuç: 157 cm³`, task6Result: `Sonuç: 52 cm²`, task7Result: `Sonuç: 30 litre`, task8Result: `Sonuç: 216 cm²`,
   task1Step1: `Formül: V = a³.`, task1Step2: `Yerine koy: 4 · 4 · 4.`, task1Step3: `Hesapla: 4 · 4 = 16, sonra 16 · 4 = 64.`,
   task1Hint: `a³, a · a · a demektir (üç kez çarpılır), a · 3 değil.`,
-  task2Step1: `Formül: V = a³.`, task2Step2: `Yerine koy: 5 · 5 · 5.`, task2Step3: `Hesapla: 5 · 5 = 25, sonra 25 · 5 = 125.`,
-  task2Hint: `Bir küpte tüm kenarlar eşit uzunluktadır, yani aynı sayıyı üç kez çarp.`,
+  task2Step1: `Taban alanını hesapla: G = g · h : 2 = 6 · 4 : 2 = 12 cm².`, task2Step2: `Hacmi hesapla: V = G · H = 12 · 10.`, task2Step3: `Sonuç: V = 120 cm³.`,
+  task2Hint: `Önce her zaman üçgenin taban alanını hesapla, sonra prizma yüksekliğiyle çarp.`,
   task3Step1: `Formül: Y = 6a².`, task3Step2: `Yerine koy: 6 · 3².`, task3Step3: `Hesapla: 3² = 9, sonra 6 · 9 = 54.`,
   task3Hint: `Bir küpün 6 eşit büyüklükte kare yüzeyi vardır, bu yüzden 6 ile çarpılır.`,
   task4Step1: `Formül: V = a · b · c.`, task4Step2: `Yerine koy: 5 · 3 · 4.`, task4Step3: `Hesapla: 5 · 3 = 15, sonra 15 · 4 = 60.`,
   task4Hint: `Üç kenar uzunluğunun hepsi birbiriyle çarpılmalıdır, sadece ikisi değil.`,
-  task5Step1: `Formül: V = a · b · c.`, task5Step2: `Yerine koy: 6 · 2 · 3.`, task5Step3: `Hesapla: 6 · 2 = 12, sonra 12 · 3 = 36.`,
-  task5Hint: `Çarpma sırası önemli değildir, sonuç aynı kalır.`,
+  task5Step1: `Formül: V = π · r² · h.`, task5Step2: `Yerine koy: V = 3,14 · 5² · 2 = 3,14 · 25 · 2.`, task5Step3: `Hesapla: 3,14 · 25 = 78,5, sonra 78,5 · 2 = 157.`,
+  task5Hint: `Silindir "yuvarlak bir prizma" gibi davranır: daire alanı çarpı yükseklik.`,
   task6Step1: `Formül: Y = 2(ab + ac + bc).`, task6Step2: `Yerine koy: 2 · (4·3 + 4·2 + 3·2) = 2 · (12 + 8 + 6).`, task6Step3: `Hesapla: 12 + 8 + 6 = 26, sonra 2 · 26 = 52.`,
   task6Hint: `Bir dikdörtgen prizmanın 6 yüzeyi vardır, ama her zaman 2 eşit büyüklükte karşılıklı yüzey — bu yüzden 3 çarpımı 2 ile çarparız.`,
   task7Step1: `Hacmi hesapla: V = 40 · 25 · 30 = 30.000 cm³.`, task7Step2: `Litreye çevir: 30.000 : 1000 = 30.`, task7Step3: `Sonuç: 30 litre.`,
@@ -506,23 +532,25 @@ ru: {
   basicsP2Cuboid: `<strong>Для параллелепипеда</strong> все три разные длины рёбер перемножают, чтобы получить объём.`,
   basicsExample2Label: `<strong>Пример по шагам:</strong> Параллелепипед с a = 5 см, b = 3 см, c = 4 см. Вычисли объём.`,
   basicsExample2Steps: `1. Формула: V = a · b · c<br>2. Подставить: V = 5 · 3 · 4<br>3. Вычислить: 5 · 3 = 15, затем 15 · 4 = 60<br>4. Результат: V = 60 см³`,
-  merkeTitle: `Запомни`, merkeBody: `Куб: V = a³, S = 6a².<br>Параллелепипед: V = a · b · c, S = 2(ab + ac + bc).<br>Объём указывают в кубических единицах (например, см³), площадь поверхности — в квадратных (например, см²).`,
+  basicsP3Prism: `<strong>Принцип «площадь основания умножить на высоту»</strong> действует не только для параллелепипеда и куба, но и для любой призмы — включая треугольную призму или цилиндр, который работает как «круглая призма».`,
+  prismAria: `Треугольная призма с формулой площадь основания умножить на высоту призмы, и цилиндр с формулой пи умножить на радиус в квадрате умножить на высоту`,
+  merkeTitle: `Запомни`, merkeBody: `Куб: V = a³, S = 6a².<br>Параллелепипед: V = a · b · c, S = 2(ab + ac + bc).<br>Треугольная призма: V = (g · h) : 2 · H.<br>Цилиндр: V = π · r² · h.<br>Объём указывают в кубических единицах (например, см³), площадь поверхности — в квадратных (например, см²).`,
   taskWord: `Задание`,
-  task1Question: `У куба a = 4 см. Чему равен объём (в см³)?`, task2Question: `У куба a = 5 см. Чему равен объём (в см³)?`, task3Question: `У куба a = 3 см. Чему равна площадь поверхности (в см²)?`, task4Question: `У параллелепипеда a = 5 см, b = 3 см и c = 4 см. Чему равен объём (в см³)?`, task5Question: `У параллелепипеда a = 6 см, b = 2 см и c = 3 см. Чему равен объём (в см³)?`, task6Question: `У параллелепипеда a = 4 см, b = 3 см и c = 2 см. Чему равна площадь поверхности (в см²)?`,
+  task1Question: `У куба a = 4 см. Чему равен объём (в см³)?`, task2Question: `У треугольной призмы треугольное основание с g = 6 см и h = 4 см, а высота призмы H = 10 см. Чему равен объём (в см³)?`, task3Question: `У куба a = 3 см. Чему равна площадь поверхности (в см²)?`, task4Question: `У параллелепипеда a = 5 см, b = 3 см и c = 4 см. Чему равен объём (в см³)?`, task5Question: `У цилиндра радиус r = 5 см и высота h = 2 см. Чему равен объём (в см³, при π ≈ 3,14)?`, task6Question: `У параллелепипеда a = 4 см, b = 3 см и c = 2 см. Чему равна площадь поверхности (в см²)?`,
   task7Question: `Аквариум имеет длину 40 см, ширину 25 см и высоту 30 см. Сколько литров воды в него поместится (1 литр = 1000 см³)?`,
   task8Question: `Подарочная коробка представляет собой куб с длиной ребра 6 см. Сколько минимум упаковочной бумаги нужно, чтобы обернуть коробку (в см²)?`,
   answerPlaceholder: `Твой ответ`, checkButton: `Проверить`, solutionSummary: `Показать решение`,
-  task1Result: `Результат: 64 см³`, task2Result: `Результат: 125 см³`, task3Result: `Результат: 54 см²`, task4Result: `Результат: 60 см³`, task5Result: `Результат: 36 см³`, task6Result: `Результат: 52 см²`, task7Result: `Результат: 30 литров`, task8Result: `Результат: 216 см²`,
+  task1Result: `Результат: 64 см³`, task2Result: `Результат: 120 см³`, task3Result: `Результат: 54 см²`, task4Result: `Результат: 60 см³`, task5Result: `Результат: 157 см³`, task6Result: `Результат: 52 см²`, task7Result: `Результат: 30 литров`, task8Result: `Результат: 216 см²`,
   task1Step1: `Формула: V = a³.`, task1Step2: `Подставить: 4 · 4 · 4.`, task1Step3: `Вычислить: 4 · 4 = 16, затем 16 · 4 = 64.`,
   task1Hint: `a³ означает a · a · a (умножено трижды), а не a · 3.`,
-  task2Step1: `Формула: V = a³.`, task2Step2: `Подставить: 5 · 5 · 5.`, task2Step3: `Вычислить: 5 · 5 = 25, затем 25 · 5 = 125.`,
-  task2Hint: `У куба все три ребра равны, поэтому просто перемножь одно и то же число трижды.`,
+  task2Step1: `Вычисли площадь основания: G = g · h : 2 = 6 · 4 : 2 = 12 см².`, task2Step2: `Вычисли объём: V = G · H = 12 · 10.`, task2Step3: `Результат: V = 120 см³.`,
+  task2Hint: `Сначала всегда вычисляй площадь основания треугольника, и только потом умножай на высоту призмы.`,
   task3Step1: `Формула: S = 6a².`, task3Step2: `Подставить: 6 · 3².`, task3Step3: `Вычислить: 3² = 9, затем 6 · 9 = 54.`,
   task3Hint: `У куба 6 одинаковых квадратных граней, поэтому умножают на 6.`,
   task4Step1: `Формула: V = a · b · c.`, task4Step2: `Подставить: 5 · 3 · 4.`, task4Step3: `Вычислить: 5 · 3 = 15, затем 15 · 4 = 60.`,
   task4Hint: `Все три длины рёбер нужно перемножить, а не только две.`,
-  task5Step1: `Формула: V = a · b · c.`, task5Step2: `Подставить: 6 · 2 · 3.`, task5Step3: `Вычислить: 6 · 2 = 12, затем 12 · 3 = 36.`,
-  task5Hint: `Порядок умножения не важен, результат остаётся тем же.`,
+  task5Step1: `Формула: V = π · r² · h.`, task5Step2: `Подставить: V = 3,14 · 5² · 2 = 3,14 · 25 · 2.`, task5Step3: `Вычислить: 3,14 · 25 = 78,5, затем 78,5 · 2 = 157.`,
+  task5Hint: `Цилиндр ведёт себя как «круглая призма»: площадь круга умножить на высоту.`,
   task6Step1: `Формула: S = 2(ab + ac + bc).`, task6Step2: `Подставить: 2 · (4·3 + 4·2 + 3·2) = 2 · (12 + 8 + 6).`, task6Step3: `Вычислить: 12 + 8 + 6 = 26, затем 2 · 26 = 52.`,
   task6Hint: `У параллелепипеда 6 граней, но всегда 2 равные противоположные — поэтому считают 3 произведения умножить на 2.`,
   task7Step1: `Вычисли объём: V = 40 · 25 · 30 = 30 000 см³.`, task7Step2: `Переведи в литры: 30 000 : 1000 = 30.`, task7Step3: `Результат: 30 литров.`,
@@ -542,23 +570,25 @@ ar: {
   basicsP2Cuboid: `<strong>في متوازي المستطيلات،</strong> تُضرَب الأضلاع الثلاثة المختلفة معًا للحصول على الحجم.`,
   basicsExample2Label: `<strong>مثال خطوة بخطوة:</strong> متوازي مستطيلات بـ a = 5 سم، b = 3 سم، c = 4 سم. احسب الحجم.`,
   basicsExample2Steps: `1. المعادلة: V = a · b · c<br>2. عوّض: V = 5 · 3 · 4<br>3. احسب: 5 · 3 = 15، ثم 15 · 4 = 60<br>4. النتيجة: V = 60 سم³`,
-  merkeTitle: `تذكّر`, merkeBody: `المكعب: V = a³، A = 6a².<br>متوازي المستطيلات: V = a · b · c، A = 2(ab + ac + bc).<br>يُقاس الحجم بوحدات مكعبة (مثل سم³)، والمساحة السطحية بوحدات مساحية (مثل سم²).`,
+  basicsP3Prism: `<strong>مبدأ "مساحة القاعدة × الارتفاع"</strong> لا ينطبق فقط على متوازي المستطيلات والمكعب، بل على كل موشور — بما في ذلك موشور ثلاثي أو أسطوانة تعمل مثل "موشور دائري".`,
+  prismAria: `موشور ثلاثي بالمعادلة مساحة القاعدة في ارتفاع الموشور، وأسطوانة بالمعادلة باي في نصف القطر تربيع في الارتفاع`,
+  merkeTitle: `تذكّر`, merkeBody: `المكعب: V = a³، A = 6a².<br>متوازي المستطيلات: V = a · b · c، A = 2(ab + ac + bc).<br>الموشور الثلاثي: V = (g · h) ÷ 2 × H.<br>الأسطوانة: V = π · r² · h.<br>يُقاس الحجم بوحدات مكعبة (مثل سم³)، والمساحة السطحية بوحدات مساحية (مثل سم²).`,
   taskWord: `تمرين`,
-  task1Question: `مكعب له a = 4 سم. كم يبلغ الحجم (بالسم³)؟`, task2Question: `مكعب له a = 5 سم. كم يبلغ الحجم (بالسم³)؟`, task3Question: `مكعب له a = 3 سم. كم تبلغ المساحة السطحية (بالسم²)؟`, task4Question: `متوازي مستطيلات له a = 5 سم، b = 3 سم، c = 4 سم. كم يبلغ الحجم (بالسم³)؟`, task5Question: `متوازي مستطيلات له a = 6 سم، b = 2 سم، c = 3 سم. كم يبلغ الحجم (بالسم³)؟`, task6Question: `متوازي مستطيلات له a = 4 سم، b = 3 سم، c = 2 سم. كم تبلغ المساحة السطحية (بالسم²)؟`,
+  task1Question: `مكعب له a = 4 سم. كم يبلغ الحجم (بالسم³)؟`, task2Question: `موشور ثلاثي له قاعدة مثلثة بـ g = 6 سم وh = 4 سم، وارتفاع الموشور H = 10 سم. كم يبلغ الحجم (بالسم³)؟`, task3Question: `مكعب له a = 3 سم. كم تبلغ المساحة السطحية (بالسم²)؟`, task4Question: `متوازي مستطيلات له a = 5 سم، b = 3 سم، c = 4 سم. كم يبلغ الحجم (بالسم³)؟`, task5Question: `أسطوانة نصف قطرها r = 5 سم وارتفاعها h = 2 سم. كم يبلغ الحجم (بالسم³، وπ ≈ 3.14)؟`, task6Question: `متوازي مستطيلات له a = 4 سم، b = 3 سم، c = 2 سم. كم تبلغ المساحة السطحية (بالسم²)؟`,
   task7Question: `حوض سمك طوله 40 سم وعرضه 25 سم وارتفاعه 30 سم. كم لترًا من الماء يتسع (1 لتر = 1000 سم³)؟`,
   task8Question: `صندوق هدية على شكل مكعب طول ضلعه 6 سم. كم سم² على الأقل من ورق التغليف مطلوب لتغطية الصندوق؟`,
   answerPlaceholder: `إجابتك`, checkButton: `تحقق`, solutionSummary: `عرض الحل`,
-  task1Result: `النتيجة: 64 سم³`, task2Result: `النتيجة: 125 سم³`, task3Result: `النتيجة: 54 سم²`, task4Result: `النتيجة: 60 سم³`, task5Result: `النتيجة: 36 سم³`, task6Result: `النتيجة: 52 سم²`, task7Result: `النتيجة: 30 لترًا`, task8Result: `النتيجة: 216 سم²`,
+  task1Result: `النتيجة: 64 سم³`, task2Result: `النتيجة: 120 سم³`, task3Result: `النتيجة: 54 سم²`, task4Result: `النتيجة: 60 سم³`, task5Result: `النتيجة: 157 سم³`, task6Result: `النتيجة: 52 سم²`, task7Result: `النتيجة: 30 لترًا`, task8Result: `النتيجة: 216 سم²`,
   task1Step1: `المعادلة: V = a³.`, task1Step2: `عوّض: 4 · 4 · 4.`, task1Step3: `احسب: 4 · 4 = 16، ثم 16 · 4 = 64.`,
   task1Hint: `a³ تعني a · a · a (مضروبة ثلاث مرات)، وليس a · 3.`,
-  task2Step1: `المعادلة: V = a³.`, task2Step2: `عوّض: 5 · 5 · 5.`, task2Step3: `احسب: 5 · 5 = 25، ثم 25 · 5 = 125.`,
-  task2Hint: `في المكعب، جميع الأضلاع الثلاثة متساوية الطول، فقط اضرب نفس العدد ثلاث مرات.`,
+  task2Step1: `احسب مساحة القاعدة: G = g · h ÷ 2 = 6 · 4 ÷ 2 = 12 سم².`, task2Step2: `احسب الحجم: V = G · H = 12 · 10.`, task2Step3: `النتيجة: V = 120 سم³.`,
+  task2Hint: `احسب دائمًا مساحة قاعدة المثلث أولًا، ثم اضرب في ارتفاع الموشور بعد ذلك.`,
   task3Step1: `المعادلة: A = 6a².`, task3Step2: `عوّض: 6 · 3².`, task3Step3: `احسب: 3² = 9، ثم 6 · 9 = 54.`,
   task3Hint: `للمكعب 6 أوجه مربعة متساوية الحجم، لذا يُضرَب في 6.`,
   task4Step1: `المعادلة: V = a · b · c.`, task4Step2: `عوّض: 5 · 3 · 4.`, task4Step3: `احسب: 5 · 3 = 15، ثم 15 · 4 = 60.`,
   task4Hint: `يجب ضرب أطوال الأضلاع الثلاثة معًا، وليس اثنين فقط.`,
-  task5Step1: `المعادلة: V = a · b · c.`, task5Step2: `عوّض: 6 · 2 · 3.`, task5Step3: `احسب: 6 · 2 = 12، ثم 12 · 3 = 36.`,
-  task5Hint: `ترتيب الضرب لا يهم، تبقى النتيجة نفسها.`,
+  task5Step1: `المعادلة: V = π · r² · h.`, task5Step2: `عوّض: V = 3.14 · 5² · 2 = 3.14 · 25 · 2.`, task5Step3: `احسب: 3.14 · 25 = 78.5، ثم 78.5 · 2 = 157.`,
+  task5Hint: `تتصرف الأسطوانة مثل "موشور دائري": مساحة الدائرة في الارتفاع.`,
   task6Step1: `المعادلة: A = 2(ab + ac + bc).`, task6Step2: `عوّض: 2 · (4·3 + 4·2 + 3·2) = 2 · (12 + 8 + 6).`, task6Step3: `احسب: 12 + 8 + 6 = 26، ثم 2 · 26 = 52.`,
   task6Hint: `لمتوازي المستطيلات 6 أوجه، لكن دائمًا يوجد وجهان متقابلان متساويان — لذا نحسب 3 حواصل ضرب مضروبة في 2.`,
   task7Step1: `احسب الحجم: V = 40 · 25 · 30 = 30000 سم³.`, task7Step2: `حوّل إلى لترات: 30000 ÷ 1000 = 30.`, task7Step3: `النتيجة: 30 لترًا.`,
@@ -578,23 +608,25 @@ zh: {
   basicsP2Cuboid: `<strong>对于长方体，</strong>把三条不同的棱长相乘就能得到体积。`,
   basicsExample2Label: `<strong>分步示例：</strong> 长方体 a = 5 厘米，b = 3 厘米，c = 4 厘米。计算体积。`,
   basicsExample2Steps: `1. 公式：V = a · b · c<br>2. 代入：V = 5 · 3 · 4<br>3. 计算：5 · 3 = 15，然后 15 · 4 = 60<br>4. 结果：V = 60 立方厘米`,
-  merkeTitle: `记住`, merkeBody: `正方体：V = a³，S = 6a²。<br>长方体：V = a · b · c，S = 2(ab + ac + bc)。<br>体积用立方单位表示（如立方厘米），表面积用面积单位表示（如平方厘米）。`,
+  basicsP3Prism: `<strong>"底面积乘以高"</strong>这个原理不仅适用于长方体和正方体，也适用于任何棱柱——包括三棱柱，或者像"圆柱形棱柱"一样工作的圆柱体。`,
+  prismAria: `三棱柱，公式为底面积乘以棱柱高，以及圆柱体，公式为圆周率乘以半径平方乘以高`,
+  merkeTitle: `记住`, merkeBody: `正方体：V = a³，S = 6a²。<br>长方体：V = a · b · c，S = 2(ab + ac + bc)。<br>三棱柱：V = (g · h) ÷ 2 · H。<br>圆柱体：V = π · r² · h。<br>体积用立方单位表示（如立方厘米），表面积用面积单位表示（如平方厘米）。`,
   taskWord: `练习`,
-  task1Question: `一个正方体 a = 4 厘米。体积是多少立方厘米？`, task2Question: `一个正方体 a = 5 厘米。体积是多少立方厘米？`, task3Question: `一个正方体 a = 3 厘米。表面积是多少平方厘米？`, task4Question: `一个长方体 a = 5 厘米，b = 3 厘米，c = 4 厘米。体积是多少立方厘米？`, task5Question: `一个长方体 a = 6 厘米，b = 2 厘米，c = 3 厘米。体积是多少立方厘米？`, task6Question: `一个长方体 a = 4 厘米，b = 3 厘米，c = 2 厘米。表面积是多少平方厘米？`,
+  task1Question: `一个正方体 a = 4 厘米。体积是多少立方厘米？`, task2Question: `一个三棱柱的三角形底面 g = 6 厘米，h = 4 厘米，棱柱高 H = 10 厘米。体积是多少立方厘米？`, task3Question: `一个正方体 a = 3 厘米。表面积是多少平方厘米？`, task4Question: `一个长方体 a = 5 厘米，b = 3 厘米，c = 4 厘米。体积是多少立方厘米？`, task5Question: `一个圆柱体半径 r = 5 厘米，高 h = 2 厘米。体积是多少立方厘米（π ≈ 3.14）？`, task6Question: `一个长方体 a = 4 厘米，b = 3 厘米，c = 2 厘米。表面积是多少平方厘米？`,
   task7Question: `一个鱼缸长 40 厘米，宽 25 厘米，高 30 厘米。能装多少升水（1 升 = 1000 立方厘米）？`,
   task8Question: `一个礼品盒是棱长 6 厘米的正方体。包住这个盒子最少需要多少平方厘米的包装纸？`,
   answerPlaceholder: `你的答案`, checkButton: `检查`, solutionSummary: `显示答案`,
-  task1Result: `结果：64 立方厘米`, task2Result: `结果：125 立方厘米`, task3Result: `结果：54 平方厘米`, task4Result: `结果：60 立方厘米`, task5Result: `结果：36 立方厘米`, task6Result: `结果：52 平方厘米`, task7Result: `结果：30 升`, task8Result: `结果：216 平方厘米`,
+  task1Result: `结果：64 立方厘米`, task2Result: `结果：120 立方厘米`, task3Result: `结果：54 平方厘米`, task4Result: `结果：60 立方厘米`, task5Result: `结果：157 立方厘米`, task6Result: `结果：52 平方厘米`, task7Result: `结果：30 升`, task8Result: `结果：216 平方厘米`,
   task1Step1: `公式：V = a³。`, task1Step2: `代入：4 · 4 · 4。`, task1Step3: `计算：4 · 4 = 16，然后 16 · 4 = 64。`,
   task1Hint: `a³ 表示 a · a · a（乘三次），不是 a · 3。`,
-  task2Step1: `公式：V = a³。`, task2Step2: `代入：5 · 5 · 5。`, task2Step3: `计算：5 · 5 = 25，然后 25 · 5 = 125。`,
-  task2Hint: `正方体的三条棱都一样长，所以只需把同一个数乘三次。`,
+  task2Step1: `计算底面积：G = g · h ÷ 2 = 6 · 4 ÷ 2 = 12 平方厘米。`, task2Step2: `计算体积：V = G · H = 12 · 10。`, task2Step3: `结果：V = 120 立方厘米。`,
+  task2Hint: `总是先计算三角形的底面积，然后才乘以棱柱的高。`,
   task3Step1: `公式：S = 6a²。`, task3Step2: `代入：6 · 3²。`, task3Step3: `计算：3² = 9，然后 6 · 9 = 54。`,
   task3Hint: `正方体有 6 个大小相同的正方形面，所以乘以 6。`,
   task4Step1: `公式：V = a · b · c。`, task4Step2: `代入：5 · 3 · 4。`, task4Step3: `计算：5 · 3 = 15，然后 15 · 4 = 60。`,
   task4Hint: `三条棱长都要相乘，不是只乘两条。`,
-  task5Step1: `公式：V = a · b · c。`, task5Step2: `代入：6 · 2 · 3。`, task5Step3: `计算：6 · 2 = 12，然后 12 · 3 = 36。`,
-  task5Hint: `相乘的顺序不影响结果。`,
+  task5Step1: `公式：V = π · r² · h。`, task5Step2: `代入：V = 3.14 · 5² · 2 = 3.14 · 25 · 2。`, task5Step3: `计算：3.14 · 25 = 78.5，然后 78.5 · 2 = 157。`,
+  task5Hint: `圆柱体的表现就像"圆形棱柱"：圆面积乘以高。`,
   task6Step1: `公式：S = 2(ab + ac + bc)。`, task6Step2: `代入：2 · (4·3 + 4·2 + 3·2) = 2 · (12 + 8 + 6)。`, task6Step3: `计算：12 + 8 + 6 = 26，然后 2 · 26 = 52。`,
   task6Hint: `长方体有 6 个面，但总有 2 个大小相同的相对面——所以要计算 3 个乘积再乘以 2。`,
   task7Step1: `计算体积：V = 40 · 25 · 30 = 30000 立方厘米。`, task7Step2: `换算成升：30000 ÷ 1000 = 30。`, task7Step3: `结果：30 升。`,
