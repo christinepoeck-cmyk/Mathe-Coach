@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trigonometrie im rechtwinkligen Dreieck</title>
+<style>
+  :root{
+    --bg:#FAFAF9; --card:#FFFFFF; --ink:#241C1C; --ink-soft:#5C4F4C;
+    --red:#C41230; --gold:#E0A526; --blue:#2478B5;
+    --merke-bg:#FBF1DC; --merke-border:#E0A526;
+    --success:#1E8E5A; --success-bg:#E5F5EC; --error:#B3401D; --error-bg:#FBEDE6;
+    --font-display: ui-rounded, "SF Pro Rounded", "Segoe UI Rounded", "Nunito", system-ui, sans-serif;
+    --font-body: system-ui, "Segoe UI", Roboto, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:18px; line-height:1.5; padding-bottom:60px; }
+  .wrap{ max-width:640px; margin:0 auto; padding:0 20px; }
+  header{ background:var(--card); padding:30px 20px 0; text-align:center; position:relative; }
+  .header-inner{ padding-bottom:26px; }
+  .lang-switch{ display:flex; justify-content:center; margin-bottom:14px; }
+  #langSelect{ font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--ink); background:var(--card); border:2px solid #E3DFDA; border-radius:999px; padding:6px 14px; cursor:pointer; }
+  #langSelect:focus-visible{ outline:3px solid var(--blue); }
+  .back-link{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--blue); text-decoration:none; margin-bottom:16px; }
+  .eyebrow{ font-family:var(--font-display); font-weight:700; font-size:14px; letter-spacing:0.08em; text-transform:uppercase; color:var(--blue); margin-bottom:8px; }
+  h1{ font-family:var(--font-display); font-size:28px; font-weight:800; margin:0; line-height:1.25; }
+  h1 .accent{ color:var(--red); }
+  .wave{ display:block; width:100%; height:30px; }
+  section{ margin-top:32px; }
+  .card{ background:var(--card); border-radius:22px; padding:24px 22px; box-shadow:0 2px 14px rgba(36,28,28,0.07); }
+  h2{ font-family:var(--font-display); font-size:21px; font-weight:800; margin:0 0 14px; }
+  h2 .num{ display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:var(--blue); color:white; font-size:16px; margin-inline-end:10px; vertical-align:middle; }
+  p{ margin:0 0 14px; color:var(--ink-soft); }
+  .merke{ background:var(--merke-bg); border:2px solid var(--merke-border); border-radius:16px; padding:16px 18px; margin-top:16px; }
+  .merke-title{ font-family:var(--font-display); font-weight:800; color:#8A5A0F; font-size:15px; letter-spacing:0.04em; text-transform:uppercase; margin-bottom:6px; }
+  .merke-body{ color:#6B4A12; font-weight:600; margin:0; }
+  .trig-diagram{ width:100%; height:auto; margin:18px 0 6px; }
+  .task-card{ margin-top:18px; }
+  .task-question{ font-family:var(--font-display); font-weight:700; font-size:19px; margin-bottom:16px; }
+  .answer-row{ display:flex; gap:10px; margin-bottom:6px; }
+  input[type="text"]{ flex:1; font-size:18px; font-family:var(--font-body); padding:12px 14px; border-radius:12px; border:2px solid #E3DFDA; background:#FBFAF9; color:var(--ink); }
+  input[type="text"]:focus{ outline:3px solid #C9DCEA; border-color:var(--blue); }
+  button.check{ font-family:var(--font-display); font-weight:700; font-size:16px; color:white; background:var(--blue); border:none; border-radius:12px; padding:0 20px; cursor:pointer; }
+  button.check:active{ transform:translateY(1px); }
+  button.check:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
+  .feedback{ margin-top:10px; padding:12px 14px; border-radius:12px; font-weight:700; display:none; }
+  .feedback.show{ display:block; }
+  .feedback.correct{ background:var(--success-bg); color:var(--success); }
+  .feedback.incorrect{ background:var(--error-bg); color:var(--error); }
+  details{ margin-top:14px; border-top:2px dashed #E3DFDA; padding-top:12px; }
+  summary{ font-family:var(--font-display); font-weight:700; color:var(--blue); cursor:pointer; font-size:15px; }
+  .solution{ margin-top:12px; }
+  .solution ol{ margin:0 0 12px; padding-inline-start:22px; color:var(--ink-soft); }
+  .solution li{ margin-bottom:6px; }
+  .solution-result{ font-family:var(--font-display); font-weight:800; color:var(--ink); margin-bottom:12px; }
+  .hint-box{ background:#F1EFEC; border-radius:12px; padding:12px 14px; font-size:16px; color:var(--ink-soft); }
+  .hint-box strong{ color:var(--ink); }
+  footer{ text-align:center; margin-top:36px; padding:0 20px; }
+  footer p{ font-family:var(--font-display); font-weight:700; color:var(--ink); }
+  .footer-wave{ display:block; width:100%; max-width:280px; height:16px; margin:0 auto 18px; opacity:0.6; }
+  [dir="rtl"] .back-link{ flex-direction:row-reverse; }
+  @media (prefers-reduced-motion: no-preference){ button.check{ transition:transform 0.1s ease; } }
+  @media (max-width: 480px){ .answer-row{ flex-direction:column; } button.check{ width:100%; padding:14px 20px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="lang-switch">
+      <select id="langSelect" onchange="setLanguage(this.value)">
+        <option value="de">Deutsch</option><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="tr">Türkçe</option><option value="ru">Русский</option><option value="ar">العربية</option><option value="zh">中文</option>
+      </select>
+    </div>
+    <a class="back-link" href="index.html" data-i18n="backLink">← Alle Themen</a>
+    <div class="eyebrow" data-i18n="eyebrow">Luisen-Gymnasium · Klasse 10</div>
+    <h1><span data-i18n="titleLine1">Trigonometrie im</span><br><span class="accent" data-i18n="titleAccent">rechtwinkligen Dreieck</span></h1>
+  </div>
+  <svg class="wave" viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+    <path d="M -10 22 C 190 4, 390 40, 590 22 S 990 4, 1210 22" fill="none" stroke="#C41230" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 32 C 190 50, 390 14, 590 32 S 990 50, 1210 32" fill="none" stroke="#E0A526" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 42 C 190 24, 390 58, 590 42 S 990 24, 1210 42" fill="none" stroke="#2478B5" stroke-width="5" stroke-linecap="round"/>
+  </svg>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <div class="card">
+      <h2 data-i18n="h2Basics">Grundlagen</h2>
+      <p data-i18n="basicsP1">In einem rechtwinkligen Dreieck werden die Seiten bezüglich eines Winkels α (nicht der rechte Winkel) benannt: die Hypotenuse (längste Seite, gegenüber dem rechten Winkel), die Gegenkathete (gegenüber α) und die Ankathete (neben α).</p>
+
+      <svg class="trig-diagram" viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg" role="img" data-i18n-aria="trigAria" aria-label="Rechtwinkliges Dreieck mit Winkel Alpha, beschriftet mit Gegenkathete, Ankathete und Hypotenuse">
+        <polygon points="80,170 400,170 80,40" fill="#2478B5" fill-opacity="0.08" stroke="#241C1C" stroke-width="2.5"/>
+        <path d="M115 170 A35 35 0 0 1 108 143" fill="none" stroke="#8A5A0F" stroke-width="2"/>
+        <text x="130" y="155" font-family="ui-rounded, system-ui, sans-serif" font-size="16" font-weight="800" fill="#8A5A0F">α</text>
+        <text x="240" y="190" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="15" font-weight="700" fill="#241C1C" data-i18n="ankatheteLabel">Ankathete</text>
+        <text x="55" y="110" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="15" font-weight="700" fill="#C41230" data-i18n="gegenkatheteLabel">Gegenkathete</text>
+        <text x="260" y="95" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="15" font-weight="700" fill="#2478B5" data-i18n="hypotenuseLabel">Hypotenuse</text>
+      </svg>
+
+      <p data-i18n="basicsExample1Label"><strong>Beispiel Schritt für Schritt:</strong> Rechtwinkliges Dreieck mit α = 30° und Hypotenuse = 10. Berechne die Gegenkathete.</p>
+      <p data-i18n="basicsExample1Steps">1. Formel: sin(α) = Gegenkathete : Hypotenuse<br>2. Umstellen: Gegenkathete = sin(α) · Hypotenuse<br>3. Einsetzen: sin(30°) = 0,5, also Gegenkathete = 0,5 · 10<br>4. Ergebnis: 5</p>
+
+      <p data-i18n="basicsP2Angle"><strong>Wenn der Winkel gesucht ist,</strong> stellt man die Formel nach α um und verwendet die Umkehrfunktion (z.B. sin⁻¹). Es hilft, einige Werte auswendig zu kennen: sin(30°) = 0,5, sin(45°) = cos(45°) ≈ 0,71, cos(60°) = 0,5, tan(45°) = 1.</p>
+
+      <p data-i18n="basicsExample2Label"><strong>Beispiel Schritt für Schritt:</strong> Gegenkathete = 5, Hypotenuse = 10. Berechne den Winkel α.</p>
+      <p data-i18n="basicsExample2Steps">1. Formel: sin(α) = Gegenkathete : Hypotenuse<br>2. Einsetzen: sin(α) = 5 : 10 = 0,5<br>3. Da sin(30°) = 0,5 bekannt ist<br>4. Ergebnis: α = 30°</p>
+
+      <div class="merke">
+        <div class="merke-title" data-i18n="merkeTitle">Merke</div>
+        <p class="merke-body" data-i18n="merkeBody">sin(α) = Gegenkathete : Hypotenuse.<br>cos(α) = Ankathete : Hypotenuse.<br>tan(α) = Gegenkathete : Ankathete.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">1</span><span data-i18n="taskWord">Aufgabe</span> 1</h2>
+      <div class="task-question" data-i18n="task1Question">Rechtwinkliges Dreieck mit α = 30° und Hypotenuse = 10. Wie lang ist die Gegenkathete?</div>
+      <div class="answer-row">
+        <input type="text" id="input1" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(1, 5)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback1"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task1Result">Ergebnis: 5</div>
+          <ol>
+            <li data-i18n="task1Step1">Formel: Gegenkathete = sin(α) · Hypotenuse.</li>
+            <li data-i18n="task1Step2">Einsetzen: sin(30°) · 10 = 0,5 · 10.</li>
+            <li data-i18n="task1Step3">Ergebnis: 5.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task1Hint">sin(30°) = 0,5 ist ein wichtiger Wert, den man auswendig kennen sollte.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">2</span><span data-i18n="taskWord">Aufgabe</span> 2</h2>
+      <div class="task-question" data-i18n="task2Question">Rechtwinkliges Dreieck mit α = 30° und Hypotenuse = 20. Wie lang ist die Gegenkathete?</div>
+      <div class="answer-row">
+        <input type="text" id="input2" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(2, 10)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback2"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task2Result">Ergebnis: 10</div>
+          <ol>
+            <li data-i18n="task2Step1">Formel: Gegenkathete = sin(α) · Hypotenuse.</li>
+            <li data-i18n="task2Step2">Einsetzen: sin(30°) · 20 = 0,5 · 20.</li>
+            <li data-i18n="task2Step3">Ergebnis: 10.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task2Hint">Bei α = 30° ist die Gegenkathete immer genau die Hälfte der Hypotenuse.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">3</span><span data-i18n="taskWord">Aufgabe</span> 3</h2>
+      <div class="task-question" data-i18n="task3Question">Rechtwinkliges Dreieck mit α = 60° und Hypotenuse = 14. Wie lang ist die Ankathete?</div>
+      <div class="answer-row">
+        <input type="text" id="input3" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(3, 7)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback3"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task3Result">Ergebnis: 7</div>
+          <ol>
+            <li data-i18n="task3Step1">Formel: Ankathete = cos(α) · Hypotenuse.</li>
+            <li data-i18n="task3Step2">Einsetzen: cos(60°) · 14 = 0,5 · 14.</li>
+            <li data-i18n="task3Step3">Ergebnis: 7.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task3Hint">cos(60°) = 0,5 – nicht mit sin(60°) verwechseln, das einen anderen Wert hat.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">4</span><span data-i18n="taskWord">Aufgabe</span> 4</h2>
+      <div class="task-question" data-i18n="task4Question">Rechtwinkliges Dreieck mit α = 45° und Ankathete = 8. Wie lang ist die Gegenkathete?</div>
+      <div class="answer-row">
+        <input type="text" id="input4" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(4, 8)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback4"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task4Result">Ergebnis: 8</div>
+          <ol>
+            <li data-i18n="task4Step1">Formel: tan(α) = Gegenkathete : Ankathete.</li>
+            <li data-i18n="task4Step2">Bei α = 45° ist tan(45°) = 1, also Gegenkathete = Ankathete.</li>
+            <li data-i18n="task4Step3">Ergebnis: 8.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task4Hint">Bei genau 45° sind Gegenkathete und Ankathete immer gleich lang.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">5</span><span data-i18n="taskWord">Aufgabe</span> 5</h2>
+      <div class="task-question" data-i18n="task5Question">Ein Baum wirft im Sonnenwinkel von 45° einen Schatten (Ankathete) von 12 m. Wie hoch ist der Baum (Gegenkathete, in m)?</div>
+      <div class="answer-row">
+        <input type="text" id="input5" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(5, 12)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback5"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task5Result">Ergebnis: 12 m</div>
+          <ol>
+            <li data-i18n="task5Step1">Bei α = 45° gilt tan(45°) = 1, also Gegenkathete = Ankathete.</li>
+            <li data-i18n="task5Step2">Die Ankathete (Schatten) ist 12 m.</li>
+            <li data-i18n="task5Step3">Ergebnis: Die Baumhöhe beträgt ebenfalls 12 m.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task5Hint">Der Winkel von 45° macht diese Sachaufgabe besonders einfach, da Höhe und Schatten gleich lang sind.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">6</span><span data-i18n="taskWord">Aufgabe</span> 6</h2>
+      <div class="task-question" data-i18n="task6Question">Rechtwinkliges Dreieck mit Gegenkathete = 5 und Hypotenuse = 10. Wie groß ist der Winkel α (in Grad)?</div>
+      <div class="answer-row">
+        <input type="text" id="input6" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(6, 30)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback6"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task6Result">Ergebnis: α = 30°</div>
+          <ol>
+            <li data-i18n="task6Step1">Formel: sin(α) = Gegenkathete : Hypotenuse.</li>
+            <li data-i18n="task6Step2">Einsetzen: sin(α) = 5 : 10 = 0,5.</li>
+            <li data-i18n="task6Step3">Da sin(30°) = 0,5 ist, ist α = 30°.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task6Hint">Erst das Verhältnis berechnen, dann überlegen, zu welchem bekannten Winkel dieser Wert gehört.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">7</span><span data-i18n="taskWord">Aufgabe</span> 7</h2>
+      <div class="task-question" data-i18n="task7Question">Rechtwinkliges Dreieck mit Ankathete = 5 und Hypotenuse = 10. Wie groß ist der Winkel α (in Grad)?</div>
+      <div class="answer-row">
+        <input type="text" id="input7" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(7, 60)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback7"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task7Result">Ergebnis: α = 60°</div>
+          <ol>
+            <li data-i18n="task7Step1">Formel: cos(α) = Ankathete : Hypotenuse.</li>
+            <li data-i18n="task7Step2">Einsetzen: cos(α) = 5 : 10 = 0,5.</li>
+            <li data-i18n="task7Step3">Da cos(60°) = 0,5 ist, ist α = 60°.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task7Hint">Bei gleichem Zahlenverhältnis (0,5) ergibt sin einen anderen Winkel (30°) als cos (60°).</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">8</span><span data-i18n="taskWord">Aufgabe</span> 8</h2>
+      <div class="task-question" data-i18n="task8Question">Rechtwinkliges Dreieck mit Gegenkathete = 7 und Ankathete = 7. Wie groß ist der Winkel α (in Grad)?</div>
+      <div class="answer-row">
+        <input type="text" id="input8" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(8, 45)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback8"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task8Result">Ergebnis: α = 45°</div>
+          <ol>
+            <li data-i18n="task8Step1">Formel: tan(α) = Gegenkathete : Ankathete.</li>
+            <li data-i18n="task8Step2">Einsetzen: tan(α) = 7 : 7 = 1.</li>
+            <li data-i18n="task8Step3">Da tan(45°) = 1 ist, ist α = 45°.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task8Hint">Wenn Gegenkathete und Ankathete gleich lang sind, beträgt der Winkel immer genau 45°.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <footer>
+    <svg class="footer-wave" viewBox="0 0 280 16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+      <path d="M -5 8 C 40 1, 80 15, 140 8 S 240 1, 285 8" fill="none" stroke="#C41230" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M -5 8 C 40 15, 80 1, 140 8 S 240 15, 285 8" fill="none" stroke="#2478B5" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+    </svg>
+    <p id="footer-msg" data-i18n="footerMessage">Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!</p>
+  </footer>
+
+</div>
+
+<script>
+const TRANSLATIONS = {
+de: {
+  eyebrow: `Luisen-Gymnasium · Klasse 10`, titleLine1: `Trigonometrie im`, titleAccent: `rechtwinkligen Dreieck`, backLink: `← Alle Themen`, h2Basics: `Grundlagen`,
+  basicsP1: `In einem rechtwinkligen Dreieck werden die Seiten bezüglich eines Winkels α (nicht der rechte Winkel) benannt: die Hypotenuse (längste Seite, gegenüber dem rechten Winkel), die Gegenkathete (gegenüber α) und die Ankathete (neben α).`,
+  trigAria: `Rechtwinkliges Dreieck mit Winkel Alpha, beschriftet mit Gegenkathete, Ankathete und Hypotenuse`,
+  ankatheteLabel: `Ankathete`, gegenkatheteLabel: `Gegenkathete`, hypotenuseLabel: `Hypotenuse`,
+  basicsExample1Label: `<strong>Beispiel Schritt für Schritt:</strong> Rechtwinkliges Dreieck mit α = 30° und Hypotenuse = 10. Berechne die Gegenkathete.`,
+  basicsExample1Steps: `1. Formel: sin(α) = Gegenkathete : Hypotenuse<br>2. Umstellen: Gegenkathete = sin(α) · Hypotenuse<br>3. Einsetzen: sin(30°) = 0,5, also Gegenkathete = 0,5 · 10<br>4. Ergebnis: 5`,
+  basicsP2Angle: `<strong>Wenn der Winkel gesucht ist,</strong> stellt man die Formel nach α um und verwendet die Umkehrfunktion (z.B. sin⁻¹). Es hilft, einige Werte auswendig zu kennen: sin(30°) = 0,5, sin(45°) = cos(45°) ≈ 0,71, cos(60°) = 0,5, tan(45°) = 1.`,
+  basicsExample2Label: `<strong>Beispiel Schritt für Schritt:</strong> Gegenkathete = 5, Hypotenuse = 10. Berechne den Winkel α.`,
+  basicsExample2Steps: `1. Formel: sin(α) = Gegenkathete : Hypotenuse<br>2. Einsetzen: sin(α) = 5 : 10 = 0,5<br>3. Da sin(30°) = 0,5 bekannt ist<br>4. Ergebnis: α = 30°`,
+  merkeTitle: `Merke`, merkeBody: `sin(α) = Gegenkathete : Hypotenuse.<br>cos(α) = Ankathete : Hypotenuse.<br>tan(α) = Gegenkathete : Ankathete.`,
+  taskWord: `Aufgabe`,
+  task1Question: `Rechtwinkliges Dreieck mit α = 30° und Hypotenuse = 10. Wie lang ist die Gegenkathete?`, task2Question: `Rechtwinkliges Dreieck mit α = 30° und Hypotenuse = 20. Wie lang ist die Gegenkathete?`, task3Question: `Rechtwinkliges Dreieck mit α = 60° und Hypotenuse = 14. Wie lang ist die Ankathete?`, task4Question: `Rechtwinkliges Dreieck mit α = 45° und Ankathete = 8. Wie lang ist die Gegenkathete?`, task5Question: `Ein Baum wirft im Sonnenwinkel von 45° einen Schatten (Ankathete) von 12 m. Wie hoch ist der Baum (Gegenkathete, in m)?`, task6Question: `Rechtwinkliges Dreieck mit Gegenkathete = 5 und Hypotenuse = 10. Wie groß ist der Winkel α (in Grad)?`,
+  task7Question: `Rechtwinkliges Dreieck mit Ankathete = 5 und Hypotenuse = 10. Wie groß ist der Winkel α (in Grad)?`,
+  task8Question: `Rechtwinkliges Dreieck mit Gegenkathete = 7 und Ankathete = 7. Wie groß ist der Winkel α (in Grad)?`,
+  answerPlaceholder: `Deine Antwort`, checkButton: `Prüfen`, solutionSummary: `Lösung anzeigen`,
+  task1Result: `Ergebnis: 5`, task2Result: `Ergebnis: 10`, task3Result: `Ergebnis: 7`, task4Result: `Ergebnis: 8`, task5Result: `Ergebnis: 12 m`, task6Result: `Ergebnis: α = 30°`, task7Result: `Ergebnis: α = 60°`, task8Result: `Ergebnis: α = 45°`,
+  task1Step1: `Formel: Gegenkathete = sin(α) · Hypotenuse.`, task1Step2: `Einsetzen: sin(30°) · 10 = 0,5 · 10.`, task1Step3: `Ergebnis: 5.`,
+  task1Hint: `sin(30°) = 0,5 ist ein wichtiger Wert, den man auswendig kennen sollte.`,
+  task2Step1: `Formel: Gegenkathete = sin(α) · Hypotenuse.`, task2Step2: `Einsetzen: sin(30°) · 20 = 0,5 · 20.`, task2Step3: `Ergebnis: 10.`,
+  task2Hint: `Bei α = 30° ist die Gegenkathete immer genau die Hälfte der Hypotenuse.`,
+  task3Step1: `Formel: Ankathete = cos(α) · Hypotenuse.`, task3Step2: `Einsetzen: cos(60°) · 14 = 0,5 · 14.`, task3Step3: `Ergebnis: 7.`,
+  task3Hint: `cos(60°) = 0,5 – nicht mit sin(60°) verwechseln, das einen anderen Wert hat.`,
+  task4Step1: `Formel: tan(α) = Gegenkathete : Ankathete.`, task4Step2: `Bei α = 45° ist tan(45°) = 1, also Gegenkathete = Ankathete.`, task4Step3: `Ergebnis: 8.`,
+  task4Hint: `Bei genau 45° sind Gegenkathete und Ankathete immer gleich lang.`,
+  task5Step1: `Bei α = 45° gilt tan(45°) = 1, also Gegenkathete = Ankathete.`, task5Step2: `Die Ankathete (Schatten) ist 12 m.`, task5Step3: `Ergebnis: Die Baumhöhe beträgt ebenfalls 12 m.`,
+  task5Hint: `Der Winkel von 45° macht diese Sachaufgabe besonders einfach, da Höhe und Schatten gleich lang sind.`,
+  task6Step1: `Formel: sin(α) = Gegenkathete : Hypotenuse.`, task6Step2: `Einsetzen: sin(α) = 5 : 10 = 0,5.`, task6Step3: `Da sin(30°) = 0,5 ist, ist α = 30°.`,
+  task6Hint: `Erst das Verhältnis berechnen, dann überlegen, zu welchem bekannten Winkel dieser Wert gehört.`,
+  task7Step1: `Formel: cos(α) = Ankathete : Hypotenuse.`, task7Step2: `Einsetzen: cos(α) = 5 : 10 = 0,5.`, task7Step3: `Da cos(60°) = 0,5 ist, ist α = 60°.`,
+  task7Hint: `Bei gleichem Zahlenverhältnis (0,5) ergibt sin einen anderen Winkel (30°) als cos (60°).`,
+  task8Step1: `Formel: tan(α) = Gegenkathete : Ankathete.`, task8Step2: `Einsetzen: tan(α) = 7 : 7 = 1.`, task8Step3: `Da tan(45°) = 1 ist, ist α = 45°.`,
+  task8Hint: `Wenn Gegenkathete und Ankathete gleich lang sind, beträgt der Winkel immer genau 45°.`,
+  hintLabel: `Typischer Fehler:`, footerMessage: `Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!`,
+  fbEmpty: `Trag bitte eine Zahl ein, bevor du prüfst.`, fbCorrect: `Richtig! Gut gemacht!`, fbIncorrect: `Noch nicht ganz richtig. Schau dir die Lösung weiter unten an und versuch es dann nochmal.`
+},
+en: {
+  eyebrow: `Luisen-Gymnasium · Grade 10`, titleLine1: `Trigonometry in`, titleAccent: `Right Triangles`, backLink: `← All Topics`, h2Basics: `Basics`,
+  basicsP1: `In a right triangle, the sides are named relative to an angle α (not the right angle): the hypotenuse (longest side, opposite the right angle), the opposite side (across from α), and the adjacent side (next to α).`,
+  trigAria: `Right triangle with angle alpha, labeled with opposite side, adjacent side, and hypotenuse`,
+  ankatheteLabel: `Adjacent`, gegenkatheteLabel: `Opposite`, hypotenuseLabel: `Hypotenuse`,
+  basicsExample1Label: `<strong>Step-by-step example:</strong> Right triangle with α = 30° and hypotenuse = 10. Calculate the opposite side.`,
+  basicsExample1Steps: `1. Formula: sin(α) = opposite : hypotenuse<br>2. Rearrange: opposite = sin(α) · hypotenuse<br>3. Substitute: sin(30°) = 0.5, so opposite = 0.5 · 10<br>4. Result: 5`,
+  basicsP2Angle: `<strong>If the angle is what you're looking for,</strong> rearrange the formula for α and use the inverse function (e.g. sin⁻¹). It helps to know some values by heart: sin(30°) = 0.5, sin(45°) = cos(45°) ≈ 0.71, cos(60°) = 0.5, tan(45°) = 1.`,
+  basicsExample2Label: `<strong>Step-by-step example:</strong> Opposite = 5, hypotenuse = 10. Calculate the angle α.`,
+  basicsExample2Steps: `1. Formula: sin(α) = opposite : hypotenuse<br>2. Substitute: sin(α) = 5 : 10 = 0.5<br>3. Since sin(30°) = 0.5 is known<br>4. Result: α = 30°`,
+  merkeTitle: `Remember`, merkeBody: `sin(α) = opposite : hypotenuse.<br>cos(α) = adjacent : hypotenuse.<br>tan(α) = opposite : adjacent.`,
+  taskWord: `Exercise`,
+  task1Question: `Right triangle with α = 30° and hypotenuse = 10. How long is the opposite side?`, task2Question: `Right triangle with α = 30° and hypotenuse = 20. How long is the opposite side?`, task3Question: `Right triangle with α = 60° and hypotenuse = 14. How long is the adjacent side?`, task4Question: `Right triangle with α = 45° and adjacent = 8. How long is the opposite side?`, task5Question: `A tree casts a shadow (adjacent side) of 12 m at a sun angle of 45°. How tall is the tree (opposite side, in m)?`, task6Question: `Right triangle with opposite = 5 and hypotenuse = 10. What's the angle α (in degrees)?`,
+  task7Question: `Right triangle with adjacent = 5 and hypotenuse = 10. What's the angle α (in degrees)?`,
+  task8Question: `Right triangle with opposite = 7 and adjacent = 7. What's the angle α (in degrees)?`,
+  answerPlaceholder: `Your answer`, checkButton: `Check`, solutionSummary: `Show solution`,
+  task1Result: `Result: 5`, task2Result: `Result: 10`, task3Result: `Result: 7`, task4Result: `Result: 8`, task5Result: `Result: 12 m`, task6Result: `Result: α = 30°`, task7Result: `Result: α = 60°`, task8Result: `Result: α = 45°`,
+  task1Step1: `Formula: opposite = sin(α) · hypotenuse.`, task1Step2: `Substitute: sin(30°) · 10 = 0.5 · 10.`, task1Step3: `Result: 5.`,
+  task1Hint: `sin(30°) = 0.5 is an important value to know by heart.`,
+  task2Step1: `Formula: opposite = sin(α) · hypotenuse.`, task2Step2: `Substitute: sin(30°) · 20 = 0.5 · 20.`, task2Step3: `Result: 10.`,
+  task2Hint: `At α = 30°, the opposite side is always exactly half the hypotenuse.`,
+  task3Step1: `Formula: adjacent = cos(α) · hypotenuse.`, task3Step2: `Substitute: cos(60°) · 14 = 0.5 · 14.`, task3Step3: `Result: 7.`,
+  task3Hint: `cos(60°) = 0.5 — don't confuse it with sin(60°), which has a different value.`,
+  task4Step1: `Formula: tan(α) = opposite : adjacent.`, task4Step2: `At α = 45°, tan(45°) = 1, so opposite = adjacent.`, task4Step3: `Result: 8.`,
+  task4Hint: `At exactly 45°, the opposite and adjacent sides are always the same length.`,
+  task5Step1: `At α = 45°, tan(45°) = 1, so opposite = adjacent.`, task5Step2: `The adjacent side (shadow) is 12 m.`, task5Step3: `Result: the tree's height is also 12 m.`,
+  task5Hint: `The 45° angle makes this word problem especially easy, since the height and shadow are equal.`,
+  task6Step1: `Formula: sin(α) = opposite : hypotenuse.`, task6Step2: `Substitute: sin(α) = 5 : 10 = 0.5.`, task6Step3: `Since sin(30°) = 0.5, α = 30°.`,
+  task6Hint: `First calculate the ratio, then think about which known angle this value belongs to.`,
+  task7Step1: `Formula: cos(α) = adjacent : hypotenuse.`, task7Step2: `Substitute: cos(α) = 5 : 10 = 0.5.`, task7Step3: `Since cos(60°) = 0.5, α = 60°.`,
+  task7Hint: `With the same ratio (0.5), sin gives a different angle (30°) than cos (60°).`,
+  task8Step1: `Formula: tan(α) = opposite : adjacent.`, task8Step2: `Substitute: tan(α) = 7 : 7 = 1.`, task8Step3: `Since tan(45°) = 1, α = 45°.`,
+  task8Hint: `When the opposite and adjacent sides are the same length, the angle is always exactly 45°.`,
+  hintLabel: `Common mistake:`, footerMessage: `Take your time and check the solution if you need to. You can do this!`,
+  fbEmpty: `Please enter a number before checking.`, fbCorrect: `Correct! Well done!`, fbIncorrect: `Not quite right yet. Check the solution below and try again.`
+},
+es: {
+  eyebrow: `Luisen-Gymnasium · 10.º curso`, titleLine1: `Trigonometría en el`, titleAccent: `triángulo rectángulo`, backLink: `← Todos los temas`, h2Basics: `Fundamentos`,
+  basicsP1: `En un triángulo rectángulo, los lados se nombran respecto a un ángulo α (no el ángulo recto): la hipotenusa (el lado más largo, opuesto al ángulo recto), el cateto opuesto (frente a α) y el cateto adyacente (junto a α).`,
+  trigAria: `Triángulo rectángulo con ángulo alfa, etiquetado con cateto opuesto, cateto adyacente e hipotenusa`,
+  ankatheteLabel: `Cateto adyacente`, gegenkatheteLabel: `Cateto opuesto`, hypotenuseLabel: `Hipotenusa`,
+  basicsExample1Label: `<strong>Ejemplo paso a paso:</strong> Triángulo rectángulo con α = 30° e hipotenusa = 10. Calcula el cateto opuesto.`,
+  basicsExample1Steps: `1. Fórmula: sen(α) = cateto opuesto : hipotenusa<br>2. Reordena: cateto opuesto = sen(α) · hipotenusa<br>3. Sustituye: sen(30°) = 0,5, así que cateto opuesto = 0,5 · 10<br>4. Resultado: 5`,
+  basicsP2Angle: `<strong>Si buscas el ángulo,</strong> reordena la fórmula despejando α y usa la función inversa (por ejemplo, sen⁻¹). Ayuda saber algunos valores de memoria: sen(30°) = 0,5, sen(45°) = cos(45°) ≈ 0,71, cos(60°) = 0,5, tan(45°) = 1.`,
+  basicsExample2Label: `<strong>Ejemplo paso a paso:</strong> Cateto opuesto = 5, hipotenusa = 10. Calcula el ángulo α.`,
+  basicsExample2Steps: `1. Fórmula: sen(α) = cateto opuesto : hipotenusa<br>2. Sustituye: sen(α) = 5 : 10 = 0,5<br>3. Como se sabe que sen(30°) = 0,5<br>4. Resultado: α = 30°`,
+  merkeTitle: `Recuerda`, merkeBody: `sen(α) = cateto opuesto : hipotenusa.<br>cos(α) = cateto adyacente : hipotenusa.<br>tan(α) = cateto opuesto : cateto adyacente.`,
+  taskWord: `Ejercicio`,
+  task1Question: `Triángulo rectángulo con α = 30° e hipotenusa = 10. ¿Cuánto mide el cateto opuesto?`, task2Question: `Triángulo rectángulo con α = 30° e hipotenusa = 20. ¿Cuánto mide el cateto opuesto?`, task3Question: `Triángulo rectángulo con α = 60° e hipotenusa = 14. ¿Cuánto mide el cateto adyacente?`, task4Question: `Triángulo rectángulo con α = 45° y cateto adyacente = 8. ¿Cuánto mide el cateto opuesto?`, task5Question: `Un árbol proyecta una sombra (cateto adyacente) de 12 m con un ángulo solar de 45°. ¿Qué altura tiene el árbol (cateto opuesto, en m)?`, task6Question: `Triángulo rectángulo con cateto opuesto = 5 e hipotenusa = 10. ¿Cuál es el ángulo α (en grados)?`,
+  task7Question: `Triángulo rectángulo con cateto adyacente = 5 e hipotenusa = 10. ¿Cuál es el ángulo α (en grados)?`,
+  task8Question: `Triángulo rectángulo con cateto opuesto = 7 y cateto adyacente = 7. ¿Cuál es el ángulo α (en grados)?`,
+  answerPlaceholder: `Tu respuesta`, checkButton: `Comprobar`, solutionSummary: `Ver solución`,
+  task1Result: `Resultado: 5`, task2Result: `Resultado: 10`, task3Result: `Resultado: 7`, task4Result: `Resultado: 8`, task5Result: `Resultado: 12 m`, task6Result: `Resultado: α = 30°`, task7Result: `Resultado: α = 60°`, task8Result: `Resultado: α = 45°`,
+  task1Step1: `Fórmula: cateto opuesto = sen(α) · hipotenusa.`, task1Step2: `Sustituye: sen(30°) · 10 = 0,5 · 10.`, task1Step3: `Resultado: 5.`,
+  task1Hint: `sen(30°) = 0,5 es un valor importante que conviene saber de memoria.`,
+  task2Step1: `Fórmula: cateto opuesto = sen(α) · hipotenusa.`, task2Step2: `Sustituye: sen(30°) · 20 = 0,5 · 20.`, task2Step3: `Resultado: 10.`,
+  task2Hint: `Con α = 30°, el cateto opuesto siempre es exactamente la mitad de la hipotenusa.`,
+  task3Step1: `Fórmula: cateto adyacente = cos(α) · hipotenusa.`, task3Step2: `Sustituye: cos(60°) · 14 = 0,5 · 14.`, task3Step3: `Resultado: 7.`,
+  task3Hint: `cos(60°) = 0,5 — no lo confundas con sen(60°), que tiene un valor distinto.`,
+  task4Step1: `Fórmula: tan(α) = cateto opuesto : cateto adyacente.`, task4Step2: `Con α = 45°, tan(45°) = 1, así que cateto opuesto = cateto adyacente.`, task4Step3: `Resultado: 8.`,
+  task4Hint: `A exactamente 45°, el cateto opuesto y el adyacente siempre tienen la misma longitud.`,
+  task5Step1: `Con α = 45°, tan(45°) = 1, así que cateto opuesto = cateto adyacente.`, task5Step2: `El cateto adyacente (la sombra) mide 12 m.`, task5Step3: `Resultado: la altura del árbol también es 12 m.`,
+  task5Hint: `El ángulo de 45° hace que este problema sea especialmente sencillo, ya que la altura y la sombra son iguales.`,
+  task6Step1: `Fórmula: sen(α) = cateto opuesto : hipotenusa.`, task6Step2: `Sustituye: sen(α) = 5 : 10 = 0,5.`, task6Step3: `Como sen(30°) = 0,5, α = 30°.`,
+  task6Hint: `Primero calcula la razón, luego piensa a qué ángulo conocido corresponde ese valor.`,
+  task7Step1: `Fórmula: cos(α) = cateto adyacente : hipotenusa.`, task7Step2: `Sustituye: cos(α) = 5 : 10 = 0,5.`, task7Step3: `Como cos(60°) = 0,5, α = 60°.`,
+  task7Hint: `Con la misma razón (0,5), sen da un ángulo distinto (30°) que cos (60°).`,
+  task8Step1: `Fórmula: tan(α) = cateto opuesto : cateto adyacente.`, task8Step2: `Sustituye: tan(α) = 7 : 7 = 1.`, task8Step3: `Como tan(45°) = 1, α = 45°.`,
+  task8Hint: `Cuando el cateto opuesto y el adyacente tienen la misma longitud, el ángulo siempre es exactamente 45°.`,
+  hintLabel: `Error típico:`, footerMessage: `Tómate tu tiempo y revisa la solución si la necesitas. ¡Tú puedes!`,
+  fbEmpty: `Introduce un número antes de comprobar.`, fbCorrect: `¡Correcto! ¡Muy bien!`, fbIncorrect: `Todavía no es correcto. Revisa la solución de abajo e inténtalo de nuevo.`
+},
+fr: {
+  eyebrow: `Luisen-Gymnasium · Seconde`, titleLine1: `Trigonométrie dans le`, titleAccent: `triangle rectangle`, backLink: `← Tous les thèmes`, h2Basics: `Les bases`,
+  basicsP1: `Dans un triangle rectangle, les côtés sont nommés par rapport à un angle α (pas l'angle droit) : l'hypoténuse (le côté le plus long, opposé à l'angle droit), le côté opposé (en face de α) et le côté adjacent (à côté de α).`,
+  trigAria: `Triangle rectangle avec l'angle alpha, étiqueté avec côté opposé, côté adjacent et hypoténuse`,
+  ankatheteLabel: `Côté adjacent`, gegenkatheteLabel: `Côté opposé`, hypotenuseLabel: `Hypoténuse`,
+  basicsExample1Label: `<strong>Exemple étape par étape :</strong> Triangle rectangle avec α = 30° et hypoténuse = 10. Calcule le côté opposé.`,
+  basicsExample1Steps: `1. Formule : sin(α) = côté opposé : hypoténuse<br>2. Réarrange : côté opposé = sin(α) · hypoténuse<br>3. Substitue : sin(30°) = 0,5, donc côté opposé = 0,5 · 10<br>4. Résultat : 5`,
+  basicsP2Angle: `<strong>Si tu cherches l'angle,</strong> réarrange la formule en isolant α et utilise la fonction réciproque (par ex. sin⁻¹). Il est utile de connaître certaines valeurs par cœur : sin(30°) = 0,5, sin(45°) = cos(45°) ≈ 0,71, cos(60°) = 0,5, tan(45°) = 1.`,
+  basicsExample2Label: `<strong>Exemple étape par étape :</strong> Côté opposé = 5, hypoténuse = 10. Calcule l'angle α.`,
+  basicsExample2Steps: `1. Formule : sin(α) = côté opposé : hypoténuse<br>2. Substitue : sin(α) = 5 : 10 = 0,5<br>3. Comme sin(30°) = 0,5 est connu<br>4. Résultat : α = 30°`,
+  merkeTitle: `À retenir`, merkeBody: `sin(α) = côté opposé : hypoténuse.<br>cos(α) = côté adjacent : hypoténuse.<br>tan(α) = côté opposé : côté adjacent.`,
+  taskWord: `Exercice`,
+  task1Question: `Triangle rectangle avec α = 30° et hypoténuse = 10. Combien mesure le côté opposé ?`, task2Question: `Triangle rectangle avec α = 30° et hypoténuse = 20. Combien mesure le côté opposé ?`, task3Question: `Triangle rectangle avec α = 60° et hypoténuse = 14. Combien mesure le côté adjacent ?`, task4Question: `Triangle rectangle avec α = 45° et côté adjacent = 8. Combien mesure le côté opposé ?`, task5Question: `Un arbre projette une ombre (côté adjacent) de 12 m avec un angle solaire de 45°. Quelle est la hauteur de l'arbre (côté opposé, en m) ?`, task6Question: `Triangle rectangle avec côté opposé = 5 et hypoténuse = 10. Quel est l'angle α (en degrés) ?`,
+  task7Question: `Triangle rectangle avec côté adjacent = 5 et hypoténuse = 10. Quel est l'angle α (en degrés) ?`,
+  task8Question: `Triangle rectangle avec côté opposé = 7 et côté adjacent = 7. Quel est l'angle α (en degrés) ?`,
+  answerPlaceholder: `Ta réponse`, checkButton: `Vérifier`, solutionSummary: `Voir la solution`,
+  task1Result: `Résultat : 5`, task2Result: `Résultat : 10`, task3Result: `Résultat : 7`, task4Result: `Résultat : 8`, task5Result: `Résultat : 12 m`, task6Result: `Résultat : α = 30°`, task7Result: `Résultat : α = 60°`, task8Result: `Résultat : α = 45°`,
+  task1Step1: `Formule : côté opposé = sin(α) · hypoténuse.`, task1Step2: `Substitue : sin(30°) · 10 = 0,5 · 10.`, task1Step3: `Résultat : 5.`,
+  task1Hint: `sin(30°) = 0,5 est une valeur importante à connaître par cœur.`,
+  task2Step1: `Formule : côté opposé = sin(α) · hypoténuse.`, task2Step2: `Substitue : sin(30°) · 20 = 0,5 · 20.`, task2Step3: `Résultat : 10.`,
+  task2Hint: `Avec α = 30°, le côté opposé vaut toujours exactement la moitié de l'hypoténuse.`,
+  task3Step1: `Formule : côté adjacent = cos(α) · hypoténuse.`, task3Step2: `Substitue : cos(60°) · 14 = 0,5 · 14.`, task3Step3: `Résultat : 7.`,
+  task3Hint: `cos(60°) = 0,5 — ne le confonds pas avec sin(60°), qui a une valeur différente.`,
+  task4Step1: `Formule : tan(α) = côté opposé : côté adjacent.`, task4Step2: `Avec α = 45°, tan(45°) = 1, donc côté opposé = côté adjacent.`, task4Step3: `Résultat : 8.`,
+  task4Hint: `À exactement 45°, le côté opposé et le côté adjacent ont toujours la même longueur.`,
+  task5Step1: `Avec α = 45°, tan(45°) = 1, donc côté opposé = côté adjacent.`, task5Step2: `Le côté adjacent (l'ombre) mesure 12 m.`, task5Step3: `Résultat : la hauteur de l'arbre est aussi 12 m.`,
+  task5Hint: `L'angle de 45° rend ce problème particulièrement simple, car la hauteur et l'ombre sont égales.`,
+  task6Step1: `Formule : sin(α) = côté opposé : hypoténuse.`, task6Step2: `Substitue : sin(α) = 5 : 10 = 0,5.`, task6Step3: `Comme sin(30°) = 0,5, α = 30°.`,
+  task6Hint: `Calcule d'abord le rapport, puis réfléchis à quel angle connu correspond cette valeur.`,
+  task7Step1: `Formule : cos(α) = côté adjacent : hypoténuse.`, task7Step2: `Substitue : cos(α) = 5 : 10 = 0,5.`, task7Step3: `Comme cos(60°) = 0,5, α = 60°.`,
+  task7Hint: `Avec le même rapport (0,5), sin donne un angle différent (30°) de cos (60°).`,
+  task8Step1: `Formule : tan(α) = côté opposé : côté adjacent.`, task8Step2: `Substitue : tan(α) = 7 : 7 = 1.`, task8Step3: `Comme tan(45°) = 1, α = 45°.`,
+  task8Hint: `Quand le côté opposé et le côté adjacent ont la même longueur, l'angle vaut toujours exactement 45°.`,
+  hintLabel: `Erreur fréquente :`, footerMessage: `Prends ton temps et regarde la solution si besoin. Tu vas y arriver !`,
+  fbEmpty: `Merci d'indiquer un nombre avant de vérifier.`, fbCorrect: `Correct ! Bien joué !`, fbIncorrect: `Pas encore tout à fait juste. Regarde la solution ci-dessous et réessaie.`
+},
+tr: {
+  eyebrow: `Luisen-Gymnasium · 10. Sınıf`, titleLine1: `Dik Üçgende`, titleAccent: `Trigonometri`, backLink: `← Tüm Konular`, h2Basics: `Temel Bilgiler`,
+  basicsP1: `Dik üçgende kenarlar bir açıya (α, dik açı değil) göre adlandırılır: hipotenüs (en uzun kenar, dik açının karşısında), karşı kenar (α'nın karşısında) ve komşu kenar (α'nın yanında).`,
+  trigAria: `Alfa açılı dik üçgen, karşı kenar, komşu kenar ve hipotenüs olarak etiketlenmiş`,
+  ankatheteLabel: `Komşu kenar`, gegenkatheteLabel: `Karşı kenar`, hypotenuseLabel: `Hipotenüs`,
+  basicsExample1Label: `<strong>Adım adım örnek:</strong> α = 30° ve hipotenüs = 10 olan dik üçgen. Karşı kenarı hesapla.`,
+  basicsExample1Steps: `1. Formül: sin(α) = karşı kenar : hipotenüs<br>2. Düzenle: karşı kenar = sin(α) · hipotenüs<br>3. Yerine koy: sin(30°) = 0,5, yani karşı kenar = 0,5 · 10<br>4. Sonuç: 5`,
+  basicsP2Angle: `<strong>Açı aranıyorsa,</strong> formülü α için düzenle ve ters fonksiyonu kullan (örn. sin⁻¹). Bazı değerleri ezbere bilmek yardımcı olur: sin(30°) = 0,5, sin(45°) = cos(45°) ≈ 0,71, cos(60°) = 0,5, tan(45°) = 1.`,
+  basicsExample2Label: `<strong>Adım adım örnek:</strong> Karşı kenar = 5, hipotenüs = 10. α açısını hesapla.`,
+  basicsExample2Steps: `1. Formül: sin(α) = karşı kenar : hipotenüs<br>2. Yerine koy: sin(α) = 5 : 10 = 0,5<br>3. sin(30°) = 0,5 bilindiğinden<br>4. Sonuç: α = 30°`,
+  merkeTitle: `Unutma`, merkeBody: `sin(α) = karşı kenar : hipotenüs.<br>cos(α) = komşu kenar : hipotenüs.<br>tan(α) = karşı kenar : komşu kenar.`,
+  taskWord: `Alıştırma`,
+  task1Question: `α = 30° ve hipotenüs = 10 olan dik üçgen. Karşı kenar kaç birimdir?`, task2Question: `α = 30° ve hipotenüs = 20 olan dik üçgen. Karşı kenar kaç birimdir?`, task3Question: `α = 60° ve hipotenüs = 14 olan dik üçgen. Komşu kenar kaç birimdir?`, task4Question: `α = 45° ve komşu kenar = 8 olan dik üçgen. Karşı kenar kaç birimdir?`, task5Question: `Bir ağaç 45°'lik güneş açısında 12 m'lik bir gölge (komşu kenar) düşürüyor. Ağaç kaç metre yüksekliğindedir (karşı kenar)?`, task6Question: `Karşı kenar = 5 ve hipotenüs = 10 olan dik üçgen. α açısı kaç derecedir?`,
+  task7Question: `Komşu kenar = 5 ve hipotenüs = 10 olan dik üçgen. α açısı kaç derecedir?`,
+  task8Question: `Karşı kenar = 7 ve komşu kenar = 7 olan dik üçgen. α açısı kaç derecedir?`,
+  answerPlaceholder: `Cevabın`, checkButton: `Kontrol et`, solutionSummary: `Çözümü göster`,
+  task1Result: `Sonuç: 5`, task2Result: `Sonuç: 10`, task3Result: `Sonuç: 7`, task4Result: `Sonuç: 8`, task5Result: `Sonuç: 12 m`, task6Result: `Sonuç: α = 30°`, task7Result: `Sonuç: α = 60°`, task8Result: `Sonuç: α = 45°`,
+  task1Step1: `Formül: karşı kenar = sin(α) · hipotenüs.`, task1Step2: `Yerine koy: sin(30°) · 10 = 0,5 · 10.`, task1Step3: `Sonuç: 5.`,
+  task1Hint: `sin(30°) = 0,5 ezbere bilinmesi gereken önemli bir değerdir.`,
+  task2Step1: `Formül: karşı kenar = sin(α) · hipotenüs.`, task2Step2: `Yerine koy: sin(30°) · 20 = 0,5 · 20.`, task2Step3: `Sonuç: 10.`,
+  task2Hint: `α = 30°'de karşı kenar her zaman hipotenüsün tam yarısıdır.`,
+  task3Step1: `Formül: komşu kenar = cos(α) · hipotenüs.`, task3Step2: `Yerine koy: cos(60°) · 14 = 0,5 · 14.`, task3Step3: `Sonuç: 7.`,
+  task3Hint: `cos(60°) = 0,5 — farklı bir değere sahip olan sin(60°) ile karıştırma.`,
+  task4Step1: `Formül: tan(α) = karşı kenar : komşu kenar.`, task4Step2: `α = 45°'de tan(45°) = 1'dir, yani karşı kenar = komşu kenar.`, task4Step3: `Sonuç: 8.`,
+  task4Hint: `Tam olarak 45°'de karşı kenar ve komşu kenar her zaman aynı uzunluktadır.`,
+  task5Step1: `α = 45°'de tan(45°) = 1'dir, yani karşı kenar = komşu kenar.`, task5Step2: `Komşu kenar (gölge) 12 m'dir.`, task5Step3: `Sonuç: ağacın yüksekliği de 12 m'dir.`,
+  task5Hint: `45° açısı bu metin problemini özellikle kolaylaştırır, çünkü yükseklik ve gölge eşittir.`,
+  task6Step1: `Formül: sin(α) = karşı kenar : hipotenüs.`, task6Step2: `Yerine koy: sin(α) = 5 : 10 = 0,5.`, task6Step3: `sin(30°) = 0,5 olduğundan, α = 30°'dir.`,
+  task6Hint: `Önce oranı hesapla, sonra bu değerin hangi bilinen açıya ait olduğunu düşün.`,
+  task7Step1: `Formül: cos(α) = komşu kenar : hipotenüs.`, task7Step2: `Yerine koy: cos(α) = 5 : 10 = 0,5.`, task7Step3: `cos(60°) = 0,5 olduğundan, α = 60°'dir.`,
+  task7Hint: `Aynı oranla (0,5), sin farklı bir açı (30°) verirken cos (60°) verir.`,
+  task8Step1: `Formül: tan(α) = karşı kenar : komşu kenar.`, task8Step2: `Yerine koy: tan(α) = 7 : 7 = 1.`, task8Step3: `tan(45°) = 1 olduğundan, α = 45°'dir.`,
+  task8Hint: `Karşı kenar ve komşu kenar eşit uzunluktaysa, açı her zaman tam olarak 45°'dir.`,
+  hintLabel: `Sık yapılan hata:`, footerMessage: `Sakin sakin hesapla, gerekirse çözüme bak. Bunu başarabilirsin!`,
+  fbEmpty: `Kontrol etmeden önce lütfen bir sayı gir.`, fbCorrect: `Doğru! Aferin!`, fbIncorrect: `Henüz tam doğru değil. Aşağıdaki çözüme bak ve tekrar dene.`
+},
+ru: {
+  eyebrow: `Luisen-Gymnasium · 10 класс`, titleLine1: `Тригонометрия в`, titleAccent: `прямоугольном треугольнике`, backLink: `← Все темы`, h2Basics: `Основы`,
+  basicsP1: `В прямоугольном треугольнике стороны называют относительно угла α (не прямого угла): гипотенуза (самая длинная сторона, напротив прямого угла), противолежащий катет (напротив α) и прилежащий катет (рядом с α).`,
+  trigAria: `Прямоугольный треугольник с углом альфа, обозначены противолежащий катет, прилежащий катет и гипотенуза`,
+  ankatheteLabel: `Прилежащий катет`, gegenkatheteLabel: `Противолежащий катет`, hypotenuseLabel: `Гипотенуза`,
+  basicsExample1Label: `<strong>Пример по шагам:</strong> Прямоугольный треугольник с α = 30° и гипотенузой = 10. Вычисли противолежащий катет.`,
+  basicsExample1Steps: `1. Формула: sin(α) = противолежащий катет : гипотенуза<br>2. Преобразовать: противолежащий катет = sin(α) · гипотенуза<br>3. Подставить: sin(30°) = 0,5, значит противолежащий катет = 0,5 · 10<br>4. Результат: 5`,
+  basicsP2Angle: `<strong>Если ищешь угол,</strong> преобразуй формулу относительно α и используй обратную функцию (например, sin⁻¹). Полезно знать наизусть некоторые значения: sin(30°) = 0,5, sin(45°) = cos(45°) ≈ 0,71, cos(60°) = 0,5, tan(45°) = 1.`,
+  basicsExample2Label: `<strong>Пример по шагам:</strong> Противолежащий катет = 5, гипотенуза = 10. Вычисли угол α.`,
+  basicsExample2Steps: `1. Формула: sin(α) = противолежащий катет : гипотенуза<br>2. Подставить: sin(α) = 5 : 10 = 0,5<br>3. Так как известно, что sin(30°) = 0,5<br>4. Результат: α = 30°`,
+  merkeTitle: `Запомни`, merkeBody: `sin(α) = противолежащий катет : гипотенуза.<br>cos(α) = прилежащий катет : гипотенуза.<br>tan(α) = противолежащий катет : прилежащий катет.`,
+  taskWord: `Задание`,
+  task1Question: `Прямоугольный треугольник с α = 30° и гипотенузой = 10. Чему равен противолежащий катет?`, task2Question: `Прямоугольный треугольник с α = 30° и гипотенузой = 20. Чему равен противолежащий катет?`, task3Question: `Прямоугольный треугольник с α = 60° и гипотенузой = 14. Чему равен прилежащий катет?`, task4Question: `Прямоугольный треугольник с α = 45° и прилежащим катетом = 8. Чему равен противолежащий катет?`, task5Question: `Дерево отбрасывает тень (прилежащий катет) 12 м при солнечном угле 45°. Какова высота дерева (противолежащий катет, в м)?`, task6Question: `Прямоугольный треугольник с противолежащим катетом = 5 и гипотенузой = 10. Чему равен угол α (в градусах)?`,
+  task7Question: `Прямоугольный треугольник с прилежащим катетом = 5 и гипотенузой = 10. Чему равен угол α (в градусах)?`,
+  task8Question: `Прямоугольный треугольник с противолежащим катетом = 7 и прилежащим катетом = 7. Чему равен угол α (в градусах)?`,
+  answerPlaceholder: `Твой ответ`, checkButton: `Проверить`, solutionSummary: `Показать решение`,
+  task1Result: `Результат: 5`, task2Result: `Результат: 10`, task3Result: `Результат: 7`, task4Result: `Результат: 8`, task5Result: `Результат: 12 м`, task6Result: `Результат: α = 30°`, task7Result: `Результат: α = 60°`, task8Result: `Результат: α = 45°`,
+  task1Step1: `Формула: противолежащий катет = sin(α) · гипотенуза.`, task1Step2: `Подставить: sin(30°) · 10 = 0,5 · 10.`, task1Step3: `Результат: 5.`,
+  task1Hint: `sin(30°) = 0,5 — важное значение, которое стоит знать наизусть.`,
+  task2Step1: `Формула: противолежащий катет = sin(α) · гипотенуза.`, task2Step2: `Подставить: sin(30°) · 20 = 0,5 · 20.`, task2Step3: `Результат: 10.`,
+  task2Hint: `При α = 30° противолежащий катет всегда ровно вдвое меньше гипотенузы.`,
+  task3Step1: `Формула: прилежащий катет = cos(α) · гипотенуза.`, task3Step2: `Подставить: cos(60°) · 14 = 0,5 · 14.`, task3Step3: `Результат: 7.`,
+  task3Hint: `cos(60°) = 0,5 — не путай с sin(60°), у которого другое значение.`,
+  task4Step1: `Формула: tan(α) = противолежащий катет : прилежащий катет.`, task4Step2: `При α = 45°, tan(45°) = 1, значит противолежащий катет = прилежащий катет.`, task4Step3: `Результат: 8.`,
+  task4Hint: `При ровно 45° противолежащий и прилежащий катеты всегда равны по длине.`,
+  task5Step1: `При α = 45°, tan(45°) = 1, значит противолежащий катет = прилежащий катет.`, task5Step2: `Прилежащий катет (тень) равен 12 м.`, task5Step3: `Результат: высота дерева тоже 12 м.`,
+  task5Hint: `Угол 45° делает эту задачу особенно простой, так как высота и тень равны.`,
+  task6Step1: `Формула: sin(α) = противолежащий катет : гипотенуза.`, task6Step2: `Подставить: sin(α) = 5 : 10 = 0,5.`, task6Step3: `Так как sin(30°) = 0,5, значит α = 30°.`,
+  task6Hint: `Сначала вычисли отношение, затем подумай, какому известному углу соответствует это значение.`,
+  task7Step1: `Формула: cos(α) = прилежащий катет : гипотенуза.`, task7Step2: `Подставить: cos(α) = 5 : 10 = 0,5.`, task7Step3: `Так как cos(60°) = 0,5, значит α = 60°.`,
+  task7Hint: `При одинаковом отношении (0,5) sin даёт другой угол (30°), чем cos (60°).`,
+  task8Step1: `Формула: tan(α) = противолежащий катет : прилежащий катет.`, task8Step2: `Подставить: tan(α) = 7 : 7 = 1.`, task8Step3: `Так как tan(45°) = 1, значит α = 45°.`,
+  task8Hint: `Если противолежащий и прилежащий катеты равны по длине, угол всегда ровно 45°.`,
+  hintLabel: `Типичная ошибка:`, footerMessage: `Считай спокойно и при необходимости смотри решение. У тебя получится!`,
+  fbEmpty: `Пожалуйста, введи число перед проверкой.`, fbCorrect: `Правильно! Отлично!`, fbIncorrect: `Пока не совсем верно. Посмотри решение ниже и попробуй ещё раз.`
+},
+ar: {
+  eyebrow: `مدرسة لويزن الثانوية · الصف العاشر`, titleLine1: `حساب المثلثات في`, titleAccent: `المثلث القائم الزاوية`, backLink: `← جميع المواضيع`, h2Basics: `الأساسيات`,
+  basicsP1: `في المثلث القائم الزاوية، تُسمَّى الأضلاع بالنسبة إلى زاوية α (وليست الزاوية القائمة): الوتر (أطول ضلع، مقابل الزاوية القائمة)، الضلع المقابل (مقابل α)، والضلع المجاور (بجانب α).`,
+  trigAria: `مثلث قائم الزاوية بزاوية ألفا، موسوم بالضلع المقابل والضلع المجاور والوتر`,
+  ankatheteLabel: `الضلع المجاور`, gegenkatheteLabel: `الضلع المقابل`, hypotenuseLabel: `الوتر`,
+  basicsExample1Label: `<strong>مثال خطوة بخطوة:</strong> مثلث قائم الزاوية بـ α = 30° ووتر = 10. احسب الضلع المقابل.`,
+  basicsExample1Steps: `1. المعادلة: جا(α) = الضلع المقابل ÷ الوتر<br>2. أعد الترتيب: الضلع المقابل = جا(α) × الوتر<br>3. عوّض: جا(30°) = 0.5، إذن الضلع المقابل = 0.5 × 10<br>4. النتيجة: 5`,
+  basicsP2Angle: `<strong>إذا كانت الزاوية هي المطلوبة،</strong> أعد ترتيب المعادلة لإيجاد α واستخدم الدالة العكسية (مثل جا⁻¹). من المفيد معرفة بعض القيم عن ظهر قلب: جا(30°) = 0.5، جا(45°) = جتا(45°) ≈ 0.71، جتا(60°) = 0.5، ظا(45°) = 1.`,
+  basicsExample2Label: `<strong>مثال خطوة بخطوة:</strong> الضلع المقابل = 5، الوتر = 10. احسب الزاوية α.`,
+  basicsExample2Steps: `1. المعادلة: جا(α) = الضلع المقابل ÷ الوتر<br>2. عوّض: جا(α) = 5 ÷ 10 = 0.5<br>3. بما أن جا(30°) = 0.5 معروفة<br>4. النتيجة: α = 30°`,
+  merkeTitle: `تذكّر`, merkeBody: `جا(α) = الضلع المقابل ÷ الوتر.<br>جتا(α) = الضلع المجاور ÷ الوتر.<br>ظا(α) = الضلع المقابل ÷ الضلع المجاور.`,
+  taskWord: `تمرين`,
+  task1Question: `مثلث قائم الزاوية بـ α = 30° ووتر = 10. كم طول الضلع المقابل؟`, task2Question: `مثلث قائم الزاوية بـ α = 30° ووتر = 20. كم طول الضلع المقابل؟`, task3Question: `مثلث قائم الزاوية بـ α = 60° ووتر = 14. كم طول الضلع المجاور؟`, task4Question: `مثلث قائم الزاوية بـ α = 45° وضلع مجاور = 8. كم طول الضلع المقابل؟`, task5Question: `تلقي شجرة ظلًا (ضلعًا مجاورًا) طوله 12 م بزاوية شمسية 45°. كم يبلغ ارتفاع الشجرة (الضلع المقابل، بالمتر)؟`, task6Question: `مثلث قائم الزاوية بضلع مقابل = 5 ووتر = 10. كم تبلغ الزاوية α (بالدرجات)؟`,
+  task7Question: `مثلث قائم الزاوية بضلع مجاور = 5 ووتر = 10. كم تبلغ الزاوية α (بالدرجات)؟`,
+  task8Question: `مثلث قائم الزاوية بضلع مقابل = 7 وضلع مجاور = 7. كم تبلغ الزاوية α (بالدرجات)؟`,
+  answerPlaceholder: `إجابتك`, checkButton: `تحقق`, solutionSummary: `عرض الحل`,
+  task1Result: `النتيجة: 5`, task2Result: `النتيجة: 10`, task3Result: `النتيجة: 7`, task4Result: `النتيجة: 8`, task5Result: `النتيجة: 12 م`, task6Result: `النتيجة: α = 30°`, task7Result: `النتيجة: α = 60°`, task8Result: `النتيجة: α = 45°`,
+  task1Step1: `المعادلة: الضلع المقابل = جا(α) × الوتر.`, task1Step2: `عوّض: جا(30°) × 10 = 0.5 × 10.`, task1Step3: `النتيجة: 5.`,
+  task1Hint: `جا(30°) = 0.5 قيمة مهمة يجب معرفتها عن ظهر قلب.`,
+  task2Step1: `المعادلة: الضلع المقابل = جا(α) × الوتر.`, task2Step2: `عوّض: جا(30°) × 20 = 0.5 × 20.`, task2Step3: `النتيجة: 10.`,
+  task2Hint: `عند α = 30°، يكون الضلع المقابل دائمًا نصف الوتر بالضبط.`,
+  task3Step1: `المعادلة: الضلع المجاور = جتا(α) × الوتر.`, task3Step2: `عوّض: جتا(60°) × 14 = 0.5 × 14.`, task3Step3: `النتيجة: 7.`,
+  task3Hint: `جتا(60°) = 0.5 — لا تخلط بينها وبين جا(60°) التي لها قيمة مختلفة.`,
+  task4Step1: `المعادلة: ظا(α) = الضلع المقابل ÷ الضلع المجاور.`, task4Step2: `عند α = 45°، ظا(45°) = 1، إذن الضلع المقابل = الضلع المجاور.`, task4Step3: `النتيجة: 8.`,
+  task4Hint: `عند 45° بالضبط، يكون الضلع المقابل والضلع المجاور متساويين في الطول دائمًا.`,
+  task5Step1: `عند α = 45°، ظا(45°) = 1، إذن الضلع المقابل = الضلع المجاور.`, task5Step2: `الضلع المجاور (الظل) طوله 12 م.`, task5Step3: `النتيجة: ارتفاع الشجرة أيضًا 12 م.`,
+  task5Hint: `زاوية 45° تجعل هذه المسألة سهلة بشكل خاص، لأن الارتفاع والظل متساويان.`,
+  task6Step1: `المعادلة: جا(α) = الضلع المقابل ÷ الوتر.`, task6Step2: `عوّض: جا(α) = 5 ÷ 10 = 0.5.`, task6Step3: `بما أن جا(30°) = 0.5، فإن α = 30°.`,
+  task6Hint: `احسب النسبة أولًا، ثم فكّر في أي زاوية معروفة تنتمي إليها هذه القيمة.`,
+  task7Step1: `المعادلة: جتا(α) = الضلع المجاور ÷ الوتر.`, task7Step2: `عوّض: جتا(α) = 5 ÷ 10 = 0.5.`, task7Step3: `بما أن جتا(60°) = 0.5، فإن α = 60°.`,
+  task7Hint: `بنفس النسبة (0.5)، تعطي جا زاوية مختلفة (30°) عن جتا (60°).`,
+  task8Step1: `المعادلة: ظا(α) = الضلع المقابل ÷ الضلع المجاور.`, task8Step2: `عوّض: ظا(α) = 7 ÷ 7 = 1.`, task8Step3: `بما أن ظا(45°) = 1، فإن α = 45°.`,
+  task8Hint: `عندما يكون الضلع المقابل والضلع المجاور متساويين في الطول، تكون الزاوية دائمًا 45° بالضبط.`,
+  hintLabel: `خطأ شائع:`, footerMessage: `احسب بهدوء وراجع الحل إذا احتجت إليه. أنت قادر على ذلك!`,
+  fbEmpty: `الرجاء إدخال رقم قبل التحقق.`, fbCorrect: `صحيح! أحسنت!`, fbIncorrect: `ليست صحيحة تمامًا بعد. راجع الحل أدناه وحاول مرة أخرى.`
+},
+zh: {
+  eyebrow: `路易森文理中学 · 十年级`, titleLine1: `直角三角形中的`, titleAccent: `三角函数`, backLink: `← 所有主题`, h2Basics: `基础知识`,
+  basicsP1: `在直角三角形中，各边是相对于一个角 α（不是直角）来命名的：斜边（最长的边，对着直角）、对边（在 α 对面）和邻边（在 α 旁边）。`,
+  trigAria: `带有角α的直角三角形，标注了对边、邻边和斜边`,
+  ankatheteLabel: `邻边`, gegenkatheteLabel: `对边`, hypotenuseLabel: `斜边`,
+  basicsExample1Label: `<strong>分步示例：</strong> 直角三角形 α = 30°，斜边 = 10。计算对边。`,
+  basicsExample1Steps: `1. 公式：sin(α) = 对边 ÷ 斜边<br>2. 变形：对边 = sin(α) · 斜边<br>3. 代入：sin(30°) = 0.5，所以对边 = 0.5 · 10<br>4. 结果：5`,
+  basicsP2Angle: `<strong>如果要求角度，</strong>把公式变形求 α，并使用反函数（例如 sin⁻¹）。记住一些数值会有帮助：sin(30°) = 0.5，sin(45°) = cos(45°) ≈ 0.71，cos(60°) = 0.5，tan(45°) = 1。`,
+  basicsExample2Label: `<strong>分步示例：</strong> 对边 = 5，斜边 = 10。计算角 α。`,
+  basicsExample2Steps: `1. 公式：sin(α) = 对边 ÷ 斜边<br>2. 代入：sin(α) = 5 ÷ 10 = 0.5<br>3. 已知 sin(30°) = 0.5<br>4. 结果：α = 30°`,
+  merkeTitle: `记住`, merkeBody: `sin(α) = 对边 ÷ 斜边。<br>cos(α) = 邻边 ÷ 斜边。<br>tan(α) = 对边 ÷ 邻边。`,
+  taskWord: `练习`,
+  task1Question: `直角三角形 α = 30°，斜边 = 10。对边长多少？`, task2Question: `直角三角形 α = 30°，斜边 = 20。对边长多少？`, task3Question: `直角三角形 α = 60°，斜边 = 14。邻边长多少？`, task4Question: `直角三角形 α = 45°，邻边 = 8。对边长多少？`, task5Question: `一棵树在 45° 太阳角度下投下 12 米长的影子（邻边）。这棵树多高（对边，米）？`, task6Question: `直角三角形对边 = 5，斜边 = 10。角 α 是多少度？`,
+  task7Question: `直角三角形邻边 = 5，斜边 = 10。角 α 是多少度？`,
+  task8Question: `直角三角形对边 = 7，邻边 = 7。角 α 是多少度？`,
+  answerPlaceholder: `你的答案`, checkButton: `检查`, solutionSummary: `显示答案`,
+  task1Result: `结果：5`, task2Result: `结果：10`, task3Result: `结果：7`, task4Result: `结果：8`, task5Result: `结果：12 米`, task6Result: `结果：α = 30°`, task7Result: `结果：α = 60°`, task8Result: `结果：α = 45°`,
+  task1Step1: `公式：对边 = sin(α) · 斜边。`, task1Step2: `代入：sin(30°) · 10 = 0.5 · 10。`, task1Step3: `结果：5。`,
+  task1Hint: `sin(30°) = 0.5 是一个应该牢记的重要数值。`,
+  task2Step1: `公式：对边 = sin(α) · 斜边。`, task2Step2: `代入：sin(30°) · 20 = 0.5 · 20。`, task2Step3: `结果：10。`,
+  task2Hint: `当 α = 30° 时，对边总是正好是斜边的一半。`,
+  task3Step1: `公式：邻边 = cos(α) · 斜边。`, task3Step2: `代入：cos(60°) · 14 = 0.5 · 14。`, task3Step3: `结果：7。`,
+  task3Hint: `cos(60°) = 0.5——不要和数值不同的 sin(60°) 混淆。`,
+  task4Step1: `公式：tan(α) = 对边 ÷ 邻边。`, task4Step2: `当 α = 45° 时，tan(45°) = 1，所以对边 = 邻边。`, task4Step3: `结果：8。`,
+  task4Hint: `正好是 45° 时，对边和邻边总是长度相等。`,
+  task5Step1: `当 α = 45° 时，tan(45°) = 1，所以对边 = 邻边。`, task5Step2: `邻边（影子）是 12 米。`, task5Step3: `结果：树的高度也是 12 米。`,
+  task5Hint: `45° 的角度让这道应用题特别简单，因为高度和影子相等。`,
+  task6Step1: `公式：sin(α) = 对边 ÷ 斜边。`, task6Step2: `代入：sin(α) = 5 ÷ 10 = 0.5。`, task6Step3: `因为 sin(30°) = 0.5，所以 α = 30°。`,
+  task6Hint: `先计算比值，再想这个值对应哪个已知角度。`,
+  task7Step1: `公式：cos(α) = 邻边 ÷ 斜边。`, task7Step2: `代入：cos(α) = 5 ÷ 10 = 0.5。`, task7Step3: `因为 cos(60°) = 0.5，所以 α = 60°。`,
+  task7Hint: `同样是 0.5 这个比值，sin 对应的角度（30°）和 cos 对应的角度（60°）不同。`,
+  task8Step1: `公式：tan(α) = 对边 ÷ 邻边。`, task8Step2: `代入：tan(α) = 7 ÷ 7 = 1。`, task8Step3: `因为 tan(45°) = 1，所以 α = 45°。`,
+  task8Hint: `当对边和邻边长度相等时，角度总是正好 45°。`,
+  hintLabel: `常见错误：`, footerMessage: `慢慢算，需要的话看看答案。你能做到！`,
+  fbEmpty: `请先输入一个数字再检查。`, fbCorrect: `正确！做得好！`, fbIncorrect: `还不完全正确。看看下面的答案，再试一次。`
+}
+};
+
+var currentLang = 'de';
+
+function setLanguage(lang){
+  var dict = TRANSLATIONS[lang] || TRANSLATIONS.de;
+  currentLang = TRANSLATIONS[lang] ? lang : 'de';
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = (currentLang === 'ar') ? 'rtl' : 'ltr';
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var key = el.getAttribute('data-i18n');
+    if(dict[key] !== undefined){ el.innerHTML = dict[key]; }
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-placeholder');
+    if(dict[key] !== undefined){ el.setAttribute('placeholder', dict[key]); }
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-aria');
+    if(dict[key] !== undefined){ el.setAttribute('aria-label', dict[key]); }
+  });
+  try{ localStorage.setItem('mathecoach_lang', currentLang); }catch(e){}
+  var sel = document.getElementById('langSelect');
+  if(sel) sel.value = currentLang;
+}
+
+function check(id, correct){
+  var dict = TRANSLATIONS[currentLang] || TRANSLATIONS.de;
+  var input = document.getElementById('input' + id);
+  var feedback = document.getElementById('feedback' + id);
+  var raw = input.value.trim();
+  var match = raw.match(/-?\d+/);
+  feedback.classList.remove('show', 'correct', 'incorrect');
+  if(!match){
+    feedback.textContent = dict.fbEmpty;
+    feedback.classList.add('show', 'incorrect');
+    return;
+  }
+  var value = parseInt(match[0], 10);
+  if(value === correct){
+    feedback.textContent = dict.fbCorrect;
+    feedback.classList.add('show', 'correct');
+  } else {
+    feedback.textContent = dict.fbIncorrect;
+    feedback.classList.add('show', 'incorrect');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var saved = 'de';
+  try{ saved = localStorage.getItem('mathecoach_lang') || 'de'; }catch(e){}
+  setLanguage(saved);
+});
+</script>
+
+</body>
+</html>
