@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Potenzen, Wurzeln, Potenzgesetze</title>
+<style>
+  :root{
+    --bg:#FAFAF9; --card:#FFFFFF; --ink:#241C1C; --ink-soft:#5C4F4C;
+    --red:#C41230; --gold:#E0A526; --blue:#2478B5;
+    --merke-bg:#FBF1DC; --merke-border:#E0A526;
+    --success:#1E8E5A; --success-bg:#E5F5EC; --error:#B3401D; --error-bg:#FBEDE6;
+    --font-display: ui-rounded, "SF Pro Rounded", "Segoe UI Rounded", "Nunito", system-ui, sans-serif;
+    --font-body: system-ui, "Segoe UI", Roboto, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:18px; line-height:1.5; padding-bottom:60px; }
+  .wrap{ max-width:640px; margin:0 auto; padding:0 20px; }
+  header{ background:var(--card); padding:30px 20px 0; text-align:center; position:relative; }
+  .header-inner{ padding-bottom:26px; }
+  .lang-switch{ display:flex; justify-content:center; margin-bottom:14px; }
+  #langSelect{ font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--ink); background:var(--card); border:2px solid #E3DFDA; border-radius:999px; padding:6px 14px; cursor:pointer; }
+  #langSelect:focus-visible{ outline:3px solid var(--blue); }
+  .back-link{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--blue); text-decoration:none; margin-bottom:16px; }
+  .eyebrow{ font-family:var(--font-display); font-weight:700; font-size:14px; letter-spacing:0.08em; text-transform:uppercase; color:var(--blue); margin-bottom:8px; }
+  h1{ font-family:var(--font-display); font-size:28px; font-weight:800; margin:0; line-height:1.25; }
+  h1 .accent{ color:var(--red); }
+  .wave{ display:block; width:100%; height:30px; }
+  section{ margin-top:32px; }
+  .card{ background:var(--card); border-radius:22px; padding:24px 22px; box-shadow:0 2px 14px rgba(36,28,28,0.07); }
+  h2{ font-family:var(--font-display); font-size:21px; font-weight:800; margin:0 0 14px; }
+  h2 .num{ display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:var(--blue); color:white; font-size:16px; margin-inline-end:10px; vertical-align:middle; }
+  p{ margin:0 0 14px; color:var(--ink-soft); }
+  .merke{ background:var(--merke-bg); border:2px solid var(--merke-border); border-radius:16px; padding:16px 18px; margin-top:16px; }
+  .merke-title{ font-family:var(--font-display); font-weight:800; color:#8A5A0F; font-size:15px; letter-spacing:0.04em; text-transform:uppercase; margin-bottom:6px; }
+  .merke-body{ color:#6B4A12; font-weight:600; margin:0; }
+  .power-diagram{ width:100%; height:auto; margin:18px 0 6px; }
+  .task-card{ margin-top:18px; }
+  .task-question{ font-family:var(--font-display); font-weight:700; font-size:19px; margin-bottom:16px; }
+  .answer-row{ display:flex; gap:10px; margin-bottom:6px; }
+  input[type="text"]{ flex:1; font-size:18px; font-family:var(--font-body); padding:12px 14px; border-radius:12px; border:2px solid #E3DFDA; background:#FBFAF9; color:var(--ink); }
+  input[type="text"]:focus{ outline:3px solid #C9DCEA; border-color:var(--blue); }
+  button.check{ font-family:var(--font-display); font-weight:700; font-size:16px; color:white; background:var(--blue); border:none; border-radius:12px; padding:0 20px; cursor:pointer; }
+  button.check:active{ transform:translateY(1px); }
+  button.check:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
+  .feedback{ margin-top:10px; padding:12px 14px; border-radius:12px; font-weight:700; display:none; }
+  .feedback.show{ display:block; }
+  .feedback.correct{ background:var(--success-bg); color:var(--success); }
+  .feedback.incorrect{ background:var(--error-bg); color:var(--error); }
+  details{ margin-top:14px; border-top:2px dashed #E3DFDA; padding-top:12px; }
+  summary{ font-family:var(--font-display); font-weight:700; color:var(--blue); cursor:pointer; font-size:15px; }
+  .solution{ margin-top:12px; }
+  .solution ol{ margin:0 0 12px; padding-inline-start:22px; color:var(--ink-soft); }
+  .solution li{ margin-bottom:6px; }
+  .solution-result{ font-family:var(--font-display); font-weight:800; color:var(--ink); margin-bottom:12px; }
+  .hint-box{ background:#F1EFEC; border-radius:12px; padding:12px 14px; font-size:16px; color:var(--ink-soft); }
+  .hint-box strong{ color:var(--ink); }
+  footer{ text-align:center; margin-top:36px; padding:0 20px; }
+  footer p{ font-family:var(--font-display); font-weight:700; color:var(--ink); }
+  .footer-wave{ display:block; width:100%; max-width:280px; height:16px; margin:0 auto 18px; opacity:0.6; }
+  [dir="rtl"] .back-link{ flex-direction:row-reverse; }
+  @media (prefers-reduced-motion: no-preference){ button.check{ transition:transform 0.1s ease; } }
+  @media (max-width: 480px){ .answer-row{ flex-direction:column; } button.check{ width:100%; padding:14px 20px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="lang-switch">
+      <select id="langSelect" onchange="setLanguage(this.value)">
+        <option value="de">Deutsch</option><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="tr">Türkçe</option><option value="ru">Русский</option><option value="ar">العربية</option><option value="zh">中文</option>
+      </select>
+    </div>
+    <a class="back-link" href="index.html" data-i18n="backLink">← Alle Themen</a>
+    <div class="eyebrow" data-i18n="eyebrow">Luisen-Gymnasium · Klasse 8</div>
+    <h1><span data-i18n="titleLine1">Potenzen,</span><br><span class="accent" data-i18n="titleAccent">Wurzeln, Potenzgesetze</span></h1>
+  </div>
+  <svg class="wave" viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+    <path d="M -10 22 C 190 4, 390 40, 590 22 S 990 4, 1210 22" fill="none" stroke="#C41230" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 32 C 190 50, 390 14, 590 32 S 990 50, 1210 32" fill="none" stroke="#E0A526" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 42 C 190 24, 390 58, 590 42 S 990 24, 1210 42" fill="none" stroke="#2478B5" stroke-width="5" stroke-linecap="round"/>
+  </svg>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <div class="card">
+      <h2 data-i18n="h2Basics">Grundlagen</h2>
+      <p data-i18n="basicsP1">Eine Potenz aⁿ bedeutet, dass die Basis a n-mal mit sich selbst multipliziert wird. Die Wurzel ist die Umkehrung des Quadrierens: √a ist die Zahl, die mit sich selbst multipliziert a ergibt.</p>
+
+      <svg class="power-diagram" viewBox="0 0 600 130" xmlns="http://www.w3.org/2000/svg" role="img" data-i18n-aria="powerAria" aria-label="Die Potenz 3 hoch 4 mit Beschriftung: 3 ist die Basis, 4 ist der Exponent">
+        <text x="200" y="70" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="44" font-weight="800" fill="#241C1C">3<tspan font-size="26" dy="-18">4</tspan></text>
+        <line x1="160" y1="90" x2="160" y2="105" stroke="#C41230" stroke-width="2"/>
+        <text data-i18n="baseLabel" x="160" y="122" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="14" font-weight="700" fill="#C41230">Basis</text>
+        <line x1="235" y1="45" x2="255" y2="30" stroke="#2478B5" stroke-width="2"/>
+        <text data-i18n="expLabel" x="290" y="28" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="14" font-weight="700" fill="#2478B5">Exponent</text>
+        <text x="480" y="70" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="30" font-weight="800" fill="#8A5A0F">√64 = 8</text>
+      </svg>
+
+      <p data-i18n="basicsExample1Label"><strong>Beispiel Schritt für Schritt:</strong> Berechne 3⁴.</p>
+      <p data-i18n="basicsExample1Steps">1. Bedeutung: 3⁴ = 3 · 3 · 3 · 3<br>2. Rechnen: 3 · 3 = 9, dann 9 · 3 = 27, dann 27 · 3 = 81<br>3. Ergebnis: 81</p>
+
+      <p data-i18n="basicsP2Laws"><strong>Potenzgesetze</strong> erleichtern das Rechnen mit Potenzen gleicher Basis: Bei Multiplikation werden die Exponenten addiert, bei Division subtrahiert, bei einer Potenz einer Potenz werden sie multipliziert.</p>
+
+      <p data-i18n="basicsExample2Label"><strong>Beispiel Schritt für Schritt:</strong> Vereinfache 2³ · 2⁴ mit dem Potenzgesetz.</p>
+      <p data-i18n="basicsExample2Steps">1. Formel: aᵐ · aⁿ = a^(m+n)<br>2. Einsetzen: 2³ · 2⁴ = 2^(3+4)<br>3. Ergebnis: 2⁷</p>
+
+      <div class="merke">
+        <div class="merke-title" data-i18n="merkeTitle">Merke</div>
+        <p class="merke-body" data-i18n="merkeBody">Multiplikation gleicher Basis: aᵐ · aⁿ = a^(m+n).<br>Division gleicher Basis: aᵐ : aⁿ = a^(m−n).<br>Potenz einer Potenz: (aᵐ)ⁿ = a^(m·n).</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">1</span><span data-i18n="taskWord">Aufgabe</span> 1</h2>
+      <div class="task-question" data-i18n="task1Question">Berechne 3⁴.</div>
+      <div class="answer-row">
+        <input type="text" id="input1" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(1, 81)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback1"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task1Result">Ergebnis: 81</div>
+          <ol>
+            <li data-i18n="task1Step1">Bedeutung: 3⁴ = 3 · 3 · 3 · 3.</li>
+            <li data-i18n="task1Step2">Rechnen: 3 · 3 = 9, dann 9 · 3 = 27, dann 27 · 3 = 81.</li>
+            <li data-i18n="task1Step3">Ergebnis: 81.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task1Hint">3⁴ bedeutet nicht 3 · 4 = 12, sondern 3 viermal mit sich selbst multiplizieren.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">2</span><span data-i18n="taskWord">Aufgabe</span> 2</h2>
+      <div class="task-question" data-i18n="task2Question">Berechne 2⁵.</div>
+      <div class="answer-row">
+        <input type="text" id="input2" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(2, 32)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback2"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task2Result">Ergebnis: 32</div>
+          <ol>
+            <li data-i18n="task2Step1">Bedeutung: 2⁵ = 2 · 2 · 2 · 2 · 2.</li>
+            <li data-i18n="task2Step2">Rechnen: 2 · 2 = 4, dann 4 · 2 = 8, dann 8 · 2 = 16, dann 16 · 2 = 32.</li>
+            <li data-i18n="task2Step3">Ergebnis: 32.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task2Hint">Am besten Schritt für Schritt multiplizieren, um sich nicht zu verrechnen.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">3</span><span data-i18n="taskWord">Aufgabe</span> 3</h2>
+      <div class="task-question" data-i18n="task3Question">Vereinfache mit dem Potenzgesetz: 2³ · 2⁴ = 2^?. Wie lautet der Exponent?</div>
+      <div class="answer-row">
+        <input type="text" id="input3" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(3, 7)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback3"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task3Result">Ergebnis: 7</div>
+          <ol>
+            <li data-i18n="task3Step1">Formel: aᵐ · aⁿ = a^(m+n).</li>
+            <li data-i18n="task3Step2">Einsetzen: 2³ · 2⁴ = 2^(3+4).</li>
+            <li data-i18n="task3Step3">Ergebnis: der Exponent ist 7.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task3Hint">Dieses Gesetz funktioniert nur bei gleicher Basis (hier beide Male die 2).</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">4</span><span data-i18n="taskWord">Aufgabe</span> 4</h2>
+      <div class="task-question" data-i18n="task4Question">Vereinfache mit dem Potenzgesetz: 5⁶ : 5² = 5^?. Wie lautet der Exponent?</div>
+      <div class="answer-row">
+        <input type="text" id="input4" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(4, 4)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback4"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task4Result">Ergebnis: 4</div>
+          <ol>
+            <li data-i18n="task4Step1">Formel: aᵐ : aⁿ = a^(m−n).</li>
+            <li data-i18n="task4Step2">Einsetzen: 5⁶ : 5² = 5^(6−2).</li>
+            <li data-i18n="task4Step3">Ergebnis: der Exponent ist 4.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task4Hint">Bei der Division werden die Exponenten subtrahiert, nicht dividiert.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">5</span><span data-i18n="taskWord">Aufgabe</span> 5</h2>
+      <div class="task-question" data-i18n="task5Question">Vereinfache mit dem Potenzgesetz: (3²)³ = 3^?. Wie lautet der Exponent?</div>
+      <div class="answer-row">
+        <input type="text" id="input5" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(5, 6)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback5"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task5Result">Ergebnis: 6</div>
+          <ol>
+            <li data-i18n="task5Step1">Formel: (aᵐ)ⁿ = a^(m·n).</li>
+            <li data-i18n="task5Step2">Einsetzen: (3²)³ = 3^(2·3).</li>
+            <li data-i18n="task5Step3">Ergebnis: der Exponent ist 6.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task5Hint">Bei einer Potenz einer Potenz werden die Exponenten multipliziert, nicht addiert.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">6</span><span data-i18n="taskWord">Aufgabe</span> 6</h2>
+      <div class="task-question" data-i18n="task6Question">Berechne √64.</div>
+      <div class="answer-row">
+        <input type="text" id="input6" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(6, 8)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback6"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task6Result">Ergebnis: 8</div>
+          <ol>
+            <li data-i18n="task6Step1">Gesucht ist die Zahl, die mit sich selbst multipliziert 64 ergibt.</li>
+            <li data-i18n="task6Step2">Probieren: 8 · 8 = 64.</li>
+            <li data-i18n="task6Step3">Ergebnis: √64 = 8.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task6Hint">Die Wurzel ist die Umkehrung des Quadrierens, nicht der Division durch 2.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">7</span><span data-i18n="taskWord">Aufgabe</span> 7</h2>
+      <div class="task-question" data-i18n="task7Question">Berechne √121.</div>
+      <div class="answer-row">
+        <input type="text" id="input7" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(7, 11)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback7"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task7Result">Ergebnis: 11</div>
+          <ol>
+            <li data-i18n="task7Step1">Gesucht ist die Zahl, die mit sich selbst multipliziert 121 ergibt.</li>
+            <li data-i18n="task7Step2">Probieren: 11 · 11 = 121.</li>
+            <li data-i18n="task7Step3">Ergebnis: √121 = 11.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task7Hint">Es hilft, einige Quadratzahlen auswendig zu kennen (z.B. 11² = 121).</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">8</span><span data-i18n="taskWord">Aufgabe</span> 8</h2>
+      <div class="task-question" data-i18n="task8Question">Eine quadratische Fläche hat einen Flächeninhalt von 144 m². Wie lang ist eine Seite (in m)?</div>
+      <div class="answer-row">
+        <input type="text" id="input8" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(8, 12)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback8"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task8Result">Ergebnis: 12 m</div>
+          <ol>
+            <li data-i18n="task8Step1">Bei einem Quadrat gilt: Fläche = Seite².</li>
+            <li data-i18n="task8Step2">Umgekehrt: Seite = √Fläche = √144.</li>
+            <li data-i18n="task8Step3">Ergebnis: 12 m (da 12 · 12 = 144).</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task8Hint">Um von der Fläche eines Quadrats auf die Seitenlänge zu kommen, muss die Wurzel gezogen werden.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <footer>
+    <svg class="footer-wave" viewBox="0 0 280 16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+      <path d="M -5 8 C 40 1, 80 15, 140 8 S 240 1, 285 8" fill="none" stroke="#C41230" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M -5 8 C 40 15, 80 1, 140 8 S 240 15, 285 8" fill="none" stroke="#2478B5" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+    </svg>
+    <p id="footer-msg" data-i18n="footerMessage">Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!</p>
+  </footer>
+
+</div>
+
+<script>
+const TRANSLATIONS = {
+de: {
+  eyebrow: `Luisen-Gymnasium · Klasse 8`, titleLine1: `Potenzen,`, titleAccent: `Wurzeln, Potenzgesetze`, backLink: `← Alle Themen`, h2Basics: `Grundlagen`,
+  basicsP1: `Eine Potenz aⁿ bedeutet, dass die Basis a n-mal mit sich selbst multipliziert wird. Die Wurzel ist die Umkehrung des Quadrierens: √a ist die Zahl, die mit sich selbst multipliziert a ergibt.`,
+  powerAria: `Die Potenz 3 hoch 4 mit Beschriftung: 3 ist die Basis, 4 ist der Exponent`,
+  baseLabel: `Basis`, expLabel: `Exponent`,
+  basicsExample1Label: `<strong>Beispiel Schritt für Schritt:</strong> Berechne 3⁴.`,
+  basicsExample1Steps: `1. Bedeutung: 3⁴ = 3 · 3 · 3 · 3<br>2. Rechnen: 3 · 3 = 9, dann 9 · 3 = 27, dann 27 · 3 = 81<br>3. Ergebnis: 81`,
+  basicsP2Laws: `<strong>Potenzgesetze</strong> erleichtern das Rechnen mit Potenzen gleicher Basis: Bei Multiplikation werden die Exponenten addiert, bei Division subtrahiert, bei einer Potenz einer Potenz werden sie multipliziert.`,
+  basicsExample2Label: `<strong>Beispiel Schritt für Schritt:</strong> Vereinfache 2³ · 2⁴ mit dem Potenzgesetz.`,
+  basicsExample2Steps: `1. Formel: aᵐ · aⁿ = a^(m+n)<br>2. Einsetzen: 2³ · 2⁴ = 2^(3+4)<br>3. Ergebnis: 2⁷`,
+  merkeTitle: `Merke`, merkeBody: `Multiplikation gleicher Basis: aᵐ · aⁿ = a^(m+n).<br>Division gleicher Basis: aᵐ : aⁿ = a^(m−n).<br>Potenz einer Potenz: (aᵐ)ⁿ = a^(m·n).`,
+  taskWord: `Aufgabe`,
+  task1Question: `Berechne 3⁴.`, task2Question: `Berechne 2⁵.`, task3Question: `Vereinfache mit dem Potenzgesetz: 2³ · 2⁴ = 2^?. Wie lautet der Exponent?`, task4Question: `Vereinfache mit dem Potenzgesetz: 5⁶ : 5² = 5^?. Wie lautet der Exponent?`, task5Question: `Vereinfache mit dem Potenzgesetz: (3²)³ = 3^?. Wie lautet der Exponent?`, task6Question: `Berechne √64.`,
+  task7Question: `Berechne √121.`,
+  task8Question: `Eine quadratische Fläche hat einen Flächeninhalt von 144 m². Wie lang ist eine Seite (in m)?`,
+  answerPlaceholder: `Deine Antwort`, checkButton: `Prüfen`, solutionSummary: `Lösung anzeigen`,
+  task1Result: `Ergebnis: 81`, task2Result: `Ergebnis: 32`, task3Result: `Ergebnis: 7`, task4Result: `Ergebnis: 4`, task5Result: `Ergebnis: 6`, task6Result: `Ergebnis: 8`, task7Result: `Ergebnis: 11`, task8Result: `Ergebnis: 12 m`,
+  task1Step1: `Bedeutung: 3⁴ = 3 · 3 · 3 · 3.`, task1Step2: `Rechnen: 3 · 3 = 9, dann 9 · 3 = 27, dann 27 · 3 = 81.`, task1Step3: `Ergebnis: 81.`,
+  task1Hint: `3⁴ bedeutet nicht 3 · 4 = 12, sondern 3 viermal mit sich selbst multiplizieren.`,
+  task2Step1: `Bedeutung: 2⁵ = 2 · 2 · 2 · 2 · 2.`, task2Step2: `Rechnen: 2 · 2 = 4, dann 4 · 2 = 8, dann 8 · 2 = 16, dann 16 · 2 = 32.`, task2Step3: `Ergebnis: 32.`,
+  task2Hint: `Am besten Schritt für Schritt multiplizieren, um sich nicht zu verrechnen.`,
+  task3Step1: `Formel: aᵐ · aⁿ = a^(m+n).`, task3Step2: `Einsetzen: 2³ · 2⁴ = 2^(3+4).`, task3Step3: `Ergebnis: der Exponent ist 7.`,
+  task3Hint: `Dieses Gesetz funktioniert nur bei gleicher Basis (hier beide Male die 2).`,
+  task4Step1: `Formel: aᵐ : aⁿ = a^(m−n).`, task4Step2: `Einsetzen: 5⁶ : 5² = 5^(6−2).`, task4Step3: `Ergebnis: der Exponent ist 4.`,
+  task4Hint: `Bei der Division werden die Exponenten subtrahiert, nicht dividiert.`,
+  task5Step1: `Formel: (aᵐ)ⁿ = a^(m·n).`, task5Step2: `Einsetzen: (3²)³ = 3^(2·3).`, task5Step3: `Ergebnis: der Exponent ist 6.`,
+  task5Hint: `Bei einer Potenz einer Potenz werden die Exponenten multipliziert, nicht addiert.`,
+  task6Step1: `Gesucht ist die Zahl, die mit sich selbst multipliziert 64 ergibt.`, task6Step2: `Probieren: 8 · 8 = 64.`, task6Step3: `Ergebnis: √64 = 8.`,
+  task6Hint: `Die Wurzel ist die Umkehrung des Quadrierens, nicht der Division durch 2.`,
+  task7Step1: `Gesucht ist die Zahl, die mit sich selbst multipliziert 121 ergibt.`, task7Step2: `Probieren: 11 · 11 = 121.`, task7Step3: `Ergebnis: √121 = 11.`,
+  task7Hint: `Es hilft, einige Quadratzahlen auswendig zu kennen (z.B. 11² = 121).`,
+  task8Step1: `Bei einem Quadrat gilt: Fläche = Seite².`, task8Step2: `Umgekehrt: Seite = √Fläche = √144.`, task8Step3: `Ergebnis: 12 m (da 12 · 12 = 144).`,
+  task8Hint: `Um von der Fläche eines Quadrats auf die Seitenlänge zu kommen, muss die Wurzel gezogen werden.`,
+  hintLabel: `Typischer Fehler:`, footerMessage: `Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!`,
+  fbEmpty: `Trag bitte eine Zahl ein, bevor du prüfst.`, fbCorrect: `Richtig! Gut gemacht!`, fbIncorrect: `Noch nicht ganz richtig. Schau dir die Lösung weiter unten an und versuch es dann nochmal.`
+},
+en: {
+  eyebrow: `Luisen-Gymnasium · Grade 8`, titleLine1: `Powers,`, titleAccent: `Roots, Laws of Exponents`, backLink: `← All Topics`, h2Basics: `Basics`,
+  basicsP1: `A power aⁿ means the base a is multiplied by itself n times. A root is the reverse of squaring: √a is the number that, multiplied by itself, gives a.`,
+  powerAria: `The power 3 to the 4th, labeled: 3 is the base, 4 is the exponent`,
+  baseLabel: `Base`, expLabel: `Exponent`,
+  basicsExample1Label: `<strong>Step-by-step example:</strong> Calculate 3⁴.`,
+  basicsExample1Steps: `1. Meaning: 3⁴ = 3 · 3 · 3 · 3<br>2. Calculate: 3 · 3 = 9, then 9 · 3 = 27, then 27 · 3 = 81<br>3. Result: 81`,
+  basicsP2Laws: `<strong>Laws of exponents</strong> make it easier to calculate with powers of the same base: for multiplication, add the exponents; for division, subtract them; for a power of a power, multiply them.`,
+  basicsExample2Label: `<strong>Step-by-step example:</strong> Simplify 2³ · 2⁴ using the law of exponents.`,
+  basicsExample2Steps: `1. Formula: aᵐ · aⁿ = a^(m+n)<br>2. Substitute: 2³ · 2⁴ = 2^(3+4)<br>3. Result: 2⁷`,
+  merkeTitle: `Remember`, merkeBody: `Multiplying same base: aᵐ · aⁿ = a^(m+n).<br>Dividing same base: aᵐ : aⁿ = a^(m−n).<br>Power of a power: (aᵐ)ⁿ = a^(m·n).`,
+  taskWord: `Exercise`,
+  task1Question: `Calculate 3⁴.`, task2Question: `Calculate 2⁵.`, task3Question: `Simplify using the law of exponents: 2³ · 2⁴ = 2^?. What's the exponent?`, task4Question: `Simplify using the law of exponents: 5⁶ : 5² = 5^?. What's the exponent?`, task5Question: `Simplify using the law of exponents: (3²)³ = 3^?. What's the exponent?`, task6Question: `Calculate √64.`,
+  task7Question: `Calculate √121.`,
+  task8Question: `A square area has an area of 144 m². How long is one side (in m)?`,
+  answerPlaceholder: `Your answer`, checkButton: `Check`, solutionSummary: `Show solution`,
+  task1Result: `Result: 81`, task2Result: `Result: 32`, task3Result: `Result: 7`, task4Result: `Result: 4`, task5Result: `Result: 6`, task6Result: `Result: 8`, task7Result: `Result: 11`, task8Result: `Result: 12 m`,
+  task1Step1: `Meaning: 3⁴ = 3 · 3 · 3 · 3.`, task1Step2: `Calculate: 3 · 3 = 9, then 9 · 3 = 27, then 27 · 3 = 81.`, task1Step3: `Result: 81.`,
+  task1Hint: `3⁴ doesn't mean 3 · 4 = 12, it means multiplying 3 by itself four times.`,
+  task2Step1: `Meaning: 2⁵ = 2 · 2 · 2 · 2 · 2.`, task2Step2: `Calculate: 2 · 2 = 4, then 4 · 2 = 8, then 8 · 2 = 16, then 16 · 2 = 32.`, task2Step3: `Result: 32.`,
+  task2Hint: `It's best to multiply step by step to avoid mistakes.`,
+  task3Step1: `Formula: aᵐ · aⁿ = a^(m+n).`, task3Step2: `Substitute: 2³ · 2⁴ = 2^(3+4).`, task3Step3: `Result: the exponent is 7.`,
+  task3Hint: `This law only works with the same base (here, both are 2).`,
+  task4Step1: `Formula: aᵐ : aⁿ = a^(m−n).`, task4Step2: `Substitute: 5⁶ : 5² = 5^(6−2).`, task4Step3: `Result: the exponent is 4.`,
+  task4Hint: `In division, the exponents are subtracted, not divided.`,
+  task5Step1: `Formula: (aᵐ)ⁿ = a^(m·n).`, task5Step2: `Substitute: (3²)³ = 3^(2·3).`, task5Step3: `Result: the exponent is 6.`,
+  task5Hint: `For a power of a power, the exponents are multiplied, not added.`,
+  task6Step1: `You're looking for the number that, multiplied by itself, gives 64.`, task6Step2: `Try: 8 · 8 = 64.`, task6Step3: `Result: √64 = 8.`,
+  task6Hint: `The square root is the reverse of squaring, not division by 2.`,
+  task7Step1: `You're looking for the number that, multiplied by itself, gives 121.`, task7Step2: `Try: 11 · 11 = 121.`, task7Step3: `Result: √121 = 11.`,
+  task7Hint: `It helps to know some square numbers by heart (e.g. 11² = 121).`,
+  task8Step1: `For a square: area = side².`, task8Step2: `In reverse: side = √area = √144.`, task8Step3: `Result: 12 m (since 12 · 12 = 144).`,
+  task8Hint: `To get from a square's area to its side length, you take the square root.`,
+  hintLabel: `Common mistake:`, footerMessage: `Take your time and check the solution if you need to. You can do this!`,
+  fbEmpty: `Please enter a number before checking.`, fbCorrect: `Correct! Well done!`, fbIncorrect: `Not quite right yet. Check the solution below and try again.`
+},
+es: {
+  eyebrow: `Luisen-Gymnasium · 8.º curso`, titleLine1: `Potencias,`, titleAccent: `raíces, leyes de los exponentes`, backLink: `← Todos los temas`, h2Basics: `Fundamentos`,
+  basicsP1: `Una potencia aⁿ significa que la base a se multiplica por sí misma n veces. La raíz es la operación inversa de elevar al cuadrado: √a es el número que, multiplicado por sí mismo, da a.`,
+  powerAria: `La potencia 3 elevado a 4, etiquetada: 3 es la base, 4 es el exponente`,
+  baseLabel: `Base`, expLabel: `Exponente`,
+  basicsExample1Label: `<strong>Ejemplo paso a paso:</strong> Calcula 3⁴.`,
+  basicsExample1Steps: `1. Significado: 3⁴ = 3 · 3 · 3 · 3<br>2. Calcula: 3 · 3 = 9, luego 9 · 3 = 27, luego 27 · 3 = 81<br>3. Resultado: 81`,
+  basicsP2Laws: `<strong>Las leyes de los exponentes</strong> facilitan calcular con potencias de la misma base: al multiplicar se suman los exponentes, al dividir se restan, y en una potencia de otra potencia se multiplican.`,
+  basicsExample2Label: `<strong>Ejemplo paso a paso:</strong> Simplifica 2³ · 2⁴ usando la ley de exponentes.`,
+  basicsExample2Steps: `1. Fórmula: aᵐ · aⁿ = a^(m+n)<br>2. Sustituye: 2³ · 2⁴ = 2^(3+4)<br>3. Resultado: 2⁷`,
+  merkeTitle: `Recuerda`, merkeBody: `Multiplicar misma base: aᵐ · aⁿ = a^(m+n).<br>Dividir misma base: aᵐ : aⁿ = a^(m−n).<br>Potencia de una potencia: (aᵐ)ⁿ = a^(m·n).`,
+  taskWord: `Ejercicio`,
+  task1Question: `Calcula 3⁴.`, task2Question: `Calcula 2⁵.`, task3Question: `Simplifica usando la ley de exponentes: 2³ · 2⁴ = 2^?. ¿Cuál es el exponente?`, task4Question: `Simplifica usando la ley de exponentes: 5⁶ : 5² = 5^?. ¿Cuál es el exponente?`, task5Question: `Simplifica usando la ley de exponentes: (3²)³ = 3^?. ¿Cuál es el exponente?`, task6Question: `Calcula √64.`,
+  task7Question: `Calcula √121.`,
+  task8Question: `Una superficie cuadrada tiene un área de 144 m². ¿Cuánto mide un lado (en m)?`,
+  answerPlaceholder: `Tu respuesta`, checkButton: `Comprobar`, solutionSummary: `Ver solución`,
+  task1Result: `Resultado: 81`, task2Result: `Resultado: 32`, task3Result: `Resultado: 7`, task4Result: `Resultado: 4`, task5Result: `Resultado: 6`, task6Result: `Resultado: 8`, task7Result: `Resultado: 11`, task8Result: `Resultado: 12 m`,
+  task1Step1: `Significado: 3⁴ = 3 · 3 · 3 · 3.`, task1Step2: `Calcula: 3 · 3 = 9, luego 9 · 3 = 27, luego 27 · 3 = 81.`, task1Step3: `Resultado: 81.`,
+  task1Hint: `3⁴ no significa 3 · 4 = 12, sino multiplicar 3 por sí mismo cuatro veces.`,
+  task2Step1: `Significado: 2⁵ = 2 · 2 · 2 · 2 · 2.`, task2Step2: `Calcula: 2 · 2 = 4, luego 4 · 2 = 8, luego 8 · 2 = 16, luego 16 · 2 = 32.`, task2Step3: `Resultado: 32.`,
+  task2Hint: `Lo mejor es multiplicar paso a paso para no equivocarse.`,
+  task3Step1: `Fórmula: aᵐ · aⁿ = a^(m+n).`, task3Step2: `Sustituye: 2³ · 2⁴ = 2^(3+4).`, task3Step3: `Resultado: el exponente es 7.`,
+  task3Hint: `Esta ley solo funciona con la misma base (aquí, ambas son 2).`,
+  task4Step1: `Fórmula: aᵐ : aⁿ = a^(m−n).`, task4Step2: `Sustituye: 5⁶ : 5² = 5^(6−2).`, task4Step3: `Resultado: el exponente es 4.`,
+  task4Hint: `En la división, los exponentes se restan, no se dividen.`,
+  task5Step1: `Fórmula: (aᵐ)ⁿ = a^(m·n).`, task5Step2: `Sustituye: (3²)³ = 3^(2·3).`, task5Step3: `Resultado: el exponente es 6.`,
+  task5Hint: `En una potencia de otra potencia, los exponentes se multiplican, no se suman.`,
+  task6Step1: `Buscas el número que, multiplicado por sí mismo, da 64.`, task6Step2: `Prueba: 8 · 8 = 64.`, task6Step3: `Resultado: √64 = 8.`,
+  task6Hint: `La raíz cuadrada es la operación inversa de elevar al cuadrado, no de dividir entre 2.`,
+  task7Step1: `Buscas el número que, multiplicado por sí mismo, da 121.`, task7Step2: `Prueba: 11 · 11 = 121.`, task7Step3: `Resultado: √121 = 11.`,
+  task7Hint: `Ayuda conocer de memoria algunos cuadrados perfectos (por ejemplo, 11² = 121).`,
+  task8Step1: `En un cuadrado: área = lado².`, task8Step2: `Al revés: lado = √área = √144.`, task8Step3: `Resultado: 12 m (ya que 12 · 12 = 144).`,
+  task8Hint: `Para pasar del área de un cuadrado a la longitud de su lado, se saca la raíz cuadrada.`,
+  hintLabel: `Error típico:`, footerMessage: `Tómate tu tiempo y revisa la solución si la necesitas. ¡Tú puedes!`,
+  fbEmpty: `Introduce un número antes de comprobar.`, fbCorrect: `¡Correcto! ¡Muy bien!`, fbIncorrect: `Todavía no es correcto. Revisa la solución de abajo e inténtalo de nuevo.`
+},
+fr: {
+  eyebrow: `Luisen-Gymnasium · 4e`, titleLine1: `Puissances,`, titleAccent: `racines, règles des exposants`, backLink: `← Tous les thèmes`, h2Basics: `Les bases`,
+  basicsP1: `Une puissance aⁿ signifie que la base a est multipliée par elle-même n fois. La racine est l'opération inverse du carré : √a est le nombre qui, multiplié par lui-même, donne a.`,
+  powerAria: `La puissance 3 exposant 4, étiquetée : 3 est la base, 4 est l'exposant`,
+  baseLabel: `Base`, expLabel: `Exposant`,
+  basicsExample1Label: `<strong>Exemple étape par étape :</strong> Calcule 3⁴.`,
+  basicsExample1Steps: `1. Signification : 3⁴ = 3 · 3 · 3 · 3<br>2. Calcule : 3 · 3 = 9, puis 9 · 3 = 27, puis 27 · 3 = 81<br>3. Résultat : 81`,
+  basicsP2Laws: `<strong>Les règles des exposants</strong> facilitent les calculs avec des puissances de même base : pour la multiplication, on additionne les exposants ; pour la division, on les soustrait ; pour une puissance de puissance, on les multiplie.`,
+  basicsExample2Label: `<strong>Exemple étape par étape :</strong> Simplifie 2³ · 2⁴ avec la règle des exposants.`,
+  basicsExample2Steps: `1. Formule : aᵐ · aⁿ = a^(m+n)<br>2. Substitue : 2³ · 2⁴ = 2^(3+4)<br>3. Résultat : 2⁷`,
+  merkeTitle: `À retenir`, merkeBody: `Multiplication de même base : aᵐ · aⁿ = a^(m+n).<br>Division de même base : aᵐ : aⁿ = a^(m−n).<br>Puissance d'une puissance : (aᵐ)ⁿ = a^(m·n).`,
+  taskWord: `Exercice`,
+  task1Question: `Calcule 3⁴.`, task2Question: `Calcule 2⁵.`, task3Question: `Simplifie avec la règle des exposants : 2³ · 2⁴ = 2^?. Quel est l'exposant ?`, task4Question: `Simplifie avec la règle des exposants : 5⁶ : 5² = 5^?. Quel est l'exposant ?`, task5Question: `Simplifie avec la règle des exposants : (3²)³ = 3^?. Quel est l'exposant ?`, task6Question: `Calcule √64.`,
+  task7Question: `Calcule √121.`,
+  task8Question: `Une surface carrée a une aire de 144 m². Combien mesure un côté (en m) ?`,
+  answerPlaceholder: `Ta réponse`, checkButton: `Vérifier`, solutionSummary: `Voir la solution`,
+  task1Result: `Résultat : 81`, task2Result: `Résultat : 32`, task3Result: `Résultat : 7`, task4Result: `Résultat : 4`, task5Result: `Résultat : 6`, task6Result: `Résultat : 8`, task7Result: `Résultat : 11`, task8Result: `Résultat : 12 m`,
+  task1Step1: `Signification : 3⁴ = 3 · 3 · 3 · 3.`, task1Step2: `Calcule : 3 · 3 = 9, puis 9 · 3 = 27, puis 27 · 3 = 81.`, task1Step3: `Résultat : 81.`,
+  task1Hint: `3⁴ ne signifie pas 3 · 4 = 12, mais multiplier 3 par lui-même quatre fois.`,
+  task2Step1: `Signification : 2⁵ = 2 · 2 · 2 · 2 · 2.`, task2Step2: `Calcule : 2 · 2 = 4, puis 4 · 2 = 8, puis 8 · 2 = 16, puis 16 · 2 = 32.`, task2Step3: `Résultat : 32.`,
+  task2Hint: `Il vaut mieux multiplier étape par étape pour éviter les erreurs.`,
+  task3Step1: `Formule : aᵐ · aⁿ = a^(m+n).`, task3Step2: `Substitue : 2³ · 2⁴ = 2^(3+4).`, task3Step3: `Résultat : l'exposant est 7.`,
+  task3Hint: `Cette règle ne fonctionne qu'avec la même base (ici, les deux sont 2).`,
+  task4Step1: `Formule : aᵐ : aⁿ = a^(m−n).`, task4Step2: `Substitue : 5⁶ : 5² = 5^(6−2).`, task4Step3: `Résultat : l'exposant est 4.`,
+  task4Hint: `Dans la division, les exposants sont soustraits, pas divisés.`,
+  task5Step1: `Formule : (aᵐ)ⁿ = a^(m·n).`, task5Step2: `Substitue : (3²)³ = 3^(2·3).`, task5Step3: `Résultat : l'exposant est 6.`,
+  task5Hint: `Pour une puissance de puissance, les exposants sont multipliés, pas additionnés.`,
+  task6Step1: `Tu cherches le nombre qui, multiplié par lui-même, donne 64.`, task6Step2: `Essaie : 8 · 8 = 64.`, task6Step3: `Résultat : √64 = 8.`,
+  task6Hint: `La racine carrée est l'inverse du carré, pas de la division par 2.`,
+  task7Step1: `Tu cherches le nombre qui, multiplié par lui-même, donne 121.`, task7Step2: `Essaie : 11 · 11 = 121.`, task7Step3: `Résultat : √121 = 11.`,
+  task7Hint: `Il est utile de connaître certains carrés parfaits par cœur (par ex. 11² = 121).`,
+  task8Step1: `Pour un carré : aire = côté².`, task8Step2: `À l'inverse : côté = √aire = √144.`, task8Step3: `Résultat : 12 m (car 12 · 12 = 144).`,
+  task8Hint: `Pour passer de l'aire d'un carré à la longueur de son côté, on extrait la racine carrée.`,
+  hintLabel: `Erreur fréquente :`, footerMessage: `Prends ton temps et regarde la solution si besoin. Tu vas y arriver !`,
+  fbEmpty: `Merci d'indiquer un nombre avant de vérifier.`, fbCorrect: `Correct ! Bien joué !`, fbIncorrect: `Pas encore tout à fait juste. Regarde la solution ci-dessous et réessaie.`
+},
+tr: {
+  eyebrow: `Luisen-Gymnasium · 8. Sınıf`, titleLine1: `Üsler,`, titleAccent: `Kökler, Üs Kuralları`, backLink: `← Tüm Konular`, h2Basics: `Temel Bilgiler`,
+  basicsP1: `Bir üs aⁿ, a tabanının kendisiyle n kez çarpıldığı anlamına gelir. Kök, karesini almanın tersidir: √a, kendisiyle çarpıldığında a'yı veren sayıdır.`,
+  powerAria: `3 üzeri 4 üssü, etiketlenmiş: 3 taban, 4 üstür`,
+  baseLabel: `Taban`, expLabel: `Üs`,
+  basicsExample1Label: `<strong>Adım adım örnek:</strong> 3⁴'ü hesapla.`,
+  basicsExample1Steps: `1. Anlamı: 3⁴ = 3 · 3 · 3 · 3<br>2. Hesapla: 3 · 3 = 9, sonra 9 · 3 = 27, sonra 27 · 3 = 81<br>3. Sonuç: 81`,
+  basicsP2Laws: `<strong>Üs kuralları,</strong> aynı tabanlı üslerle hesap yapmayı kolaylaştırır: çarpmada üsler toplanır, bölmede çıkarılır, üssün üssünde ise çarpılır.`,
+  basicsExample2Label: `<strong>Adım adım örnek:</strong> Üs kuralıyla 2³ · 2⁴'ü sadeleştir.`,
+  basicsExample2Steps: `1. Formül: aᵐ · aⁿ = a^(m+n)<br>2. Yerine koy: 2³ · 2⁴ = 2^(3+4)<br>3. Sonuç: 2⁷`,
+  merkeTitle: `Unutma`, merkeBody: `Aynı tabanı çarpma: aᵐ · aⁿ = a^(m+n).<br>Aynı tabanı bölme: aᵐ : aⁿ = a^(m−n).<br>Üssün üssü: (aᵐ)ⁿ = a^(m·n).`,
+  taskWord: `Alıştırma`,
+  task1Question: `3⁴'ü hesapla.`, task2Question: `2⁵'i hesapla.`, task3Question: `Üs kuralıyla sadeleştir: 2³ · 2⁴ = 2^?. Üs kaçtır?`, task4Question: `Üs kuralıyla sadeleştir: 5⁶ : 5² = 5^?. Üs kaçtır?`, task5Question: `Üs kuralıyla sadeleştir: (3²)³ = 3^?. Üs kaçtır?`, task6Question: `√64'ü hesapla.`,
+  task7Question: `√121'i hesapla.`,
+  task8Question: `Kare bir alan 144 m²'dir. Bir kenar kaç m'dir?`,
+  answerPlaceholder: `Cevabın`, checkButton: `Kontrol et`, solutionSummary: `Çözümü göster`,
+  task1Result: `Sonuç: 81`, task2Result: `Sonuç: 32`, task3Result: `Sonuç: 7`, task4Result: `Sonuç: 4`, task5Result: `Sonuç: 6`, task6Result: `Sonuç: 8`, task7Result: `Sonuç: 11`, task8Result: `Sonuç: 12 m`,
+  task1Step1: `Anlamı: 3⁴ = 3 · 3 · 3 · 3.`, task1Step2: `Hesapla: 3 · 3 = 9, sonra 9 · 3 = 27, sonra 27 · 3 = 81.`, task1Step3: `Sonuç: 81.`,
+  task1Hint: `3⁴, 3 · 4 = 12 demek değildir, 3'ü kendisiyle dört kez çarpmak demektir.`,
+  task2Step1: `Anlamı: 2⁵ = 2 · 2 · 2 · 2 · 2.`, task2Step2: `Hesapla: 2 · 2 = 4, sonra 4 · 2 = 8, sonra 8 · 2 = 16, sonra 16 · 2 = 32.`, task2Step3: `Sonuç: 32.`,
+  task2Hint: `Hata yapmamak için adım adım çarpmak en iyisidir.`,
+  task3Step1: `Formül: aᵐ · aⁿ = a^(m+n).`, task3Step2: `Yerine koy: 2³ · 2⁴ = 2^(3+4).`, task3Step3: `Sonuç: üs 7'dir.`,
+  task3Hint: `Bu kural sadece aynı tabanla çalışır (burada ikisi de 2'dir).`,
+  task4Step1: `Formül: aᵐ : aⁿ = a^(m−n).`, task4Step2: `Yerine koy: 5⁶ : 5² = 5^(6−2).`, task4Step3: `Sonuç: üs 4'tür.`,
+  task4Hint: `Bölmede üsler çıkarılır, bölünmez.`,
+  task5Step1: `Formül: (aᵐ)ⁿ = a^(m·n).`, task5Step2: `Yerine koy: (3²)³ = 3^(2·3).`, task5Step3: `Sonuç: üs 6'dır.`,
+  task5Hint: `Üssün üssünde üsler çarpılır, toplanmaz.`,
+  task6Step1: `Kendisiyle çarpıldığında 64 veren sayı aranıyor.`, task6Step2: `Dene: 8 · 8 = 64.`, task6Step3: `Sonuç: √64 = 8.`,
+  task6Hint: `Karekök, karesini almanın tersidir, 2'ye bölmenin değil.`,
+  task7Step1: `Kendisiyle çarpıldığında 121 veren sayı aranıyor.`, task7Step2: `Dene: 11 · 11 = 121.`, task7Step3: `Sonuç: √121 = 11.`,
+  task7Hint: `Bazı tam kareleri ezbere bilmek yardımcı olur (örn. 11² = 121).`,
+  task8Step1: `Bir karede: alan = kenar².`, task8Step2: `Tersi: kenar = √alan = √144.`, task8Step3: `Sonuç: 12 m (çünkü 12 · 12 = 144).`,
+  task8Hint: `Bir karenin alanından kenar uzunluğuna geçmek için karekök alınır.`,
+  hintLabel: `Sık yapılan hata:`, footerMessage: `Sakin sakin hesapla, gerekirse çözüme bak. Bunu başarabilirsin!`,
+  fbEmpty: `Kontrol etmeden önce lütfen bir sayı gir.`, fbCorrect: `Doğru! Aferin!`, fbIncorrect: `Henüz tam doğru değil. Aşağıdaki çözüme bak ve tekrar dene.`
+},
+ru: {
+  eyebrow: `Luisen-Gymnasium · 8 класс`, titleLine1: `Степени,`, titleAccent: `корни, свойства степеней`, backLink: `← Все темы`, h2Basics: `Основы`,
+  basicsP1: `Степень aⁿ означает, что основание a умножается само на себя n раз. Корень — обратная операция возведению в квадрат: √a — это число, которое при умножении само на себя даёт a.`,
+  powerAria: `Степень 3 в четвёртой, с подписями: 3 — основание, 4 — показатель степени`,
+  baseLabel: `Основание`, expLabel: `Показатель степени`,
+  basicsExample1Label: `<strong>Пример по шагам:</strong> Вычисли 3⁴.`,
+  basicsExample1Steps: `1. Значение: 3⁴ = 3 · 3 · 3 · 3<br>2. Вычисли: 3 · 3 = 9, затем 9 · 3 = 27, затем 27 · 3 = 81<br>3. Результат: 81`,
+  basicsP2Laws: `<strong>Свойства степеней</strong> упрощают вычисления со степенями с одинаковым основанием: при умножении показатели складывают, при делении вычитают, при возведении степени в степень — перемножают.`,
+  basicsExample2Label: `<strong>Пример по шагам:</strong> Упрости 2³ · 2⁴, используя свойство степеней.`,
+  basicsExample2Steps: `1. Формула: aᵐ · aⁿ = a^(m+n)<br>2. Подставить: 2³ · 2⁴ = 2^(3+4)<br>3. Результат: 2⁷`,
+  merkeTitle: `Запомни`, merkeBody: `Умножение одинакового основания: aᵐ · aⁿ = a^(m+n).<br>Деление одинакового основания: aᵐ : aⁿ = a^(m−n).<br>Степень степени: (aᵐ)ⁿ = a^(m·n).`,
+  taskWord: `Задание`,
+  task1Question: `Вычисли 3⁴.`, task2Question: `Вычисли 2⁵.`, task3Question: `Упрости, используя свойство степеней: 2³ · 2⁴ = 2^?. Чему равен показатель?`, task4Question: `Упрости, используя свойство степеней: 5⁶ : 5² = 5^?. Чему равен показатель?`, task5Question: `Упрости, используя свойство степеней: (3²)³ = 3^?. Чему равен показатель?`, task6Question: `Вычисли √64.`,
+  task7Question: `Вычисли √121.`,
+  task8Question: `Площадь квадрата равна 144 м². Чему равна длина стороны (в м)?`,
+  answerPlaceholder: `Твой ответ`, checkButton: `Проверить`, solutionSummary: `Показать решение`,
+  task1Result: `Результат: 81`, task2Result: `Результат: 32`, task3Result: `Результат: 7`, task4Result: `Результат: 4`, task5Result: `Результат: 6`, task6Result: `Результат: 8`, task7Result: `Результат: 11`, task8Result: `Результат: 12 м`,
+  task1Step1: `Значение: 3⁴ = 3 · 3 · 3 · 3.`, task1Step2: `Вычисли: 3 · 3 = 9, затем 9 · 3 = 27, затем 27 · 3 = 81.`, task1Step3: `Результат: 81.`,
+  task1Hint: `3⁴ означает не 3 · 4 = 12, а умножение 3 самой на себя четыре раза.`,
+  task2Step1: `Значение: 2⁵ = 2 · 2 · 2 · 2 · 2.`, task2Step2: `Вычисли: 2 · 2 = 4, затем 4 · 2 = 8, затем 8 · 2 = 16, затем 16 · 2 = 32.`, task2Step3: `Результат: 32.`,
+  task2Hint: `Лучше умножать по шагам, чтобы не ошибиться.`,
+  task3Step1: `Формула: aᵐ · aⁿ = a^(m+n).`, task3Step2: `Подставить: 2³ · 2⁴ = 2^(3+4).`, task3Step3: `Результат: показатель степени равен 7.`,
+  task3Hint: `Это свойство работает только с одинаковым основанием (здесь оба раза 2).`,
+  task4Step1: `Формула: aᵐ : aⁿ = a^(m−n).`, task4Step2: `Подставить: 5⁶ : 5² = 5^(6−2).`, task4Step3: `Результат: показатель степени равен 4.`,
+  task4Hint: `При делении показатели вычитают, а не делят.`,
+  task5Step1: `Формула: (aᵐ)ⁿ = a^(m·n).`, task5Step2: `Подставить: (3²)³ = 3^(2·3).`, task5Step3: `Результат: показатель степени равен 6.`,
+  task5Hint: `При возведении степени в степень показатели перемножают, а не складывают.`,
+  task6Step1: `Нужно найти число, которое при умножении само на себя даёт 64.`, task6Step2: `Попробуй: 8 · 8 = 64.`, task6Step3: `Результат: √64 = 8.`,
+  task6Hint: `Квадратный корень — это обратная операция возведению в квадрат, а не делению на 2.`,
+  task7Step1: `Нужно найти число, которое при умножении само на себя даёт 121.`, task7Step2: `Попробуй: 11 · 11 = 121.`, task7Step3: `Результат: √121 = 11.`,
+  task7Hint: `Полезно знать наизусть некоторые квадраты чисел (например, 11² = 121).`,
+  task8Step1: `Для квадрата: площадь = сторона².`, task8Step2: `Наоборот: сторона = √площадь = √144.`, task8Step3: `Результат: 12 м (так как 12 · 12 = 144).`,
+  task8Hint: `Чтобы найти сторону квадрата по его площади, нужно извлечь квадратный корень.`,
+  hintLabel: `Типичная ошибка:`, footerMessage: `Считай спокойно и при необходимости смотри решение. У тебя получится!`,
+  fbEmpty: `Пожалуйста, введи число перед проверкой.`, fbCorrect: `Правильно! Отлично!`, fbIncorrect: `Пока не совсем верно. Посмотри решение ниже и попробуй ещё раз.`
+},
+ar: {
+  eyebrow: `مدرسة لويزن الثانوية · الصف الثامن`, titleLine1: `الأسس،`, titleAccent: `الجذور، قوانين الأسس`, backLink: `← جميع المواضيع`, h2Basics: `الأساسيات`,
+  basicsP1: `القوة aⁿ تعني أن الأساس a يُضرَب في نفسه n مرة. الجذر هو عكس التربيع: √a هو العدد الذي إذا ضُرِب في نفسه ينتج a.`,
+  powerAria: `القوة 3 أُس 4، موسومة: 3 هو الأساس، و4 هو الأس`,
+  baseLabel: `الأساس`, expLabel: `الأس`,
+  basicsExample1Label: `<strong>مثال خطوة بخطوة:</strong> احسب 3⁴.`,
+  basicsExample1Steps: `1. المعنى: 3⁴ = 3 · 3 · 3 · 3<br>2. احسب: 3 · 3 = 9، ثم 9 · 3 = 27، ثم 27 · 3 = 81<br>3. النتيجة: 81`,
+  basicsP2Laws: `<strong>قوانين الأسس</strong> تسهّل الحساب بالقوى ذات الأساس نفسه: عند الضرب تُجمَع الأسس، وعند القسمة تُطرَح، وعند رفع أس إلى أس آخر تُضرَب.`,
+  basicsExample2Label: `<strong>مثال خطوة بخطوة:</strong> بسّط 2³ · 2⁴ باستخدام قانون الأسس.`,
+  basicsExample2Steps: `1. المعادلة: aᵐ · aⁿ = a^(m+n)<br>2. عوّض: 2³ · 2⁴ = 2^(3+4)<br>3. النتيجة: 2⁷`,
+  merkeTitle: `تذكّر`, merkeBody: `ضرب الأساس نفسه: aᵐ · aⁿ = a^(m+n).<br>قسمة الأساس نفسه: aᵐ ÷ aⁿ = a^(m−n).<br>أس الأس: (aᵐ)ⁿ = a^(m·n).`,
+  taskWord: `تمرين`,
+  task1Question: `احسب 3⁴.`, task2Question: `احسب 2⁵.`, task3Question: `بسّط باستخدام قانون الأسس: 2³ · 2⁴ = 2^؟. ما هو الأس؟`, task4Question: `بسّط باستخدام قانون الأسس: 5⁶ ÷ 5² = 5^؟. ما هو الأس؟`, task5Question: `بسّط باستخدام قانون الأسس: (3²)³ = 3^؟. ما هو الأس؟`, task6Question: `احسب √64.`,
+  task7Question: `احسب √121.`,
+  task8Question: `مساحة مربعة قدرها 144 م². كم يبلغ طول ضلعها (بالمتر)؟`,
+  answerPlaceholder: `إجابتك`, checkButton: `تحقق`, solutionSummary: `عرض الحل`,
+  task1Result: `النتيجة: 81`, task2Result: `النتيجة: 32`, task3Result: `النتيجة: 7`, task4Result: `النتيجة: 4`, task5Result: `النتيجة: 6`, task6Result: `النتيجة: 8`, task7Result: `النتيجة: 11`, task8Result: `النتيجة: 12 م`,
+  task1Step1: `المعنى: 3⁴ = 3 · 3 · 3 · 3.`, task1Step2: `احسب: 3 · 3 = 9، ثم 9 · 3 = 27، ثم 27 · 3 = 81.`, task1Step3: `النتيجة: 81.`,
+  task1Hint: `3⁴ لا تعني 3 · 4 = 12، بل تعني ضرب 3 في نفسها أربع مرات.`,
+  task2Step1: `المعنى: 2⁵ = 2 · 2 · 2 · 2 · 2.`, task2Step2: `احسب: 2 · 2 = 4، ثم 4 · 2 = 8، ثم 8 · 2 = 16، ثم 16 · 2 = 32.`, task2Step3: `النتيجة: 32.`,
+  task2Hint: `من الأفضل الضرب خطوة بخطوة لتجنب الأخطاء.`,
+  task3Step1: `المعادلة: aᵐ · aⁿ = a^(m+n).`, task3Step2: `عوّض: 2³ · 2⁴ = 2^(3+4).`, task3Step3: `النتيجة: الأس هو 7.`,
+  task3Hint: `ينطبق هذا القانون فقط عندما يكون الأساس نفسه (هنا كلاهما 2).`,
+  task4Step1: `المعادلة: aᵐ ÷ aⁿ = a^(m−n).`, task4Step2: `عوّض: 5⁶ ÷ 5² = 5^(6−2).`, task4Step3: `النتيجة: الأس هو 4.`,
+  task4Hint: `في القسمة تُطرَح الأسس، ولا تُقسَم.`,
+  task5Step1: `المعادلة: (aᵐ)ⁿ = a^(m·n).`, task5Step2: `عوّض: (3²)³ = 3^(2·3).`, task5Step3: `النتيجة: الأس هو 6.`,
+  task5Hint: `عند رفع أس إلى أس آخر، تُضرَب الأسس ولا تُجمَع.`,
+  task6Step1: `المطلوب هو العدد الذي إذا ضُرِب في نفسه ينتج 64.`, task6Step2: `جرّب: 8 · 8 = 64.`, task6Step3: `النتيجة: √64 = 8.`,
+  task6Hint: `الجذر التربيعي هو عكس التربيع، وليس القسمة على 2.`,
+  task7Step1: `المطلوب هو العدد الذي إذا ضُرِب في نفسه ينتج 121.`, task7Step2: `جرّب: 11 · 11 = 121.`, task7Step3: `النتيجة: √121 = 11.`,
+  task7Hint: `من المفيد حفظ بعض المربعات الكاملة عن ظهر قلب (مثل 11² = 121).`,
+  task8Step1: `في المربع: المساحة = الضلع².`, task8Step2: `عكسيًا: الضلع = √المساحة = √144.`, task8Step3: `النتيجة: 12 م (لأن 12 · 12 = 144).`,
+  task8Hint: `للانتقال من مساحة المربع إلى طول ضلعه، يجب أخذ الجذر التربيعي.`,
+  hintLabel: `خطأ شائع:`, footerMessage: `احسب بهدوء وراجع الحل إذا احتجت إليه. أنت قادر على ذلك!`,
+  fbEmpty: `الرجاء إدخال رقم قبل التحقق.`, fbCorrect: `صحيح! أحسنت!`, fbIncorrect: `ليست صحيحة تمامًا بعد. راجع الحل أدناه وحاول مرة أخرى.`
+},
+zh: {
+  eyebrow: `路易森文理中学 · 八年级`, titleLine1: `幂、根`, titleAccent: `与幂的运算法则`, backLink: `← 所有主题`, h2Basics: `基础知识`,
+  basicsP1: `幂 aⁿ 表示底数 a 自乘 n 次。开方是平方的逆运算：√a 是自乘后得到 a 的那个数。`,
+  powerAria: `3的4次幂，标注：3是底数，4是指数`,
+  baseLabel: `底数`, expLabel: `指数`,
+  basicsExample1Label: `<strong>分步示例：</strong> 计算 3⁴。`,
+  basicsExample1Steps: `1. 含义：3⁴ = 3 · 3 · 3 · 3<br>2. 计算：3 · 3 = 9，然后 9 · 3 = 27，然后 27 · 3 = 81<br>3. 结果：81`,
+  basicsP2Laws: `<strong>幂的运算法则</strong>让同底数幂的计算更容易：相乘时指数相加，相除时指数相减，幂的幂时指数相乘。`,
+  basicsExample2Label: `<strong>分步示例：</strong> 用幂的运算法则化简 2³ · 2⁴。`,
+  basicsExample2Steps: `1. 公式：aᵐ · aⁿ = a^(m+n)<br>2. 代入：2³ · 2⁴ = 2^(3+4)<br>3. 结果：2⁷`,
+  merkeTitle: `记住`, merkeBody: `同底数相乘：aᵐ · aⁿ = a^(m+n)。<br>同底数相除：aᵐ ÷ aⁿ = a^(m−n)。<br>幂的幂：(aᵐ)ⁿ = a^(m·n)。`,
+  taskWord: `练习`,
+  task1Question: `计算 3⁴。`, task2Question: `计算 2⁵。`, task3Question: `用幂的运算法则化简：2³ · 2⁴ = 2^?。指数是多少？`, task4Question: `用幂的运算法则化简：5⁶ ÷ 5² = 5^?。指数是多少？`, task5Question: `用幂的运算法则化简：(3²)³ = 3^?。指数是多少？`, task6Question: `计算 √64。`,
+  task7Question: `计算 √121。`,
+  task8Question: `一个正方形面积是 144 平方米。一条边长是多少米？`,
+  answerPlaceholder: `你的答案`, checkButton: `检查`, solutionSummary: `显示答案`,
+  task1Result: `结果：81`, task2Result: `结果：32`, task3Result: `结果：7`, task4Result: `结果：4`, task5Result: `结果：6`, task6Result: `结果：8`, task7Result: `结果：11`, task8Result: `结果：12 米`,
+  task1Step1: `含义：3⁴ = 3 · 3 · 3 · 3。`, task1Step2: `计算：3 · 3 = 9，然后 9 · 3 = 27，然后 27 · 3 = 81。`, task1Step3: `结果：81。`,
+  task1Hint: `3⁴ 不是 3 · 4 = 12，而是把 3 自乘四次。`,
+  task2Step1: `含义：2⁵ = 2 · 2 · 2 · 2 · 2。`, task2Step2: `计算：2 · 2 = 4，然后 4 · 2 = 8，然后 8 · 2 = 16，然后 16 · 2 = 32。`, task2Step3: `结果：32。`,
+  task2Hint: `最好一步步相乘，以免算错。`,
+  task3Step1: `公式：aᵐ · aⁿ = a^(m+n)。`, task3Step2: `代入：2³ · 2⁴ = 2^(3+4)。`, task3Step3: `结果：指数是 7。`,
+  task3Hint: `这个法则只在底数相同时才适用（这里都是 2）。`,
+  task4Step1: `公式：aᵐ ÷ aⁿ = a^(m−n)。`, task4Step2: `代入：5⁶ ÷ 5² = 5^(6−2)。`, task4Step3: `结果：指数是 4。`,
+  task4Hint: `相除时指数相减，而不是相除。`,
+  task5Step1: `公式：(aᵐ)ⁿ = a^(m·n)。`, task5Step2: `代入：(3²)³ = 3^(2·3)。`, task5Step3: `结果：指数是 6。`,
+  task5Hint: `幂的幂时指数相乘，而不是相加。`,
+  task6Step1: `要找的是自乘后得到 64 的数。`, task6Step2: `尝试：8 · 8 = 64。`, task6Step3: `结果：√64 = 8。`,
+  task6Hint: `平方根是平方的逆运算，不是除以 2。`,
+  task7Step1: `要找的是自乘后得到 121 的数。`, task7Step2: `尝试：11 · 11 = 121。`, task7Step3: `结果：√121 = 11。`,
+  task7Hint: `记住一些完全平方数会有帮助（例如 11² = 121）。`,
+  task8Step1: `对于正方形：面积 = 边长²。`, task8Step2: `反过来：边长 = √面积 = √144。`, task8Step3: `结果：12 米（因为 12 · 12 = 144）。`,
+  task8Hint: `要从正方形的面积求出边长，需要开平方。`,
+  hintLabel: `常见错误：`, footerMessage: `慢慢算，需要的话看看答案。你能做到！`,
+  fbEmpty: `请先输入一个数字再检查。`, fbCorrect: `正确！做得好！`, fbIncorrect: `还不完全正确。看看下面的答案，再试一次。`
+}
+};
+
+var currentLang = 'de';
+
+function setLanguage(lang){
+  var dict = TRANSLATIONS[lang] || TRANSLATIONS.de;
+  currentLang = TRANSLATIONS[lang] ? lang : 'de';
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = (currentLang === 'ar') ? 'rtl' : 'ltr';
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var key = el.getAttribute('data-i18n');
+    if(dict[key] !== undefined){ el.innerHTML = dict[key]; }
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-placeholder');
+    if(dict[key] !== undefined){ el.setAttribute('placeholder', dict[key]); }
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-aria');
+    if(dict[key] !== undefined){ el.setAttribute('aria-label', dict[key]); }
+  });
+  try{ localStorage.setItem('mathecoach_lang', currentLang); }catch(e){}
+  var sel = document.getElementById('langSelect');
+  if(sel) sel.value = currentLang;
+}
+
+function check(id, correct){
+  var dict = TRANSLATIONS[currentLang] || TRANSLATIONS.de;
+  var input = document.getElementById('input' + id);
+  var feedback = document.getElementById('feedback' + id);
+  var raw = input.value.trim();
+  var match = raw.match(/-?\d+/);
+  feedback.classList.remove('show', 'correct', 'incorrect');
+  if(!match){
+    feedback.textContent = dict.fbEmpty;
+    feedback.classList.add('show', 'incorrect');
+    return;
+  }
+  var value = parseInt(match[0], 10);
+  if(value === correct){
+    feedback.textContent = dict.fbCorrect;
+    feedback.classList.add('show', 'correct');
+  } else {
+    feedback.textContent = dict.fbIncorrect;
+    feedback.classList.add('show', 'incorrect');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var saved = 'de';
+  try{ saved = localStorage.getItem('mathecoach_lang') || 'de'; }catch(e){}
+  setLanguage(saved);
+});
+</script>
+
+</body>
+</html>
