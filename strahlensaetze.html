@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strahlensätze</title>
+<style>
+  :root{
+    --bg:#FAFAF9; --card:#FFFFFF; --ink:#241C1C; --ink-soft:#5C4F4C;
+    --red:#C41230; --gold:#E0A526; --blue:#2478B5;
+    --merke-bg:#FBF1DC; --merke-border:#E0A526;
+    --success:#1E8E5A; --success-bg:#E5F5EC; --error:#B3401D; --error-bg:#FBEDE6;
+    --font-display: ui-rounded, "SF Pro Rounded", "Segoe UI Rounded", "Nunito", system-ui, sans-serif;
+    --font-body: system-ui, "Segoe UI", Roboto, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:18px; line-height:1.5; padding-bottom:60px; }
+  .wrap{ max-width:640px; margin:0 auto; padding:0 20px; }
+  header{ background:var(--card); padding:30px 20px 0; text-align:center; position:relative; }
+  .header-inner{ padding-bottom:26px; }
+  .lang-switch{ display:flex; justify-content:center; margin-bottom:14px; }
+  #langSelect{ font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--ink); background:var(--card); border:2px solid #E3DFDA; border-radius:999px; padding:6px 14px; cursor:pointer; }
+  #langSelect:focus-visible{ outline:3px solid var(--blue); }
+  .back-link{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--blue); text-decoration:none; margin-bottom:16px; }
+  .eyebrow{ font-family:var(--font-display); font-weight:700; font-size:14px; letter-spacing:0.08em; text-transform:uppercase; color:var(--blue); margin-bottom:8px; }
+  h1{ font-family:var(--font-display); font-size:28px; font-weight:800; margin:0; line-height:1.25; }
+  h1 .accent{ color:var(--red); }
+  .wave{ display:block; width:100%; height:30px; }
+  section{ margin-top:32px; }
+  .card{ background:var(--card); border-radius:22px; padding:24px 22px; box-shadow:0 2px 14px rgba(36,28,28,0.07); }
+  h2{ font-family:var(--font-display); font-size:21px; font-weight:800; margin:0 0 14px; }
+  h2 .num{ display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:var(--blue); color:white; font-size:16px; margin-inline-end:10px; vertical-align:middle; }
+  p{ margin:0 0 14px; color:var(--ink-soft); }
+  .merke{ background:var(--merke-bg); border:2px solid var(--merke-border); border-radius:16px; padding:16px 18px; margin-top:16px; }
+  .merke-title{ font-family:var(--font-display); font-weight:800; color:#8A5A0F; font-size:15px; letter-spacing:0.04em; text-transform:uppercase; margin-bottom:6px; }
+  .merke-body{ color:#6B4A12; font-weight:600; margin:0; }
+  .strahlen-diagram{ width:100%; height:auto; margin:18px 0 6px; }
+  .task-card{ margin-top:18px; }
+  .task-question{ font-family:var(--font-display); font-weight:700; font-size:19px; margin-bottom:16px; }
+  .answer-row{ display:flex; gap:10px; margin-bottom:6px; }
+  input[type="text"]{ flex:1; font-size:18px; font-family:var(--font-body); padding:12px 14px; border-radius:12px; border:2px solid #E3DFDA; background:#FBFAF9; color:var(--ink); }
+  input[type="text"]:focus{ outline:3px solid #C9DCEA; border-color:var(--blue); }
+  button.check{ font-family:var(--font-display); font-weight:700; font-size:16px; color:white; background:var(--blue); border:none; border-radius:12px; padding:0 20px; cursor:pointer; }
+  button.check:active{ transform:translateY(1px); }
+  button.check:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
+  .feedback{ margin-top:10px; padding:12px 14px; border-radius:12px; font-weight:700; display:none; }
+  .feedback.show{ display:block; }
+  .feedback.correct{ background:var(--success-bg); color:var(--success); }
+  .feedback.incorrect{ background:var(--error-bg); color:var(--error); }
+  details{ margin-top:14px; border-top:2px dashed #E3DFDA; padding-top:12px; }
+  summary{ font-family:var(--font-display); font-weight:700; color:var(--blue); cursor:pointer; font-size:15px; }
+  .solution{ margin-top:12px; }
+  .solution ol{ margin:0 0 12px; padding-inline-start:22px; color:var(--ink-soft); }
+  .solution li{ margin-bottom:6px; }
+  .solution-result{ font-family:var(--font-display); font-weight:800; color:var(--ink); margin-bottom:12px; }
+  .hint-box{ background:#F1EFEC; border-radius:12px; padding:12px 14px; font-size:16px; color:var(--ink-soft); }
+  .hint-box strong{ color:var(--ink); }
+  footer{ text-align:center; margin-top:36px; padding:0 20px; }
+  footer p{ font-family:var(--font-display); font-weight:700; color:var(--ink); }
+  .footer-wave{ display:block; width:100%; max-width:280px; height:16px; margin:0 auto 18px; opacity:0.6; }
+  [dir="rtl"] .back-link{ flex-direction:row-reverse; }
+  @media (prefers-reduced-motion: no-preference){ button.check{ transition:transform 0.1s ease; } }
+  @media (max-width: 480px){ .answer-row{ flex-direction:column; } button.check{ width:100%; padding:14px 20px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="lang-switch">
+      <select id="langSelect" onchange="setLanguage(this.value)">
+        <option value="de">Deutsch</option><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="tr">Türkçe</option><option value="ru">Русский</option><option value="ar">العربية</option><option value="zh">中文</option>
+      </select>
+    </div>
+    <a class="back-link" href="index.html" data-i18n="backLink">← Alle Themen</a>
+    <div class="eyebrow" data-i18n="eyebrow">Luisen-Gymnasium · Klasse 9</div>
+    <h1><span data-i18n="titleLine1">Strahlen-</span><br><span class="accent" data-i18n="titleAccent">sätze</span></h1>
+  </div>
+  <svg class="wave" viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+    <path d="M -10 22 C 190 4, 390 40, 590 22 S 990 4, 1210 22" fill="none" stroke="#C41230" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 32 C 190 50, 390 14, 590 32 S 990 50, 1210 32" fill="none" stroke="#E0A526" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 42 C 190 24, 390 58, 590 42 S 990 24, 1210 42" fill="none" stroke="#2478B5" stroke-width="5" stroke-linecap="round"/>
+  </svg>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <div class="card">
+      <h2 data-i18n="h2Basics">Grundlagen</h2>
+      <p data-i18n="basicsP1">Wenn zwei Geraden sich in einem Punkt S schneiden und von zwei parallelen Geraden geschnitten werden, entstehen proportionale Streckenabschnitte. Das nutzt man z.B., um Höhen über Schattenlängen zu berechnen.</p>
+
+      <svg class="strahlen-diagram" viewBox="0 0 600 220" xmlns="http://www.w3.org/2000/svg" role="img" data-i18n-aria="strahlenAria" aria-label="Zwei Strahlen von Punkt S mit zwei parallelen Geraden, die die Punkte A, B auf dem einen und A-Strich, B-Strich auf dem anderen Strahl markieren">
+        <line x1="60" y1="200" x2="450" y2="20" stroke="#241C1C" stroke-width="2"/>
+        <line x1="60" y1="200" x2="500" y2="80" stroke="#241C1C" stroke-width="2"/>
+        <text x="40" y="210" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="16" font-weight="800" fill="#241C1C">S</text>
+        <line x1="185" y1="141" x2="220" y2="158" stroke="#C41230" stroke-width="3"/>
+        <line x1="330" y1="76" x2="385" y2="103" stroke="#2478B5" stroke-width="3"/>
+        <text x="175" y="132" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="15" font-weight="800" fill="#241C1C">A</text>
+        <text x="230" y="172" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="15" font-weight="800" fill="#241C1C">A'</text>
+        <text x="320" y="68" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="15" font-weight="800" fill="#241C1C">B</text>
+        <text x="395" y="118" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="15" font-weight="800" fill="#241C1C">B'</text>
+      </svg>
+
+      <p data-i18n="basicsExample1Label"><strong>Beispiel Schritt für Schritt (1. Strahlensatz):</strong> SA = 4, SB = 10, SA' = 6. Berechne SB'.</p>
+      <p data-i18n="basicsExample1Steps">1. Formel: SA : SB = SA' : SB'<br>2. Einsetzen: 4 : 10 = 6 : SB'<br>3. Umstellen: SB' = 6 · 10 : 4<br>4. Ergebnis: SB' = 15</p>
+
+      <p data-i18n="basicsP2Shadow"><strong>Praktische Anwendung:</strong> Mit dem Strahlensatz kann man z.B. die Höhe eines Baumes über die Länge seines Schattens berechnen, wenn man einen Gegenstand mit bekannter Höhe daneben stellt.</p>
+
+      <p data-i18n="basicsExample2Label"><strong>Beispiel Schritt für Schritt:</strong> Ein 1 m hoher Stab wirft einen Schatten von 2 m. Ein Baum daneben wirft einen Schatten von 12 m. Berechne die Höhe des Baumes.</p>
+      <p data-i18n="basicsExample2Steps">1. Verhältnis Höhe zu Schatten ist bei beiden gleich: Höhe : Schatten = 1 : 2<br>2. Für den Baum: Höhe : 12 = 1 : 2<br>3. Umstellen: Höhe = 12 · 1 : 2<br>4. Ergebnis: Höhe = 6 m</p>
+
+      <div class="merke">
+        <div class="merke-title" data-i18n="merkeTitle">Merke</div>
+        <p class="merke-body" data-i18n="merkeBody">1. Strahlensatz: SA : SB = SA' : SB' (Verhältnisse auf demselben Strahl, von S aus gemessen).<br>2. Strahlensatz: SA : AB = SA' : A'B' (Streckenabschnitt zu Verbindungsstrecke).<br>Damit lassen sich unter anderem Höhen über Schattenlängen berechnen.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">1</span><span data-i18n="taskWord">Aufgabe</span> 1</h2>
+      <div class="task-question" data-i18n="task1Question">SA = 4, SB = 10, SA' = 6. Wie groß ist SB'?</div>
+      <div class="answer-row">
+        <input type="text" id="input1" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(1, 15)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback1"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task1Result">Ergebnis: SB' = 15</div>
+          <ol>
+            <li data-i18n="task1Step1">Formel: SA : SB = SA' : SB'.</li>
+            <li data-i18n="task1Step2">Einsetzen: 4 : 10 = 6 : SB'.</li>
+            <li data-i18n="task1Step3">Umstellen: SB' = 6 · 10 : 4 = 15.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task1Hint">Die Reihenfolge in beiden Verhältnissen muss zueinander passen: SA gehört zu SA', SB zu SB'.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">2</span><span data-i18n="taskWord">Aufgabe</span> 2</h2>
+      <div class="task-question" data-i18n="task2Question">SA = 2, SA' = 8, SB = 5. Wie groß ist SB'?</div>
+      <div class="answer-row">
+        <input type="text" id="input2" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(2, 20)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback2"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task2Result">Ergebnis: SB' = 20</div>
+          <ol>
+            <li data-i18n="task2Step1">Formel: SA : SA' = SB : SB'.</li>
+            <li data-i18n="task2Step2">Einsetzen: 2 : 8 = 5 : SB'.</li>
+            <li data-i18n="task2Step3">Umstellen: SB' = 5 · 8 : 2 = 20.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task2Hint">Man kann das Verhältnis auch strahlenweise statt streckenweise aufstellen – beides führt zum gleichen Ergebnis.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">3</span><span data-i18n="taskWord">Aufgabe</span> 3</h2>
+      <div class="task-question" data-i18n="task3Question">SA = 4, AB = 2, SA' = 10. Wie groß ist A'B' (2. Strahlensatz)?</div>
+      <div class="answer-row">
+        <input type="text" id="input3" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(3, 5)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback3"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task3Result">Ergebnis: A'B' = 5</div>
+          <ol>
+            <li data-i18n="task3Step1">Formel: SA : AB = SA' : A'B'.</li>
+            <li data-i18n="task3Step2">Einsetzen: 4 : 2 = 10 : A'B'.</li>
+            <li data-i18n="task3Step3">Umstellen: A'B' = 10 · 2 : 4 = 5.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task3Hint">Beim 2. Strahlensatz wird der Streckenabschnitt auf dem Strahl (SA) mit der Verbindungsstrecke (AB) verglichen, nicht mit SB.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">4</span><span data-i18n="taskWord">Aufgabe</span> 4</h2>
+      <div class="task-question" data-i18n="task4Question">SA = 5, AB = 3, SA' = 15. Wie groß ist A'B' (2. Strahlensatz)?</div>
+      <div class="answer-row">
+        <input type="text" id="input4" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(4, 9)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback4"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task4Result">Ergebnis: A'B' = 9</div>
+          <ol>
+            <li data-i18n="task4Step1">Formel: SA : AB = SA' : A'B'.</li>
+            <li data-i18n="task4Step2">Einsetzen: 5 : 3 = 15 : A'B'.</li>
+            <li data-i18n="task4Step3">Umstellen: A'B' = 15 · 3 : 5 = 9.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task4Hint">Immer zuerst prüfen, welche zwei Größen zusammengehören, bevor man das Verhältnis aufstellt.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">5</span><span data-i18n="taskWord">Aufgabe</span> 5</h2>
+      <div class="task-question" data-i18n="task5Question">Ein 1 m hoher Stab wirft einen Schatten von 2 m. Ein Baum daneben wirft einen Schatten von 12 m. Wie hoch ist der Baum (in m)?</div>
+      <div class="answer-row">
+        <input type="text" id="input5" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(5, 6)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback5"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task5Result">Ergebnis: 6 m</div>
+          <ol>
+            <li data-i18n="task5Step1">Verhältnis: Höhe : Schatten = 1 : 2.</li>
+            <li data-i18n="task5Step2">Für den Baum: Höhe : 12 = 1 : 2.</li>
+            <li data-i18n="task5Step3">Umstellen: Höhe = 12 · 1 : 2 = 6.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task5Hint">Das Verhältnis von Höhe zu Schatten ist bei Sonne aus derselben Richtung für alle Objekte gleich.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">6</span><span data-i18n="taskWord">Aufgabe</span> 6</h2>
+      <div class="task-question" data-i18n="task6Question">Eine 1,5 m große Person wirft einen Schatten von 3 m. Ein Fahnenmast daneben wirft einen Schatten von 18 m. Wie hoch ist der Fahnenmast (in m)?</div>
+      <div class="answer-row">
+        <input type="text" id="input6" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(6, 9)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback6"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task6Result">Ergebnis: 9 m</div>
+          <ol>
+            <li data-i18n="task6Step1">Verhältnis: Höhe : Schatten = 1,5 : 3.</li>
+            <li data-i18n="task6Step2">Für den Fahnenmast: Höhe : 18 = 1,5 : 3.</li>
+            <li data-i18n="task6Step3">Umstellen: Höhe = 18 · 1,5 : 3 = 9.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task6Hint">Auch mit Kommazahlen funktioniert das Verhältnis genauso wie mit ganzen Zahlen.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">7</span><span data-i18n="taskWord">Aufgabe</span> 7</h2>
+      <div class="task-question" data-i18n="task7Question">SA = 8, SB = 20, SB' = 15. Wie groß ist SA'?</div>
+      <div class="answer-row">
+        <input type="text" id="input7" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(7, 6)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback7"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task7Result">Ergebnis: SA' = 6</div>
+          <ol>
+            <li data-i18n="task7Step1">Formel: SA : SB = SA' : SB'.</li>
+            <li data-i18n="task7Step2">Einsetzen: 8 : 20 = SA' : 15.</li>
+            <li data-i18n="task7Step3">Umstellen: SA' = 8 · 15 : 20 = 6.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task7Hint">Hier ist die gesuchte Größe SA', deshalb steht sie beim Umstellen allein auf einer Seite.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">8</span><span data-i18n="taskWord">Aufgabe</span> 8</h2>
+      <div class="task-question" data-i18n="task8Question">Ein 2 m hoher Zaun wirft einen Schatten von 3 m. Ein Haus daneben wirft einen Schatten von 21 m. Wie hoch ist das Haus (in m)?</div>
+      <div class="answer-row">
+        <input type="text" id="input8" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(8, 14)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback8"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task8Result">Ergebnis: 14 m</div>
+          <ol>
+            <li data-i18n="task8Step1">Verhältnis: Höhe : Schatten = 2 : 3.</li>
+            <li data-i18n="task8Step2">Für das Haus: Höhe : 21 = 2 : 3.</li>
+            <li data-i18n="task8Step3">Umstellen: Höhe = 21 · 2 : 3 = 14.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task8Hint">Zuerst das Verhältnis am bekannten Objekt (Zaun) bestimmen, dann auf das gesuchte Objekt (Haus) übertragen.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <footer>
+    <svg class="footer-wave" viewBox="0 0 280 16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+      <path d="M -5 8 C 40 1, 80 15, 140 8 S 240 1, 285 8" fill="none" stroke="#C41230" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M -5 8 C 40 15, 80 1, 140 8 S 240 15, 285 8" fill="none" stroke="#2478B5" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+    </svg>
+    <p id="footer-msg" data-i18n="footerMessage">Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!</p>
+  </footer>
+
+</div>
+
+<script>
+const TRANSLATIONS = {
+de: {
+  eyebrow: `Luisen-Gymnasium · Klasse 9`, titleLine1: `Strahlen-`, titleAccent: `sätze`, backLink: `← Alle Themen`, h2Basics: `Grundlagen`,
+  basicsP1: `Wenn zwei Geraden sich in einem Punkt S schneiden und von zwei parallelen Geraden geschnitten werden, entstehen proportionale Streckenabschnitte. Das nutzt man z.B., um Höhen über Schattenlängen zu berechnen.`,
+  strahlenAria: `Zwei Strahlen von Punkt S mit zwei parallelen Geraden, die die Punkte A, B auf dem einen und A-Strich, B-Strich auf dem anderen Strahl markieren`,
+  basicsExample1Label: `<strong>Beispiel Schritt für Schritt (1. Strahlensatz):</strong> SA = 4, SB = 10, SA' = 6. Berechne SB'.`,
+  basicsExample1Steps: `1. Formel: SA : SB = SA' : SB'<br>2. Einsetzen: 4 : 10 = 6 : SB'<br>3. Umstellen: SB' = 6 · 10 : 4<br>4. Ergebnis: SB' = 15`,
+  basicsP2Shadow: `<strong>Praktische Anwendung:</strong> Mit dem Strahlensatz kann man z.B. die Höhe eines Baumes über die Länge seines Schattens berechnen, wenn man einen Gegenstand mit bekannter Höhe daneben stellt.`,
+  basicsExample2Label: `<strong>Beispiel Schritt für Schritt:</strong> Ein 1 m hoher Stab wirft einen Schatten von 2 m. Ein Baum daneben wirft einen Schatten von 12 m. Berechne die Höhe des Baumes.`,
+  basicsExample2Steps: `1. Verhältnis Höhe zu Schatten ist bei beiden gleich: Höhe : Schatten = 1 : 2<br>2. Für den Baum: Höhe : 12 = 1 : 2<br>3. Umstellen: Höhe = 12 · 1 : 2<br>4. Ergebnis: Höhe = 6 m`,
+  merkeTitle: `Merke`, merkeBody: `1. Strahlensatz: SA : SB = SA' : SB' (Verhältnisse auf demselben Strahl, von S aus gemessen).<br>2. Strahlensatz: SA : AB = SA' : A'B' (Streckenabschnitt zu Verbindungsstrecke).<br>Damit lassen sich unter anderem Höhen über Schattenlängen berechnen.`,
+  taskWord: `Aufgabe`,
+  task1Question: `SA = 4, SB = 10, SA' = 6. Wie groß ist SB'?`, task2Question: `SA = 2, SA' = 8, SB = 5. Wie groß ist SB'?`, task3Question: `SA = 4, AB = 2, SA' = 10. Wie groß ist A'B' (2. Strahlensatz)?`, task4Question: `SA = 5, AB = 3, SA' = 15. Wie groß ist A'B' (2. Strahlensatz)?`, task5Question: `Ein 1 m hoher Stab wirft einen Schatten von 2 m. Ein Baum daneben wirft einen Schatten von 12 m. Wie hoch ist der Baum (in m)?`, task6Question: `Eine 1,5 m große Person wirft einen Schatten von 3 m. Ein Fahnenmast daneben wirft einen Schatten von 18 m. Wie hoch ist der Fahnenmast (in m)?`,
+  task7Question: `SA = 8, SB = 20, SB' = 15. Wie groß ist SA'?`,
+  task8Question: `Ein 2 m hoher Zaun wirft einen Schatten von 3 m. Ein Haus daneben wirft einen Schatten von 21 m. Wie hoch ist das Haus (in m)?`,
+  answerPlaceholder: `Deine Antwort`, checkButton: `Prüfen`, solutionSummary: `Lösung anzeigen`,
+  task1Result: `Ergebnis: SB' = 15`, task2Result: `Ergebnis: SB' = 20`, task3Result: `Ergebnis: A'B' = 5`, task4Result: `Ergebnis: A'B' = 9`, task5Result: `Ergebnis: 6 m`, task6Result: `Ergebnis: 9 m`, task7Result: `Ergebnis: SA' = 6`, task8Result: `Ergebnis: 14 m`,
+  task1Step1: `Formel: SA : SB = SA' : SB'.`, task1Step2: `Einsetzen: 4 : 10 = 6 : SB'.`, task1Step3: `Umstellen: SB' = 6 · 10 : 4 = 15.`,
+  task1Hint: `Die Reihenfolge in beiden Verhältnissen muss zueinander passen: SA gehört zu SA', SB zu SB'.`,
+  task2Step1: `Formel: SA : SA' = SB : SB'.`, task2Step2: `Einsetzen: 2 : 8 = 5 : SB'.`, task2Step3: `Umstellen: SB' = 5 · 8 : 2 = 20.`,
+  task2Hint: `Man kann das Verhältnis auch strahlenweise statt streckenweise aufstellen – beides führt zum gleichen Ergebnis.`,
+  task3Step1: `Formel: SA : AB = SA' : A'B'.`, task3Step2: `Einsetzen: 4 : 2 = 10 : A'B'.`, task3Step3: `Umstellen: A'B' = 10 · 2 : 4 = 5.`,
+  task3Hint: `Beim 2. Strahlensatz wird der Streckenabschnitt auf dem Strahl (SA) mit der Verbindungsstrecke (AB) verglichen, nicht mit SB.`,
+  task4Step1: `Formel: SA : AB = SA' : A'B'.`, task4Step2: `Einsetzen: 5 : 3 = 15 : A'B'.`, task4Step3: `Umstellen: A'B' = 15 · 3 : 5 = 9.`,
+  task4Hint: `Immer zuerst prüfen, welche zwei Größen zusammengehören, bevor man das Verhältnis aufstellt.`,
+  task5Step1: `Verhältnis: Höhe : Schatten = 1 : 2.`, task5Step2: `Für den Baum: Höhe : 12 = 1 : 2.`, task5Step3: `Umstellen: Höhe = 12 · 1 : 2 = 6.`,
+  task5Hint: `Das Verhältnis von Höhe zu Schatten ist bei Sonne aus derselben Richtung für alle Objekte gleich.`,
+  task6Step1: `Verhältnis: Höhe : Schatten = 1,5 : 3.`, task6Step2: `Für den Fahnenmast: Höhe : 18 = 1,5 : 3.`, task6Step3: `Umstellen: Höhe = 18 · 1,5 : 3 = 9.`,
+  task6Hint: `Auch mit Kommazahlen funktioniert das Verhältnis genauso wie mit ganzen Zahlen.`,
+  task7Step1: `Formel: SA : SB = SA' : SB'.`, task7Step2: `Einsetzen: 8 : 20 = SA' : 15.`, task7Step3: `Umstellen: SA' = 8 · 15 : 20 = 6.`,
+  task7Hint: `Hier ist die gesuchte Größe SA', deshalb steht sie beim Umstellen allein auf einer Seite.`,
+  task8Step1: `Verhältnis: Höhe : Schatten = 2 : 3.`, task8Step2: `Für das Haus: Höhe : 21 = 2 : 3.`, task8Step3: `Umstellen: Höhe = 21 · 2 : 3 = 14.`,
+  task8Hint: `Zuerst das Verhältnis am bekannten Objekt (Zaun) bestimmen, dann auf das gesuchte Objekt (Haus) übertragen.`,
+  hintLabel: `Typischer Fehler:`, footerMessage: `Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!`,
+  fbEmpty: `Trag bitte eine Zahl ein, bevor du prüfst.`, fbCorrect: `Richtig! Gut gemacht!`, fbIncorrect: `Noch nicht ganz richtig. Schau dir die Lösung weiter unten an und versuch es dann nochmal.`
+},
+en: {
+  eyebrow: `Luisen-Gymnasium · Grade 9`, titleLine1: `Intercept`, titleAccent: `Theorems`, backLink: `← All Topics`, h2Basics: `Basics`,
+  basicsP1: `When two lines intersect at a point S and are cut by two parallel lines, proportional segments are created. This is used, for example, to calculate heights using shadow lengths.`,
+  strahlenAria: `Two rays from point S with two parallel lines marking points A, B on one ray and A prime, B prime on the other ray`,
+  basicsExample1Label: `<strong>Step-by-step example (1st intercept theorem):</strong> SA = 4, SB = 10, SA' = 6. Calculate SB'.`,
+  basicsExample1Steps: `1. Formula: SA : SB = SA' : SB'<br>2. Substitute: 4 : 10 = 6 : SB'<br>3. Rearrange: SB' = 6 · 10 : 4<br>4. Result: SB' = 15`,
+  basicsP2Shadow: `<strong>Practical application:</strong> With the intercept theorem you can calculate, for example, the height of a tree from its shadow length, if you place an object of known height next to it.`,
+  basicsExample2Label: `<strong>Step-by-step example:</strong> A 1 m stick casts a shadow of 2 m. A tree next to it casts a shadow of 12 m. Calculate the tree's height.`,
+  basicsExample2Steps: `1. The ratio of height to shadow is the same for both: height : shadow = 1 : 2<br>2. For the tree: height : 12 = 1 : 2<br>3. Rearrange: height = 12 · 1 : 2<br>4. Result: height = 6 m`,
+  merkeTitle: `Remember`, merkeBody: `1st intercept theorem: SA : SB = SA' : SB' (ratios on the same ray, measured from S).<br>2nd intercept theorem: SA : AB = SA' : A'B' (segment on the ray to the connecting segment).<br>Among other things, this lets you calculate heights from shadow lengths.`,
+  taskWord: `Exercise`,
+  task1Question: `SA = 4, SB = 10, SA' = 6. What's SB'?`, task2Question: `SA = 2, SA' = 8, SB = 5. What's SB'?`, task3Question: `SA = 4, AB = 2, SA' = 10. What's A'B' (2nd intercept theorem)?`, task4Question: `SA = 5, AB = 3, SA' = 15. What's A'B' (2nd intercept theorem)?`, task5Question: `A 1 m stick casts a shadow of 2 m. A tree next to it casts a shadow of 12 m. How tall is the tree (in m)?`, task6Question: `A 1.5 m tall person casts a shadow of 3 m. A flagpole next to it casts a shadow of 18 m. How tall is the flagpole (in m)?`,
+  task7Question: `SA = 8, SB = 20, SB' = 15. What's SA'?`,
+  task8Question: `A 2 m fence casts a shadow of 3 m. A house next to it casts a shadow of 21 m. How tall is the house (in m)?`,
+  answerPlaceholder: `Your answer`, checkButton: `Check`, solutionSummary: `Show solution`,
+  task1Result: `Result: SB' = 15`, task2Result: `Result: SB' = 20`, task3Result: `Result: A'B' = 5`, task4Result: `Result: A'B' = 9`, task5Result: `Result: 6 m`, task6Result: `Result: 9 m`, task7Result: `Result: SA' = 6`, task8Result: `Result: 14 m`,
+  task1Step1: `Formula: SA : SB = SA' : SB'.`, task1Step2: `Substitute: 4 : 10 = 6 : SB'.`, task1Step3: `Rearrange: SB' = 6 · 10 : 4 = 15.`,
+  task1Hint: `The order in both ratios must match: SA belongs with SA', SB with SB'.`,
+  task2Step1: `Formula: SA : SA' = SB : SB'.`, task2Step2: `Substitute: 2 : 8 = 5 : SB'.`, task2Step3: `Rearrange: SB' = 5 · 8 : 2 = 20.`,
+  task2Hint: `You can also set up the ratio by ray instead of by segment — both lead to the same result.`,
+  task3Step1: `Formula: SA : AB = SA' : A'B'.`, task3Step2: `Substitute: 4 : 2 = 10 : A'B'.`, task3Step3: `Rearrange: A'B' = 10 · 2 : 4 = 5.`,
+  task3Hint: `In the 2nd intercept theorem, the segment on the ray (SA) is compared with the connecting segment (AB), not with SB.`,
+  task4Step1: `Formula: SA : AB = SA' : A'B'.`, task4Step2: `Substitute: 5 : 3 = 15 : A'B'.`, task4Step3: `Rearrange: A'B' = 15 · 3 : 5 = 9.`,
+  task4Hint: `Always check first which two quantities belong together before setting up the ratio.`,
+  task5Step1: `Ratio: height : shadow = 1 : 2.`, task5Step2: `For the tree: height : 12 = 1 : 2.`, task5Step3: `Rearrange: height = 12 · 1 : 2 = 6.`,
+  task5Hint: `With sunlight coming from the same direction, the ratio of height to shadow is the same for every object.`,
+  task6Step1: `Ratio: height : shadow = 1.5 : 3.`, task6Step2: `For the flagpole: height : 18 = 1.5 : 3.`, task6Step3: `Rearrange: height = 18 · 1.5 : 3 = 9.`,
+  task6Hint: `The ratio works just as well with decimal numbers as with whole numbers.`,
+  task7Step1: `Formula: SA : SB = SA' : SB'.`, task7Step2: `Substitute: 8 : 20 = SA' : 15.`, task7Step3: `Rearrange: SA' = 8 · 15 : 20 = 6.`,
+  task7Hint: `Here the quantity you're looking for is SA', so it stands alone on one side after rearranging.`,
+  task8Step1: `Ratio: height : shadow = 2 : 3.`, task8Step2: `For the house: height : 21 = 2 : 3.`, task8Step3: `Rearrange: height = 21 · 2 : 3 = 14.`,
+  task8Hint: `First determine the ratio from the known object (fence), then apply it to the object you're looking for (house).`,
+  hintLabel: `Common mistake:`, footerMessage: `Take your time and check the solution if you need to. You can do this!`,
+  fbEmpty: `Please enter a number before checking.`, fbCorrect: `Correct! Well done!`, fbIncorrect: `Not quite right yet. Check the solution below and try again.`
+},
+es: {
+  eyebrow: `Luisen-Gymnasium · 9.º curso`, titleLine1: `Teoremas de`, titleAccent: `Tales`, backLink: `← Todos los temas`, h2Basics: `Fundamentos`,
+  basicsP1: `Cuando dos rectas se cortan en un punto S y son cortadas por dos rectas paralelas, se crean segmentos proporcionales. Esto se usa, por ejemplo, para calcular alturas a partir de la longitud de las sombras.`,
+  strahlenAria: `Dos semirrectas desde el punto S con dos rectas paralelas que marcan los puntos A, B en una y A prima, B prima en la otra`,
+  basicsExample1Label: `<strong>Ejemplo paso a paso (1er teorema de Tales):</strong> SA = 4, SB = 10, SA' = 6. Calcula SB'.`,
+  basicsExample1Steps: `1. Fórmula: SA : SB = SA' : SB'<br>2. Sustituye: 4 : 10 = 6 : SB'<br>3. Reordena: SB' = 6 · 10 : 4<br>4. Resultado: SB' = 15`,
+  basicsP2Shadow: `<strong>Aplicación práctica:</strong> con el teorema de Tales puedes calcular, por ejemplo, la altura de un árbol a partir de la longitud de su sombra, si colocas junto a él un objeto de altura conocida.`,
+  basicsExample2Label: `<strong>Ejemplo paso a paso:</strong> Una vara de 1 m proyecta una sombra de 2 m. Un árbol al lado proyecta una sombra de 12 m. Calcula la altura del árbol.`,
+  basicsExample2Steps: `1. La razón altura entre sombra es la misma para ambos: altura : sombra = 1 : 2<br>2. Para el árbol: altura : 12 = 1 : 2<br>3. Reordena: altura = 12 · 1 : 2<br>4. Resultado: altura = 6 m`,
+  merkeTitle: `Recuerda`, merkeBody: `1er teorema de Tales: SA : SB = SA' : SB' (razones en la misma semirrecta, medidas desde S).<br>2.º teorema de Tales: SA : AB = SA' : A'B' (segmento en la semirrecta con el segmento que conecta).<br>Con esto se pueden calcular, entre otras cosas, alturas a partir de longitudes de sombra.`,
+  taskWord: `Ejercicio`,
+  task1Question: `SA = 4, SB = 10, SA' = 6. ¿Cuánto vale SB'?`, task2Question: `SA = 2, SA' = 8, SB = 5. ¿Cuánto vale SB'?`, task3Question: `SA = 4, AB = 2, SA' = 10. ¿Cuánto vale A'B' (2.º teorema de Tales)?`, task4Question: `SA = 5, AB = 3, SA' = 15. ¿Cuánto vale A'B' (2.º teorema de Tales)?`, task5Question: `Una vara de 1 m proyecta una sombra de 2 m. Un árbol al lado proyecta una sombra de 12 m. ¿Qué altura tiene el árbol (en m)?`, task6Question: `Una persona de 1,5 m proyecta una sombra de 3 m. Un asta de bandera al lado proyecta una sombra de 18 m. ¿Qué altura tiene el asta (en m)?`,
+  task7Question: `SA = 8, SB = 20, SB' = 15. ¿Cuánto vale SA'?`,
+  task8Question: `Una valla de 2 m proyecta una sombra de 3 m. Una casa al lado proyecta una sombra de 21 m. ¿Qué altura tiene la casa (en m)?`,
+  answerPlaceholder: `Tu respuesta`, checkButton: `Comprobar`, solutionSummary: `Ver solución`,
+  task1Result: `Resultado: SB' = 15`, task2Result: `Resultado: SB' = 20`, task3Result: `Resultado: A'B' = 5`, task4Result: `Resultado: A'B' = 9`, task5Result: `Resultado: 6 m`, task6Result: `Resultado: 9 m`, task7Result: `Resultado: SA' = 6`, task8Result: `Resultado: 14 m`,
+  task1Step1: `Fórmula: SA : SB = SA' : SB'.`, task1Step2: `Sustituye: 4 : 10 = 6 : SB'.`, task1Step3: `Reordena: SB' = 6 · 10 : 4 = 15.`,
+  task1Hint: `El orden en ambas razones debe coincidir: SA corresponde con SA', SB con SB'.`,
+  task2Step1: `Fórmula: SA : SA' = SB : SB'.`, task2Step2: `Sustituye: 2 : 8 = 5 : SB'.`, task2Step3: `Reordena: SB' = 5 · 8 : 2 = 20.`,
+  task2Hint: `También puedes plantear la razón por semirrecta en lugar de por segmento — ambas dan el mismo resultado.`,
+  task3Step1: `Fórmula: SA : AB = SA' : A'B'.`, task3Step2: `Sustituye: 4 : 2 = 10 : A'B'.`, task3Step3: `Reordena: A'B' = 10 · 2 : 4 = 5.`,
+  task3Hint: `En el 2.º teorema de Tales, el segmento en la semirrecta (SA) se compara con el segmento de conexión (AB), no con SB.`,
+  task4Step1: `Fórmula: SA : AB = SA' : A'B'.`, task4Step2: `Sustituye: 5 : 3 = 15 : A'B'.`, task4Step3: `Reordena: A'B' = 15 · 3 : 5 = 9.`,
+  task4Hint: `Comprueba siempre primero qué dos magnitudes van juntas antes de plantear la razón.`,
+  task5Step1: `Razón: altura : sombra = 1 : 2.`, task5Step2: `Para el árbol: altura : 12 = 1 : 2.`, task5Step3: `Reordena: altura = 12 · 1 : 2 = 6.`,
+  task5Hint: `Con la luz solar viniendo de la misma dirección, la razón entre altura y sombra es igual para todos los objetos.`,
+  task6Step1: `Razón: altura : sombra = 1,5 : 3.`, task6Step2: `Para el asta: altura : 18 = 1,5 : 3.`, task6Step3: `Reordena: altura = 18 · 1,5 : 3 = 9.`,
+  task6Hint: `La razón funciona igual de bien con números decimales que con números enteros.`,
+  task7Step1: `Fórmula: SA : SB = SA' : SB'.`, task7Step2: `Sustituye: 8 : 20 = SA' : 15.`, task7Step3: `Reordena: SA' = 8 · 15 : 20 = 6.`,
+  task7Hint: `Aquí la magnitud buscada es SA', por eso queda sola en un lado al reordenar.`,
+  task8Step1: `Razón: altura : sombra = 2 : 3.`, task8Step2: `Para la casa: altura : 21 = 2 : 3.`, task8Step3: `Reordena: altura = 21 · 2 : 3 = 14.`,
+  task8Hint: `Primero determina la razón con el objeto conocido (valla), luego aplícala al objeto buscado (casa).`,
+  hintLabel: `Error típico:`, footerMessage: `Tómate tu tiempo y revisa la solución si la necesitas. ¡Tú puedes!`,
+  fbEmpty: `Introduce un número antes de comprobar.`, fbCorrect: `¡Correcto! ¡Muy bien!`, fbIncorrect: `Todavía no es correcto. Revisa la solución de abajo e inténtalo de nuevo.`
+},
+fr: {
+  eyebrow: `Luisen-Gymnasium · 3e`, titleLine1: `Théorèmes de`, titleAccent: `Thalès`, backLink: `← Tous les thèmes`, h2Basics: `Les bases`,
+  basicsP1: `Lorsque deux droites se coupent en un point S et sont coupées par deux droites parallèles, des segments proportionnels apparaissent. Cela sert par exemple à calculer des hauteurs à partir de longueurs d'ombre.`,
+  strahlenAria: `Deux demi-droites issues du point S avec deux droites parallèles marquant les points A, B sur l'une et A prime, B prime sur l'autre`,
+  basicsExample1Label: `<strong>Exemple étape par étape (1er théorème de Thalès) :</strong> SA = 4, SB = 10, SA' = 6. Calcule SB'.`,
+  basicsExample1Steps: `1. Formule : SA : SB = SA' : SB'<br>2. Substitue : 4 : 10 = 6 : SB'<br>3. Réarrange : SB' = 6 · 10 : 4<br>4. Résultat : SB' = 15`,
+  basicsP2Shadow: `<strong>Application pratique :</strong> le théorème de Thalès permet par exemple de calculer la hauteur d'un arbre à partir de la longueur de son ombre, en plaçant à côté un objet de hauteur connue.`,
+  basicsExample2Label: `<strong>Exemple étape par étape :</strong> Un bâton de 1 m projette une ombre de 2 m. Un arbre à côté projette une ombre de 12 m. Calcule la hauteur de l'arbre.`,
+  basicsExample2Steps: `1. Le rapport hauteur/ombre est le même pour les deux : hauteur : ombre = 1 : 2<br>2. Pour l'arbre : hauteur : 12 = 1 : 2<br>3. Réarrange : hauteur = 12 · 1 : 2<br>4. Résultat : hauteur = 6 m`,
+  merkeTitle: `À retenir`, merkeBody: `1er théorème de Thalès : SA : SB = SA' : SB' (rapports sur la même demi-droite, mesurés depuis S).<br>2e théorème de Thalès : SA : AB = SA' : A'B' (segment sur la demi-droite par rapport au segment de liaison).<br>Cela permet notamment de calculer des hauteurs à partir de longueurs d'ombre.`,
+  taskWord: `Exercice`,
+  task1Question: `SA = 4, SB = 10, SA' = 6. Combien vaut SB' ?`, task2Question: `SA = 2, SA' = 8, SB = 5. Combien vaut SB' ?`, task3Question: `SA = 4, AB = 2, SA' = 10. Combien vaut A'B' (2e théorème de Thalès) ?`, task4Question: `SA = 5, AB = 3, SA' = 15. Combien vaut A'B' (2e théorème de Thalès) ?`, task5Question: `Un bâton de 1 m projette une ombre de 2 m. Un arbre à côté projette une ombre de 12 m. Quelle est la hauteur de l'arbre (en m) ?`, task6Question: `Une personne de 1,5 m projette une ombre de 3 m. Un mât de drapeau à côté projette une ombre de 18 m. Quelle est la hauteur du mât (en m) ?`,
+  task7Question: `SA = 8, SB = 20, SB' = 15. Combien vaut SA' ?`,
+  task8Question: `Une clôture de 2 m projette une ombre de 3 m. Une maison à côté projette une ombre de 21 m. Quelle est la hauteur de la maison (en m) ?`,
+  answerPlaceholder: `Ta réponse`, checkButton: `Vérifier`, solutionSummary: `Voir la solution`,
+  task1Result: `Résultat : SB' = 15`, task2Result: `Résultat : SB' = 20`, task3Result: `Résultat : A'B' = 5`, task4Result: `Résultat : A'B' = 9`, task5Result: `Résultat : 6 m`, task6Result: `Résultat : 9 m`, task7Result: `Résultat : SA' = 6`, task8Result: `Résultat : 14 m`,
+  task1Step1: `Formule : SA : SB = SA' : SB'.`, task1Step2: `Substitue : 4 : 10 = 6 : SB'.`, task1Step3: `Réarrange : SB' = 6 · 10 : 4 = 15.`,
+  task1Hint: `L'ordre dans les deux rapports doit correspondre : SA va avec SA', SB avec SB'.`,
+  task2Step1: `Formule : SA : SA' = SB : SB'.`, task2Step2: `Substitue : 2 : 8 = 5 : SB'.`, task2Step3: `Réarrange : SB' = 5 · 8 : 2 = 20.`,
+  task2Hint: `Tu peux aussi établir le rapport par demi-droite plutôt que par segment — les deux mènent au même résultat.`,
+  task3Step1: `Formule : SA : AB = SA' : A'B'.`, task3Step2: `Substitue : 4 : 2 = 10 : A'B'.`, task3Step3: `Réarrange : A'B' = 10 · 2 : 4 = 5.`,
+  task3Hint: `Dans le 2e théorème de Thalès, le segment sur la demi-droite (SA) est comparé au segment de liaison (AB), pas à SB.`,
+  task4Step1: `Formule : SA : AB = SA' : A'B'.`, task4Step2: `Substitue : 5 : 3 = 15 : A'B'.`, task4Step3: `Réarrange : A'B' = 15 · 3 : 5 = 9.`,
+  task4Hint: `Vérifie toujours d'abord quelles deux grandeurs vont ensemble avant d'établir le rapport.`,
+  task5Step1: `Rapport : hauteur : ombre = 1 : 2.`, task5Step2: `Pour l'arbre : hauteur : 12 = 1 : 2.`, task5Step3: `Réarrange : hauteur = 12 · 1 : 2 = 6.`,
+  task5Hint: `Avec le soleil venant de la même direction, le rapport hauteur/ombre est le même pour tous les objets.`,
+  task6Step1: `Rapport : hauteur : ombre = 1,5 : 3.`, task6Step2: `Pour le mât : hauteur : 18 = 1,5 : 3.`, task6Step3: `Réarrange : hauteur = 18 · 1,5 : 3 = 9.`,
+  task6Hint: `Le rapport fonctionne aussi bien avec des nombres décimaux qu'avec des nombres entiers.`,
+  task7Step1: `Formule : SA : SB = SA' : SB'.`, task7Step2: `Substitue : 8 : 20 = SA' : 15.`, task7Step3: `Réarrange : SA' = 8 · 15 : 20 = 6.`,
+  task7Hint: `Ici, la grandeur recherchée est SA', c'est pourquoi elle se retrouve seule d'un côté après réarrangement.`,
+  task8Step1: `Rapport : hauteur : ombre = 2 : 3.`, task8Step2: `Pour la maison : hauteur : 21 = 2 : 3.`, task8Step3: `Réarrange : hauteur = 21 · 2 : 3 = 14.`,
+  task8Hint: `Détermine d'abord le rapport avec l'objet connu (clôture), puis applique-le à l'objet recherché (maison).`,
+  hintLabel: `Erreur fréquente :`, footerMessage: `Prends ton temps et regarde la solution si besoin. Tu vas y arriver !`,
+  fbEmpty: `Merci d'indiquer un nombre avant de vérifier.`, fbCorrect: `Correct ! Bien joué !`, fbIncorrect: `Pas encore tout à fait juste. Regarde la solution ci-dessous et réessaie.`
+},
+tr: {
+  eyebrow: `Luisen-Gymnasium · 9. Sınıf`, titleLine1: `Işın`, titleAccent: `Teoremleri`, backLink: `← Tüm Konular`, h2Basics: `Temel Bilgiler`,
+  basicsP1: `İki doğru S noktasında kesişip iki paralel doğru tarafından kesildiğinde, orantılı doğru parçaları oluşur. Bu, örneğin gölge uzunluklarından yükseklikleri hesaplamak için kullanılır.`,
+  strahlenAria: `S noktasından çıkan iki ışın, bir ışın üzerinde A, B noktalarını ve diğerinde A üssü, B üssü noktalarını işaretleyen iki paralel doğru ile`,
+  basicsExample1Label: `<strong>Adım adım örnek (1. ışın teoremi):</strong> SA = 4, SB = 10, SA' = 6. SB'yi hesapla.`,
+  basicsExample1Steps: `1. Formül: SA : SB = SA' : SB'<br>2. Yerine koy: 4 : 10 = 6 : SB'<br>3. Düzenle: SB' = 6 · 10 : 4<br>4. Sonuç: SB' = 15`,
+  basicsP2Shadow: `<strong>Pratik uygulama:</strong> Işın teoremiyle, yanına bilinen yükseklikte bir nesne koyarak, örneğin bir ağacın yüksekliğini gölgesinin uzunluğundan hesaplayabilirsin.`,
+  basicsExample2Label: `<strong>Adım adım örnek:</strong> 1 m yüksekliğindeki bir çubuk 2 m'lik bir gölge düşürüyor. Yanındaki bir ağaç 12 m'lik bir gölge düşürüyor. Ağacın yüksekliğini hesapla.`,
+  basicsExample2Steps: `1. Yükseklik-gölge oranı her ikisi için de aynıdır: yükseklik : gölge = 1 : 2<br>2. Ağaç için: yükseklik : 12 = 1 : 2<br>3. Düzenle: yükseklik = 12 · 1 : 2<br>4. Sonuç: yükseklik = 6 m`,
+  merkeTitle: `Unutma`, merkeBody: `1. ışın teoremi: SA : SB = SA' : SB' (aynı ışın üzerindeki, S'den ölçülen oranlar).<br>2. ışın teoremi: SA : AB = SA' : A'B' (ışın üzerindeki parça ile bağlantı parçası).<br>Bununla, diğer şeylerin yanı sıra gölge uzunluklarından yükseklikler hesaplanabilir.`,
+  taskWord: `Alıştırma`,
+  task1Question: `SA = 4, SB = 10, SA' = 6. SB' kaçtır?`, task2Question: `SA = 2, SA' = 8, SB = 5. SB' kaçtır?`, task3Question: `SA = 4, AB = 2, SA' = 10. A'B' kaçtır (2. ışın teoremi)?`, task4Question: `SA = 5, AB = 3, SA' = 15. A'B' kaçtır (2. ışın teoremi)?`, task5Question: `1 m yüksekliğindeki bir çubuk 2 m'lik bir gölge düşürüyor. Yanındaki bir ağaç 12 m'lik bir gölge düşürüyor. Ağaç kaç metre yüksekliğindedir?`, task6Question: `1,5 m boyundaki bir kişi 3 m'lik bir gölge düşürüyor. Yanındaki bir bayrak direği 18 m'lik bir gölge düşürüyor. Direk kaç metre yüksekliğindedir?`,
+  task7Question: `SA = 8, SB = 20, SB' = 15. SA' kaçtır?`,
+  task8Question: `2 m yüksekliğindeki bir çit 3 m'lik bir gölge düşürüyor. Yanındaki bir ev 21 m'lik bir gölge düşürüyor. Ev kaç metre yüksekliğindedir?`,
+  answerPlaceholder: `Cevabın`, checkButton: `Kontrol et`, solutionSummary: `Çözümü göster`,
+  task1Result: `Sonuç: SB' = 15`, task2Result: `Sonuç: SB' = 20`, task3Result: `Sonuç: A'B' = 5`, task4Result: `Sonuç: A'B' = 9`, task5Result: `Sonuç: 6 m`, task6Result: `Sonuç: 9 m`, task7Result: `Sonuç: SA' = 6`, task8Result: `Sonuç: 14 m`,
+  task1Step1: `Formül: SA : SB = SA' : SB'.`, task1Step2: `Yerine koy: 4 : 10 = 6 : SB'.`, task1Step3: `Düzenle: SB' = 6 · 10 : 4 = 15.`,
+  task1Hint: `Her iki orandaki sıra birbirine uymalıdır: SA, SA' ile eşleşir, SB, SB' ile.`,
+  task2Step1: `Formül: SA : SA' = SB : SB'.`, task2Step2: `Yerine koy: 2 : 8 = 5 : SB'.`, task2Step3: `Düzenle: SB' = 5 · 8 : 2 = 20.`,
+  task2Hint: `Oranı parça yerine ışın bazında da kurabilirsin — ikisi de aynı sonuca götürür.`,
+  task3Step1: `Formül: SA : AB = SA' : A'B'.`, task3Step2: `Yerine koy: 4 : 2 = 10 : A'B'.`, task3Step3: `Düzenle: A'B' = 10 · 2 : 4 = 5.`,
+  task3Hint: `2. ışın teoreminde, ışın üzerindeki parça (SA), SB ile değil bağlantı parçasıyla (AB) karşılaştırılır.`,
+  task4Step1: `Formül: SA : AB = SA' : A'B'.`, task4Step2: `Yerine koy: 5 : 3 = 15 : A'B'.`, task4Step3: `Düzenle: A'B' = 15 · 3 : 5 = 9.`,
+  task4Hint: `Oranı kurmadan önce her zaman hangi iki büyüklüğün birbirine ait olduğunu kontrol et.`,
+  task5Step1: `Oran: yükseklik : gölge = 1 : 2.`, task5Step2: `Ağaç için: yükseklik : 12 = 1 : 2.`, task5Step3: `Düzenle: yükseklik = 12 · 1 : 2 = 6.`,
+  task5Hint: `Güneş aynı yönden geldiğinde, yükseklik-gölge oranı tüm nesneler için aynıdır.`,
+  task6Step1: `Oran: yükseklik : gölge = 1,5 : 3.`, task6Step2: `Direk için: yükseklik : 18 = 1,5 : 3.`, task6Step3: `Düzenle: yükseklik = 18 · 1,5 : 3 = 9.`,
+  task6Hint: `Oran, ondalık sayılarla da tam sayılarla olduğu gibi çalışır.`,
+  task7Step1: `Formül: SA : SB = SA' : SB'.`, task7Step2: `Yerine koy: 8 : 20 = SA' : 15.`, task7Step3: `Düzenle: SA' = 8 · 15 : 20 = 6.`,
+  task7Hint: `Burada aranan büyüklük SA'dır, bu yüzden düzenlemeden sonra tek başına bir tarafta durur.`,
+  task8Step1: `Oran: yükseklik : gölge = 2 : 3.`, task8Step2: `Ev için: yükseklik : 21 = 2 : 3.`, task8Step3: `Düzenle: yükseklik = 21 · 2 : 3 = 14.`,
+  task8Hint: `Önce bilinen nesnedeki (çit) oranı belirle, sonra aranan nesneye (ev) uygula.`,
+  hintLabel: `Sık yapılan hata:`, footerMessage: `Sakin sakin hesapla, gerekirse çözüme bak. Bunu başarabilirsin!`,
+  fbEmpty: `Kontrol etmeden önce lütfen bir sayı gir.`, fbCorrect: `Doğru! Aferin!`, fbIncorrect: `Henüz tam doğru değil. Aşağıdaki çözüme bak ve tekrar dene.`
+},
+ru: {
+  eyebrow: `Luisen-Gymnasium · 9 класс`, titleLine1: `Теоремы о`, titleAccent: `пропорциональных отрезках`, backLink: `← Все темы`, h2Basics: `Основы`,
+  basicsP1: `Когда две прямые пересекаются в точке S и пересекаются двумя параллельными прямыми, образуются пропорциональные отрезки. Это используют, например, для вычисления высот по длине тени.`,
+  strahlenAria: `Два луча из точки S с двумя параллельными прямыми, отмечающими точки A, B на одном луче и A штрих, B штрих на другом`,
+  basicsExample1Label: `<strong>Пример по шагам (1-я теорема о пропорциональных отрезках):</strong> SA = 4, SB = 10, SA' = 6. Вычисли SB'.`,
+  basicsExample1Steps: `1. Формула: SA : SB = SA' : SB'<br>2. Подставить: 4 : 10 = 6 : SB'<br>3. Преобразовать: SB' = 6 · 10 : 4<br>4. Результат: SB' = 15`,
+  basicsP2Shadow: `<strong>Практическое применение:</strong> с помощью теоремы можно вычислить, например, высоту дерева по длине его тени, если поставить рядом предмет известной высоты.`,
+  basicsExample2Label: `<strong>Пример по шагам:</strong> Палка высотой 1 м отбрасывает тень 2 м. Дерево рядом отбрасывает тень 12 м. Вычисли высоту дерева.`,
+  basicsExample2Steps: `1. Отношение высоты к тени одинаково для обоих: высота : тень = 1 : 2<br>2. Для дерева: высота : 12 = 1 : 2<br>3. Преобразовать: высота = 12 · 1 : 2<br>4. Результат: высота = 6 м`,
+  merkeTitle: `Запомни`, merkeBody: `1-я теорема: SA : SB = SA' : SB' (отношения на одном луче, измеренные от S).<br>2-я теорема: SA : AB = SA' : A'B' (отрезок на луче к соединяющему отрезку).<br>С их помощью можно, среди прочего, вычислять высоты по длине тени.`,
+  taskWord: `Задание`,
+  task1Question: `SA = 4, SB = 10, SA' = 6. Чему равен SB'?`, task2Question: `SA = 2, SA' = 8, SB = 5. Чему равен SB'?`, task3Question: `SA = 4, AB = 2, SA' = 10. Чему равен A'B' (2-я теорема)?`, task4Question: `SA = 5, AB = 3, SA' = 15. Чему равен A'B' (2-я теорема)?`, task5Question: `Палка высотой 1 м отбрасывает тень 2 м. Дерево рядом отбрасывает тень 12 м. Какова высота дерева (в м)?`, task6Question: `Человек ростом 1,5 м отбрасывает тень 3 м. Флагшток рядом отбрасывает тень 18 м. Какова высота флагштока (в м)?`,
+  task7Question: `SA = 8, SB = 20, SB' = 15. Чему равен SA'?`,
+  task8Question: `Забор высотой 2 м отбрасывает тень 3 м. Дом рядом отбрасывает тень 21 м. Какова высота дома (в м)?`,
+  answerPlaceholder: `Твой ответ`, checkButton: `Проверить`, solutionSummary: `Показать решение`,
+  task1Result: `Результат: SB' = 15`, task2Result: `Результат: SB' = 20`, task3Result: `Результат: A'B' = 5`, task4Result: `Результат: A'B' = 9`, task5Result: `Результат: 6 м`, task6Result: `Результат: 9 м`, task7Result: `Результат: SA' = 6`, task8Result: `Результат: 14 м`,
+  task1Step1: `Формула: SA : SB = SA' : SB'.`, task1Step2: `Подставить: 4 : 10 = 6 : SB'.`, task1Step3: `Преобразовать: SB' = 6 · 10 : 4 = 15.`,
+  task1Hint: `Порядок в обоих отношениях должен совпадать: SA соответствует SA', SB — SB'.`,
+  task2Step1: `Формула: SA : SA' = SB : SB'.`, task2Step2: `Подставить: 2 : 8 = 5 : SB'.`, task2Step3: `Преобразовать: SB' = 5 · 8 : 2 = 20.`,
+  task2Hint: `Отношение можно составить и по лучам, а не по отрезкам — оба варианта дают одинаковый результат.`,
+  task3Step1: `Формула: SA : AB = SA' : A'B'.`, task3Step2: `Подставить: 4 : 2 = 10 : A'B'.`, task3Step3: `Преобразовать: A'B' = 10 · 2 : 4 = 5.`,
+  task3Hint: `Во 2-й теореме отрезок на луче (SA) сравнивают с соединяющим отрезком (AB), а не с SB.`,
+  task4Step1: `Формула: SA : AB = SA' : A'B'.`, task4Step2: `Подставить: 5 : 3 = 15 : A'B'.`, task4Step3: `Преобразовать: A'B' = 15 · 3 : 5 = 9.`,
+  task4Hint: `Всегда сначала определяй, какие две величины связаны друг с другом, прежде чем составлять отношение.`,
+  task5Step1: `Отношение: высота : тень = 1 : 2.`, task5Step2: `Для дерева: высота : 12 = 1 : 2.`, task5Step3: `Преобразовать: высота = 12 · 1 : 2 = 6.`,
+  task5Hint: `При солнце из одного направления отношение высоты к тени одинаково для всех объектов.`,
+  task6Step1: `Отношение: высота : тень = 1,5 : 3.`, task6Step2: `Для флагштока: высота : 18 = 1,5 : 3.`, task6Step3: `Преобразовать: высота = 18 · 1,5 : 3 = 9.`,
+  task6Hint: `Отношение работает с десятичными числами так же хорошо, как и с целыми.`,
+  task7Step1: `Формула: SA : SB = SA' : SB'.`, task7Step2: `Подставить: 8 : 20 = SA' : 15.`, task7Step3: `Преобразовать: SA' = 8 · 15 : 20 = 6.`,
+  task7Hint: `Здесь искомая величина — SA', поэтому после преобразования она стоит одна с одной стороны.`,
+  task8Step1: `Отношение: высота : тень = 2 : 3.`, task8Step2: `Для дома: высота : 21 = 2 : 3.`, task8Step3: `Преобразовать: высота = 21 · 2 : 3 = 14.`,
+  task8Hint: `Сначала определи отношение по известному объекту (забор), затем примени его к искомому объекту (дом).`,
+  hintLabel: `Типичная ошибка:`, footerMessage: `Считай спокойно и при необходимости смотри решение. У тебя получится!`,
+  fbEmpty: `Пожалуйста, введи число перед проверкой.`, fbCorrect: `Правильно! Отлично!`, fbIncorrect: `Пока не совсем верно. Посмотри решение ниже и попробуй ещё раз.`
+},
+ar: {
+  eyebrow: `مدرسة لويزن الثانوية · الصف التاسع`, titleLine1: `نظريات`, titleAccent: `الأشعة المتناسبة`, backLink: `← جميع المواضيع`, h2Basics: `الأساسيات`,
+  basicsP1: `عندما يتقاطع خطان مستقيمان عند نقطة S ويقطعهما خطان متوازيان، تنشأ قطع مستقيمة متناسبة. يُستخدم هذا مثلًا لحساب الارتفاعات من أطوال الظل.`,
+  strahlenAria: `شعاعان من النقطة S مع خطين متوازيين يحددان النقطتين A، B على أحد الشعاعين وA'، B' على الشعاع الآخر`,
+  basicsExample1Label: `<strong>مثال خطوة بخطوة (النظرية الأولى):</strong> SA = 4، SB = 10، SA' = 6. احسب SB'.`,
+  basicsExample1Steps: `1. المعادلة: SA : SB = SA' : SB'<br>2. عوّض: 4 : 10 = 6 : SB'<br>3. أعد الترتيب: SB' = 6 · 10 ÷ 4<br>4. النتيجة: SB' = 15`,
+  basicsP2Shadow: `<strong>تطبيق عملي:</strong> باستخدام نظرية الأشعة المتناسبة يمكنك حساب ارتفاع شجرة مثلًا من طول ظلها، إذا وضعت بجانبها جسمًا معروف الارتفاع.`,
+  basicsExample2Label: `<strong>مثال خطوة بخطوة:</strong> عصا ارتفاعها 1 م تلقي ظلًا طوله 2 م. شجرة بجانبها تلقي ظلًا طوله 12 م. احسب ارتفاع الشجرة.`,
+  basicsExample2Steps: `1. نسبة الارتفاع إلى الظل واحدة للاثنين: الارتفاع : الظل = 1 : 2<br>2. للشجرة: الارتفاع : 12 = 1 : 2<br>3. أعد الترتيب: الارتفاع = 12 · 1 ÷ 2<br>4. النتيجة: الارتفاع = 6 م`,
+  merkeTitle: `تذكّر`, merkeBody: `النظرية الأولى: SA : SB = SA' : SB' (نسب على نفس الشعاع، مقيسة من S).<br>النظرية الثانية: SA : AB = SA' : A'B' (القطعة على الشعاع مقابل قطعة الوصل).<br>يمكن بهذا حساب الارتفاعات من أطوال الظل ضمن أمور أخرى.`,
+  taskWord: `تمرين`,
+  task1Question: `SA = 4، SB = 10، SA' = 6. كم يبلغ SB'؟`, task2Question: `SA = 2، SA' = 8، SB = 5. كم يبلغ SB'؟`, task3Question: `SA = 4، AB = 2، SA' = 10. كم يبلغ A'B' (النظرية الثانية)؟`, task4Question: `SA = 5، AB = 3، SA' = 15. كم يبلغ A'B' (النظرية الثانية)؟`, task5Question: `عصا ارتفاعها 1 م تلقي ظلًا طوله 2 م. شجرة بجانبها تلقي ظلًا طوله 12 م. كم يبلغ ارتفاع الشجرة (بالمتر)؟`, task6Question: `شخص طوله 1.5 م يلقي ظلًا طوله 3 م. سارية علم بجانبه تلقي ظلًا طوله 18 م. كم يبلغ ارتفاع السارية (بالمتر)؟`,
+  task7Question: `SA = 8، SB = 20، SB' = 15. كم يبلغ SA'؟`,
+  task8Question: `سياج ارتفاعه 2 م يلقي ظلًا طوله 3 م. منزل بجانبه يلقي ظلًا طوله 21 م. كم يبلغ ارتفاع المنزل (بالمتر)؟`,
+  answerPlaceholder: `إجابتك`, checkButton: `تحقق`, solutionSummary: `عرض الحل`,
+  task1Result: `النتيجة: SB' = 15`, task2Result: `النتيجة: SB' = 20`, task3Result: `النتيجة: A'B' = 5`, task4Result: `النتيجة: A'B' = 9`, task5Result: `النتيجة: 6 م`, task6Result: `النتيجة: 9 م`, task7Result: `النتيجة: SA' = 6`, task8Result: `النتيجة: 14 م`,
+  task1Step1: `المعادلة: SA : SB = SA' : SB'.`, task1Step2: `عوّض: 4 : 10 = 6 : SB'.`, task1Step3: `أعد الترتيب: SB' = 6 · 10 ÷ 4 = 15.`,
+  task1Hint: `يجب أن يتطابق الترتيب في كلا النسبتين: SA يقابل SA'، وSB يقابل SB'.`,
+  task2Step1: `المعادلة: SA : SA' = SB : SB'.`, task2Step2: `عوّض: 2 : 8 = 5 : SB'.`, task2Step3: `أعد الترتيب: SB' = 5 · 8 ÷ 2 = 20.`,
+  task2Hint: `يمكنك أيضًا صياغة النسبة حسب الشعاع بدلًا من القطعة — كلاهما يؤدي إلى نفس النتيجة.`,
+  task3Step1: `المعادلة: SA : AB = SA' : A'B'.`, task3Step2: `عوّض: 4 : 2 = 10 : A'B'.`, task3Step3: `أعد الترتيب: A'B' = 10 · 2 ÷ 4 = 5.`,
+  task3Hint: `في النظرية الثانية، تُقارَن القطعة على الشعاع (SA) بقطعة الوصل (AB)، وليس بـ SB.`,
+  task4Step1: `المعادلة: SA : AB = SA' : A'B'.`, task4Step2: `عوّض: 5 : 3 = 15 : A'B'.`, task4Step3: `أعد الترتيب: A'B' = 15 · 3 ÷ 5 = 9.`,
+  task4Hint: `تحقق دائمًا أولًا من أي كميتين مرتبطتان معًا قبل صياغة النسبة.`,
+  task5Step1: `النسبة: الارتفاع : الظل = 1 : 2.`, task5Step2: `للشجرة: الارتفاع : 12 = 1 : 2.`, task5Step3: `أعد الترتيب: الارتفاع = 12 · 1 ÷ 2 = 6.`,
+  task5Hint: `مع أشعة الشمس القادمة من نفس الاتجاه، تكون نسبة الارتفاع إلى الظل واحدة لجميع الأجسام.`,
+  task6Step1: `النسبة: الارتفاع : الظل = 1.5 : 3.`, task6Step2: `للسارية: الارتفاع : 18 = 1.5 : 3.`, task6Step3: `أعد الترتيب: الارتفاع = 18 · 1.5 ÷ 3 = 9.`,
+  task6Hint: `تعمل النسبة مع الأعداد العشرية تمامًا كما مع الأعداد الصحيحة.`,
+  task7Step1: `المعادلة: SA : SB = SA' : SB'.`, task7Step2: `عوّض: 8 : 20 = SA' : 15.`, task7Step3: `أعد الترتيب: SA' = 8 · 15 ÷ 20 = 6.`,
+  task7Hint: `الكمية المطلوبة هنا هي SA'، لذلك تقف وحدها في أحد الطرفين بعد إعادة الترتيب.`,
+  task8Step1: `النسبة: الارتفاع : الظل = 2 : 3.`, task8Step2: `للمنزل: الارتفاع : 21 = 2 : 3.`, task8Step3: `أعد الترتيب: الارتفاع = 21 · 2 ÷ 3 = 14.`,
+  task8Hint: `حدد أولًا النسبة من الجسم المعروف (السياج)، ثم طبّقها على الجسم المطلوب (المنزل).`,
+  hintLabel: `خطأ شائع:`, footerMessage: `احسب بهدوء وراجع الحل إذا احتجت إليه. أنت قادر على ذلك!`,
+  fbEmpty: `الرجاء إدخال رقم قبل التحقق.`, fbCorrect: `صحيح! أحسنت!`, fbIncorrect: `ليست صحيحة تمامًا بعد. راجع الحل أدناه وحاول مرة أخرى.`
+},
+zh: {
+  eyebrow: `路易森文理中学 · 九年级`, titleLine1: `相似三角形`, titleAccent: `定理`, backLink: `← 所有主题`, h2Basics: `基础知识`,
+  basicsP1: `当两条直线相交于点 S，并被两条平行线所截时，会产生成比例的线段。这可以用来通过影子长度计算高度等。`,
+  strahlenAria: `从点S发出的两条射线，两条平行线标出一条射线上的A、B点和另一条射线上的A'、B'点`,
+  basicsExample1Label: `<strong>分步示例（第一定理）：</strong> SA = 4，SB = 10，SA' = 6。计算 SB'。`,
+  basicsExample1Steps: `1. 公式：SA : SB = SA' : SB'<br>2. 代入：4 : 10 = 6 : SB'<br>3. 变形：SB' = 6 · 10 ÷ 4<br>4. 结果：SB' = 15`,
+  basicsP2Shadow: `<strong>实际应用：</strong>利用这个定理，如果在旁边放一个已知高度的物体，就可以通过影子长度计算出树的高度等。`,
+  basicsExample2Label: `<strong>分步示例：</strong> 一根 1 米高的杆子投下 2 米长的影子。旁边一棵树投下 12 米长的影子。计算这棵树的高度。`,
+  basicsExample2Steps: `1. 两者的"高度比影子"是相同的：高度 : 影子 = 1 : 2<br>2. 对于树：高度 : 12 = 1 : 2<br>3. 变形：高度 = 12 · 1 ÷ 2<br>4. 结果：高度 = 6 米`,
+  merkeTitle: `记住`, merkeBody: `第一定理：SA : SB = SA' : SB'（同一条射线上、从S量起的比值）。<br>第二定理：SA : AB = SA' : A'B'（射线上的线段与连接线段的比值）。<br>利用这个定理可以通过影子长度计算高度等。`,
+  taskWord: `练习`,
+  task1Question: `SA = 4，SB = 10，SA' = 6。SB' 是多少？`, task2Question: `SA = 2，SA' = 8，SB = 5。SB' 是多少？`, task3Question: `SA = 4，AB = 2，SA' = 10。A'B' 是多少（第二定理）？`, task4Question: `SA = 5，AB = 3，SA' = 15。A'B' 是多少（第二定理）？`, task5Question: `一根 1 米高的杆子投下 2 米长的影子。旁边一棵树投下 12 米长的影子。树有多高（米）？`, task6Question: `一位 1.5 米高的人投下 3 米长的影子。旁边一根旗杆投下 18 米长的影子。旗杆有多高（米）？`,
+  task7Question: `SA = 8，SB = 20，SB' = 15。SA' 是多少？`,
+  task8Question: `一道 2 米高的栅栏投下 3 米长的影子。旁边一栋房子投下 21 米长的影子。房子有多高（米）？`,
+  answerPlaceholder: `你的答案`, checkButton: `检查`, solutionSummary: `显示答案`,
+  task1Result: `结果：SB' = 15`, task2Result: `结果：SB' = 20`, task3Result: `结果：A'B' = 5`, task4Result: `结果：A'B' = 9`, task5Result: `结果：6 米`, task6Result: `结果：9 米`, task7Result: `结果：SA' = 6`, task8Result: `结果：14 米`,
+  task1Step1: `公式：SA : SB = SA' : SB'。`, task1Step2: `代入：4 : 10 = 6 : SB'。`, task1Step3: `变形：SB' = 6 · 10 ÷ 4 = 15。`,
+  task1Hint: `两个比例中的顺序必须一致：SA 对应 SA'，SB 对应 SB'。`,
+  task2Step1: `公式：SA : SA' = SB : SB'。`, task2Step2: `代入：2 : 8 = 5 : SB'。`, task2Step3: `变形：SB' = 5 · 8 ÷ 2 = 20。`,
+  task2Hint: `也可以按射线而不是按线段来列比例——两种方法结果相同。`,
+  task3Step1: `公式：SA : AB = SA' : A'B'。`, task3Step2: `代入：4 : 2 = 10 : A'B'。`, task3Step3: `变形：A'B' = 10 · 2 ÷ 4 = 5。`,
+  task3Hint: `在第二定理中，射线上的线段（SA）是与连接线段（AB）比较，而不是与 SB 比较。`,
+  task4Step1: `公式：SA : AB = SA' : A'B'。`, task4Step2: `代入：5 : 3 = 15 : A'B'。`, task4Step3: `变形：A'B' = 15 · 3 ÷ 5 = 9。`,
+  task4Hint: `在列比例之前，先检查哪两个量是对应的。`,
+  task5Step1: `比例：高度 : 影子 = 1 : 2。`, task5Step2: `对于树：高度 : 12 = 1 : 2。`, task5Step3: `变形：高度 = 12 · 1 ÷ 2 = 6。`,
+  task5Hint: `阳光来自同一方向时，所有物体的高度与影子之比都相同。`,
+  task6Step1: `比例：高度 : 影子 = 1.5 : 3。`, task6Step2: `对于旗杆：高度 : 18 = 1.5 : 3。`, task6Step3: `变形：高度 = 18 · 1.5 ÷ 3 = 9。`,
+  task6Hint: `比例对小数和整数同样适用。`,
+  task7Step1: `公式：SA : SB = SA' : SB'。`, task7Step2: `代入：8 : 20 = SA' : 15。`, task7Step3: `变形：SA' = 8 · 15 ÷ 20 = 6。`,
+  task7Hint: `这里要求的量是 SA'，所以变形后它单独留在一边。`,
+  task8Step1: `比例：高度 : 影子 = 2 : 3。`, task8Step2: `对于房子：高度 : 21 = 2 : 3。`, task8Step3: `变形：高度 = 21 · 2 ÷ 3 = 14。`,
+  task8Hint: `先从已知物体（栅栏）确定比例，再应用到要求的物体（房子）上。`,
+  hintLabel: `常见错误：`, footerMessage: `慢慢算，需要的话看看答案。你能做到！`,
+  fbEmpty: `请先输入一个数字再检查。`, fbCorrect: `正确！做得好！`, fbIncorrect: `还不完全正确。看看下面的答案，再试一次。`
+}
+};
+
+var currentLang = 'de';
+
+function setLanguage(lang){
+  var dict = TRANSLATIONS[lang] || TRANSLATIONS.de;
+  currentLang = TRANSLATIONS[lang] ? lang : 'de';
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = (currentLang === 'ar') ? 'rtl' : 'ltr';
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var key = el.getAttribute('data-i18n');
+    if(dict[key] !== undefined){ el.innerHTML = dict[key]; }
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-placeholder');
+    if(dict[key] !== undefined){ el.setAttribute('placeholder', dict[key]); }
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-aria');
+    if(dict[key] !== undefined){ el.setAttribute('aria-label', dict[key]); }
+  });
+  try{ localStorage.setItem('mathecoach_lang', currentLang); }catch(e){}
+  var sel = document.getElementById('langSelect');
+  if(sel) sel.value = currentLang;
+}
+
+function check(id, correct){
+  var dict = TRANSLATIONS[currentLang] || TRANSLATIONS.de;
+  var input = document.getElementById('input' + id);
+  var feedback = document.getElementById('feedback' + id);
+  var raw = input.value.trim();
+  var match = raw.match(/-?\d+/);
+  feedback.classList.remove('show', 'correct', 'incorrect');
+  if(!match){
+    feedback.textContent = dict.fbEmpty;
+    feedback.classList.add('show', 'incorrect');
+    return;
+  }
+  var value = parseInt(match[0], 10);
+  if(value === correct){
+    feedback.textContent = dict.fbCorrect;
+    feedback.classList.add('show', 'correct');
+  } else {
+    feedback.textContent = dict.fbIncorrect;
+    feedback.classList.add('show', 'incorrect');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var saved = 'de';
+  try{ saved = localStorage.getItem('mathecoach_lang') || 'de'; }catch(e){}
+  setLanguage(saved);
+});
+</script>
+
+</body>
+</html>

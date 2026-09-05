@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ähnlichkeit und Kongruenz</title>
+<style>
+  :root{
+    --bg:#FAFAF9; --card:#FFFFFF; --ink:#241C1C; --ink-soft:#5C4F4C;
+    --red:#C41230; --gold:#E0A526; --blue:#2478B5;
+    --merke-bg:#FBF1DC; --merke-border:#E0A526;
+    --success:#1E8E5A; --success-bg:#E5F5EC; --error:#B3401D; --error-bg:#FBEDE6;
+    --font-display: ui-rounded, "SF Pro Rounded", "Segoe UI Rounded", "Nunito", system-ui, sans-serif;
+    --font-body: system-ui, "Segoe UI", Roboto, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:18px; line-height:1.5; padding-bottom:60px; }
+  .wrap{ max-width:640px; margin:0 auto; padding:0 20px; }
+  header{ background:var(--card); padding:30px 20px 0; text-align:center; position:relative; }
+  .header-inner{ padding-bottom:26px; }
+  .lang-switch{ display:flex; justify-content:center; margin-bottom:14px; }
+  #langSelect{ font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--ink); background:var(--card); border:2px solid #E3DFDA; border-radius:999px; padding:6px 14px; cursor:pointer; }
+  #langSelect:focus-visible{ outline:3px solid var(--blue); }
+  .back-link{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font-display); font-weight:700; font-size:14px; color:var(--blue); text-decoration:none; margin-bottom:16px; }
+  .eyebrow{ font-family:var(--font-display); font-weight:700; font-size:14px; letter-spacing:0.08em; text-transform:uppercase; color:var(--blue); margin-bottom:8px; }
+  h1{ font-family:var(--font-display); font-size:28px; font-weight:800; margin:0; line-height:1.25; }
+  h1 .accent{ color:var(--red); }
+  .wave{ display:block; width:100%; height:30px; }
+  section{ margin-top:32px; }
+  .card{ background:var(--card); border-radius:22px; padding:24px 22px; box-shadow:0 2px 14px rgba(36,28,28,0.07); }
+  h2{ font-family:var(--font-display); font-size:21px; font-weight:800; margin:0 0 14px; }
+  h2 .num{ display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:var(--blue); color:white; font-size:16px; margin-inline-end:10px; vertical-align:middle; }
+  p{ margin:0 0 14px; color:var(--ink-soft); }
+  .merke{ background:var(--merke-bg); border:2px solid var(--merke-border); border-radius:16px; padding:16px 18px; margin-top:16px; }
+  .merke-title{ font-family:var(--font-display); font-weight:800; color:#8A5A0F; font-size:15px; letter-spacing:0.04em; text-transform:uppercase; margin-bottom:6px; }
+  .merke-body{ color:#6B4A12; font-weight:600; margin:0; }
+  .similarity-diagram{ width:100%; height:auto; margin:18px 0 6px; }
+  .task-card{ margin-top:18px; }
+  .task-question{ font-family:var(--font-display); font-weight:700; font-size:19px; margin-bottom:16px; }
+  .answer-row{ display:flex; gap:10px; margin-bottom:6px; }
+  input[type="text"]{ flex:1; font-size:18px; font-family:var(--font-body); padding:12px 14px; border-radius:12px; border:2px solid #E3DFDA; background:#FBFAF9; color:var(--ink); }
+  input[type="text"]:focus{ outline:3px solid #C9DCEA; border-color:var(--blue); }
+  button.check{ font-family:var(--font-display); font-weight:700; font-size:16px; color:white; background:var(--blue); border:none; border-radius:12px; padding:0 20px; cursor:pointer; }
+  button.check:active{ transform:translateY(1px); }
+  button.check:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
+  .feedback{ margin-top:10px; padding:12px 14px; border-radius:12px; font-weight:700; display:none; }
+  .feedback.show{ display:block; }
+  .feedback.correct{ background:var(--success-bg); color:var(--success); }
+  .feedback.incorrect{ background:var(--error-bg); color:var(--error); }
+  details{ margin-top:14px; border-top:2px dashed #E3DFDA; padding-top:12px; }
+  summary{ font-family:var(--font-display); font-weight:700; color:var(--blue); cursor:pointer; font-size:15px; }
+  .solution{ margin-top:12px; }
+  .solution ol{ margin:0 0 12px; padding-inline-start:22px; color:var(--ink-soft); }
+  .solution li{ margin-bottom:6px; }
+  .solution-result{ font-family:var(--font-display); font-weight:800; color:var(--ink); margin-bottom:12px; }
+  .hint-box{ background:#F1EFEC; border-radius:12px; padding:12px 14px; font-size:16px; color:var(--ink-soft); }
+  .hint-box strong{ color:var(--ink); }
+  footer{ text-align:center; margin-top:36px; padding:0 20px; }
+  footer p{ font-family:var(--font-display); font-weight:700; color:var(--ink); }
+  .footer-wave{ display:block; width:100%; max-width:280px; height:16px; margin:0 auto 18px; opacity:0.6; }
+  [dir="rtl"] .back-link{ flex-direction:row-reverse; }
+  @media (prefers-reduced-motion: no-preference){ button.check{ transition:transform 0.1s ease; } }
+  @media (max-width: 480px){ .answer-row{ flex-direction:column; } button.check{ width:100%; padding:14px 20px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="lang-switch">
+      <select id="langSelect" onchange="setLanguage(this.value)">
+        <option value="de">Deutsch</option><option value="en">English</option><option value="es">Español</option><option value="fr">Français</option><option value="tr">Türkçe</option><option value="ru">Русский</option><option value="ar">العربية</option><option value="zh">中文</option>
+      </select>
+    </div>
+    <a class="back-link" href="index.html" data-i18n="backLink">← Alle Themen</a>
+    <div class="eyebrow" data-i18n="eyebrow">Luisen-Gymnasium · Klasse 9</div>
+    <h1><span data-i18n="titleLine1">Ähnlichkeit</span><br><span class="accent" data-i18n="titleAccent">und Kongruenz</span></h1>
+  </div>
+  <svg class="wave" viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+    <path d="M -10 22 C 190 4, 390 40, 590 22 S 990 4, 1210 22" fill="none" stroke="#C41230" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 32 C 190 50, 390 14, 590 32 S 990 50, 1210 32" fill="none" stroke="#E0A526" stroke-width="5" stroke-linecap="round"/>
+    <path d="M -10 42 C 190 24, 390 58, 590 42 S 990 24, 1210 42" fill="none" stroke="#2478B5" stroke-width="5" stroke-linecap="round"/>
+  </svg>
+</header>
+
+<div class="wrap">
+
+  <section>
+    <div class="card">
+      <h2 data-i18n="h2Basics">Grundlagen</h2>
+      <p data-i18n="basicsP1">Zwei Figuren sind <strong>kongruent</strong> (deckungsgleich), wenn sie in Form und Größe genau übereinstimmen. Zwei Figuren sind <strong>ähnlich</strong>, wenn sie dieselbe Form haben, aber unterschiedlich groß sein können – alle Seiten sind dann mit demselben Streckungsfaktor k vergrößert oder verkleinert.</p>
+
+      <svg class="similarity-diagram" viewBox="0 0 600 180" xmlns="http://www.w3.org/2000/svg" role="img" data-i18n-aria="similarityAria" aria-label="Zwei ähnliche Dreiecke, das größere ist mit dem Streckungsfaktor k vergrößert">
+        <polygon points="60,150 150,150 90,80" fill="#C41230" fill-opacity="0.12" stroke="#C41230" stroke-width="2.5"/>
+        <text x="105" y="170" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="14" font-weight="700" fill="#C41230" data-i18n="smallLabel">Original</text>
+        <polygon points="280,150 460,150 370,10" fill="#2478B5" fill-opacity="0.1" stroke="#2478B5" stroke-width="2.5"/>
+        <text x="370" y="170" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="14" font-weight="700" fill="#2478B5" data-i18n="largeLabel">Vergrößert (Faktor k)</text>
+        <text x="520" y="90" text-anchor="middle" font-family="ui-rounded, system-ui, sans-serif" font-size="20" font-weight="800" fill="#241C1C">k = 2</text>
+      </svg>
+
+      <p data-i18n="basicsExample1Label"><strong>Beispiel Schritt für Schritt:</strong> Zwei Dreiecke sind ähnlich mit dem Streckungsfaktor k = 3. Eine Seite im Original ist 4 cm lang. Wie lang ist die entsprechende Seite im vergrößerten Dreieck?</p>
+      <p data-i18n="basicsExample1Steps">1. Formel: neue Seite = alte Seite · k<br>2. Einsetzen: 4 · 3<br>3. Ergebnis: 12 cm</p>
+
+      <p data-i18n="basicsP2Area"><strong>Wichtig:</strong> Bei ähnlichen Figuren skaliert die Fläche mit k² (Faktor zum Quadrat) und bei ähnlichen Körpern das Volumen mit k³.</p>
+
+      <p data-i18n="basicsExample2Label"><strong>Beispiel Schritt für Schritt:</strong> Zwei Figuren sind ähnlich mit k = 2. Die Fläche des Originals beträgt 10 cm². Wie groß ist die Fläche der vergrößerten Figur?</p>
+      <p data-i18n="basicsExample2Steps">1. Formel: neue Fläche = alte Fläche · k²<br>2. Einsetzen: 10 · 2²<br>3. Rechnen: 2² = 4, dann 10 · 4 = 40<br>4. Ergebnis: 40 cm²</p>
+
+      <div class="merke">
+        <div class="merke-title" data-i18n="merkeTitle">Merke</div>
+        <p class="merke-body" data-i18n="merkeBody">Kongruent: gleiche Form UND gleiche Größe (k = 1).<br>Ähnlich: gleiche Form, aber unterschiedliche Größe (Streckungsfaktor k).<br>Längen skalieren mit k, Flächen mit k², Volumen mit k³.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">1</span><span data-i18n="taskWord">Aufgabe</span> 1</h2>
+      <div class="task-question" data-i18n="task1Question">Zwei Dreiecke sind ähnlich mit dem Streckungsfaktor k = 3. Eine Seite im Original ist 4 cm lang. Wie lang ist die entsprechende Seite im vergrößerten Dreieck (in cm)?</div>
+      <div class="answer-row">
+        <input type="text" id="input1" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(1, 12)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback1"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task1Result">Ergebnis: 12 cm</div>
+          <ol>
+            <li data-i18n="task1Step1">Formel: neue Seite = alte Seite · k.</li>
+            <li data-i18n="task1Step2">Einsetzen: 4 · 3.</li>
+            <li data-i18n="task1Step3">Ergebnis: 12 cm.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task1Hint">Längen werden direkt mit k multipliziert, nicht mit k².</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">2</span><span data-i18n="taskWord">Aufgabe</span> 2</h2>
+      <div class="task-question" data-i18n="task2Question">Zwei Figuren sind ähnlich mit dem Streckungsfaktor k = 4. Eine Seite im Original ist 5 cm lang. Wie lang ist die entsprechende Seite in der Kopie (in cm)?</div>
+      <div class="answer-row">
+        <input type="text" id="input2" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(2, 20)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback2"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task2Result">Ergebnis: 20 cm</div>
+          <ol>
+            <li data-i18n="task2Step1">Formel: neue Seite = alte Seite · k.</li>
+            <li data-i18n="task2Step2">Einsetzen: 5 · 4.</li>
+            <li data-i18n="task2Step3">Ergebnis: 20 cm.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task2Hint">Der Streckungsfaktor gilt für ALLE Seiten der Figur gleichermaßen.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">3</span><span data-i18n="taskWord">Aufgabe</span> 3</h2>
+      <div class="task-question" data-i18n="task3Question">Zwei Figuren sind ähnlich mit k = 2. Die Fläche des Originals beträgt 10 cm². Wie groß ist die Fläche der vergrößerten Figur (in cm²)?</div>
+      <div class="answer-row">
+        <input type="text" id="input3" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(3, 40)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback3"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task3Result">Ergebnis: 40 cm²</div>
+          <ol>
+            <li data-i18n="task3Step1">Formel: neue Fläche = alte Fläche · k².</li>
+            <li data-i18n="task3Step2">Einsetzen: 10 · 2².</li>
+            <li data-i18n="task3Step3">Rechnen: 2² = 4, dann 10 · 4 = 40.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task3Hint">Bei Flächen wird der Streckungsfaktor quadriert, nicht einfach nur multipliziert.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">4</span><span data-i18n="taskWord">Aufgabe</span> 4</h2>
+      <div class="task-question" data-i18n="task4Question">Zwei Figuren sind ähnlich mit k = 3. Die Fläche des Originals beträgt 6 cm². Wie groß ist die Fläche der vergrößerten Figur (in cm²)?</div>
+      <div class="answer-row">
+        <input type="text" id="input4" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(4, 54)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback4"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task4Result">Ergebnis: 54 cm²</div>
+          <ol>
+            <li data-i18n="task4Step1">Formel: neue Fläche = alte Fläche · k².</li>
+            <li data-i18n="task4Step2">Einsetzen: 6 · 3².</li>
+            <li data-i18n="task4Step3">Rechnen: 3² = 9, dann 6 · 9 = 54.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task4Hint">3² bedeutet 3 · 3 = 9, nicht 3 · 2 = 6.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">5</span><span data-i18n="taskWord">Aufgabe</span> 5</h2>
+      <div class="task-question" data-i18n="task5Question">Zwei Körper sind ähnlich mit k = 2. Das Volumen des Originals beträgt 6 cm³. Wie groß ist das Volumen des vergrößerten Körpers (in cm³)?</div>
+      <div class="answer-row">
+        <input type="text" id="input5" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(5, 48)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback5"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task5Result">Ergebnis: 48 cm³</div>
+          <ol>
+            <li data-i18n="task5Step1">Formel: neues Volumen = altes Volumen · k³.</li>
+            <li data-i18n="task5Step2">Einsetzen: 6 · 2³.</li>
+            <li data-i18n="task5Step3">Rechnen: 2³ = 8, dann 6 · 8 = 48.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task5Hint">Beim Volumen wird der Streckungsfaktor mit 3 potenziert (k³), nicht quadriert.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">6</span><span data-i18n="taskWord">Aufgabe</span> 6</h2>
+      <div class="task-question" data-i18n="task6Question">Eine Seite im Original ist 4 cm lang, die entsprechende Seite in der Kopie ist 20 cm lang. Wie groß ist der Streckungsfaktor k?</div>
+      <div class="answer-row">
+        <input type="text" id="input6" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(6, 5)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback6"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task6Result">Ergebnis: k = 5</div>
+          <ol>
+            <li data-i18n="task6Step1">Formel: k = neue Seite : alte Seite.</li>
+            <li data-i18n="task6Step2">Einsetzen: k = 20 : 4.</li>
+            <li data-i18n="task6Step3">Ergebnis: k = 5.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task6Hint">Den Streckungsfaktor findet man, indem man die neue Länge durch die alte Länge teilt.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">7</span><span data-i18n="taskWord">Aufgabe</span> 7</h2>
+      <div class="task-question" data-i18n="task7Question">Ein Foto wird ähnlich vergrößert mit dem Streckungsfaktor k = 3. Die Original-Breite ist 7 cm. Wie breit ist das vergrößerte Foto (in cm)?</div>
+      <div class="answer-row">
+        <input type="text" id="input7" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(7, 21)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback7"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task7Result">Ergebnis: 21 cm</div>
+          <ol>
+            <li data-i18n="task7Step1">Formel: neue Breite = alte Breite · k.</li>
+            <li data-i18n="task7Step2">Einsetzen: 7 · 3.</li>
+            <li data-i18n="task7Step3">Ergebnis: 21 cm.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task7Hint">Beim Vergrößern eines Fotos werden alle Längen (Breite und Höhe) mit demselben Faktor multipliziert.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="card task-card">
+      <h2><span class="num">8</span><span data-i18n="taskWord">Aufgabe</span> 8</h2>
+      <div class="task-question" data-i18n="task8Question">Zwei Dreiecke sind kongruent. Wie groß ist ihr Streckungsfaktor k zueinander?</div>
+      <div class="answer-row">
+        <input type="text" id="input8" data-i18n-placeholder="answerPlaceholder" placeholder="Deine Antwort" inputmode="text">
+        <button class="check" data-i18n="checkButton" onclick="check(8, 1)">Prüfen</button>
+      </div>
+      <div class="feedback" id="feedback8"></div>
+      <details><summary data-i18n="solutionSummary">Lösung anzeigen</summary>
+        <div class="solution">
+          <div class="solution-result" data-i18n="task8Result">Ergebnis: k = 1</div>
+          <ol>
+            <li data-i18n="task8Step1">Kongruente Figuren haben genau die gleiche Größe.</li>
+            <li data-i18n="task8Step2">Das bedeutet, keine Seite wird vergrößert oder verkleinert.</li>
+            <li data-i18n="task8Step3">Der Streckungsfaktor ist k = 1.</li>
+          </ol>
+          <div class="hint-box"><strong data-i18n="hintLabel">Typischer Fehler:</strong> <span data-i18n="task8Hint">Kongruenz ist ein Sonderfall von Ähnlichkeit, bei dem der Streckungsfaktor genau 1 beträgt.</span></div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <footer>
+    <svg class="footer-wave" viewBox="0 0 280 16" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+      <path d="M -5 8 C 40 1, 80 15, 140 8 S 240 1, 285 8" fill="none" stroke="#C41230" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M -5 8 C 40 15, 80 1, 140 8 S 240 15, 285 8" fill="none" stroke="#2478B5" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+    </svg>
+    <p id="footer-msg" data-i18n="footerMessage">Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!</p>
+  </footer>
+
+</div>
+
+<script>
+const TRANSLATIONS = {
+de: {
+  eyebrow: `Luisen-Gymnasium · Klasse 9`, titleLine1: `Ähnlichkeit`, titleAccent: `und Kongruenz`, backLink: `← Alle Themen`, h2Basics: `Grundlagen`,
+  basicsP1: `Zwei Figuren sind <strong>kongruent</strong> (deckungsgleich), wenn sie in Form und Größe genau übereinstimmen. Zwei Figuren sind <strong>ähnlich</strong>, wenn sie dieselbe Form haben, aber unterschiedlich groß sein können – alle Seiten sind dann mit demselben Streckungsfaktor k vergrößert oder verkleinert.`,
+  similarityAria: `Zwei ähnliche Dreiecke, das größere ist mit dem Streckungsfaktor k vergrößert`,
+  smallLabel: `Original`, largeLabel: `Vergrößert (Faktor k)`,
+  basicsExample1Label: `<strong>Beispiel Schritt für Schritt:</strong> Zwei Dreiecke sind ähnlich mit dem Streckungsfaktor k = 3. Eine Seite im Original ist 4 cm lang. Wie lang ist die entsprechende Seite im vergrößerten Dreieck?`,
+  basicsExample1Steps: `1. Formel: neue Seite = alte Seite · k<br>2. Einsetzen: 4 · 3<br>3. Ergebnis: 12 cm`,
+  basicsP2Area: `<strong>Wichtig:</strong> Bei ähnlichen Figuren skaliert die Fläche mit k² (Faktor zum Quadrat) und bei ähnlichen Körpern das Volumen mit k³.`,
+  basicsExample2Label: `<strong>Beispiel Schritt für Schritt:</strong> Zwei Figuren sind ähnlich mit k = 2. Die Fläche des Originals beträgt 10 cm². Wie groß ist die Fläche der vergrößerten Figur?`,
+  basicsExample2Steps: `1. Formel: neue Fläche = alte Fläche · k²<br>2. Einsetzen: 10 · 2²<br>3. Rechnen: 2² = 4, dann 10 · 4 = 40<br>4. Ergebnis: 40 cm²`,
+  merkeTitle: `Merke`, merkeBody: `Kongruent: gleiche Form UND gleiche Größe (k = 1).<br>Ähnlich: gleiche Form, aber unterschiedliche Größe (Streckungsfaktor k).<br>Längen skalieren mit k, Flächen mit k², Volumen mit k³.`,
+  taskWord: `Aufgabe`,
+  task1Question: `Zwei Dreiecke sind ähnlich mit dem Streckungsfaktor k = 3. Eine Seite im Original ist 4 cm lang. Wie lang ist die entsprechende Seite im vergrößerten Dreieck (in cm)?`, task2Question: `Zwei Figuren sind ähnlich mit dem Streckungsfaktor k = 4. Eine Seite im Original ist 5 cm lang. Wie lang ist die entsprechende Seite in der Kopie (in cm)?`, task3Question: `Zwei Figuren sind ähnlich mit k = 2. Die Fläche des Originals beträgt 10 cm². Wie groß ist die Fläche der vergrößerten Figur (in cm²)?`, task4Question: `Zwei Figuren sind ähnlich mit k = 3. Die Fläche des Originals beträgt 6 cm². Wie groß ist die Fläche der vergrößerten Figur (in cm²)?`, task5Question: `Zwei Körper sind ähnlich mit k = 2. Das Volumen des Originals beträgt 6 cm³. Wie groß ist das Volumen des vergrößerten Körpers (in cm³)?`, task6Question: `Eine Seite im Original ist 4 cm lang, die entsprechende Seite in der Kopie ist 20 cm lang. Wie groß ist der Streckungsfaktor k?`,
+  task7Question: `Ein Foto wird ähnlich vergrößert mit dem Streckungsfaktor k = 3. Die Original-Breite ist 7 cm. Wie breit ist das vergrößerte Foto (in cm)?`,
+  task8Question: `Zwei Dreiecke sind kongruent. Wie groß ist ihr Streckungsfaktor k zueinander?`,
+  answerPlaceholder: `Deine Antwort`, checkButton: `Prüfen`, solutionSummary: `Lösung anzeigen`,
+  task1Result: `Ergebnis: 12 cm`, task2Result: `Ergebnis: 20 cm`, task3Result: `Ergebnis: 40 cm²`, task4Result: `Ergebnis: 54 cm²`, task5Result: `Ergebnis: 48 cm³`, task6Result: `Ergebnis: k = 5`, task7Result: `Ergebnis: 21 cm`, task8Result: `Ergebnis: k = 1`,
+  task1Step1: `Formel: neue Seite = alte Seite · k.`, task1Step2: `Einsetzen: 4 · 3.`, task1Step3: `Ergebnis: 12 cm.`,
+  task1Hint: `Längen werden direkt mit k multipliziert, nicht mit k².`,
+  task2Step1: `Formel: neue Seite = alte Seite · k.`, task2Step2: `Einsetzen: 5 · 4.`, task2Step3: `Ergebnis: 20 cm.`,
+  task2Hint: `Der Streckungsfaktor gilt für ALLE Seiten der Figur gleichermaßen.`,
+  task3Step1: `Formel: neue Fläche = alte Fläche · k².`, task3Step2: `Einsetzen: 10 · 2².`, task3Step3: `Rechnen: 2² = 4, dann 10 · 4 = 40.`,
+  task3Hint: `Bei Flächen wird der Streckungsfaktor quadriert, nicht einfach nur multipliziert.`,
+  task4Step1: `Formel: neue Fläche = alte Fläche · k².`, task4Step2: `Einsetzen: 6 · 3².`, task4Step3: `Rechnen: 3² = 9, dann 6 · 9 = 54.`,
+  task4Hint: `3² bedeutet 3 · 3 = 9, nicht 3 · 2 = 6.`,
+  task5Step1: `Formel: neues Volumen = altes Volumen · k³.`, task5Step2: `Einsetzen: 6 · 2³.`, task5Step3: `Rechnen: 2³ = 8, dann 6 · 8 = 48.`,
+  task5Hint: `Beim Volumen wird der Streckungsfaktor mit 3 potenziert (k³), nicht quadriert.`,
+  task6Step1: `Formel: k = neue Seite : alte Seite.`, task6Step2: `Einsetzen: k = 20 : 4.`, task6Step3: `Ergebnis: k = 5.`,
+  task6Hint: `Den Streckungsfaktor findet man, indem man die neue Länge durch die alte Länge teilt.`,
+  task7Step1: `Formel: neue Breite = alte Breite · k.`, task7Step2: `Einsetzen: 7 · 3.`, task7Step3: `Ergebnis: 21 cm.`,
+  task7Hint: `Beim Vergrößern eines Fotos werden alle Längen (Breite und Höhe) mit demselben Faktor multipliziert.`,
+  task8Step1: `Kongruente Figuren haben genau die gleiche Größe.`, task8Step2: `Das bedeutet, keine Seite wird vergrößert oder verkleinert.`, task8Step3: `Der Streckungsfaktor ist k = 1.`,
+  task8Hint: `Kongruenz ist ein Sonderfall von Ähnlichkeit, bei dem der Streckungsfaktor genau 1 beträgt.`,
+  hintLabel: `Typischer Fehler:`, footerMessage: `Rechne in Ruhe und schau dir bei Bedarf die Lösung an. Du schaffst das!`,
+  fbEmpty: `Trag bitte eine Zahl ein, bevor du prüfst.`, fbCorrect: `Richtig! Gut gemacht!`, fbIncorrect: `Noch nicht ganz richtig. Schau dir die Lösung weiter unten an und versuch es dann nochmal.`
+},
+en: {
+  eyebrow: `Luisen-Gymnasium · Grade 9`, titleLine1: `Similarity`, titleAccent: `and Congruence`, backLink: `← All Topics`, h2Basics: `Basics`,
+  basicsP1: `Two figures are <strong>congruent</strong> if they match exactly in shape and size. Two figures are <strong>similar</strong> if they have the same shape but can be different sizes — all sides are then enlarged or reduced by the same scale factor k.`,
+  similarityAria: `Two similar triangles, the larger one is enlarged by the scale factor k`,
+  smallLabel: `Original`, largeLabel: `Enlarged (factor k)`,
+  basicsExample1Label: `<strong>Step-by-step example:</strong> Two triangles are similar with a scale factor of k = 3. A side in the original is 4 cm long. How long is the corresponding side in the enlarged triangle?`,
+  basicsExample1Steps: `1. Formula: new side = old side · k<br>2. Substitute: 4 · 3<br>3. Result: 12 cm`,
+  basicsP2Area: `<strong>Important:</strong> for similar figures, the area scales with k² (the factor squared), and for similar solids, the volume scales with k³.`,
+  basicsExample2Label: `<strong>Step-by-step example:</strong> Two figures are similar with k = 2. The area of the original is 10 cm². What's the area of the enlarged figure?`,
+  basicsExample2Steps: `1. Formula: new area = old area · k²<br>2. Substitute: 10 · 2²<br>3. Calculate: 2² = 4, then 10 · 4 = 40<br>4. Result: 40 cm²`,
+  merkeTitle: `Remember`, merkeBody: `Congruent: same shape AND same size (k = 1).<br>Similar: same shape, but different size (scale factor k).<br>Lengths scale with k, areas with k², volumes with k³.`,
+  taskWord: `Exercise`,
+  task1Question: `Two triangles are similar with a scale factor of k = 3. A side in the original is 4 cm long. How long is the corresponding side in the enlarged triangle (in cm)?`, task2Question: `Two figures are similar with a scale factor of k = 4. A side in the original is 5 cm long. How long is the corresponding side in the copy (in cm)?`, task3Question: `Two figures are similar with k = 2. The area of the original is 10 cm². What's the area of the enlarged figure (in cm²)?`, task4Question: `Two figures are similar with k = 3. The area of the original is 6 cm². What's the area of the enlarged figure (in cm²)?`, task5Question: `Two solids are similar with k = 2. The volume of the original is 6 cm³. What's the volume of the enlarged solid (in cm³)?`, task6Question: `A side in the original is 4 cm long, the corresponding side in the copy is 20 cm long. What's the scale factor k?`,
+  task7Question: `A photo is enlarged similarly with a scale factor of k = 3. The original width is 7 cm. How wide is the enlarged photo (in cm)?`,
+  task8Question: `Two triangles are congruent. What's their scale factor k relative to each other?`,
+  answerPlaceholder: `Your answer`, checkButton: `Check`, solutionSummary: `Show solution`,
+  task1Result: `Result: 12 cm`, task2Result: `Result: 20 cm`, task3Result: `Result: 40 cm²`, task4Result: `Result: 54 cm²`, task5Result: `Result: 48 cm³`, task6Result: `Result: k = 5`, task7Result: `Result: 21 cm`, task8Result: `Result: k = 1`,
+  task1Step1: `Formula: new side = old side · k.`, task1Step2: `Substitute: 4 · 3.`, task1Step3: `Result: 12 cm.`,
+  task1Hint: `Lengths are multiplied directly by k, not by k².`,
+  task2Step1: `Formula: new side = old side · k.`, task2Step2: `Substitute: 5 · 4.`, task2Step3: `Result: 20 cm.`,
+  task2Hint: `The scale factor applies equally to ALL sides of the figure.`,
+  task3Step1: `Formula: new area = old area · k².`, task3Step2: `Substitute: 10 · 2².`, task3Step3: `Calculate: 2² = 4, then 10 · 4 = 40.`,
+  task3Hint: `For areas, the scale factor is squared, not just multiplied.`,
+  task4Step1: `Formula: new area = old area · k².`, task4Step2: `Substitute: 6 · 3².`, task4Step3: `Calculate: 3² = 9, then 6 · 9 = 54.`,
+  task4Hint: `3² means 3 · 3 = 9, not 3 · 2 = 6.`,
+  task5Step1: `Formula: new volume = old volume · k³.`, task5Step2: `Substitute: 6 · 2³.`, task5Step3: `Calculate: 2³ = 8, then 6 · 8 = 48.`,
+  task5Hint: `For volumes, the scale factor is raised to the power of 3 (k³), not squared.`,
+  task6Step1: `Formula: k = new side : old side.`, task6Step2: `Substitute: k = 20 : 4.`, task6Step3: `Result: k = 5.`,
+  task6Hint: `You find the scale factor by dividing the new length by the old length.`,
+  task7Step1: `Formula: new width = old width · k.`, task7Step2: `Substitute: 7 · 3.`, task7Step3: `Result: 21 cm.`,
+  task7Hint: `When enlarging a photo, all lengths (width and height) are multiplied by the same factor.`,
+  task8Step1: `Congruent figures have exactly the same size.`, task8Step2: `That means no side is enlarged or reduced.`, task8Step3: `The scale factor is k = 1.`,
+  task8Hint: `Congruence is a special case of similarity where the scale factor is exactly 1.`,
+  hintLabel: `Common mistake:`, footerMessage: `Take your time and check the solution if you need to. You can do this!`,
+  fbEmpty: `Please enter a number before checking.`, fbCorrect: `Correct! Well done!`, fbIncorrect: `Not quite right yet. Check the solution below and try again.`
+},
+es: {
+  eyebrow: `Luisen-Gymnasium · 9.º curso`, titleLine1: `Semejanza`, titleAccent: `y congruencia`, backLink: `← Todos los temas`, h2Basics: `Fundamentos`,
+  basicsP1: `Dos figuras son <strong>congruentes</strong> si coinciden exactamente en forma y tamaño. Dos figuras son <strong>semejantes</strong> si tienen la misma forma pero pueden tener tamaños diferentes — todos los lados están entonces ampliados o reducidos por el mismo factor de escala k.`,
+  similarityAria: `Dos triángulos semejantes, el más grande está ampliado por el factor de escala k`,
+  smallLabel: `Original`, largeLabel: `Ampliado (factor k)`,
+  basicsExample1Label: `<strong>Ejemplo paso a paso:</strong> Dos triángulos son semejantes con un factor de escala k = 3. Un lado en el original mide 4 cm. ¿Cuánto mide el lado correspondiente en el triángulo ampliado?`,
+  basicsExample1Steps: `1. Fórmula: lado nuevo = lado antiguo · k<br>2. Sustituye: 4 · 3<br>3. Resultado: 12 cm`,
+  basicsP2Area: `<strong>Importante:</strong> en figuras semejantes, el área se escala con k² (el factor al cuadrado), y en cuerpos semejantes, el volumen se escala con k³.`,
+  basicsExample2Label: `<strong>Ejemplo paso a paso:</strong> Dos figuras son semejantes con k = 2. El área del original es 10 cm². ¿Cuál es el área de la figura ampliada?`,
+  basicsExample2Steps: `1. Fórmula: área nueva = área antigua · k²<br>2. Sustituye: 10 · 2²<br>3. Calcula: 2² = 4, luego 10 · 4 = 40<br>4. Resultado: 40 cm²`,
+  merkeTitle: `Recuerda`, merkeBody: `Congruentes: misma forma Y mismo tamaño (k = 1).<br>Semejantes: misma forma, pero distinto tamaño (factor de escala k).<br>Las longitudes escalan con k, las áreas con k², los volúmenes con k³.`,
+  taskWord: `Ejercicio`,
+  task1Question: `Dos triángulos son semejantes con un factor de escala k = 3. Un lado en el original mide 4 cm. ¿Cuánto mide el lado correspondiente en el triángulo ampliado (en cm)?`, task2Question: `Dos figuras son semejantes con un factor de escala k = 4. Un lado en el original mide 5 cm. ¿Cuánto mide el lado correspondiente en la copia (en cm)?`, task3Question: `Dos figuras son semejantes con k = 2. El área del original es 10 cm². ¿Cuál es el área de la figura ampliada (en cm²)?`, task4Question: `Dos figuras son semejantes con k = 3. El área del original es 6 cm². ¿Cuál es el área de la figura ampliada (en cm²)?`, task5Question: `Dos cuerpos son semejantes con k = 2. El volumen del original es 6 cm³. ¿Cuál es el volumen del cuerpo ampliado (en cm³)?`, task6Question: `Un lado en el original mide 4 cm, el lado correspondiente en la copia mide 20 cm. ¿Cuál es el factor de escala k?`,
+  task7Question: `Una foto se amplía de forma semejante con un factor de escala k = 3. El ancho original es 7 cm. ¿Cuál es el ancho de la foto ampliada (en cm)?`,
+  task8Question: `Dos triángulos son congruentes. ¿Cuál es su factor de escala k entre sí?`,
+  answerPlaceholder: `Tu respuesta`, checkButton: `Comprobar`, solutionSummary: `Ver solución`,
+  task1Result: `Resultado: 12 cm`, task2Result: `Resultado: 20 cm`, task3Result: `Resultado: 40 cm²`, task4Result: `Resultado: 54 cm²`, task5Result: `Resultado: 48 cm³`, task6Result: `Resultado: k = 5`, task7Result: `Resultado: 21 cm`, task8Result: `Resultado: k = 1`,
+  task1Step1: `Fórmula: lado nuevo = lado antiguo · k.`, task1Step2: `Sustituye: 4 · 3.`, task1Step3: `Resultado: 12 cm.`,
+  task1Hint: `Las longitudes se multiplican directamente por k, no por k².`,
+  task2Step1: `Fórmula: lado nuevo = lado antiguo · k.`, task2Step2: `Sustituye: 5 · 4.`, task2Step3: `Resultado: 20 cm.`,
+  task2Hint: `El factor de escala se aplica por igual a TODOS los lados de la figura.`,
+  task3Step1: `Fórmula: área nueva = área antigua · k².`, task3Step2: `Sustituye: 10 · 2².`, task3Step3: `Calcula: 2² = 4, luego 10 · 4 = 40.`,
+  task3Hint: `En las áreas, el factor de escala se eleva al cuadrado, no simplemente se multiplica.`,
+  task4Step1: `Fórmula: área nueva = área antigua · k².`, task4Step2: `Sustituye: 6 · 3².`, task4Step3: `Calcula: 3² = 9, luego 6 · 9 = 54.`,
+  task4Hint: `3² significa 3 · 3 = 9, no 3 · 2 = 6.`,
+  task5Step1: `Fórmula: volumen nuevo = volumen antiguo · k³.`, task5Step2: `Sustituye: 6 · 2³.`, task5Step3: `Calcula: 2³ = 8, luego 6 · 8 = 48.`,
+  task5Hint: `En los volúmenes, el factor de escala se eleva al cubo (k³), no al cuadrado.`,
+  task6Step1: `Fórmula: k = lado nuevo : lado antiguo.`, task6Step2: `Sustituye: k = 20 : 4.`, task6Step3: `Resultado: k = 5.`,
+  task6Hint: `El factor de escala se halla dividiendo la longitud nueva entre la antigua.`,
+  task7Step1: `Fórmula: ancho nuevo = ancho antiguo · k.`, task7Step2: `Sustituye: 7 · 3.`, task7Step3: `Resultado: 21 cm.`,
+  task7Hint: `Al ampliar una foto, todas las longitudes (ancho y alto) se multiplican por el mismo factor.`,
+  task8Step1: `Las figuras congruentes tienen exactamente el mismo tamaño.`, task8Step2: `Eso significa que ningún lado se amplía ni se reduce.`, task8Step3: `El factor de escala es k = 1.`,
+  task8Hint: `La congruencia es un caso especial de semejanza en el que el factor de escala es exactamente 1.`,
+  hintLabel: `Error típico:`, footerMessage: `Tómate tu tiempo y revisa la solución si la necesitas. ¡Tú puedes!`,
+  fbEmpty: `Introduce un número antes de comprobar.`, fbCorrect: `¡Correcto! ¡Muy bien!`, fbIncorrect: `Todavía no es correcto. Revisa la solución de abajo e inténtalo de nuevo.`
+},
+fr: {
+  eyebrow: `Luisen-Gymnasium · 3e`, titleLine1: `Similitude`, titleAccent: `et congruence`, backLink: `← Tous les thèmes`, h2Basics: `Les bases`,
+  basicsP1: `Deux figures sont <strong>congruentes</strong> si elles coïncident exactement en forme et en taille. Deux figures sont <strong>semblables</strong> si elles ont la même forme mais peuvent être de tailles différentes — tous les côtés sont alors agrandis ou réduits selon le même facteur d'échelle k.`,
+  similarityAria: `Deux triangles semblables, le plus grand est agrandi selon le facteur d'échelle k`,
+  smallLabel: `Original`, largeLabel: `Agrandi (facteur k)`,
+  basicsExample1Label: `<strong>Exemple étape par étape :</strong> Deux triangles sont semblables avec un facteur d'échelle k = 3. Un côté de l'original mesure 4 cm. Combien mesure le côté correspondant dans le triangle agrandi ?`,
+  basicsExample1Steps: `1. Formule : nouveau côté = ancien côté · k<br>2. Substitue : 4 · 3<br>3. Résultat : 12 cm`,
+  basicsP2Area: `<strong>Important :</strong> pour des figures semblables, l'aire change selon k² (le facteur au carré), et pour des solides semblables, le volume change selon k³.`,
+  basicsExample2Label: `<strong>Exemple étape par étape :</strong> Deux figures sont semblables avec k = 2. L'aire de l'original est 10 cm². Quelle est l'aire de la figure agrandie ?`,
+  basicsExample2Steps: `1. Formule : nouvelle aire = ancienne aire · k²<br>2. Substitue : 10 · 2²<br>3. Calcule : 2² = 4, puis 10 · 4 = 40<br>4. Résultat : 40 cm²`,
+  merkeTitle: `À retenir`, merkeBody: `Congruentes : même forme ET même taille (k = 1).<br>Semblables : même forme, mais taille différente (facteur d'échelle k).<br>Les longueurs changent selon k, les aires selon k², les volumes selon k³.`,
+  taskWord: `Exercice`,
+  task1Question: `Deux triangles sont semblables avec un facteur d'échelle k = 3. Un côté de l'original mesure 4 cm. Combien mesure le côté correspondant dans le triangle agrandi (en cm) ?`, task2Question: `Deux figures sont semblables avec un facteur d'échelle k = 4. Un côté de l'original mesure 5 cm. Combien mesure le côté correspondant dans la copie (en cm) ?`, task3Question: `Deux figures sont semblables avec k = 2. L'aire de l'original est 10 cm². Quelle est l'aire de la figure agrandie (en cm²) ?`, task4Question: `Deux figures sont semblables avec k = 3. L'aire de l'original est 6 cm². Quelle est l'aire de la figure agrandie (en cm²) ?`, task5Question: `Deux solides sont semblables avec k = 2. Le volume de l'original est 6 cm³. Quel est le volume du solide agrandi (en cm³) ?`, task6Question: `Un côté de l'original mesure 4 cm, le côté correspondant dans la copie mesure 20 cm. Quel est le facteur d'échelle k ?`,
+  task7Question: `Une photo est agrandie de façon semblable avec un facteur d'échelle k = 3. La largeur d'origine est 7 cm. Quelle est la largeur de la photo agrandie (en cm) ?`,
+  task8Question: `Deux triangles sont congruents. Quel est leur facteur d'échelle k l'un par rapport à l'autre ?`,
+  answerPlaceholder: `Ta réponse`, checkButton: `Vérifier`, solutionSummary: `Voir la solution`,
+  task1Result: `Résultat : 12 cm`, task2Result: `Résultat : 20 cm`, task3Result: `Résultat : 40 cm²`, task4Result: `Résultat : 54 cm²`, task5Result: `Résultat : 48 cm³`, task6Result: `Résultat : k = 5`, task7Result: `Résultat : 21 cm`, task8Result: `Résultat : k = 1`,
+  task1Step1: `Formule : nouveau côté = ancien côté · k.`, task1Step2: `Substitue : 4 · 3.`, task1Step3: `Résultat : 12 cm.`,
+  task1Hint: `Les longueurs sont multipliées directement par k, pas par k².`,
+  task2Step1: `Formule : nouveau côté = ancien côté · k.`, task2Step2: `Substitue : 5 · 4.`, task2Step3: `Résultat : 20 cm.`,
+  task2Hint: `Le facteur d'échelle s'applique de la même façon à TOUS les côtés de la figure.`,
+  task3Step1: `Formule : nouvelle aire = ancienne aire · k².`, task3Step2: `Substitue : 10 · 2².`, task3Step3: `Calcule : 2² = 4, puis 10 · 4 = 40.`,
+  task3Hint: `Pour les aires, le facteur d'échelle est mis au carré, pas simplement multiplié.`,
+  task4Step1: `Formule : nouvelle aire = ancienne aire · k².`, task4Step2: `Substitue : 6 · 3².`, task4Step3: `Calcule : 3² = 9, puis 6 · 9 = 54.`,
+  task4Hint: `3² signifie 3 · 3 = 9, pas 3 · 2 = 6.`,
+  task5Step1: `Formule : nouveau volume = ancien volume · k³.`, task5Step2: `Substitue : 6 · 2³.`, task5Step3: `Calcule : 2³ = 8, puis 6 · 8 = 48.`,
+  task5Hint: `Pour les volumes, le facteur d'échelle est mis au cube (k³), pas au carré.`,
+  task6Step1: `Formule : k = nouveau côté : ancien côté.`, task6Step2: `Substitue : k = 20 : 4.`, task6Step3: `Résultat : k = 5.`,
+  task6Hint: `On trouve le facteur d'échelle en divisant la nouvelle longueur par l'ancienne.`,
+  task7Step1: `Formule : nouvelle largeur = ancienne largeur · k.`, task7Step2: `Substitue : 7 · 3.`, task7Step3: `Résultat : 21 cm.`,
+  task7Hint: `En agrandissant une photo, toutes les longueurs (largeur et hauteur) sont multipliées par le même facteur.`,
+  task8Step1: `Les figures congruentes ont exactement la même taille.`, task8Step2: `Cela signifie qu'aucun côté n'est agrandi ni réduit.`, task8Step3: `Le facteur d'échelle est k = 1.`,
+  task8Hint: `La congruence est un cas particulier de similitude où le facteur d'échelle vaut exactement 1.`,
+  hintLabel: `Erreur fréquente :`, footerMessage: `Prends ton temps et regarde la solution si besoin. Tu vas y arriver !`,
+  fbEmpty: `Merci d'indiquer un nombre avant de vérifier.`, fbCorrect: `Correct ! Bien joué !`, fbIncorrect: `Pas encore tout à fait juste. Regarde la solution ci-dessous et réessaie.`
+},
+tr: {
+  eyebrow: `Luisen-Gymnasium · 9. Sınıf`, titleLine1: `Benzerlik`, titleAccent: `ve Eşlik`, backLink: `← Tüm Konular`, h2Basics: `Temel Bilgiler`,
+  basicsP1: `İki şekil, biçim ve büyüklük açısından tam olarak örtüşüyorsa <strong>eş (kongrüent)</strong> kabul edilir. İki şekil aynı biçime sahip ama farklı büyüklükte olabiliyorsa <strong>benzer</strong> kabul edilir — tüm kenarlar aynı büyütme faktörü k ile büyütülmüş ya da küçültülmüştür.`,
+  similarityAria: `İki benzer üçgen, büyük olanı k büyütme faktörüyle büyütülmüştür`,
+  smallLabel: `Orijinal`, largeLabel: `Büyütülmüş (faktör k)`,
+  basicsExample1Label: `<strong>Adım adım örnek:</strong> İki üçgen k = 3 büyütme faktörüyle benzerdir. Orijinaldeki bir kenar 4 cm'dir. Büyütülmüş üçgendeki karşılık gelen kenar kaç cm'dir?`,
+  basicsExample1Steps: `1. Formül: yeni kenar = eski kenar · k<br>2. Yerine koy: 4 · 3<br>3. Sonuç: 12 cm`,
+  basicsP2Area: `<strong>Önemli:</strong> benzer şekillerde alan k² (faktörün karesi) ile, benzer cisimlerde ise hacim k³ ile ölçeklenir.`,
+  basicsExample2Label: `<strong>Adım adım örnek:</strong> İki şekil k = 2 ile benzerdir. Orijinalin alanı 10 cm²'dir. Büyütülmüş şeklin alanı kaçtır?`,
+  basicsExample2Steps: `1. Formül: yeni alan = eski alan · k²<br>2. Yerine koy: 10 · 2²<br>3. Hesapla: 2² = 4, sonra 10 · 4 = 40<br>4. Sonuç: 40 cm²`,
+  merkeTitle: `Unutma`, merkeBody: `Eş (kongrüent): aynı biçim VE aynı büyüklük (k = 1).<br>Benzer: aynı biçim ama farklı büyüklük (büyütme faktörü k).<br>Uzunluklar k ile, alanlar k² ile, hacimler k³ ile ölçeklenir.`,
+  taskWord: `Alıştırma`,
+  task1Question: `İki üçgen k = 3 büyütme faktörüyle benzerdir. Orijinaldeki bir kenar 4 cm'dir. Büyütülmüş üçgendeki karşılık gelen kenar kaç cm'dir?`, task2Question: `İki şekil k = 4 büyütme faktörüyle benzerdir. Orijinaldeki bir kenar 5 cm'dir. Kopyadaki karşılık gelen kenar kaç cm'dir?`, task3Question: `İki şekil k = 2 ile benzerdir. Orijinalin alanı 10 cm²'dir. Büyütülmüş şeklin alanı kaç cm²'dir?`, task4Question: `İki şekil k = 3 ile benzerdir. Orijinalin alanı 6 cm²'dir. Büyütülmüş şeklin alanı kaç cm²'dir?`, task5Question: `İki cisim k = 2 ile benzerdir. Orijinalin hacmi 6 cm³'tür. Büyütülmüş cismin hacmi kaç cm³'tür?`, task6Question: `Orijinaldeki bir kenar 4 cm, kopyadaki karşılık gelen kenar 20 cm'dir. Büyütme faktörü k kaçtır?`,
+  task7Question: `Bir fotoğraf k = 3 büyütme faktörüyle benzer şekilde büyütülüyor. Orijinal genişlik 7 cm'dir. Büyütülmüş fotoğraf kaç cm genişliğindedir?`,
+  task8Question: `İki üçgen eştir (kongrüenttir). Birbirlerine göre büyütme faktörleri k kaçtır?`,
+  answerPlaceholder: `Cevabın`, checkButton: `Kontrol et`, solutionSummary: `Çözümü göster`,
+  task1Result: `Sonuç: 12 cm`, task2Result: `Sonuç: 20 cm`, task3Result: `Sonuç: 40 cm²`, task4Result: `Sonuç: 54 cm²`, task5Result: `Sonuç: 48 cm³`, task6Result: `Sonuç: k = 5`, task7Result: `Sonuç: 21 cm`, task8Result: `Sonuç: k = 1`,
+  task1Step1: `Formül: yeni kenar = eski kenar · k.`, task1Step2: `Yerine koy: 4 · 3.`, task1Step3: `Sonuç: 12 cm.`,
+  task1Hint: `Uzunluklar doğrudan k ile çarpılır, k² ile değil.`,
+  task2Step1: `Formül: yeni kenar = eski kenar · k.`, task2Step2: `Yerine koy: 5 · 4.`, task2Step3: `Sonuç: 20 cm.`,
+  task2Hint: `Büyütme faktörü şeklin TÜM kenarları için aynı şekilde geçerlidir.`,
+  task3Step1: `Formül: yeni alan = eski alan · k².`, task3Step2: `Yerine koy: 10 · 2².`, task3Step3: `Hesapla: 2² = 4, sonra 10 · 4 = 40.`,
+  task3Hint: `Alanlarda büyütme faktörünün karesi alınır, sadece çarpılmaz.`,
+  task4Step1: `Formül: yeni alan = eski alan · k².`, task4Step2: `Yerine koy: 6 · 3².`, task4Step3: `Hesapla: 3² = 9, sonra 6 · 9 = 54.`,
+  task4Hint: `3², 3 · 3 = 9 demektir, 3 · 2 = 6 değil.`,
+  task5Step1: `Formül: yeni hacim = eski hacim · k³.`, task5Step2: `Yerine koy: 6 · 2³.`, task5Step3: `Hesapla: 2³ = 8, sonra 6 · 8 = 48.`,
+  task5Hint: `Hacimde büyütme faktörünün küpü alınır (k³), karesi değil.`,
+  task6Step1: `Formül: k = yeni kenar : eski kenar.`, task6Step2: `Yerine koy: k = 20 : 4.`, task6Step3: `Sonuç: k = 5.`,
+  task6Hint: `Büyütme faktörü, yeni uzunluğun eski uzunluğa bölünmesiyle bulunur.`,
+  task7Step1: `Formül: yeni genişlik = eski genişlik · k.`, task7Step2: `Yerine koy: 7 · 3.`, task7Step3: `Sonuç: 21 cm.`,
+  task7Hint: `Bir fotoğrafı büyütürken tüm uzunluklar (genişlik ve yükseklik) aynı faktörle çarpılır.`,
+  task8Step1: `Eş şekiller tam olarak aynı büyüklüktedir.`, task8Step2: `Bu, hiçbir kenarın büyütülmediği veya küçültülmediği anlamına gelir.`, task8Step3: `Büyütme faktörü k = 1'dir.`,
+  task8Hint: `Eşlik, büyütme faktörünün tam olarak 1 olduğu benzerliğin özel bir durumudur.`,
+  hintLabel: `Sık yapılan hata:`, footerMessage: `Sakin sakin hesapla, gerekirse çözüme bak. Bunu başarabilirsin!`,
+  fbEmpty: `Kontrol etmeden önce lütfen bir sayı gir.`, fbCorrect: `Doğru! Aferin!`, fbIncorrect: `Henüz tam doğru değil. Aşağıdaki çözüme bak ve tekrar dene.`
+},
+ru: {
+  eyebrow: `Luisen-Gymnasium · 9 класс`, titleLine1: `Подобие`, titleAccent: `и конгруэнтность`, backLink: `← Все темы`, h2Basics: `Основы`,
+  basicsP1: `Две фигуры <strong>конгруэнтны</strong>, если они полностью совпадают по форме и размеру. Две фигуры <strong>подобны</strong>, если у них одинаковая форма, но они могут быть разного размера — все стороны увеличены или уменьшены с одним и тем же коэффициентом подобия k.`,
+  similarityAria: `Два подобных треугольника, больший увеличен с коэффициентом подобия k`,
+  smallLabel: `Оригинал`, largeLabel: `Увеличено (коэффициент k)`,
+  basicsExample1Label: `<strong>Пример по шагам:</strong> Два треугольника подобны с коэффициентом k = 3. Сторона в оригинале равна 4 см. Чему равна соответствующая сторона в увеличенном треугольнике?`,
+  basicsExample1Steps: `1. Формула: новая сторона = старая сторона · k<br>2. Подставить: 4 · 3<br>3. Результат: 12 см`,
+  basicsP2Area: `<strong>Важно:</strong> у подобных фигур площадь масштабируется как k² (коэффициент в квадрате), а у подобных тел объём масштабируется как k³.`,
+  basicsExample2Label: `<strong>Пример по шагам:</strong> Две фигуры подобны с k = 2. Площадь оригинала равна 10 см². Чему равна площадь увеличенной фигуры?`,
+  basicsExample2Steps: `1. Формула: новая площадь = старая площадь · k²<br>2. Подставить: 10 · 2²<br>3. Вычислить: 2² = 4, затем 10 · 4 = 40<br>4. Результат: 40 см²`,
+  merkeTitle: `Запомни`, merkeBody: `Конгруэнтны: одинаковая форма И одинаковый размер (k = 1).<br>Подобны: одинаковая форма, но разный размер (коэффициент подобия k).<br>Длины масштабируются как k, площади как k², объёмы как k³.`,
+  taskWord: `Задание`,
+  task1Question: `Два треугольника подобны с коэффициентом k = 3. Сторона в оригинале равна 4 см. Чему равна соответствующая сторона в увеличенном треугольнике (в см)?`, task2Question: `Две фигуры подобны с коэффициентом k = 4. Сторона в оригинале равна 5 см. Чему равна соответствующая сторона в копии (в см)?`, task3Question: `Две фигуры подобны с k = 2. Площадь оригинала равна 10 см². Чему равна площадь увеличенной фигуры (в см²)?`, task4Question: `Две фигуры подобны с k = 3. Площадь оригинала равна 6 см². Чему равна площадь увеличенной фигуры (в см²)?`, task5Question: `Два тела подобны с k = 2. Объём оригинала равен 6 см³. Чему равен объём увеличенного тела (в см³)?`, task6Question: `Сторона в оригинале равна 4 см, соответствующая сторона в копии равна 20 см. Чему равен коэффициент подобия k?`,
+  task7Question: `Фотография увеличивается подобно с коэффициентом k = 3. Исходная ширина 7 см. Какова ширина увеличенной фотографии (в см)?`,
+  task8Question: `Два треугольника конгруэнтны. Чему равен их коэффициент подобия k друг относительно друга?`,
+  answerPlaceholder: `Твой ответ`, checkButton: `Проверить`, solutionSummary: `Показать решение`,
+  task1Result: `Результат: 12 см`, task2Result: `Результат: 20 см`, task3Result: `Результат: 40 см²`, task4Result: `Результат: 54 см²`, task5Result: `Результат: 48 см³`, task6Result: `Результат: k = 5`, task7Result: `Результат: 21 см`, task8Result: `Результат: k = 1`,
+  task1Step1: `Формула: новая сторона = старая сторона · k.`, task1Step2: `Подставить: 4 · 3.`, task1Step3: `Результат: 12 см.`,
+  task1Hint: `Длины умножают прямо на k, а не на k².`,
+  task2Step1: `Формула: новая сторона = старая сторона · k.`, task2Step2: `Подставить: 5 · 4.`, task2Step3: `Результат: 20 см.`,
+  task2Hint: `Коэффициент подобия одинаково применяется ко ВСЕМ сторонам фигуры.`,
+  task3Step1: `Формула: новая площадь = старая площадь · k².`, task3Step2: `Подставить: 10 · 2².`, task3Step3: `Вычислить: 2² = 4, затем 10 · 4 = 40.`,
+  task3Hint: `Для площадей коэффициент подобия возводят в квадрат, а не просто умножают.`,
+  task4Step1: `Формула: новая площадь = старая площадь · k².`, task4Step2: `Подставить: 6 · 3².`, task4Step3: `Вычислить: 3² = 9, затем 6 · 9 = 54.`,
+  task4Hint: `3² означает 3 · 3 = 9, а не 3 · 2 = 6.`,
+  task5Step1: `Формула: новый объём = старый объём · k³.`, task5Step2: `Подставить: 6 · 2³.`, task5Step3: `Вычислить: 2³ = 8, затем 6 · 8 = 48.`,
+  task5Hint: `Для объёмов коэффициент подобия возводят в куб (k³), а не в квадрат.`,
+  task6Step1: `Формула: k = новая сторона : старая сторона.`, task6Step2: `Подставить: k = 20 : 4.`, task6Step3: `Результат: k = 5.`,
+  task6Hint: `Коэффициент подобия находят, деля новую длину на старую.`,
+  task7Step1: `Формула: новая ширина = старая ширина · k.`, task7Step2: `Подставить: 7 · 3.`, task7Step3: `Результат: 21 см.`,
+  task7Hint: `При увеличении фотографии все длины (ширина и высота) умножают на один и тот же коэффициент.`,
+  task8Step1: `Конгруэнтные фигуры имеют абсолютно одинаковый размер.`, task8Step2: `Это значит, что ни одна сторона не увеличивается и не уменьшается.`, task8Step3: `Коэффициент подобия k = 1.`,
+  task8Hint: `Конгруэнтность — это частный случай подобия, при котором коэффициент подобия равен ровно 1.`,
+  hintLabel: `Типичная ошибка:`, footerMessage: `Считай спокойно и при необходимости смотри решение. У тебя получится!`,
+  fbEmpty: `Пожалуйста, введи число перед проверкой.`, fbCorrect: `Правильно! Отлично!`, fbIncorrect: `Пока не совсем верно. Посмотри решение ниже и попробуй ещё раз.`
+},
+ar: {
+  eyebrow: `مدرسة لويزن الثانوية · الصف التاسع`, titleLine1: `التشابه`, titleAccent: `والتطابق`, backLink: `← جميع المواضيع`, h2Basics: `الأساسيات`,
+  basicsP1: `يكون شكلان <strong>متطابقين</strong> إذا تطابقا تمامًا في الشكل والحجم. يكون شكلان <strong>متشابهين</strong> إذا كان لهما نفس الشكل لكن قد يكونان بحجمين مختلفين — تكون جميع الأضلاع حينها مكبّرة أو مصغّرة بنفس معامل التكبير k.`,
+  similarityAria: `مثلثان متشابهان، الأكبر مكبّر بمعامل التكبير k`,
+  smallLabel: `الأصل`, largeLabel: `مكبّر (المعامل k)`,
+  basicsExample1Label: `<strong>مثال خطوة بخطوة:</strong> مثلثان متشابهان بمعامل تكبير k = 3. طول ضلع في الأصل 4 سم. كم يبلغ طول الضلع المقابل في المثلث المكبّر؟`,
+  basicsExample1Steps: `1. المعادلة: الضلع الجديد = الضلع القديم × k<br>2. عوّض: 4 · 3<br>3. النتيجة: 12 سم`,
+  basicsP2Area: `<strong>مهم:</strong> في الأشكال المتشابهة، تتغير المساحة بمقدار k² (المعامل تربيع)، وفي الأجسام المتشابهة يتغير الحجم بمقدار k³.`,
+  basicsExample2Label: `<strong>مثال خطوة بخطوة:</strong> شكلان متشابهان بـ k = 2. مساحة الأصل 10 سم². كم تبلغ مساحة الشكل المكبّر؟`,
+  basicsExample2Steps: `1. المعادلة: المساحة الجديدة = المساحة القديمة × k²<br>2. عوّض: 10 · 2²<br>3. احسب: 2² = 4، ثم 10 · 4 = 40<br>4. النتيجة: 40 سم²`,
+  merkeTitle: `تذكّر`, merkeBody: `التطابق: نفس الشكل ونفس الحجم (k = 1).<br>التشابه: نفس الشكل لكن حجم مختلف (معامل التكبير k).<br>الأطوال تتغير بمقدار k، والمساحات بمقدار k²، والأحجام بمقدار k³.`,
+  taskWord: `تمرين`,
+  task1Question: `مثلثان متشابهان بمعامل تكبير k = 3. طول ضلع في الأصل 4 سم. كم يبلغ طول الضلع المقابل في المثلث المكبّر (بالسم)؟`, task2Question: `شكلان متشابهان بمعامل تكبير k = 4. طول ضلع في الأصل 5 سم. كم يبلغ طول الضلع المقابل في النسخة (بالسم)؟`, task3Question: `شكلان متشابهان بـ k = 2. مساحة الأصل 10 سم². كم تبلغ مساحة الشكل المكبّر (بالسم²)؟`, task4Question: `شكلان متشابهان بـ k = 3. مساحة الأصل 6 سم². كم تبلغ مساحة الشكل المكبّر (بالسم²)؟`, task5Question: `جسمان متشابهان بـ k = 2. حجم الأصل 6 سم³. كم يبلغ حجم الجسم المكبّر (بالسم³)؟`, task6Question: `طول ضلع في الأصل 4 سم، والضلع المقابل في النسخة 20 سم. كم يبلغ معامل التكبير k؟`,
+  task7Question: `تُكبَّر صورة بشكل متشابه بمعامل تكبير k = 3. العرض الأصلي 7 سم. كم يبلغ عرض الصورة المكبّرة (بالسم)؟`,
+  task8Question: `مثلثان متطابقان. كم يبلغ معامل التكبير k بينهما؟`,
+  answerPlaceholder: `إجابتك`, checkButton: `تحقق`, solutionSummary: `عرض الحل`,
+  task1Result: `النتيجة: 12 سم`, task2Result: `النتيجة: 20 سم`, task3Result: `النتيجة: 40 سم²`, task4Result: `النتيجة: 54 سم²`, task5Result: `النتيجة: 48 سم³`, task6Result: `النتيجة: k = 5`, task7Result: `النتيجة: 21 سم`, task8Result: `النتيجة: k = 1`,
+  task1Step1: `المعادلة: الضلع الجديد = الضلع القديم × k.`, task1Step2: `عوّض: 4 · 3.`, task1Step3: `النتيجة: 12 سم.`,
+  task1Hint: `تُضرَب الأطوال مباشرة في k، وليس في k².`,
+  task2Step1: `المعادلة: الضلع الجديد = الضلع القديم × k.`, task2Step2: `عوّض: 5 · 4.`, task2Step3: `النتيجة: 20 سم.`,
+  task2Hint: `ينطبق معامل التكبير بالتساوي على جميع أضلاع الشكل.`,
+  task3Step1: `المعادلة: المساحة الجديدة = المساحة القديمة × k².`, task3Step2: `عوّض: 10 · 2².`, task3Step3: `احسب: 2² = 4، ثم 10 · 4 = 40.`,
+  task3Hint: `في المساحات، يُربَّع معامل التكبير، ولا يُضرَب فقط.`,
+  task4Step1: `المعادلة: المساحة الجديدة = المساحة القديمة × k².`, task4Step2: `عوّض: 6 · 3².`, task4Step3: `احسب: 3² = 9، ثم 6 · 9 = 54.`,
+  task4Hint: `3² تعني 3 · 3 = 9، وليس 3 · 2 = 6.`,
+  task5Step1: `المعادلة: الحجم الجديد = الحجم القديم × k³.`, task5Step2: `عوّض: 6 · 2³.`, task5Step3: `احسب: 2³ = 8، ثم 6 · 8 = 48.`,
+  task5Hint: `في الأحجام، يُرفَع معامل التكبير للأس 3 (k³)، وليس للتربيع.`,
+  task6Step1: `المعادلة: k = الضلع الجديد ÷ الضلع القديم.`, task6Step2: `عوّض: k = 20 ÷ 4.`, task6Step3: `النتيجة: k = 5.`,
+  task6Hint: `يُوجَد معامل التكبير بقسمة الطول الجديد على الطول القديم.`,
+  task7Step1: `المعادلة: العرض الجديد = العرض القديم × k.`, task7Step2: `عوّض: 7 · 3.`, task7Step3: `النتيجة: 21 سم.`,
+  task7Hint: `عند تكبير صورة، تُضرَب جميع الأطوال (العرض والارتفاع) في نفس المعامل.`,
+  task8Step1: `الأشكال المتطابقة لها نفس الحجم تمامًا.`, task8Step2: `هذا يعني أن أي ضلع لا يُكبَّر ولا يُصغَّر.`, task8Step3: `معامل التكبير هو k = 1.`,
+  task8Hint: `التطابق حالة خاصة من التشابه حيث يكون معامل التكبير 1 بالضبط.`,
+  hintLabel: `خطأ شائع:`, footerMessage: `احسب بهدوء وراجع الحل إذا احتجت إليه. أنت قادر على ذلك!`,
+  fbEmpty: `الرجاء إدخال رقم قبل التحقق.`, fbCorrect: `صحيح! أحسنت!`, fbIncorrect: `ليست صحيحة تمامًا بعد. راجع الحل أدناه وحاول مرة أخرى.`
+},
+zh: {
+  eyebrow: `路易森文理中学 · 九年级`, titleLine1: `相似`, titleAccent: `与全等`, backLink: `← 所有主题`, h2Basics: `基础知识`,
+  basicsP1: `如果两个图形的形状和大小完全一致，则它们是<strong>全等</strong>的。如果两个图形形状相同但大小可以不同，则它们是<strong>相似</strong>的——所有边都按相同的比例系数 k 放大或缩小。`,
+  similarityAria: `两个相似三角形，较大的那个按比例系数k放大`,
+  smallLabel: `原图`, largeLabel: `放大后（系数k）`,
+  basicsExample1Label: `<strong>分步示例：</strong> 两个三角形相似，比例系数 k = 3。原图中一条边长 4 厘米。放大后三角形中对应的边长是多少？`,
+  basicsExample1Steps: `1. 公式：新边长 = 旧边长 · k<br>2. 代入：4 · 3<br>3. 结果：12 厘米`,
+  basicsP2Area: `<strong>重要：</strong>对于相似图形，面积按 k²（系数的平方）缩放；对于相似立体图形，体积按 k³ 缩放。`,
+  basicsExample2Label: `<strong>分步示例：</strong> 两个图形相似，k = 2。原图面积为 10 平方厘米。放大后图形的面积是多少？`,
+  basicsExample2Steps: `1. 公式：新面积 = 旧面积 · k²<br>2. 代入：10 · 2²<br>3. 计算：2² = 4，然后 10 · 4 = 40<br>4. 结果：40 平方厘米`,
+  merkeTitle: `记住`, merkeBody: `全等：形状相同且大小相同（k = 1）。<br>相似：形状相同但大小不同（比例系数 k）。<br>长度按 k 缩放，面积按 k² 缩放，体积按 k³ 缩放。`,
+  taskWord: `练习`,
+  task1Question: `两个三角形相似，比例系数 k = 3。原图中一条边长 4 厘米。放大后三角形中对应的边长是多少厘米？`, task2Question: `两个图形相似，比例系数 k = 4。原图中一条边长 5 厘米。副本中对应的边长是多少厘米？`, task3Question: `两个图形相似，k = 2。原图面积为 10 平方厘米。放大后图形的面积是多少平方厘米？`, task4Question: `两个图形相似，k = 3。原图面积为 6 平方厘米。放大后图形的面积是多少平方厘米？`, task5Question: `两个立体图形相似，k = 2。原图体积为 6 立方厘米。放大后立体图形的体积是多少立方厘米？`, task6Question: `原图中一条边长 4 厘米，副本中对应的边长为 20 厘米。比例系数 k 是多少？`,
+  task7Question: `一张照片按比例系数 k = 3 相似放大。原来的宽度是 7 厘米。放大后照片的宽度是多少厘米？`,
+  task8Question: `两个三角形全等。它们之间的比例系数 k 是多少？`,
+  answerPlaceholder: `你的答案`, checkButton: `检查`, solutionSummary: `显示答案`,
+  task1Result: `结果：12 厘米`, task2Result: `结果：20 厘米`, task3Result: `结果：40 平方厘米`, task4Result: `结果：54 平方厘米`, task5Result: `结果：48 立方厘米`, task6Result: `结果：k = 5`, task7Result: `结果：21 厘米`, task8Result: `结果：k = 1`,
+  task1Step1: `公式：新边长 = 旧边长 · k。`, task1Step2: `代入：4 · 3。`, task1Step3: `结果：12 厘米。`,
+  task1Hint: `长度直接乘以 k，而不是 k²。`,
+  task2Step1: `公式：新边长 = 旧边长 · k。`, task2Step2: `代入：5 · 4。`, task2Step3: `结果：20 厘米。`,
+  task2Hint: `比例系数同样适用于图形的所有边。`,
+  task3Step1: `公式：新面积 = 旧面积 · k²。`, task3Step2: `代入：10 · 2²。`, task3Step3: `计算：2² = 4，然后 10 · 4 = 40。`,
+  task3Hint: `对于面积，比例系数要平方，而不是直接相乘。`,
+  task4Step1: `公式：新面积 = 旧面积 · k²。`, task4Step2: `代入：6 · 3²。`, task4Step3: `计算：3² = 9，然后 6 · 9 = 54。`,
+  task4Hint: `3² 表示 3 · 3 = 9，不是 3 · 2 = 6。`,
+  task5Step1: `公式：新体积 = 旧体积 · k³。`, task5Step2: `代入：6 · 2³。`, task5Step3: `计算：2³ = 8，然后 6 · 8 = 48。`,
+  task5Hint: `对于体积，比例系数要立方（k³），而不是平方。`,
+  task6Step1: `公式：k = 新边长 ÷ 旧边长。`, task6Step2: `代入：k = 20 ÷ 4。`, task6Step3: `结果：k = 5。`,
+  task6Hint: `用新长度除以旧长度就能求出比例系数。`,
+  task7Step1: `公式：新宽度 = 旧宽度 · k。`, task7Step2: `代入：7 · 3。`, task7Step3: `结果：21 厘米。`,
+  task7Hint: `放大照片时，所有长度（宽和高）都乘以相同的系数。`,
+  task8Step1: `全等图形的大小完全相同。`, task8Step2: `这意味着没有任何一条边被放大或缩小。`, task8Step3: `比例系数是 k = 1。`,
+  task8Hint: `全等是相似的一种特殊情况，此时比例系数正好是 1。`,
+  hintLabel: `常见错误：`, footerMessage: `慢慢算，需要的话看看答案。你能做到！`,
+  fbEmpty: `请先输入一个数字再检查。`, fbCorrect: `正确！做得好！`, fbIncorrect: `还不完全正确。看看下面的答案，再试一次。`
+}
+};
+
+var currentLang = 'de';
+
+function setLanguage(lang){
+  var dict = TRANSLATIONS[lang] || TRANSLATIONS.de;
+  currentLang = TRANSLATIONS[lang] ? lang : 'de';
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = (currentLang === 'ar') ? 'rtl' : 'ltr';
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var key = el.getAttribute('data-i18n');
+    if(dict[key] !== undefined){ el.innerHTML = dict[key]; }
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-placeholder');
+    if(dict[key] !== undefined){ el.setAttribute('placeholder', dict[key]); }
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-aria');
+    if(dict[key] !== undefined){ el.setAttribute('aria-label', dict[key]); }
+  });
+  try{ localStorage.setItem('mathecoach_lang', currentLang); }catch(e){}
+  var sel = document.getElementById('langSelect');
+  if(sel) sel.value = currentLang;
+}
+
+function check(id, correct){
+  var dict = TRANSLATIONS[currentLang] || TRANSLATIONS.de;
+  var input = document.getElementById('input' + id);
+  var feedback = document.getElementById('feedback' + id);
+  var raw = input.value.trim();
+  var match = raw.match(/-?\d+/);
+  feedback.classList.remove('show', 'correct', 'incorrect');
+  if(!match){
+    feedback.textContent = dict.fbEmpty;
+    feedback.classList.add('show', 'incorrect');
+    return;
+  }
+  var value = parseInt(match[0], 10);
+  if(value === correct){
+    feedback.textContent = dict.fbCorrect;
+    feedback.classList.add('show', 'correct');
+  } else {
+    feedback.textContent = dict.fbIncorrect;
+    feedback.classList.add('show', 'incorrect');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var saved = 'de';
+  try{ saved = localStorage.getItem('mathecoach_lang') || 'de'; }catch(e){}
+  setLanguage(saved);
+});
+</script>
+
+</body>
+</html>
